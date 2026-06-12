@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { getPersonalRecords } from '../../lib/swimRecords.js';
-import { evaluateAllMedals, buildMedalContext } from '../../lib/swimMedals.js';
+import { evaluateAllMedals, buildMedalContext, getNewlyEarnedMedals } from '../../lib/swimMedals.js';
 
 const session = (id, date, metrics) => ({ id, date, metrics });
 
@@ -92,5 +92,20 @@ describe('buildMedalContext', () => {
       session('2', '2025-07-15', { activeKcal: 5000 }),
     ]);
     assert.ok(ctx.monthsWith10kCal.includes('2025-07'));
+  });
+});
+
+describe('getNewlyEarnedMedals', () => {
+  it('returns medals earned only after the new session', () => {
+    const before = [];
+    const after = [session('1', '2025-06-10', { distanceM: 500 })];
+    const newly = getNewlyEarnedMedals(before, after);
+    assert.equal(newly.length, 1);
+    assert.equal(newly[0].id, 'first_splash');
+  });
+
+  it('returns empty when no new medals', () => {
+    const sessions = [session('1', '2025-06-10', { distanceM: 500 })];
+    assert.deepEqual(getNewlyEarnedMedals(sessions, sessions), []);
   });
 });

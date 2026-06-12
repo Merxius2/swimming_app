@@ -14,8 +14,10 @@ import { useSwim } from '../../context/SwimContext';
 import { buildPersonalFeedback } from '../../lib/swimAnalysis';
 import { fetchAiCoachFeedback } from '../../lib/aiCoach';
 import { findDuplicateSession } from '../../lib/swimDuplicates';
+import { getNewlyEarnedMedals } from '../../lib/swimMedals';
 import { formatDateShort } from '../../lib/swimFormatters';
 import SessionFeedback from '../swim/SessionFeedback';
+import MedalCelebrationModal from '../swim/MedalCelebrationModal';
 import ConfirmModal from '../ConfirmModal';
 
 const emptyForm = () => ({
@@ -94,6 +96,8 @@ export default function UploadFlow() {
   const [savedFeedback, setSavedFeedback] = useState(null);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [error, setError] = useState('');
+  const [newMedals, setNewMedals] = useState([]);
+  const [showMedalCelebration, setShowMedalCelebration] = useState(false);
 
   const updateField = (key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -160,8 +164,11 @@ export default function UploadFlow() {
 
     const session = addSession({ date: form.date, metrics });
     const allWithNew = [...sessions, session];
+    const earnedNow = getNewlyEarnedMedals(sessions, allWithNew);
     const localFeedback = buildPersonalFeedback(session, allWithNew, t, profile);
 
+    setNewMedals(earnedNow);
+    setShowMedalCelebration(earnedNow.length > 0);
     setStep('done');
     setSavedFeedback({ ...localFeedback, aiEnhanced: false });
     setFeedbackLoading(Boolean(profile.aiApiKey?.trim()));
@@ -202,6 +209,8 @@ export default function UploadFlow() {
     setSavedFeedback(null);
     setFeedbackLoading(false);
     setError('');
+    setNewMedals([]);
+    setShowMedalCelebration(false);
     if (fileRef.current) fileRef.current.value = '';
   };
 
@@ -214,6 +223,12 @@ export default function UploadFlow() {
   if (step === 'done') {
     return (
       <div className="space-y-6">
+        {showMedalCelebration && newMedals.length > 0 && (
+          <MedalCelebrationModal
+            medals={newMedals}
+            onClose={() => setShowMedalCelebration(false)}
+          />
+        )}
         <SessionFeedback
           insights={savedFeedback?.insights || []}
           badges={savedFeedback?.badges || []}
