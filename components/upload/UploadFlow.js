@@ -11,8 +11,10 @@ import {
 } from '../../lib/swimFormatters';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
-import { analyzeSession, buildPersonalFeedback } from '../../lib/swimAnalysis';
+import { buildPersonalFeedback } from '../../lib/swimAnalysis';
 import { fetchAiCoachFeedback } from '../../lib/aiCoach';
+import { findDuplicateSession } from '../../lib/swimDuplicates';
+import { formatDateShort } from '../../lib/swimFormatters';
 import SessionFeedback from '../swim/SessionFeedback';
 import ConfirmModal from '../ConfirmModal';
 
@@ -144,6 +146,9 @@ export default function UploadFlow() {
       return;
     }
     const metrics = formToMetrics(form);
+    const duplicate = findDuplicateSession(sessions, { date: form.date, metrics });
+    if (duplicate) return;
+
     const session = addSession({ date: form.date, metrics });
     const allWithNew = [...sessions, session];
     const localFeedback = buildPersonalFeedback(session, allWithNew, t, profile);
@@ -193,6 +198,10 @@ export default function UploadFlow() {
 
   const inputClass = 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm';
 
+  const duplicateMatch = step === 'review' && form.date
+    ? findDuplicateSession(sessions, { date: form.date, metrics: formToMetrics(form) })
+    : null;
+
   if (step === 'done') {
     return (
       <div className="space-y-6">
@@ -227,6 +236,19 @@ export default function UploadFlow() {
               <p className="text-xs text-ink-faint mt-1">{t('upload.confidence')}: {confidence}%</p>
             )}
             {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+            {duplicateMatch && (
+              <div
+                role="alert"
+                className="mt-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-700 px-4 py-3"
+              >
+                <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                  {t('upload.duplicateTitle')}
+                </p>
+                <p className="text-sm text-amber-800 dark:text-amber-300 mt-1">
+                  {t('upload.duplicateMessage').replace('{date}', formatDateShort(duplicateMatch.date))}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -296,7 +318,7 @@ export default function UploadFlow() {
             <button type="button" onClick={reset} className="flex-1 py-3 rounded-lg border font-medium">
               {t('upload.cancel')}
             </button>
-            <button type="button" onClick={handleSave} className="flex-1 py-3 rounded-lg bg-brand text-white font-semibold">
+            <button type="button" onClick={handleSave} disabled={!!duplicateMatch} className="flex-1 py-3 rounded-lg bg-brand text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
               {t('upload.saveSession')}
             </button>
           </div>

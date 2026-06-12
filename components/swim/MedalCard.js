@@ -1,6 +1,6 @@
 import { Lock } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
-import { formatDistance, formatPace } from '../../lib/swimFormatters';
+import { formatDistance, formatPace, formatDuration } from '../../lib/swimFormatters';
 
 const TIER_STYLES = {
   bronze: 'from-amber-700 to-amber-500',
@@ -21,6 +21,8 @@ const formatValue = (kind, value, t) => {
       return String(value);
     case 'distance':
       return formatDistance(value);
+    case 'duration':
+      return formatDuration(value);
     case 'kcal':
       return `${value.toLocaleString()} ${t('common.kcal')}`;
     case 'pace':

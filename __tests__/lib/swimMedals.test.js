@@ -66,6 +66,15 @@ describe('evaluateAllMedals', () => {
     assert.equal(tenK.progress.target, 10000);
   });
 
+  it('awards hat trick for three consecutive days', () => {
+    const medals = evaluateAllMedals([
+      session('1', '2025-06-10', { distanceM: 1000 }),
+      session('2', '2025-06-11', { distanceM: 1000 }),
+      session('3', '2025-06-12', { distanceM: 1000 }),
+    ]);
+    assert.equal(medals.find((m) => m.id === 'hat_trick').earned, true);
+  });
+
   it('omits progress for earned medals', () => {
     const medals = evaluateAllMedals([
       session('1', '2025-06-10', { distanceM: 500 }),

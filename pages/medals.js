@@ -6,7 +6,7 @@ import { useSwim } from '../context/SwimContext';
 import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
 import Link from 'next/link';
 
-const CATEGORIES = ['milestone', 'distance', 'weekly', 'monthly', 'seasonal'];
+const CATEGORIES = ['milestone', 'distance', 'weekly', 'streak', 'monthly', 'seasonal', 'special'];
 
 export default function MedalsPage() {
   const { t } = useLanguage();
