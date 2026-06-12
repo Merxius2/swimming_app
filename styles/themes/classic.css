@@ -1,0 +1,421 @@
+/* ============================================================
+   Classic theme — matte PlayStation gray, four-color accents,
+   electric-blue light bar, flat recessed panels.
+   ============================================================ */
+
+html.theme-classic {
+  --ps-gray: #BDBDBD;
+  --ps-gray-dark: #969696;
+  --ps-gray-nav: #8E8E8E;
+  --ps-gray-light: #D4D4D4;
+  --ps-gray-panel: #C8C8C8;
+  --ps-ink: #1A1A1A;
+  --ps-red: #DF0024;
+  --ps-yellow: #F3AF00;
+  --ps-green: #00AB9F;
+  --ps-blue: #008FD6;
+  --ps-lightbar: #0070FF;
+  --ps-radius: 14px;
+  --ps-radius-pill: 9999px;
+  --ps-inset: inset 0 2px 5px rgba(0, 0, 0, 0.18), inset 0 -1px 0 rgba(255, 255, 255, 0.35);
+  --ps-raised: 0 2px 0 rgba(0, 0, 0, 0.14), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --ps-font: 'Oxanium', system-ui, sans-serif;
+}
+
+/* ---- Canvas ---- */
+html.theme-classic body {
+  background-color: var(--ps-gray) !important;
+  background-image: none !important;
+  color: var(--ps-ink);
+  font-family: var(--ps-font) !important;
+  letter-spacing: 0.02em;
+}
+
+html.theme-classic h1,
+html.theme-classic h2,
+html.theme-classic h3 {
+  font-family: var(--ps-font) !important;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html.theme-classic .display,
+html.theme-classic .display-2,
+html.theme-classic .amount-large,
+html.theme-classic .amount-hero {
+  font-family: var(--ps-font) !important;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+html.theme-classic aside.glass-thick,
+html.theme-classic nav.glass-thick {
+  font-family: var(--ps-font) !important;
+  letter-spacing: 0.04em;
+}
+
+html.theme-classic .amount,
+html.theme-classic .mono,
+html.theme-classic .num-lg {
+  font-family: var(--ps-font) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+html.theme-classic .text-ink { color: var(--ps-ink) !important; }
+html.theme-classic .text-ink-soft { color: #3D3D3D !important; }
+html.theme-classic .text-ink-faint { color: #5C5C5C !important; }
+html.theme-classic .text-brand-primary { color: var(--ps-blue) !important; }
+
+/* ---- Cards & panels — matte recessed gray ---- */
+html.theme-classic .card,
+html.theme-classic .glass,
+html.theme-classic .card-gradient,
+html.theme-classic .chart-glass,
+html.theme-classic .card:has(.recharts-wrapper),
+html.theme-classic .card:has(svg.recharts-surface),
+html.theme-classic .glass-thick {
+  background: var(--ps-gray-light) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  border-radius: var(--ps-radius) !important;
+  box-shadow: var(--ps-inset) !important;
+}
+
+html.theme-classic .card-income {
+  border-left: 4px solid var(--ps-blue) !important;
+}
+
+html.theme-classic .card-savings {
+  border-left: 4px solid var(--ps-green) !important;
+}
+
+html.theme-classic .card-expenses {
+  border-left: 4px solid var(--ps-red) !important;
+}
+
+html.theme-classic .card-summary {
+  border-left: 4px solid var(--ps-yellow) !important;
+}
+
+/* ---- Navigation — darker gray + light bar ---- */
+html.theme-classic aside.glass-thick,
+html.theme-classic nav.glass-thick {
+  background: var(--ps-gray-nav) !important;
+  border: 1px solid rgba(0, 0, 0, 0.20) !important;
+  border-radius: var(--ps-radius) !important;
+  color: var(--ps-ink) !important;
+  box-shadow: var(--ps-raised) !important;
+}
+
+html.theme-classic aside.glass-thick .text-ink-soft,
+html.theme-classic aside.glass-thick .text-ink-faint,
+html.theme-classic nav.glass-thick .text-ink-soft {
+  color: #2D2D2D !important;
+}
+
+html.theme-classic aside.glass-thick .font-semibold,
+html.theme-classic nav.glass-thick .font-semibold {
+  color: var(--ps-ink) !important;
+}
+
+html.theme-classic aside.glass-thick .bg-tint-soft {
+  background-color: var(--ps-gray-light) !important;
+  color: var(--ps-ink) !important;
+  border-radius: var(--ps-radius-pill) !important;
+  font-weight: 700 !important;
+  box-shadow: var(--ps-inset) !important;
+  border-bottom: 3px solid var(--ps-lightbar) !important;
+}
+
+html.theme-classic aside.glass-thick .hover\:bg-black\/\[0\.04\]:hover,
+html.theme-classic nav.glass-thick .hover\:bg-black\/\[0\.04\]:hover {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  border-radius: var(--ps-radius-pill) !important;
+}
+
+html.theme-classic nav.glass-thick button.bg-white {
+  background-color: var(--ps-gray-light) !important;
+  color: var(--ps-ink) !important;
+  font-weight: 700 !important;
+  border-radius: var(--ps-radius-pill) !important;
+  box-shadow: var(--ps-inset) !important;
+  border-bottom: 3px solid var(--ps-lightbar) !important;
+}
+
+html.theme-classic aside.glass-thick .border-black\/\[0\.06\] {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ---- Buttons ---- */
+html.theme-classic button[style*="3B5BFF"],
+html.theme-classic button[style*="3b5bff"],
+html.theme-classic .bg-gradient-to-r.from-brand-primary,
+html.theme-classic .bg-gradient-to-br.from-brand-primary,
+html.theme-classic .from-brand-primary.to-brand-secondary,
+html.theme-classic [class*="from-brand-primary"][class*="to-brand"] {
+  background: var(--ps-gray-dark) !important;
+  background-image: none !important;
+  color: var(--ps-ink) !important;
+  border: 1px solid rgba(0, 0, 0, 0.18) !important;
+  border-radius: var(--ps-radius-pill) !important;
+  box-shadow: var(--ps-inset) !important;
+}
+
+html.theme-classic button.bg-gradient-to-br.from-brand-primary.to-brand-secondary,
+html.theme-classic .bg-gradient-to-br.from-brand-primary.to-brand-secondary.text-white {
+  background: var(--ps-gray-light) !important;
+  background-image: none !important;
+  color: var(--ps-ink) !important;
+  border-bottom: 3px solid var(--ps-lightbar) !important;
+  box-shadow: var(--ps-inset) !important;
+}
+
+html.theme-classic .bg-gradient-to-r.from-brand-primary.to-brand-secondary.h-8 {
+  background: var(--ps-blue) !important;
+  background-image: none !important;
+}
+
+/* ---- Inputs — recessed slots ---- */
+html.theme-classic input[type='number'],
+html.theme-classic input[type='text'],
+html.theme-classic select {
+  background: #B0B0B0 !important;
+  border: 1px solid rgba(0, 0, 0, 0.16) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--ps-inset) !important;
+  color: var(--ps-ink) !important;
+}
+
+html.theme-classic input[type='number']:focus,
+html.theme-classic input[type='text']:focus,
+html.theme-classic select:focus {
+  border-color: var(--ps-lightbar) !important;
+  box-shadow: var(--ps-inset), 0 0 0 2px rgba(0, 112, 255, 0.35) !important;
+}
+
+html.theme-classic button.bg-gray-100,
+html.theme-classic button.bg-gray-200,
+html.theme-classic .bg-gray-100[class*="rounded"],
+html.theme-classic .bg-gray-200[class*="rounded"] {
+  background-color: var(--ps-gray-panel) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: var(--ps-radius-pill) !important;
+  box-shadow: var(--ps-inset) !important;
+}
+
+html.theme-classic button.bg-gray-100:hover,
+html.theme-classic button.bg-gray-200:hover {
+  background-color: var(--ps-gray-light) !important;
+}
+
+html.theme-classic .bg-gray-200,
+html.theme-classic .dark\:bg-gray-700 {
+  background-color: rgba(0, 0, 0, 0.10) !important;
+}
+
+/* ---- Badges — PS logo colors ---- */
+html.theme-classic .badge-above {
+  background: var(--ps-green) !important;
+  color: #FFFFFF !important;
+  box-shadow: var(--ps-raised) !important;
+}
+
+html.theme-classic .badge-below {
+  background: var(--ps-yellow) !important;
+  color: var(--ps-ink) !important;
+  box-shadow: var(--ps-raised) !important;
+}
+
+html.theme-classic .badge-at {
+  background: var(--ps-blue) !important;
+  color: #FFFFFF !important;
+  box-shadow: var(--ps-raised) !important;
+}
+
+html.theme-classic .age-badge {
+  background: var(--ps-gray-panel) !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  box-shadow: var(--ps-inset) !important;
+}
+
+/* ---- Donut center ---- */
+html.theme-classic .donut-disc {
+  background: var(--ps-gray-light) !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  box-shadow: var(--ps-inset) !important;
+}
+
+/* ---- Inline leftover cards ---- */
+html.theme-classic [style*="rgba(16, 185, 129"],
+html.theme-classic [style*="rgba(239, 68, 68"] {
+  background: var(--ps-gray-light) !important;
+  background-image: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  box-shadow: var(--ps-inset) !important;
+}
+
+html.theme-classic [style*="rgba(16, 185, 129"] {
+  border-left: 4px solid var(--ps-green) !important;
+}
+
+html.theme-classic [style*="rgba(239, 68, 68"] {
+  border-left: 4px solid var(--ps-red) !important;
+}
+
+/* ---- Callouts ---- */
+html.theme-classic .bg-yellow-50  { background-color: #F5E6B8 !important; border: 1px solid var(--ps-yellow) !important; }
+html.theme-classic .bg-red-50     { background-color: #F5C4CC !important; border: 1px solid var(--ps-red) !important; }
+html.theme-classic .bg-green-50   { background-color: #C8ECE8 !important; border: 1px solid var(--ps-green) !important; }
+html.theme-classic .bg-blue-50    { background-color: #C4E4F5 !important; border: 1px solid var(--ps-blue) !important; }
+
+html.theme-classic tr.bg-blue-50  { background-color: #C4E4F5 !important; }
+html.theme-classic tr.bg-gray-50  { background-color: rgba(0, 0, 0, 0.04) !important; }
+
+/* ---- Palette remaps ---- */
+html.theme-classic .text-green-600,
+html.theme-classic .text-green-500 { color: #007A70 !important; }
+html.theme-classic .text-red-600,
+html.theme-classic .text-red-500 { color: var(--ps-red) !important; }
+html.theme-classic .text-blue-600,
+html.theme-classic .text-blue-500 { color: var(--ps-blue) !important; }
+html.theme-classic .text-purple-600 { color: var(--ps-blue) !important; }
+
+html.theme-classic .bg-green-500 { background-color: var(--ps-green) !important; color: #FFFFFF !important; }
+html.theme-classic .bg-red-600 { background-color: var(--ps-red) !important; }
+html.theme-classic .bg-blue-500 { background-color: var(--ps-blue) !important; }
+
+/* ---- Progress bars ---- */
+html.theme-classic .rounded-full.bg-gradient-to-r.from-brand-primary,
+html.theme-classic .rounded-full.bg-gradient-to-r.from-brand-primary.to-brand-secondary {
+  background: var(--ps-blue) !important;
+  background-image: none !important;
+}
+
+html.theme-classic .rounded-full.bg-gradient-to-r.from-green-400,
+html.theme-classic .rounded-full.bg-gradient-to-r.from-green-400.to-green-600 {
+  background: var(--ps-green) !important;
+  background-image: none !important;
+}
+
+/* ---- Recharts ---- */
+html.theme-classic .recharts-line .recharts-line-curve { stroke: var(--ps-blue) !important; }
+html.theme-classic .recharts-bar [fill="#10b981"],
+html.theme-classic .recharts-bar [fill="#10B981"] { fill: var(--ps-green) !important; }
+html.theme-classic .recharts-bar [fill="#ef4444"],
+html.theme-classic .recharts-bar [fill="#EF4444"] { fill: var(--ps-red) !important; }
+
+html.theme-classic .recharts-default-tooltip,
+html.theme-classic .recharts-tooltip-wrapper > div {
+  background: var(--ps-gray-light) !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(0, 0, 0, 0.14) !important;
+  box-shadow: var(--ps-raised) !important;
+}
+
+/* ============================================================
+   Classic dark mode — charcoal console, blue light bar
+   ============================================================ */
+html.theme-classic.dark {
+  --ps-gray: #3A3A3A;
+  --ps-gray-dark: #2D2D2D;
+  --ps-gray-nav: #252525;
+  --ps-gray-light: #454545;
+  --ps-gray-panel: #3D3D3D;
+}
+
+html.theme-classic.dark body {
+  background-color: var(--ps-gray) !important;
+  background-image: none !important;
+  color: #F0F0F0;
+}
+
+html.theme-classic.dark .card,
+html.theme-classic.dark .glass,
+html.theme-classic.dark .chart-glass,
+html.theme-classic.dark .card:has(.recharts-wrapper),
+html.theme-classic.dark .card:has(svg.recharts-surface),
+html.theme-classic.dark .glass-thick:not(aside):not(nav) {
+  background: var(--ps-gray-light) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.theme-classic.dark aside.glass-thick,
+html.theme-classic.dark nav.glass-thick {
+  background: var(--ps-gray-nav) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  color: #F0F0F0 !important;
+}
+
+html.theme-classic.dark aside.glass-thick .text-ink-soft,
+html.theme-classic.dark aside.glass-thick .text-ink-faint,
+html.theme-classic.dark nav.glass-thick .text-ink-soft,
+html.theme-classic.dark nav.glass-thick .text-ink-faint {
+  color: rgba(240, 240, 240, 0.78) !important;
+}
+
+html.theme-classic.dark aside.glass-thick .font-semibold,
+html.theme-classic.dark nav.glass-thick .font-semibold {
+  color: #FFFFFF !important;
+}
+
+html.theme-classic.dark aside.glass-thick .bg-tint-soft,
+html.theme-classic.dark nav.glass-thick button.bg-white {
+  background-color: var(--ps-gray-light) !important;
+  color: #FFFFFF !important;
+  border-bottom-color: var(--ps-lightbar) !important;
+}
+
+html.theme-classic.dark aside.glass-thick .bg-tint-soft svg,
+html.theme-classic.dark nav.glass-thick button.bg-white svg {
+  color: var(--ps-lightbar) !important;
+}
+
+html.theme-classic.dark aside.glass-thick .text-\[\#2A45CC\],
+html.theme-classic.dark aside.glass-thick .dark\:text-\[\#C8D2FF\],
+html.theme-classic.dark nav.glass-thick .text-\[\#2A45CC\] {
+  color: var(--ps-lightbar) !important;
+}
+
+html.theme-classic.dark aside.glass-thick .hover\:bg-black\/\[0\.04\]:hover,
+html.theme-classic.dark nav.glass-thick .hover\:bg-black\/\[0\.04\]:hover {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+html.theme-classic.dark aside.glass-thick .border-black\/\[0\.06\],
+html.theme-classic.dark nav.glass-thick .border-black\/\[0\.06\] {
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+html.theme-classic.dark input[type='number'],
+html.theme-classic.dark input[type='text'],
+html.theme-classic.dark select {
+  background: #353535 !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  color: #F0F0F0 !important;
+}
+
+html.theme-classic.dark .text-gray-900 { color: #F0F0F0 !important; }
+html.theme-classic.dark .text-gray-600 { color: #C8C8C8 !important; }
+html.theme-classic.dark .text-gray-300 { color: #E0E0E0 !important; }
+html.theme-classic.dark .text-ink { color: #F0F0F0 !important; }
+html.theme-classic.dark .text-ink-soft { color: #C8C8C8 !important; }
+
+html.theme-classic.dark .donut-disc {
+  background: var(--ps-gray-light) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+html.theme-classic.dark [style*="rgba(16, 185, 129"],
+html.theme-classic.dark [style*="rgba(239, 68, 68"] {
+  background: var(--ps-gray-light) !important;
+}
+
+html.theme-classic.dark .recharts-default-tooltip,
+html.theme-classic.dark .recharts-tooltip-wrapper > div {
+  background: var(--ps-gray-light) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  color: #F0F0F0 !important;
+}

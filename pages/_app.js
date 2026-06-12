@@ -1,0 +1,87 @@
+/**
+ * App root — Aap-SC (Swim Coach)
+ */
+
+import '../styles/globals.css';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+
+import { UserPreferencesProvider, useLanguage, useTheme } from '../context/UserPreferencesContext';
+import { SwimProvider } from '../context/SwimContext';
+import { LANGUAGE_FAVICON_MAP } from '../lib/appConstants';
+
+import Sidebar from '../components/Sidebar';
+import MobileNav from '../components/MobileNav';
+import ErrorBoundary from '../components/ErrorBoundary';
+import AmbientBackground from '../components/AmbientBackground';
+
+function AppContent({ Component, pageProps }) {
+  const router = useRouter();
+  const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isHomePage = router.pathname === '/' || router.pathname === '/index';
+
+  useEffect(() => {
+    const checkDesktop = () => {
+      const desktop = typeof window !== 'undefined' && window.innerWidth >= 768;
+      if (desktop && isHomePage) router.push('/progress');
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, [isHomePage, router]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('lang-mu', language === 'mu');
+    return () => document.documentElement.classList.remove('lang-mu');
+  }, [language]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const themeClasses = Array.from(root.classList).filter((className) => className.startsWith('theme-'));
+    themeClasses.forEach((className) => root.classList.remove(className));
+    root.classList.add(`theme-${theme}`);
+    return () => root.classList.remove(`theme-${theme}`);
+  }, [theme]);
+
+  useEffect(() => {
+    const iconPath = LANGUAGE_FAVICON_MAP[language] || LANGUAGE_FAVICON_MAP.en;
+
+    let faviconLink = document.querySelector("link[rel='icon'][type='image/png']");
+    if (!faviconLink) {
+      faviconLink = document.createElement('link');
+      faviconLink.rel = 'icon';
+      faviconLink.type = 'image/png';
+      document.head.appendChild(faviconLink);
+    }
+    faviconLink.href = iconPath;
+
+    const appleTouchIcon = document.querySelector("link[rel='apple-touch-icon']");
+    if (appleTouchIcon) appleTouchIcon.href = iconPath;
+  }, [language]);
+
+  return (
+    <>
+      <AmbientBackground />
+      {!isHomePage && (
+        <>
+          <Sidebar />
+          <MobileNav />
+        </>
+      )}
+      <Component {...pageProps} />
+    </>
+  );
+}
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <ErrorBoundary>
+      <UserPreferencesProvider>
+        <SwimProvider>
+          <AppContent Component={Component} pageProps={pageProps} />
+        </SwimProvider>
+      </UserPreferencesProvider>
+    </ErrorBoundary>
+  );
+}

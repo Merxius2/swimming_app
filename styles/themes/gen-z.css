@@ -1,0 +1,381 @@
+/* ============================================================
+   Gen-Z theme — flat, bold blocks (matches nav / sidebar style).
+   Solid fills, chunky offset shadows, lime accent borders.
+   ============================================================ */
+
+html.theme-gen-z {
+  --genz-purple: #6200EE;
+  --genz-purple-soft: #7B2CBF;
+  --genz-lime: #D4FF00;
+  --genz-pink: #FF69B4;
+  --genz-blue: #4A90E2;
+  --genz-yellow: #FFE566;
+  --genz-ink: #1A1A1A;
+  --genz-surface: #FFFFFF;
+  --genz-canvas: #F3EEFF;
+  --genz-radius: 28px;
+  --genz-radius-pill: 9999px;
+  --genz-shadow: 0 4px 0 rgba(98, 0, 238, 0.14);
+  --genz-shadow-hover: 0 4px 0 rgba(98, 0, 238, 0.22);
+  --genz-border: 2px solid rgba(212, 255, 0, 0.30);
+}
+
+/* ---- Canvas — flat, no mesh bleed-through ---- */
+html.theme-gen-z body {
+  background-color: var(--genz-canvas) !important;
+  background-image: none !important;
+  color: var(--genz-ink);
+}
+
+html.theme-gen-z h1,
+html.theme-gen-z h2,
+html.theme-gen-z h3 {
+  font-variation-settings: "opsz" 96, "wght" 800;
+  letter-spacing: -0.04em;
+}
+
+html.theme-gen-z .text-ink { color: var(--genz-ink) !important; }
+html.theme-gen-z .text-ink-soft { color: #4A4A4A !important; }
+html.theme-gen-z .text-ink-faint { color: #737373 !important; }
+html.theme-gen-z .text-brand-primary { color: var(--genz-purple) !important; }
+
+/* ---- Shared flat surface (cards, glass, chart containers) ---- */
+html.theme-gen-z .card,
+html.theme-gen-z .glass,
+html.theme-gen-z .card-gradient,
+html.theme-gen-z .chart-glass,
+html.theme-gen-z .card:has(.recharts-wrapper),
+html.theme-gen-z .card:has(svg.recharts-surface) {
+  background: var(--genz-surface) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: var(--genz-border) !important;
+  border-color: rgba(98, 0, 238, 0.12) !important;
+  border-radius: var(--genz-radius) !important;
+  box-shadow: var(--genz-shadow) !important;
+}
+
+/* Standalone glass surfaces (landing menu, tool tiles) */
+html.theme-gen-z .glass-thick {
+  background: var(--genz-surface) !important;
+  background-image: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 2px solid rgba(98, 0, 238, 0.12) !important;
+  border-radius: var(--genz-radius) !important;
+  box-shadow: var(--genz-shadow) !important;
+}
+
+html.theme-gen-z .card:hover {
+  box-shadow: var(--genz-shadow-hover) !important;
+}
+
+/* Category cards — flat fill + left accent stripe (no gradients) */
+html.theme-gen-z .card-income {
+  background: var(--genz-surface) !important;
+  border-left: 6px solid var(--genz-blue) !important;
+}
+
+html.theme-gen-z .card-savings {
+  background: var(--genz-surface) !important;
+  border-left: 6px solid var(--genz-lime) !important;
+}
+
+html.theme-gen-z .card-expenses {
+  background: var(--genz-surface) !important;
+  border-left: 6px solid var(--genz-pink) !important;
+}
+
+html.theme-gen-z .card-summary {
+  background: var(--genz-surface) !important;
+  border-left: 6px solid var(--genz-yellow) !important;
+}
+
+/* ---- Navigation — reference flat style ---- */
+html.theme-gen-z aside.glass-thick,
+html.theme-gen-z nav.glass-thick {
+  background: var(--genz-purple) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: var(--genz-border) !important;
+  border-radius: var(--genz-radius) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+html.theme-gen-z aside.glass-thick .text-ink-soft,
+html.theme-gen-z aside.glass-thick .text-ink-faint,
+html.theme-gen-z nav.glass-thick .text-ink-soft {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+html.theme-gen-z aside.glass-thick .font-semibold,
+html.theme-gen-z nav.glass-thick .font-semibold {
+  color: #FFFFFF !important;
+}
+
+html.theme-gen-z aside.glass-thick .bg-tint-soft {
+  background-color: var(--genz-lime) !important;
+  color: var(--genz-ink) !important;
+  border-radius: var(--genz-radius-pill) !important;
+  font-weight: 700 !important;
+}
+
+html.theme-gen-z aside.glass-thick .hover\:bg-black\/\[0\.04\]:hover,
+html.theme-gen-z nav.glass-thick .hover\:bg-black\/\[0\.04\]:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--genz-radius-pill) !important;
+}
+
+html.theme-gen-z nav.glass-thick button.bg-white {
+  background-color: var(--genz-lime) !important;
+  color: var(--genz-ink) !important;
+  font-weight: 700 !important;
+  border-radius: var(--genz-radius-pill) !important;
+}
+
+html.theme-gen-z aside.glass-thick .border-black\/\[0\.06\] {
+  border-color: rgba(212, 255, 0, 0.20) !important;
+}
+
+/* ---- Primary actions — flat purple, not gradient ---- */
+html.theme-gen-z button[style*="3B5BFF"],
+html.theme-gen-z button[style*="3b5bff"],
+html.theme-gen-z .bg-gradient-to-r.from-brand-primary,
+html.theme-gen-z .bg-gradient-to-br.from-brand-primary,
+html.theme-gen-z .from-brand-primary.to-brand-secondary,
+html.theme-gen-z [class*="from-brand-primary"][class*="to-brand"] {
+  background: var(--genz-purple) !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  border-radius: var(--genz-radius-pill) !important;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18) !important;
+}
+
+/* Selected pills in settings — lime like nav active item */
+html.theme-gen-z button.bg-gradient-to-br.from-brand-primary.to-brand-secondary,
+html.theme-gen-z .bg-gradient-to-br.from-brand-primary.to-brand-secondary.text-white {
+  background: var(--genz-lime) !important;
+  background-image: none !important;
+  color: var(--genz-ink) !important;
+  box-shadow: 0 4px 0 rgba(98, 0, 238, 0.20) !important;
+}
+
+/* Dark mode toggle track when on */
+html.theme-gen-z .bg-gradient-to-r.from-brand-primary.to-brand-secondary.h-8 {
+  background: var(--genz-purple) !important;
+  background-image: none !important;
+}
+
+/* ---- Inputs ---- */
+html.theme-gen-z input[type='number'],
+html.theme-gen-z input[type='text'],
+html.theme-gen-z select {
+  background: var(--genz-surface) !important;
+  border: 2px solid rgba(98, 0, 238, 0.14) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 0 rgba(98, 0, 238, 0.06) !important;
+}
+
+html.theme-gen-z input[type='number']:focus,
+html.theme-gen-z input[type='text']:focus,
+html.theme-gen-z select:focus {
+  border-color: var(--genz-purple) !important;
+  box-shadow: 0 0 0 3px var(--genz-lime) !important;
+}
+
+/* ---- Secondary buttons ---- */
+html.theme-gen-z button.bg-gray-100,
+html.theme-gen-z button.bg-gray-200,
+html.theme-gen-z .bg-gray-100[class*="rounded"],
+html.theme-gen-z .bg-gray-200[class*="rounded"] {
+  background-color: var(--genz-surface) !important;
+  border: 2px solid rgba(98, 0, 238, 0.10) !important;
+  border-radius: var(--genz-radius-pill) !important;
+  box-shadow: 0 2px 0 rgba(98, 0, 238, 0.08) !important;
+}
+
+html.theme-gen-z button.bg-gray-100:hover,
+html.theme-gen-z button.bg-gray-200:hover {
+  background-color: rgba(212, 255, 0, 0.25) !important;
+  border-color: rgba(212, 255, 0, 0.50) !important;
+}
+
+html.theme-gen-z .bg-gray-200,
+html.theme-gen-z .dark\:bg-gray-700 {
+  background-color: rgba(98, 0, 238, 0.08) !important;
+}
+
+/* ---- Status badges — flat fills ---- */
+html.theme-gen-z .badge-above {
+  background: var(--genz-lime) !important;
+  color: var(--genz-ink) !important;
+  box-shadow: 0 3px 0 rgba(98, 0, 238, 0.18) !important;
+}
+
+html.theme-gen-z .badge-below {
+  background: var(--genz-yellow) !important;
+  color: var(--genz-ink) !important;
+  box-shadow: 0 3px 0 rgba(98, 0, 238, 0.12) !important;
+}
+
+html.theme-gen-z .badge-at {
+  background: var(--genz-blue) !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 3px 0 rgba(98, 0, 238, 0.18) !important;
+}
+
+html.theme-gen-z .age-badge {
+  background: var(--genz-surface) !important;
+  border: 2px solid rgba(98, 0, 238, 0.12) !important;
+  box-shadow: 0 2px 0 rgba(98, 0, 238, 0.08) !important;
+}
+
+/* ---- Donut center ---- */
+html.theme-gen-z .donut-disc {
+  background: var(--genz-surface) !important;
+  border: var(--genz-border) !important;
+  border-color: rgba(98, 0, 238, 0.15) !important;
+  box-shadow: var(--genz-shadow) !important;
+}
+
+/* ---- Inline leftover cards (overview / dashboard) ---- */
+html.theme-gen-z [style*="rgba(16, 185, 129"],
+html.theme-gen-z [style*="rgba(239, 68, 68"] {
+  background: var(--genz-surface) !important;
+  background-image: none !important;
+  border: 2px solid rgba(98, 0, 238, 0.12) !important;
+  box-shadow: var(--genz-shadow) !important;
+}
+
+html.theme-gen-z [style*="rgba(16, 185, 129"] {
+  border-left: 6px solid var(--genz-lime) !important;
+}
+
+html.theme-gen-z [style*="rgba(239, 68, 68"] {
+  border-left: 6px solid var(--genz-pink) !important;
+}
+
+/* ---- Callout boxes — flat tinted panels ---- */
+html.theme-gen-z .bg-yellow-50  { background-color: #FFF9E0 !important; border: 2px solid var(--genz-yellow) !important; }
+html.theme-gen-z .bg-red-50     { background-color: #FFE8F3 !important; border: 2px solid var(--genz-pink) !important; }
+html.theme-gen-z .bg-green-50   { background-color: #F4FFD6 !important; border: 2px solid var(--genz-lime) !important; }
+html.theme-gen-z .bg-blue-50    { background-color: #EAF3FF !important; border: 2px solid var(--genz-blue) !important; }
+
+html.theme-gen-z tr.bg-blue-50  { background-color: #EAF3FF !important; }
+html.theme-gen-z tr.bg-gray-50  { background-color: rgba(98, 0, 238, 0.04) !important; }
+
+/* ---- Palette remaps ---- */
+html.theme-gen-z .text-green-600,
+html.theme-gen-z .text-green-500 { color: #5A9000 !important; }
+html.theme-gen-z .text-red-600,
+html.theme-gen-z .text-red-500 { color: #E0007A !important; }
+html.theme-gen-z .text-blue-600,
+html.theme-gen-z .text-blue-500 { color: var(--genz-blue) !important; }
+html.theme-gen-z .text-purple-600 { color: var(--genz-purple-soft) !important; }
+
+html.theme-gen-z .bg-green-500 { background-color: var(--genz-lime) !important; color: var(--genz-ink) !important; }
+html.theme-gen-z .bg-red-600 { background-color: var(--genz-pink) !important; }
+html.theme-gen-z .bg-blue-500 { background-color: var(--genz-blue) !important; }
+
+/* Progress bars — flat fills */
+html.theme-gen-z .rounded-full.bg-gradient-to-r.from-brand-primary,
+html.theme-gen-z .rounded-full.bg-gradient-to-r.from-brand-primary.to-brand-secondary {
+  background: var(--genz-purple) !important;
+  background-image: none !important;
+}
+
+html.theme-gen-z .rounded-full.bg-gradient-to-r.from-green-400,
+html.theme-gen-z .rounded-full.bg-gradient-to-r.from-green-400.to-green-600 {
+  background: var(--genz-lime) !important;
+  background-image: none !important;
+}
+
+/* ---- Recharts ---- */
+html.theme-gen-z .recharts-line .recharts-line-curve { stroke: var(--genz-purple) !important; }
+html.theme-gen-z .recharts-bar [fill="#10b981"],
+html.theme-gen-z .recharts-bar [fill="#10B981"] { fill: var(--genz-lime) !important; }
+html.theme-gen-z .recharts-bar [fill="#ef4444"],
+html.theme-gen-z .recharts-bar [fill="#EF4444"] { fill: var(--genz-pink) !important; }
+
+html.theme-gen-z .recharts-default-tooltip,
+html.theme-gen-z .recharts-tooltip-wrapper > div {
+  background: var(--genz-surface) !important;
+  backdrop-filter: none !important;
+  border: 2px solid rgba(98, 0, 238, 0.12) !important;
+  box-shadow: var(--genz-shadow) !important;
+}
+
+/* ============================================================
+   Gen-Z dark mode — same flat language
+   ============================================================ */
+html.theme-gen-z.dark {
+  --genz-surface: #1E1035;
+  --genz-canvas: #120820;
+  --genz-shadow: 0 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+html.theme-gen-z.dark body {
+  background-color: var(--genz-canvas) !important;
+  background-image: none !important;
+  color: #FAFAFA;
+}
+
+html.theme-gen-z.dark .card,
+html.theme-gen-z.dark .glass,
+html.theme-gen-z.dark .chart-glass,
+html.theme-gen-z.dark .card:has(.recharts-wrapper),
+html.theme-gen-z.dark .card:has(svg.recharts-surface) {
+  background: var(--genz-surface) !important;
+  background-image: none !important;
+  border-color: rgba(212, 255, 0, 0.14) !important;
+}
+
+html.theme-gen-z.dark .card-income   { border-left-color: var(--genz-blue) !important; }
+html.theme-gen-z.dark .card-savings  { border-left-color: var(--genz-lime) !important; }
+html.theme-gen-z.dark .card-expenses { border-left-color: var(--genz-pink) !important; }
+html.theme-gen-z.dark .card-summary  { border-left-color: var(--genz-yellow) !important; }
+
+html.theme-gen-z.dark aside.glass-thick,
+html.theme-gen-z.dark nav.glass-thick {
+  background: #3D0078 !important;
+  border-color: rgba(212, 255, 0, 0.25) !important;
+}
+
+html.theme-gen-z.dark aside.glass-thick .bg-tint-soft {
+  background-color: var(--genz-lime) !important;
+  color: var(--genz-ink) !important;
+}
+
+html.theme-gen-z.dark input[type='number'],
+html.theme-gen-z.dark input[type='text'],
+html.theme-gen-z.dark select {
+  background: #2A1848 !important;
+  border-color: rgba(212, 255, 0, 0.18) !important;
+  color: #FAFAFA !important;
+}
+
+html.theme-gen-z.dark .text-gray-900 { color: #FAFAFA !important; }
+html.theme-gen-z.dark .text-gray-600 { color: #D4D4D8 !important; }
+html.theme-gen-z.dark .text-gray-300 { color: #E4E4E7 !important; }
+html.theme-gen-z.dark .text-ink { color: #FAFAFA !important; }
+html.theme-gen-z.dark .text-ink-soft { color: #D4D4D8 !important; }
+
+html.theme-gen-z.dark .donut-disc {
+  background: var(--genz-surface) !important;
+  border-color: rgba(212, 255, 0, 0.18) !important;
+}
+
+html.theme-gen-z.dark [style*="rgba(16, 185, 129"],
+html.theme-gen-z.dark [style*="rgba(239, 68, 68"] {
+  background: var(--genz-surface) !important;
+  background-image: none !important;
+}
+
+html.theme-gen-z.dark .recharts-default-tooltip,
+html.theme-gen-z.dark .recharts-tooltip-wrapper > div {
+  background: var(--genz-surface) !important;
+  border-color: rgba(212, 255, 0, 0.14) !important;
+  color: #FAFAFA !important;
+}
