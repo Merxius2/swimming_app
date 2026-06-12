@@ -21,14 +21,9 @@ function AppContent({ Component, pageProps }) {
   const { theme } = useTheme();
   const isHomePage = router.pathname === '/' || router.pathname === '/index';
 
+  // Redirect legacy landing route to progress (all devices).
   useEffect(() => {
-    const checkDesktop = () => {
-      const desktop = typeof window !== 'undefined' && window.innerWidth >= 768;
-      if (desktop && isHomePage) router.push('/progress');
-    };
-    checkDesktop();
-    window.addEventListener('resize', checkDesktop);
-    return () => window.removeEventListener('resize', checkDesktop);
+    if (isHomePage) router.replace('/progress');
   }, [isHomePage, router]);
 
   useEffect(() => {
@@ -63,12 +58,8 @@ function AppContent({ Component, pageProps }) {
   return (
     <>
       <AmbientBackground />
-      {!isHomePage && (
-        <>
-          <Sidebar />
-          <MobileNav />
-        </>
-      )}
+      <Sidebar />
+      <MobileNav />
       <Component {...pageProps} />
     </>
   );

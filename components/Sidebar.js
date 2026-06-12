@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import {
-  BarChart3, Upload, History, TrendingUp, Settings,
+  BarChart3, Upload, History, TrendingUp, Settings, Award,
 } from 'lucide-react';
 
 import { useLanguage } from '../context/UserPreferencesContext';
@@ -20,6 +20,7 @@ const NAV = [
       { path: '/upload', labelKey: 'navigation.upload', icon: Upload },
       { path: '/history', labelKey: 'navigation.history', icon: History },
       { path: '/benchmark', labelKey: 'navigation.benchmark', icon: TrendingUp },
+      { path: '/medals', labelKey: 'navigation.medals', icon: Award },
     ],
   },
 ];

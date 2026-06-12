@@ -12,20 +12,24 @@ import {
   getChartSessions,
   getWeeklyVolumeData,
   getStrokeChartData,
-  analyzeSession,
+  buildPersonalFeedback,
+  getCombinedStats,
 } from '../lib/swimAnalysis';
+import { getPersonalRecords } from '../lib/swimRecords';
+import RecordsSection from '../components/swim/RecordsSection';
 import {
   formatPace,
   formatDistance,
   formatDuration,
   formatDateShort,
+  getPaceChartDomain,
 } from '../lib/swimFormatters';
 import DonutChart from '../components/DonutChart';
 import SessionFeedback from '../components/swim/SessionFeedback';
 
 export default function ProgressPage() {
   const { t } = useLanguage();
-  const { sessions, isLoading } = useSwim();
+  const { sessions, isLoading, profile } = useSwim();
   const { tooltipStyle, tooltipLabelStyle, gridStyle, axisStyle } = useChartTheme();
 
   if (isLoading) {
@@ -59,10 +63,13 @@ export default function ProgressPage() {
     ...s,
     dateLabel: formatDateShort(s.date),
   }));
+  const paceDomain = getPaceChartDomain(chartSessions.map((s) => s.paceSecPer100m));
   const weeklyData = getWeeklyVolumeData(sessions);
   const latest = sessions[sessions.length - 1];
   const strokeData = getStrokeChartData(latest, t);
-  const feedback = analyzeSession(latest, sessions, t);
+  const combined = getCombinedStats(sessions);
+  const records = getPersonalRecords(sessions);
+  const feedback = buildPersonalFeedback(latest, sessions, t, profile);
   const m = latest.metrics || {};
 
   return (
@@ -92,7 +99,56 @@ export default function ProgressPage() {
           </div>
         </div>
 
-        <SessionFeedback insights={feedback.insights} badges={feedback.badges} />
+        {combined && (
+          <div className="card p-6">
+            <h2 className="text-lg font-bold mb-4">{t('progress.allTimeStats')}</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <p className="text-xs text-ink-faint">{t('progress.totalSessions')}</p>
+                <p className="text-xl font-bold text-ink">{combined.sessionCount}</p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">{t('progress.totalDistance')}</p>
+                <p className="text-xl font-bold text-blue-500">{formatDistance(combined.totalDistanceM)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">{t('progress.totalTime')}</p>
+                <p className="text-xl font-bold text-amber-500">{formatDuration(combined.totalDurationSec)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">{t('progress.avgPace')}</p>
+                <p className="text-xl font-bold text-teal-500">{formatPace(combined.avgPaceSecPer100m)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">{t('progress.bestPace')}</p>
+                <p className="text-xl font-bold text-green-500">{formatPace(combined.bestPaceSecPer100m)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">{t('progress.totalCalories')}</p>
+                <p className="text-xl font-bold text-red-500">{combined.totalActiveKcal.toLocaleString()} {t('common.kcal')}</p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">{t('progress.totalLaps')}</p>
+                <p className="text-xl font-bold text-purple-500">{combined.totalLaps}</p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">{t('progress.avgHeartRate')}</p>
+                <p className="text-xl font-bold text-orange-500">
+                  {combined.avgHeartRate ?? '—'} {t('common.bpm')}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <RecordsSection records={records} />
+
+        <SessionFeedback
+          insights={feedback.insights}
+          badges={feedback.badges}
+          coachMessage={feedback.coachMessage}
+          motivation={feedback.motivation}
+        />
 
         <div className="card p-6">
           <h3 className="font-bold mb-4">{t('progress.paceChart')}</h3>
@@ -100,9 +156,23 @@ export default function ProgressPage() {
             <LineChart data={chartSessions}>
               <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
               <XAxis dataKey="dateLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-              <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} tickFormatter={(v) => formatPace(v).replace('/100m', '')} reversed />
+              <YAxis
+                stroke={axisStyle.stroke}
+                tick={{ fill: axisStyle.fill, fontSize: 11 }}
+                tickFormatter={(v) => formatPace(v).replace('/100m', '')}
+                domain={paceDomain}
+                reversed
+                allowDataOverflow
+              />
               <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} formatter={(v) => formatPace(v)} />
-              <Line type="monotone" dataKey="paceSecPer100m" stroke="#14B8A6" strokeWidth={2} dot={{ r: 4 }} />
+              <Line
+                type="monotone"
+                dataKey="paceSecPer100m"
+                stroke="#14B8A6"
+                strokeWidth={2}
+                dot={{ r: 5, strokeWidth: 2, fill: '#14B8A6' }}
+                connectNulls
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
