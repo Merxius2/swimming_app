@@ -106,6 +106,15 @@ export default function UploadFlow() {
     setStep('analyzing');
     try {
       const result = await recognizeSwimScreenshot(file);
+      if (!result.isSwimWorkout) {
+        const sport = result.detectedSport || 'unknown';
+        const sportKey = `upload.notSwim.${sport}`;
+        setError(t(sportKey) !== sportKey ? t(sportKey) : t('upload.notSwim.unknown'));
+        setForm(emptyForm());
+        setConfidence(0);
+        setStep('drop');
+        return;
+      }
       setConfidence(result.confidence);
       const nextForm = fieldsToForm(result.fields);
       setForm(nextForm);
@@ -374,6 +383,7 @@ export default function UploadFlow() {
           </div>
           <p className="text-lg font-semibold text-ink">{t('upload.dropzone')}</p>
           <p className="text-sm text-ink-soft mt-1">{t('upload.dropzoneHint')}</p>
+          {error && <p className="text-sm text-red-500 mt-4">{error}</p>}
         </>
       )}
     </div>

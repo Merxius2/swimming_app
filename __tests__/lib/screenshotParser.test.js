@@ -92,6 +92,8 @@ describe('screenshotParser', () => {
     assert.equal(result.fields.strokes.breaststrokeM, 475);
     assert.equal(result.fields.strokes.mixedM, 50);
     assert.equal(result.fields.location, 'Tilburg');
+    assert.equal(result.isSwimWorkout, true);
+    assert.equal(result.detectedSport, null);
   });
 
   it('parses full screenshot Jun 8', () => {
@@ -109,5 +111,53 @@ describe('screenshotParser', () => {
     assert.equal(result.fields.distanceM, 2675);
     assert.equal(result.fields.paceSecPer100m, 120);
     assert.equal(result.fields.laps, 107);
+  });
+
+  it('accepts swim workouts with enough swim signals', () => {
+    const result = parseScreenshotText(OCR_JUN8, refDate);
+    assert.equal(result.isSwimWorkout, true);
+  });
+
+  it('rejects a running workout', () => {
+    const ocrRun = `
+      wo 10 jun
+      Hardlopen
+      Outdoor
+      Work-outtijd 0:45:12
+      Afstand 8,5 KM
+      Actieve kilocalorieën 520 KCAL
+      Totale kilocalorieën 610 KCAL
+      Gem. tempo 5'20" /KM
+      Gem. hartslag 155 BPM
+    `;
+    const result = parseScreenshotText(ocrRun, refDate);
+    assert.equal(result.isSwimWorkout, false);
+    assert.equal(result.detectedSport, 'run');
+  });
+
+  it('rejects cycling by activity label', () => {
+    const ocrCycle = `
+      di 11 jun
+      Fietsen
+      Outdoor
+      Work-outtijd 1:05:00
+      Afstand 32,4 KM
+      Gem. tempo 12,5 km/u
+      Gem. hartslag 142 BPM
+    `;
+    const result = parseScreenshotText(ocrCycle, refDate);
+    assert.equal(result.isSwimWorkout, false);
+    assert.equal(result.detectedSport, 'cycle');
+  });
+
+  it('rejects generic workouts without swim markers', () => {
+    const ocrGeneric = `
+      wo 12 jun
+      Actieve kilocalorieën 300 KCAL
+      Work-outtijd 0:30:00
+    `;
+    const result = parseScreenshotText(ocrGeneric, refDate);
+    assert.equal(result.isSwimWorkout, false);
+    assert.equal(result.detectedSport, 'unknown');
   });
 });
