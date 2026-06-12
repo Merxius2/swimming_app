@@ -10,7 +10,7 @@ const CATEGORIES = ['milestone', 'distance', 'weekly', 'streak', 'monthly', 'sea
 
 export default function MedalsPage() {
   const { t } = useLanguage();
-  const { sessions, isLoading } = useSwim();
+  const { sessions, isLoading, cheats } = useSwim();
 
   const formatPeriods = (periods) => {
     if (!periods?.length) return '';
@@ -34,7 +34,7 @@ export default function MedalsPage() {
     );
   }
 
-  const medals = evaluateAllMedals(sessions);
+  const medals = evaluateAllMedals(sessions, { allMedalsUnlocked: cheats?.allMedalsUnlocked });
   const stats = getMedalStats(medals);
 
   return (

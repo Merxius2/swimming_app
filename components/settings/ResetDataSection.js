@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { useRouter } from 'next/router';
 import { clearSwimData } from '../../lib/swimStorage';
+import { clearSwimCheats } from '../../lib/swimCheats';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
-import ConfirmModal from '../ConfirmModal';
+import ResetDataModal from './ResetDataModal';
 
 export default function ResetDataSection() {
   const { t } = useLanguage();
   const router = useRouter();
-  const { clearAll } = useSwim();
+  const { clearAll, sessions } = useSwim();
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
 
@@ -17,6 +18,7 @@ export default function ResetDataSection() {
     try {
       clearAll();
       clearSwimData();
+      clearSwimCheats();
       setResetMessage(t('settings.success'));
       setShowConfirmation(false);
       setTimeout(() => router.reload(), 1500);
@@ -56,16 +58,12 @@ export default function ResetDataSection() {
         )}
       </div>
 
-      {showConfirmation && (
-        <ConfirmModal
-          title={t('settings.confirm')}
-          message={t('settings.confirmDesc')}
-          confirmLabel={t('settings.clearButton')}
-          cancelLabel={t('settings.cancel')}
-          onConfirm={confirmReset}
-          onCancel={() => setShowConfirmation(false)}
-        />
-      )}
+      <ResetDataModal
+        open={showConfirmation}
+        sessionCount={sessions.length}
+        onClose={() => setShowConfirmation(false)}
+        onConfirm={confirmReset}
+      />
     </>
   );
 }

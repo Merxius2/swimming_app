@@ -84,7 +84,7 @@ const formToMetrics = (form) => ({
 
 export default function UploadFlow() {
   const { t, language } = useLanguage();
-  const { sessions, addSession, profile } = useSwim();
+  const { sessions, addSession, profile, cheats } = useSwim();
   const fileRef = useRef(null);
 
   const [step, setStep] = useState('drop');
@@ -164,7 +164,9 @@ export default function UploadFlow() {
 
     const session = addSession({ date: form.date, metrics });
     const allWithNew = [...sessions, session];
-    const earnedNow = getNewlyEarnedMedals(sessions, allWithNew);
+    const earnedNow = getNewlyEarnedMedals(sessions, allWithNew, {
+      allMedalsUnlocked: cheats?.allMedalsUnlocked,
+    });
     const localFeedback = buildPersonalFeedback(session, allWithNew, t, profile);
 
     setNewMedals(earnedNow);

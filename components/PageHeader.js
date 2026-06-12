@@ -23,7 +23,7 @@ export default function PageHeader({ icon: IconComponent, titleKey, eyebrow }) {
   const label = eyebrow || EYEBROW[titleKey];
 
   return (
-    <div className="px-4 md:px-8 pt-5 md:pt-7 pb-2 max-w-7xl mx-auto">
+    <div className="px-4 md:px-8 pt-5 md:pt-7 pb-2 max-w-7xl mx-auto pr-14 lg:pr-8">
       <div className="flex items-center gap-3">
         {IconComponent && <ThemedPageIcon icon={IconComponent} />}
         <h1 className="display-2 text-[32px] md:text-[40px] text-ink dark:text-[#FAFAFA]">

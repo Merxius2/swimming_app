@@ -514,32 +514,52 @@ tr.bg-gray-50 { background-color: rgba(11, 13, 20, 0.03) !important; }
 }
 
 .mobile-nav-inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.25rem;
-  padding: 0.375rem 0.5rem 0.5rem;
+  padding: 0.375rem 0.375rem 0.5rem;
   min-height: 3.75rem;
 }
 
-.mobile-nav-side {
+.mobile-nav-tab {
   display: flex;
-  flex: 1;
+  justify-content: center;
   min-width: 0;
-  align-items: flex-end;
-  justify-content: space-around;
+}
+
+.mobile-nav-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0.125rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  padding: 0.5rem 0.25rem;
+  border-radius: 9999px;
+  font-size: 9.5px;
+  line-height: 1.2;
+  color: var(--ink-soft, #71717A);
+  transition: color 0.15s ease;
+  width: 100%;
+  max-width: 4.5rem;
+}
+
+.mobile-nav-tab-active {
+  color: #2A45CC;
+  font-weight: 600;
+}
+
+.mobile-nav-tab-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .mobile-nav-fab-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-shrink: 0;
-  margin: 0 0.125rem;
+  justify-self: center;
   margin-top: -1.25rem;
 }
 
@@ -583,10 +603,219 @@ tr.bg-gray-50 { background-color: rgba(11, 13, 20, 0.03) !important; }
   text-overflow: ellipsis;
 }
 
+/* Mobile settings — top-right corner */
+.mobile-settings-btn {
+  position: fixed;
+  z-index: 90;
+  top: max(0.75rem, env(safe-area-inset-top, 0px));
+  right: max(0.75rem, env(safe-area-inset-right, 0px));
+}
+
+.mobile-settings-btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  color: #71717A;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html.dark .mobile-settings-btn-inner {
+  background: rgba(24, 24, 27, 0.82);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #A1A1AA;
+}
+
+.mobile-settings-btn-active {
+  color: #2A45CC;
+  box-shadow: 0 0 0 2px rgba(59, 91, 255, 0.2);
+}
+
+html.dark .mobile-settings-btn-active {
+  color: #C8D2FF;
+}
+
+/* Desktop sidebar — prominent upload CTA */
+.sidebar-upload-btn {
+  margin: 0.375rem 0 0.625rem;
+  color: white;
+  background: linear-gradient(135deg, #3B5BFF 0%, #7B5BFF 100%);
+  box-shadow:
+    0 4px 14px rgba(59, 91, 255, 0.4),
+    0 2px 8px rgba(123, 91, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-upload-btn:hover {
+  box-shadow:
+    0 6px 18px rgba(59, 91, 255, 0.5),
+    0 2px 10px rgba(123, 91, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+.sidebar-upload-btn-active {
+  box-shadow:
+    0 4px 16px rgba(59, 91, 255, 0.55),
+    0 0 0 2px rgba(59, 91, 255, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
 @media (min-width: 1024px) {
   .mobile-nav-bar {
     display: none !important;
   }
+}
+
+/* Medal celebration modal */
+@keyframes medal-border-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes medal-panel-in {
+  from { opacity: 0; transform: scale(0.88) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes medal-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes medal-icon-pop {
+  0% { transform: scale(0.4) rotate(-12deg); opacity: 0; }
+  60% { transform: scale(1.12) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes medal-item-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes medal-shimmer {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+
+@keyframes medal-trophy-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.medal-celebration-backdrop-in {
+  animation: medal-backdrop-in 0.35s ease forwards;
+}
+
+.medal-celebration-panel {
+  background: linear-gradient(135deg, #3B5BFF, #7B5BFF, #F59E0B, #EF4444, #22C55E, #EC4899, #3B5BFF);
+  background-size: 400% 400%;
+  animation: medal-border-flow 4s ease infinite;
+}
+
+.medal-celebration-panel-in {
+  animation: medal-panel-in 0.45s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+.medal-celebration-tier-bronze.medal-celebration-panel {
+  background: linear-gradient(135deg, #92400E, #F59E0B, #B45309, #D97706, #92400E);
+  background-size: 300% 300%;
+}
+
+.medal-celebration-tier-silver.medal-celebration-panel {
+  background: linear-gradient(135deg, #6B7280, #E5E7EB, #9CA3AF, #D1D5DB, #6B7280);
+  background-size: 300% 300%;
+}
+
+.medal-celebration-tier-gold.medal-celebration-panel {
+  background: linear-gradient(135deg, #CA8A04, #FDE047, #F59E0B, #FBBF24, #CA8A04);
+  background-size: 300% 300%;
+}
+
+.medal-celebration-item {
+  background: rgba(255, 255, 255, 0.85);
+  animation: medal-item-in 0.4s ease backwards;
+}
+
+html.dark .medal-celebration-item {
+  background: rgba(17, 24, 39, 0.85);
+}
+
+.medal-celebration-item-bronze {
+  border-color: #D97706 !important;
+  box-shadow: 0 0 12px rgba(217, 119, 6, 0.25);
+}
+
+.medal-celebration-item-silver {
+  border-color: #9CA3AF !important;
+  box-shadow: 0 0 12px rgba(156, 163, 175, 0.25);
+}
+
+.medal-celebration-item-gold {
+  border-color: #EAB308 !important;
+  box-shadow: 0 0 16px rgba(234, 179, 8, 0.35);
+}
+
+.medal-celebration-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: medal-shimmer 2.5s ease-in-out infinite;
+}
+
+.medal-celebration-trophy {
+  animation: medal-trophy-float 2s ease-in-out infinite;
+}
+
+.medal-celebration-title-glow {
+  text-shadow: 0 0 20px rgba(59, 91, 255, 0.25);
+}
+
+.medal-icon-pop {
+  animation: medal-icon-pop 0.55s cubic-bezier(0.34, 1.5, 0.64, 1) backwards;
+}
+
+/* Session history calendar */
+.session-cal-day {
+  color: #71717A;
+}
+
+.session-cal-day-empty {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+html.dark .session-cal-day-empty {
+  background: rgba(255, 255, 255, 0.06);
+  color: #71717A;
+}
+
+.session-cal-day-1 {
+  background: rgba(59, 91, 255, 0.28);
+  color: #2A45CC;
+}
+
+.session-cal-day-2 {
+  background: rgba(59, 91, 255, 0.55);
+  color: #fff;
+}
+
+.session-cal-day-3 {
+  background: linear-gradient(135deg, #3B5BFF 0%, #7B5BFF 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(59, 91, 255, 0.35);
+}
+
+.session-cal-legend {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
 }
 
 /* ============================================================

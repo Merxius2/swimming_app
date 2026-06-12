@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { History, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import ConfirmModal from '../components/ConfirmModal';
+import SessionCalendar from '../components/swim/SessionCalendar';
 import { useLanguage } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import {
@@ -16,19 +17,47 @@ export default function HistoryPage() {
   const { sessions, removeSession, isLoading } = useSwim();
   const [expandedId, setExpandedId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const sorted = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const filtered = selectedDate ? sorted.filter((s) => s.date === selectedDate) : sorted;
 
   return (
     <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0">
       <PageHeader icon={History} titleKey="history.title" />
 
       <div className="max-w-3xl mx-auto space-y-4 px-4 py-8 md:px-8">
+        {!isLoading && sorted.length > 0 && (
+          <SessionCalendar
+            sessions={sessions}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        )}
+
+        {selectedDate && (
+          <div className="flex items-center justify-between px-1">
+            <p className="text-sm text-ink-soft">
+              {t('history.filterDate').replace('{date}', formatDateLong(selectedDate))}
+            </p>
+            <button
+              type="button"
+              onClick={() => setSelectedDate(null)}
+              className="text-xs font-medium text-brand"
+            >
+              {t('history.clearFilter')}
+            </button>
+          </div>
+        )}
+
         {isLoading && <p className="text-ink-soft">{t('common.loading')}</p>}
         {!isLoading && !sorted.length && (
           <div className="card p-8 text-center text-ink-soft">{t('history.empty')}</div>
         )}
-        {sorted.map((session) => {
+        {!isLoading && sorted.length > 0 && !filtered.length && (
+          <div className="card p-6 text-center text-ink-soft text-sm">{t('history.noSessionsOnDate')}</div>
+        )}
+        {filtered.map((session) => {
           const m = session.metrics || {};
           const isOpen = expandedId === session.id;
           return (

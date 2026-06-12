@@ -1,12 +1,6 @@
-import { Lock } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
-import { formatDistance, formatPace, formatDuration } from '../../lib/swimFormatters';
-
-const TIER_STYLES = {
-  bronze: 'from-amber-700 to-amber-500',
-  silver: 'from-gray-400 to-gray-300',
-  gold: 'from-yellow-500 to-amber-400',
-};
+import { formatDistance, formatPace, formatDuration, formatDateLong } from '../../lib/swimFormatters';
+import MedalIcon from './MedalIcon';
 
 const TIER_RING = {
   bronze: 'ring-amber-600/30',
@@ -46,8 +40,10 @@ const formatPeriodShort = (period, t) => {
 };
 
 export default function MedalCard({ medal, periodLabel }) {
-  const { t } = useLanguage();
-  const { id, tier, earned, periods, progress } = medal;
+  const { t, language } = useLanguage();
+  const { id, tier, earned, periods, progress, earnedAt } = medal;
+
+  const locale = language === 'nl' ? 'nl-NL' : language === 'ru' ? 'ru-RU' : language === 'tr' ? 'tr-TR' : 'en-US';
 
   const tr = (key, params) => {
     let str = t(key);
@@ -59,7 +55,6 @@ export default function MedalCard({ medal, periodLabel }) {
     return str;
   };
 
-  const gradient = TIER_STYLES[tier] || TIER_STYLES.bronze;
   const ring = TIER_RING[tier] || TIER_RING.bronze;
   const showProgress = !earned && progress && progress.percent != null;
 
@@ -115,13 +110,7 @@ export default function MedalCard({ medal, periodLabel }) {
         tabIndex={showProgress ? 0 : undefined}
         className={`flex items-start gap-3 outline-none ${showProgress ? 'cursor-help' : ''}`}
       >
-        <div
-          className={`shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-xl shadow-inner ${
-            earned ? `bg-gradient-to-br ${gradient}` : 'bg-gray-200 dark:bg-gray-700'
-          }`}
-        >
-          {earned ? '🏅' : <Lock size={18} className="text-gray-400" />}
-        </div>
+        <MedalIcon id={id} tier={tier} size={48} locked={!earned} />
         <div className="min-w-0 flex-1">
           <p className={`font-semibold text-sm leading-snug ${earned ? 'text-ink dark:text-gray-100' : 'text-ink-soft dark:text-gray-300'}`}>
             {t(`medals.items.${id}.title`)}
@@ -145,14 +134,15 @@ export default function MedalCard({ medal, periodLabel }) {
             </div>
           )}
 
-          {earned && periods?.length > 0 && (
+          {earned && earnedAt && (
             <p className="text-[10px] text-brand mt-2 font-medium">
-              {periodLabel ? periodLabel(periods) : periods.join(', ')}
+              {tr('medals.earnedOn', { date: formatDateLong(earnedAt, locale) })}
             </p>
           )}
-          {earned && !periods?.length && (
-            <p className="text-[10px] text-green-600 dark:text-green-400 mt-2 font-medium">
-              {t('medals.earned')}
+
+          {earned && periods?.length > 0 && (
+            <p className="text-[10px] text-ink-faint mt-1">
+              {periodLabel ? periodLabel(periods) : periods.join(', ')}
             </p>
           )}
         </div>

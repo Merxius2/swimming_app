@@ -9,19 +9,16 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
-  BarChart3, Upload, History, Settings, TrendingUp, Award,
+  BarChart3, Upload, History, TrendingUp, Award,
 } from 'lucide-react';
 import { useLanguage } from '../context/UserPreferencesContext';
 
-const LEFT_TABS = [
+const TABS = [
   { path: '/progress', labelKey: 'navigation.progress', icon: BarChart3 },
   { path: '/medals', labelKey: 'navigation.medals', icon: Award },
-];
-
-const RIGHT_TABS = [
+  null, // center slot — upload FAB
   { path: '/benchmark', labelKey: 'navigation.benchmark', icon: TrendingUp },
   { path: '/history', labelKey: 'navigation.history', icon: History },
-  { path: '/settings', labelKey: 'navigation.settings', icon: Settings },
 ];
 
 function useVisualViewportPin(ref) {
@@ -51,19 +48,15 @@ function useVisualViewportPin(ref) {
 
 function NavTab({ path, labelKey, icon: Icon, isActive, t }) {
   return (
-    <li className="flex-1 min-w-0">
-      <Link href={path}>
-        <button
-          type="button"
-          className={`w-full flex flex-col items-center gap-0.5 py-2 rounded-full text-[9.5px] leading-tight transition-colors ${
-            isActive ? 'text-[#2A45CC] font-semibold' : 'text-ink-soft'
-          }`}
-        >
-          <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
-          <span className="max-w-[52px] truncate">{t(labelKey)}</span>
-        </button>
-      </Link>
-    </li>
+    <Link href={path} className="mobile-nav-tab">
+      <button
+        type="button"
+        className={`mobile-nav-tab-btn ${isActive ? 'mobile-nav-tab-active' : ''}`}
+      >
+        <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
+        <span className="mobile-nav-tab-label">{t(labelKey)}</span>
+      </button>
+    </Link>
   );
 }
 
@@ -82,33 +75,35 @@ export default function MobileNav() {
   const nav = (
     <nav ref={navRef} className="mobile-nav-bar glass-thick lg:hidden" aria-label={t('navigation.swimCoach')}>
       <div className="mobile-nav-inner">
-        <ul className="mobile-nav-side">
-          {LEFT_TABS.map((tab) => (
-            <NavTab key={tab.path} {...tab} isActive={isActive(tab.path)} t={t} />
-          ))}
-        </ul>
-
-        <div className="mobile-nav-fab-wrap">
-          <Link href="/upload">
-            <button
-              type="button"
-              aria-label={t('navigation.upload')}
-              aria-current={uploadActive ? 'page' : undefined}
-              className={`mobile-nav-fab ${uploadActive ? 'mobile-nav-fab-active' : ''}`}
-            >
-              <Upload size={26} strokeWidth={2.5} />
-            </button>
-          </Link>
-          <span className={`mobile-nav-fab-label ${uploadActive ? 'text-[#2A45CC] font-semibold' : 'text-ink-soft'}`}>
-            {t('navigation.upload')}
-          </span>
-        </div>
-
-        <ul className="mobile-nav-side">
-          {RIGHT_TABS.map((tab) => (
-            <NavTab key={tab.path} {...tab} isActive={isActive(tab.path)} t={t} />
-          ))}
-        </ul>
+        {TABS.map((tab) => {
+          if (tab === null) {
+            return (
+              <div key="upload" className="mobile-nav-fab-wrap">
+                <Link href="/upload">
+                  <button
+                    type="button"
+                    aria-label={t('navigation.upload')}
+                    aria-current={uploadActive ? 'page' : undefined}
+                    className={`mobile-nav-fab ${uploadActive ? 'mobile-nav-fab-active' : ''}`}
+                  >
+                    <Upload size={26} strokeWidth={2.5} />
+                  </button>
+                </Link>
+                <span className={`mobile-nav-fab-label ${uploadActive ? 'text-[#2A45CC] font-semibold' : 'text-ink-soft'}`}>
+                  {t('navigation.upload')}
+                </span>
+              </div>
+            );
+          }
+          return (
+            <NavTab
+              key={tab.path}
+              {...tab}
+              isActive={isActive(tab.path)}
+              t={t}
+            />
+          );
+        })}
       </div>
     </nav>
   );

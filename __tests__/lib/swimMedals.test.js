@@ -83,6 +83,12 @@ describe('evaluateAllMedals', () => {
     assert.equal(first.earned, true);
     assert.equal(first.progress, null);
   });
+
+  it('unlocks all medals when cheat flag is set', () => {
+    const medals = evaluateAllMedals([], { allMedalsUnlocked: true });
+    assert.equal(medals.every((m) => m.earned), true);
+    assert.equal(medals.every((m) => m.earnedAt), true);
+  });
 });
 
 describe('buildMedalContext', () => {
@@ -107,5 +113,27 @@ describe('getNewlyEarnedMedals', () => {
   it('returns empty when no new medals', () => {
     const sessions = [session('1', '2025-06-10', { distanceM: 500 })];
     assert.deepEqual(getNewlyEarnedMedals(sessions, sessions), []);
+  });
+});
+
+describe('earnedAt', () => {
+  it('records the date of the session that unlocked the medal', () => {
+    const sessions = [
+      session('1', '2025-06-08', { distanceM: 500 }),
+      session('2', '2025-06-10', { distanceM: 500 }),
+    ];
+    const medals = evaluateAllMedals(sessions);
+    const first = medals.find((m) => m.id === 'first_splash');
+    assert.equal(first.earnedAt, '2025-06-08');
+  });
+
+  it('uses the session that completes a streak requirement', () => {
+    const sessions = [
+      session('1', '2025-06-10', { distanceM: 1000 }),
+      session('2', '2025-06-11', { distanceM: 1000 }),
+      session('3', '2025-06-12', { distanceM: 1000 }),
+    ];
+    const medals = evaluateAllMedals(sessions);
+    assert.equal(medals.find((m) => m.id === 'hat_trick').earnedAt, '2025-06-12');
   });
 });

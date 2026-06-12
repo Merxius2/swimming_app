@@ -8,12 +8,15 @@ import { useRouter } from 'next/router';
 
 import { UserPreferencesProvider, useLanguage, useTheme } from '../context/UserPreferencesContext';
 import { SwimProvider } from '../context/SwimContext';
+import { FeatureProvider } from '../context/FeatureContext';
 import { LANGUAGE_FAVICON_MAP } from '../lib/appConstants';
 
 import Sidebar from '../components/Sidebar';
 import MobileNav from '../components/MobileNav';
+import MobileSettingsButton from '../components/MobileSettingsButton';
 import ErrorBoundary from '../components/ErrorBoundary';
 import AmbientBackground from '../components/AmbientBackground';
+import SecretSettingsModal from '../components/SecretSettingsModal';
 
 function AppContent({ Component, pageProps }) {
   const router = useRouter();
@@ -59,7 +62,9 @@ function AppContent({ Component, pageProps }) {
     <>
       <AmbientBackground />
       <Sidebar />
+      <MobileSettingsButton />
       <MobileNav />
+      <SecretSettingsModal />
       <Component {...pageProps} />
     </>
   );
@@ -70,7 +75,9 @@ export default function MyApp({ Component, pageProps }) {
     <ErrorBoundary>
       <UserPreferencesProvider>
         <SwimProvider>
-          <AppContent Component={Component} pageProps={pageProps} />
+          <FeatureProvider>
+            <AppContent Component={Component} pageProps={pageProps} />
+          </FeatureProvider>
         </SwimProvider>
       </UserPreferencesProvider>
     </ErrorBoundary>
