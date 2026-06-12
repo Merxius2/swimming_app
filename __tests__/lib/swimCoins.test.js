@@ -7,7 +7,11 @@ import {
   medalTierCoins,
   monthlyTierCoinDelta,
   migrateSessionCoins,
+  migrateCoinBonuses,
+  reconcileTotalCoins,
+  sumSessionCoins,
 } from '../../lib/swimCoins.js';
+import { sessionTotalCoins } from '../../lib/swimCoinClaims.js';
 
 const session = (date, metrics) => ({ id: date, date, metrics });
 
@@ -76,5 +80,38 @@ describe('swimCoins', () => {
     });
     assert.equal(breakdown.total, 0);
     assert.equal(breakdown.alreadyClaimed, true);
+  });
+
+  it('sumSessionCoins includes session and medal bonuses', () => {
+    const total = sumSessionCoins([
+      { coinsEarned: 20, coinBonus: 25 },
+      { coinsEarned: 15, coinBonus: 60 },
+    ]);
+    assert.equal(total, sessionTotalCoins({ coinsEarned: 20, coinBonus: 25 })
+      + sessionTotalCoins({ coinsEarned: 15, coinBonus: 60 }));
+  });
+
+  it('reconcileTotalCoins restores wallet when stored total was too low', () => {
+    const sessions = [{ coinsEarned: 20, coinBonus: 649 }];
+    assert.equal(reconcileTotalCoins(sessions, 67), 669);
+    assert.equal(reconcileTotalCoins(sessions, 669), 669);
+  });
+
+  it('migrateCoinBonuses backfills medal bonuses on legacy sessions', () => {
+    const sessions = migrateCoinBonuses([
+      { id: '1', date: '2025-01-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '2', date: '2025-02-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '3', date: '2025-03-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '4', date: '2025-04-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '5', date: '2025-05-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '6', date: '2025-06-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '7', date: '2025-07-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '8', date: '2025-08-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '9', date: '2025-09-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+      { id: '10', date: '2025-10-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },
+    ]);
+    const tenth = sessions.find((s) => s.id === '10');
+    assert.ok(tenth.coinBonus >= medalTierCoins('silver'));
+    assert.ok(sumSessionCoins(sessions) > 15 * 10);
   });
 });

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { DEFAULT_SWIM_DATA } from '../lib/swimConstants';
 import { loadSwimData, saveSwimData, createSessionId } from '../lib/swimStorage';
 import { createCoinClaim, sessionTotalCoins } from '../lib/swimCoinClaims';
+import { migrateSessionCoins, migrateCoinBonuses, reconcileTotalCoins } from '../lib/swimCoins';
 
 export function useSwimStorage(debounceDelay = 500) {
   const [data, setData] = useState(DEFAULT_SWIM_DATA);
@@ -70,10 +71,13 @@ export function useSwimStorage(debounceDelay = 500) {
   }, []);
 
   const replaceData = useCallback((nextData) => {
+    const sessions = migrateCoinBonuses(
+      migrateSessionCoins(Array.isArray(nextData.sessions) ? nextData.sessions : [])
+    );
     setData({
       profile: { ...DEFAULT_SWIM_DATA.profile, ...nextData.profile },
-      totalCoins: typeof nextData.totalCoins === 'number' ? nextData.totalCoins : 0,
-      sessions: Array.isArray(nextData.sessions) ? nextData.sessions : [],
+      totalCoins: reconcileTotalCoins(sessions, nextData.totalCoins),
+      sessions,
       spentCoinClaims: Array.isArray(nextData.spentCoinClaims) ? nextData.spentCoinClaims : [],
     });
   }, []);
