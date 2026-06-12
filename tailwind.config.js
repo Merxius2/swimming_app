@@ -18,6 +18,7 @@ module.exports = {
         amber:  { DEFAULT: '#F5A623', soft: '#FCE7C2' },
         violet: { DEFAULT: '#7B5BFF', soft: '#E0DBFF' },
         rose:   { DEFAULT: '#E85A8C', soft: '#FAD2DE' },
+        tint:   { DEFAULT: '#3B5BFF', soft: '#DDE4FF' },
 
         // Brand aliases — KEPT for backwards compatibility with existing pages
         // (every from-brand-primary to-brand-secondary now resolves to the new gradient)

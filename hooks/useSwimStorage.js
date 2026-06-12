@@ -28,14 +28,17 @@ export function useSwimStorage(debounceDelay = 500) {
     }));
   }, []);
 
-  const addSession = useCallback((session) => {
+  const addSession = useCallback(({ date, metrics, coinsEarned = 0, coinBonus = 0 }) => {
     const entry = {
       id: createSessionId(),
       createdAt: new Date().toISOString(),
-      ...session,
+      date,
+      metrics,
+      coinsEarned,
     };
     setData((prev) => ({
       ...prev,
+      totalCoins: (prev.totalCoins || 0) + coinsEarned + coinBonus,
       sessions: [...prev.sessions, entry].sort(
         (a, b) => new Date(a.date) - new Date(b.date)
       ),
@@ -53,6 +56,7 @@ export function useSwimStorage(debounceDelay = 500) {
   const replaceData = useCallback((nextData) => {
     setData({
       profile: { ...DEFAULT_SWIM_DATA.profile, ...nextData.profile },
+      totalCoins: typeof nextData.totalCoins === 'number' ? nextData.totalCoins : 0,
       sessions: Array.isArray(nextData.sessions) ? nextData.sessions : [],
     });
   }, []);
@@ -66,6 +70,7 @@ export function useSwimStorage(debounceDelay = 500) {
     isLoading,
     profile: data.profile,
     sessions: data.sessions,
+    totalCoins: data.totalCoins || 0,
     updateProfile,
     addSession,
     removeSession,

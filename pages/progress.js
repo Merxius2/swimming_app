@@ -17,6 +17,7 @@ import {
 } from '../lib/swimAnalysis';
 import { getPersonalRecords } from '../lib/swimRecords';
 import MonthlyChallengesCard from '../components/swim/MonthlyChallengesCard';
+import CoinBadge from '../components/swim/CoinBadge';
 import RecordsSection from '../components/swim/RecordsSection';
 import {
   formatPace,
@@ -30,7 +31,7 @@ import SessionFeedback from '../components/swim/SessionFeedback';
 
 export default function ProgressPage() {
   const { t } = useLanguage();
-  const { sessions, isLoading, profile } = useSwim();
+  const { sessions, isLoading, profile, totalCoins } = useSwim();
   const { tooltipStyle, tooltipLabelStyle, gridStyle, axisStyle } = useChartTheme();
 
   if (isLoading) {
@@ -138,6 +139,10 @@ export default function ProgressPage() {
                 <p className="text-xl font-bold text-orange-500">
                   {combined.avgHeartRate ?? '—'} {t('common.bpm')}
                 </p>
+              </div>
+              <div>
+                <p className="text-xs text-ink-faint">{t('coins.label')}</p>
+                <div className="mt-1"><CoinBadge amount={totalCoins} /></div>
               </div>
             </div>
           </div>

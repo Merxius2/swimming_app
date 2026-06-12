@@ -12,6 +12,7 @@ import { useLanguage } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
 import SecretAppIcon from './SecretAppIcon';
+import CoinBadge from './swim/CoinBadge';
 
 const NAV = [
   {
@@ -29,7 +30,7 @@ const NAV = [
 export default function Sidebar() {
   const router = useRouter();
   const { t } = useLanguage();
-  const { sessions, isLoading, cheats } = useSwim();
+  const { sessions, isLoading, cheats, totalCoins } = useSwim();
   const isActive = (path) => router.pathname === path;
 
   const medalStats = getMedalStats(
@@ -99,6 +100,10 @@ export default function Sidebar() {
           </div>
         ))}
       </nav>
+
+      <div className="px-2 py-2 mt-auto border-t border-black/[0.06] dark:border-white/[0.06]">
+        <CoinBadge amount={totalCoins} size="sm" />
+      </div>
 
       <Link href="/settings">
         <div className={`${itemClass(isActive('/settings'))} mt-auto`}>

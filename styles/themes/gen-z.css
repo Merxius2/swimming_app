@@ -379,3 +379,64 @@ html.theme-gen-z.dark .recharts-tooltip-wrapper > div {
   border-color: rgba(212, 255, 0, 0.14) !important;
   color: #FAFAFA !important;
 }
+
+/* ---- Mobile: page canvas + bottom nav readability ---- */
+@media (max-width: 1023px) {
+  html.theme-gen-z .min-h-screen.bg-white {
+    background-color: var(--genz-canvas) !important;
+  }
+
+  html.theme-gen-z nav.mobile-nav-bar {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    border-radius: 0 !important;
+    border-top-left-radius: 1.25rem !important;
+    border-top-right-radius: 1.25rem !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  }
+
+  html.theme-gen-z .mobile-nav-tab-btn {
+    color: rgba(255, 255, 255, 0.88) !important;
+  }
+
+  html.theme-gen-z .mobile-nav-tab-btn svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+  }
+
+  html.theme-gen-z .mobile-nav-tab-active {
+    color: var(--genz-lime) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-gen-z .mobile-nav-fab-label {
+    color: rgba(255, 255, 255, 0.88) !important;
+  }
+
+  html.theme-gen-z .mobile-nav-fab-label.text-\[\#2A45CC\] {
+    color: var(--genz-lime) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-gen-z .mobile-nav-fab {
+    background: var(--genz-lime) !important;
+    color: var(--genz-ink) !important;
+    border-color: rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18) !important;
+  }
+
+  html.theme-gen-z .mobile-nav-fab svg {
+    color: var(--genz-ink) !important;
+    stroke: var(--genz-ink) !important;
+  }
+
+  html.theme-gen-z .mobile-settings-btn-inner {
+    background: var(--genz-purple) !important;
+    color: #FFFFFF !important;
+    border: var(--genz-border) !important;
+  }
+}

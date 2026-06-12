@@ -2,6 +2,7 @@ import { Award } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import MedalCard from '../components/swim/MedalCard';
 import MonthlyChallengeHistory from '../components/swim/MonthlyChallengeHistory';
+import CoinBadge from '../components/swim/CoinBadge';
 import { useLanguage } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
@@ -11,7 +12,7 @@ const CATEGORIES = ['milestone', 'distance', 'weekly', 'streak', 'monthly', 'sea
 
 export default function MedalsPage() {
   const { t } = useLanguage();
-  const { sessions, isLoading, cheats } = useSwim();
+  const { sessions, isLoading, cheats, totalCoins } = useSwim();
 
   const formatPeriods = (periods) => {
     if (!periods?.length) return '';
@@ -53,6 +54,10 @@ export default function MedalsPage() {
               </p>
             </div>
             <div className="text-5xl">{stats.earned > 0 ? '🏆' : '🎯'}</div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <span className="text-sm text-ink-soft">{t('coins.label')}</span>
+            <CoinBadge amount={totalCoins} />
           </div>
         </div>
 
