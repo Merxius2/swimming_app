@@ -8,6 +8,7 @@ import LanguageSettings from '../components/settings/LanguageSettings';
 import ThemeSettings from '../components/settings/ThemeSettings';
 import DarkModeSettings from '../components/settings/DarkModeSettings';
 import ProfileSettings from '../components/settings/ProfileSettings';
+import AiSettings from '../components/settings/AiSettings';
 import ImportExportPanel from '../components/settings/ImportExportPanel';
 import ResetDataSection from '../components/settings/ResetDataSection';
 
@@ -18,6 +19,7 @@ export default function SettingsPage() {
 
       <div className="max-w-7xl mx-auto space-y-6 px-4 py-8 md:px-8">
         <ProfileSettings />
+        <AiSettings />
         <LanguageSettings />
         <ThemeSettings />
         <DarkModeSettings />

@@ -22,6 +22,7 @@ module.exports = {
         // Brand aliases — KEPT for backwards compatibility with existing pages
         // (every from-brand-primary to-brand-secondary now resolves to the new gradient)
         brand: {
+          DEFAULT:   '#3B5BFF',
           primary:   '#3B5BFF', // was #3B82F6
           secondary: '#7B5BFF', // was #8B5CF6
           accent:    '#E85A8C', // was #EC4899

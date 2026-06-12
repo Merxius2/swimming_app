@@ -11,7 +11,8 @@ import {
 } from '../../lib/swimFormatters';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
-import { analyzeSession } from '../../lib/swimAnalysis';
+import { analyzeSession, buildPersonalFeedback } from '../../lib/swimAnalysis';
+import { fetchAiCoachFeedback } from '../../lib/aiCoach';
 import SessionFeedback from '../swim/SessionFeedback';
 import ConfirmModal from '../ConfirmModal';
 
@@ -78,8 +79,8 @@ const formToMetrics = (form) => ({
 });
 
 export default function UploadFlow() {
-  const { t } = useLanguage();
-  const { sessions, addSession } = useSwim();
+  const { t, language } = useLanguage();
+  const { sessions, addSession, profile } = useSwim();
   const fileRef = useRef(null);
 
   const [step, setStep] = useState('drop');
@@ -89,6 +90,7 @@ export default function UploadFlow() {
   const [showDateModal, setShowDateModal] = useState(false);
   const [pendingDate, setPendingDate] = useState('');
   const [savedFeedback, setSavedFeedback] = useState(null);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [error, setError] = useState('');
 
   const updateField = (key, value) => {
@@ -136,7 +138,7 @@ export default function UploadFlow() {
     setShowDateModal(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.date) {
       setShowDateModal(true);
       return;
@@ -144,31 +146,71 @@ export default function UploadFlow() {
     const metrics = formToMetrics(form);
     const session = addSession({ date: form.date, metrics });
     const allWithNew = [...sessions, session];
-    const feedback = analyzeSession(session, allWithNew, t);
-    setSavedFeedback(feedback);
+    const localFeedback = buildPersonalFeedback(session, allWithNew, t, profile);
+
     setStep('done');
+    setSavedFeedback({ ...localFeedback, aiEnhanced: false });
+    setFeedbackLoading(Boolean(profile.aiApiKey?.trim()));
+
+    if (profile.aiApiKey?.trim()) {
+      try {
+        const aiResult = await fetchAiCoachFeedback({
+          apiKey: profile.aiApiKey,
+          language,
+          session,
+          sessions: allWithNew,
+          profile,
+          localFeedback,
+        });
+        if (aiResult) {
+          setSavedFeedback({
+            ...localFeedback,
+            coachMessage: aiResult.coachMessage || localFeedback.coachMessage,
+            motivation: aiResult.motivation || localFeedback.motivation,
+            aiEnhanced: true,
+          });
+        }
+      } catch (aiErr) {
+        setSavedFeedback({
+          ...localFeedback,
+          insights: [...localFeedback.insights, t('feedback.aiFailed')],
+          aiEnhanced: false,
+        });
+      } finally {
+        setFeedbackLoading(false);
+      }
+    }
   };
 
   const reset = () => {
     setStep('drop');
     setForm(emptyForm());
     setSavedFeedback(null);
+    setFeedbackLoading(false);
     setError('');
     if (fileRef.current) fileRef.current.value = '';
   };
 
   const inputClass = 'w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm';
 
-  if (step === 'done' && savedFeedback) {
+  if (step === 'done') {
     return (
       <div className="space-y-6">
-        <SessionFeedback insights={savedFeedback.insights} badges={savedFeedback.badges} />
+        <SessionFeedback
+          insights={savedFeedback?.insights || []}
+          badges={savedFeedback?.badges || []}
+          coachMessage={savedFeedback?.coachMessage}
+          motivation={savedFeedback?.motivation}
+          aiEnhanced={savedFeedback?.aiEnhanced}
+          loading={feedbackLoading}
+        />
         <button
           type="button"
           onClick={reset}
-          className="w-full py-3 rounded-lg bg-brand text-white font-semibold"
+          className="w-full py-3 rounded-lg text-white font-semibold shadow-pill-tint"
+          style={{ background: 'linear-gradient(135deg,#3B5BFF 0%, #7B5BFF 100%)' }}
         >
-          {t('upload.dropzone')}
+          {t('upload.uploadAnother')}
         </button>
       </div>
     );
