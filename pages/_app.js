@@ -14,6 +14,7 @@ import { LANGUAGE_FAVICON_MAP } from '../lib/appConstants';
 import Sidebar from '../components/Sidebar';
 import MobileNav from '../components/MobileNav';
 import MobileSettingsButton from '../components/MobileSettingsButton';
+import MobileCoinButton from '../components/MobileCoinButton';
 import ErrorBoundary from '../components/ErrorBoundary';
 import AmbientBackground from '../components/AmbientBackground';
 import SecretSettingsModal from '../components/SecretSettingsModal';
@@ -62,6 +63,7 @@ function AppContent({ Component, pageProps }) {
     <>
       <AmbientBackground />
       <Sidebar />
+      <MobileCoinButton />
       <MobileSettingsButton />
       <MobileNav />
       <SecretSettingsModal />

@@ -101,9 +101,9 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="px-2 py-2 mt-auto border-t border-black/[0.06] dark:border-white/[0.06]">
-        <CoinBadge amount={totalCoins} size="sm" />
-      </div>
+      <Link href="/coins" className="block px-2 py-2 mt-auto border-t border-black/[0.06] dark:border-white/[0.06] rounded-sm hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors">
+        <CoinBadge amount={totalCoins} size="sm" className={isActive('/coins') ? 'text-[#2A45CC] dark:text-[#C8D2FF]' : ''} />
+      </Link>
 
       <Link href="/settings">
         <div className={`${itemClass(isActive('/settings'))} mt-auto`}>

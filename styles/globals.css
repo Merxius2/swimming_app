@@ -645,6 +645,111 @@ html.dark .mobile-settings-btn-active {
   color: #C8D2FF;
 }
 
+/* Mobile coins — top-left corner */
+.mobile-coin-btn {
+  position: fixed;
+  z-index: 90;
+  top: max(0.75rem, env(safe-area-inset-top, 0px));
+  left: max(0.75rem, env(safe-area-inset-left, 0px));
+}
+
+.mobile-coin-btn-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #B45309;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html.dark .mobile-coin-btn-inner {
+  background: rgba(24, 24, 27, 0.82);
+  border-color: rgba(251, 191, 36, 0.25);
+  color: #FBBF24;
+}
+
+.mobile-coin-btn-active {
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
+}
+
+.mobile-coin-btn-amount {
+  line-height: 1;
+}
+
+/* Wheel of fortune */
+.wheel-stage {
+  width: min(100%, 22rem);
+  aspect-ratio: 1;
+}
+
+@media (min-width: 768px) {
+  .wheel-stage {
+    width: min(100%, 26rem);
+  }
+}
+
+.wheel-disc {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  will-change: transform;
+}
+
+.wheel-pointer {
+  position: absolute;
+  top: -0.5rem;
+  left: 50%;
+  z-index: 10;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 0.85rem solid transparent;
+  border-right: 0.85rem solid transparent;
+  border-top: 1.35rem solid #2A45CC;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+html.dark .wheel-pointer {
+  border-top-color: #C8D2FF;
+}
+
+.wheel-bet-btn-active {
+  color: white;
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.wheel-spin-btn {
+  background: linear-gradient(135deg, #3B5BFF 0%, #7B5BFF 100%);
+  box-shadow:
+    0 4px 14px rgba(59, 91, 255, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.wheel-result {
+  animation: wheel-result-in 0.35s ease-out;
+}
+
+@keyframes wheel-result-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Desktop sidebar — prominent upload CTA */
 .sidebar-upload-btn {
   margin: 0.375rem 0 0.625rem;

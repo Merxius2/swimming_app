@@ -86,6 +86,13 @@ export function useSwimStorage(debounceDelay = 500) {
     setData({ ...DEFAULT_SWIM_DATA, sessions: [], spentCoinClaims: [] });
   }, []);
 
+  const adjustCoins = useCallback((delta) => {
+    setData((prev) => ({
+      ...prev,
+      totalCoins: Math.max(0, (prev.totalCoins || 0) + delta),
+    }));
+  }, []);
+
   return {
     data,
     isLoading,
@@ -98,5 +105,6 @@ export function useSwimStorage(debounceDelay = 500) {
     removeSession,
     replaceData,
     clearAll,
+    adjustCoins,
   };
 }
