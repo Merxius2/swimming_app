@@ -120,6 +120,8 @@ export default function BenchmarkPage() {
             </div>
           </>
         )}
+
+        <p className="text-xs text-ink-faint leading-relaxed px-1">{t('benchmark.methodology')}</p>
       </div>
     </div>
   );

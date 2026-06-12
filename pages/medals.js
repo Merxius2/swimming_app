@@ -1,6 +1,7 @@
 import { Award } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import MedalCard from '../components/swim/MedalCard';
+import MonthlyChallengeHistory from '../components/swim/MonthlyChallengeHistory';
 import { useLanguage } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
@@ -69,6 +70,8 @@ export default function MedalsPage() {
             </Link>
           </div>
         )}
+
+        <MonthlyChallengeHistory sessions={sessions} />
 
         {CATEGORIES.map((category) => {
           const categoryMedals = medals.filter((m) => m.category === category);

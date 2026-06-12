@@ -22,10 +22,15 @@ export function useSwimCheats() {
     setCheats({ allMedalsUnlocked: Boolean(value) });
   }, [setCheats]);
 
+  const setPreviewMonthlyMedals = useCallback((value) => {
+    setCheats({ previewMonthlyMedals: Boolean(value) });
+  }, [setCheats]);
+
   return {
     cheats,
     cheatsReady: ready,
     setCheats,
     setAllMedalsUnlocked,
+    setPreviewMonthlyMedals,
   };
 }

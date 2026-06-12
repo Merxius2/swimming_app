@@ -16,6 +16,7 @@ import {
   getCombinedStats,
 } from '../lib/swimAnalysis';
 import { getPersonalRecords } from '../lib/swimRecords';
+import MonthlyChallengesCard from '../components/swim/MonthlyChallengesCard';
 import RecordsSection from '../components/swim/RecordsSection';
 import {
   formatPace,
@@ -76,6 +77,7 @@ export default function ProgressPage() {
     <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0">
       <PageHeader icon={BarChart3} titleKey="progress.title" />
       <div className="max-w-7xl mx-auto space-y-6 px-4 py-8 md:px-8">
+        <MonthlyChallengesCard sessions={sessions} />
         <div className="card p-6">
           <h2 className="text-lg font-bold mb-4">{t('progress.latestSession')}</h2>
           <p className="text-sm text-ink-soft mb-4">{formatDateShort(latest.date)}</p>

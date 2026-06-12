@@ -5,6 +5,7 @@ import { Award, X } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { formatDateLong } from '../../lib/swimFormatters';
 import MedalIcon from './MedalIcon';
+import MonthlyMedalIcon from './MonthlyMedalIcon';
 import Confetti from './Confetti';
 
 const TIER_PANEL = {
@@ -19,7 +20,9 @@ const TIER_ITEM = {
   gold: 'medal-celebration-item-gold',
 };
 
-export default function MedalCelebrationModal({ medals, onClose }) {
+const tierRank = (tier) => ({ bronze: 1, silver: 2, gold: 3 }[tier] || 0);
+
+export default function MedalCelebrationModal({ medals = [], monthlyChallenge, onClose }) {
   const { t, language } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -32,7 +35,10 @@ export default function MedalCelebrationModal({ medals, onClose }) {
     return () => cancelAnimationFrame(frame);
   }, [mounted]);
 
-  if (!mounted || !medals?.length) return null;
+  const hasMedals = medals?.length > 0;
+  const hasMonthly = Boolean(monthlyChallenge?.tier);
+
+  if (!mounted || (!hasMedals && !hasMonthly)) return null;
 
   const locale = language === 'nl' ? 'nl-NL' : language === 'ru' ? 'ru-RU' : language === 'tr' ? 'tr-TR' : 'en-US';
 
@@ -46,10 +52,27 @@ export default function MedalCelebrationModal({ medals, onClose }) {
     return str;
   };
 
-  const primaryTier = medals.reduce(
-    (best, m) => (m.tier === 'gold' || (m.tier === 'silver' && best !== 'gold') ? m.tier : best),
+  const medalTier = medals.reduce(
+    (best, m) => (tierRank(m.tier) > tierRank(best) ? m.tier : best),
     medals[0]?.tier || 'bronze'
   );
+  const primaryTier = tierRank(monthlyChallenge?.tier) > tierRank(medalTier)
+    ? monthlyChallenge.tier
+    : medalTier;
+
+  const monthLabel = monthlyChallenge?.monthKey
+    ? new Date(`${monthlyChallenge.monthKey}-01`).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
+    : '';
+
+  const title = hasMedals && hasMonthly
+    ? t('medals.celebration.titleAndMonthly')
+    : hasMonthly
+      ? (monthlyChallenge.fromTier
+          ? t('monthlyChallenges.celebrationUpgradeTitle')
+          : t('monthlyChallenges.celebrationTitle'))
+      : medals.length === 1
+        ? t('medals.celebration.title')
+        : t('medals.celebration.titleMultiple');
 
   const modal = (
     <>
@@ -87,19 +110,53 @@ export default function MedalCelebrationModal({ medals, onClose }) {
 
             <div className="text-center mb-5 relative">
               <div className="inline-flex items-center justify-center mb-3 medal-celebration-trophy">
-                <MedalIcon id={medals[0].id} tier={medals[0].tier} size={72} animate />
+                {hasMedals ? (
+                  <MedalIcon id={medals[0].id} tier={medals[0].tier} size={72} animate />
+                ) : (
+                  <MonthlyMedalIcon tier={monthlyChallenge.tier} size={72} className="medal-icon-pop" />
+                )}
               </div>
               <h2 id="medal-celebration-title" className="text-xl font-bold text-ink medal-celebration-title-glow">
-                {medals.length === 1 ? t('medals.celebration.title') : t('medals.celebration.titleMultiple')}
+                {title}
               </h2>
               <p className="text-sm text-ink-soft mt-1">
-                {medals.length === 1
-                  ? t('medals.celebration.subtitleOne')
-                  : tr('medals.celebration.subtitleMultiple', { count: medals.length })}
+                {hasMedals && !hasMonthly && (
+                  medals.length === 1
+                    ? t('medals.celebration.subtitleOne')
+                    : tr('medals.celebration.subtitleMultiple', { count: medals.length })
+                )}
+                {hasMonthly && (monthlyChallenge.fromTier
+                  ? tr('monthlyChallenges.celebrationUpgradeSubtitle', {
+                      fromTier: t(`monthlyChallenges.tiers.${monthlyChallenge.fromTier}`),
+                      tier: t(`monthlyChallenges.tiers.${monthlyChallenge.tier}`),
+                      month: monthLabel,
+                    })
+                  : tr('monthlyChallenges.celebrationSubtitle', {
+                      tier: t(`monthlyChallenges.tiers.${monthlyChallenge.tier}`),
+                      month: monthLabel,
+                    }))}
               </p>
             </div>
 
             <ul className="space-y-3 max-h-[45vh] overflow-y-auto mb-6 relative">
+              {hasMonthly && (
+                <li
+                  className={`medal-celebration-item flex items-start gap-3 rounded-xl border-2 p-3 ${
+                    TIER_ITEM[monthlyChallenge.tier] || TIER_ITEM.bronze
+                  }`}
+                >
+                  <MonthlyMedalIcon tier={monthlyChallenge.tier} size={52} className="medal-icon-pop shrink-0" />
+                  <div className="min-w-0 text-left">
+                    <p className="font-semibold text-sm text-ink capitalize">{monthLabel}</p>
+                    <p className="text-xs text-ink-soft mt-0.5">
+                      {tr('monthlyChallenges.celebrationDesc', { count: monthlyChallenge.completedCount })}
+                    </p>
+                    <p className="text-xs text-brand mt-1.5 font-medium">
+                      {t(`monthlyChallenges.tiers.${monthlyChallenge.tier}`)}
+                    </p>
+                  </div>
+                </li>
+              )}
               {medals.map((medal, index) => (
                 <li
                   key={medal.id}

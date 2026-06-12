@@ -15,6 +15,7 @@ import { buildPersonalFeedback } from '../../lib/swimAnalysis';
 import { fetchAiCoachFeedback } from '../../lib/aiCoach';
 import { findDuplicateSession } from '../../lib/swimDuplicates';
 import { getNewlyEarnedMedals } from '../../lib/swimMedals';
+import { getMonthlyTierUpgrade } from '../../lib/swimMonthlyChallenges';
 import { formatDateShort } from '../../lib/swimFormatters';
 import SessionFeedback from '../swim/SessionFeedback';
 import MedalCelebrationModal from '../swim/MedalCelebrationModal';
@@ -97,6 +98,7 @@ export default function UploadFlow() {
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [error, setError] = useState('');
   const [newMedals, setNewMedals] = useState([]);
+  const [monthlyUpgrade, setMonthlyUpgrade] = useState(null);
   const [showMedalCelebration, setShowMedalCelebration] = useState(false);
 
   const updateField = (key, value) => {
@@ -167,10 +169,13 @@ export default function UploadFlow() {
     const earnedNow = getNewlyEarnedMedals(sessions, allWithNew, {
       allMedalsUnlocked: cheats?.allMedalsUnlocked,
     });
+    const monthKey = form.date.slice(0, 7);
+    const monthUpgrade = getMonthlyTierUpgrade(sessions, allWithNew, monthKey);
     const localFeedback = buildPersonalFeedback(session, allWithNew, t, profile);
 
     setNewMedals(earnedNow);
-    setShowMedalCelebration(earnedNow.length > 0);
+    setMonthlyUpgrade(monthUpgrade);
+    setShowMedalCelebration(earnedNow.length > 0 || Boolean(monthUpgrade));
     setStep('done');
     setSavedFeedback({ ...localFeedback, aiEnhanced: false });
     setFeedbackLoading(Boolean(profile.aiApiKey?.trim()));
@@ -212,6 +217,7 @@ export default function UploadFlow() {
     setFeedbackLoading(false);
     setError('');
     setNewMedals([]);
+    setMonthlyUpgrade(null);
     setShowMedalCelebration(false);
     if (fileRef.current) fileRef.current.value = '';
   };
@@ -225,9 +231,10 @@ export default function UploadFlow() {
   if (step === 'done') {
     return (
       <div className="space-y-6">
-        {showMedalCelebration && newMedals.length > 0 && (
+        {(showMedalCelebration && (newMedals.length > 0 || monthlyUpgrade)) && (
           <MedalCelebrationModal
             medals={newMedals}
+            monthlyChallenge={monthlyUpgrade}
             onClose={() => setShowMedalCelebration(false)}
           />
         )}
