@@ -1,7 +1,11 @@
 /**
  * Mobile bottom navigation — Aap-SC
+ * Portaled to document.body and pinned to the visual viewport so it
+ * stays fixed while scrolling on iOS Safari.
  */
 
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
@@ -18,14 +22,41 @@ const TABS = [
   { path: '/settings', labelKey: 'navigation.settings', icon: Settings },
 ];
 
+function useVisualViewportPin(ref) {
+  useEffect(() => {
+    const el = ref.current;
+    const vv = typeof window !== 'undefined' ? window.visualViewport : null;
+    if (!el || !vv) return undefined;
+
+    const sync = () => {
+      const inset = Math.max(0, window.innerHeight - vv.offsetTop - vv.height);
+      el.style.transform = inset > 0 ? `translate3d(0, ${-inset}px, 0)` : '';
+    };
+
+    sync();
+    vv.addEventListener('resize', sync);
+    vv.addEventListener('scroll', sync);
+    window.addEventListener('orientationchange', sync);
+
+    return () => {
+      vv.removeEventListener('resize', sync);
+      vv.removeEventListener('scroll', sync);
+      window.removeEventListener('orientationchange', sync);
+      el.style.transform = '';
+    };
+  }, [ref]);
+}
+
 export default function MobileNav() {
   const router = useRouter();
   const { t } = useLanguage();
-  const isActive = (path) => router.pathname === path;
+  const navRef = useRef(null);
+  const [mounted, setMounted] = useState(false);
 
-  const pillBar =
-    'fixed bottom-3 inset-x-2 z-[100] glass-thick rounded-full px-1.5 py-1.5 lg:hidden';
-  const safePad = { paddingBottom: 'max(6px, env(safe-area-inset-bottom))' };
+  useEffect(() => setMounted(true), []);
+  useVisualViewportPin(navRef);
+
+  const isActive = (path) => router.pathname === path;
 
   const tabClass = (active) =>
     [
@@ -33,9 +64,9 @@ export default function MobileNav() {
       active ? 'bg-white text-[#2A45CC] font-semibold shadow-sm' : 'text-ink-soft',
     ].join(' ');
 
-  return (
-    <nav className={pillBar} style={safePad}>
-      <ul className="grid grid-cols-6 gap-0.5">
+  const nav = (
+    <nav ref={navRef} className="mobile-nav-bar glass-thick lg:hidden" aria-label={t('navigation.swimCoach')}>
+      <ul className="grid grid-cols-6 gap-0.5 px-1.5 py-1.5">
         {TABS.map(({ path, labelKey, icon: Icon }) => (
           <li key={path}>
             <Link href={path}>
@@ -49,4 +80,7 @@ export default function MobileNav() {
       </ul>
     </nav>
   );
+
+  if (!mounted) return null;
+  return createPortal(nav, document.body);
 }

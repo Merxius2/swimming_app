@@ -499,6 +499,25 @@ tr.bg-gray-50 { background-color: rgba(11, 13, 20, 0.03) !important; }
   .md\:pb-0 { padding-bottom: 6.5rem !important; }
 }
 
+/* Mobile bottom nav — pinned to viewport (see MobileNav.js portal + visualViewport) */
+.mobile-nav-bar {
+  position: fixed;
+  z-index: 100;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+  border-radius: 9999px;
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+@media (min-width: 1024px) {
+  .mobile-nav-bar {
+    display: none !important;
+  }
+}
+
 /* ============================================================
    PALETTE OVERRIDES — old utility colors → Liquid OS palette
    ------------------------------------------------------------
