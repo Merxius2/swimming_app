@@ -2,6 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   calculateSessionCoins,
+  calculateSessionCoinBreakdown,
   calculateUploadCoins,
   medalTierCoins,
   monthlyTierCoinDelta,
@@ -34,6 +35,19 @@ describe('swimCoins', () => {
     assert.equal(breakdown.medalCoins, medalTierCoins('bronze'));
     assert.equal(breakdown.monthlyCoins, monthlyTierCoinDelta('bronze', 'silver'));
     assert.equal(breakdown.total, breakdown.sessionCoins + breakdown.medalCoins + breakdown.monthlyCoins);
+    assert.ok(breakdown.sessionLines.length > 0);
+    assert.equal(breakdown.bonusLines.length, 2);
+  });
+
+  it('returns session line items that explain the reward', () => {
+    const { sessionCoins, lines } = calculateSessionCoinBreakdown(
+      session('2025-06-01', { distanceM: 3000, durationSec: 3600, activeKcal: 500, paceSecPer100m: 120 }),
+      [session('2025-05-01', { paceSecPer100m: 140 })]
+    );
+    const lineSum = lines.reduce((sum, line) => sum + line.coins, 0);
+    assert.equal(sessionCoins, lineSum);
+    assert.ok(lines.some((line) => line.type === 'longDistance3k'));
+    assert.ok(lines.some((line) => line.type === 'paceImprovement'));
   });
 
   it('migrates legacy sessions with coinsEarned', () => {
@@ -41,5 +55,26 @@ describe('swimCoins', () => {
       session('2025-06-01', { distanceM: 2500, durationSec: 1800, activeKcal: 400 }),
     ]);
     assert.ok(migrated[0].coinsEarned >= 5);
+  });
+
+  it('blocks coins when workout was previously claimed', () => {
+    const pending = session('2025-06-01', { distanceM: 3000, durationSec: 2400, activeKcal: 500 });
+    const claims = [{
+      date: pending.date,
+      metrics: {
+        distanceM: pending.metrics.distanceM,
+        durationSec: pending.metrics.durationSec,
+        paceSecPer100m: null,
+        timeRange: '',
+      },
+    }];
+    const breakdown = calculateUploadCoins({
+      session: pending,
+      sessionsBefore: [],
+      newMedals: [{ id: 'ten_sessions', tier: 'bronze' }],
+      spentCoinClaims: claims,
+    });
+    assert.equal(breakdown.total, 0);
+    assert.equal(breakdown.alreadyClaimed, true);
   });
 });

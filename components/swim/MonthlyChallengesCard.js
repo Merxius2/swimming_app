@@ -6,6 +6,8 @@ import {
   tr,
 } from '../../lib/monthlyChallengeFormatters';
 import MonthlyMedalTile from './MonthlyMedalTile';
+import CoinBadge from './CoinBadge';
+import { monthlyTierCoins, monthlyTierCoinDelta } from '../../lib/swimCoins';
 
 const TIER_STYLES = {
   bronze: 'from-amber-700 to-amber-500 ring-amber-600/30',
@@ -23,6 +25,12 @@ export default function MonthlyChallengesCard({ sessions, monthKey = getMonthKey
   const monthLabel = new Date(`${monthKey}-01`).toLocaleDateString(locale, { month: 'long', year: 'numeric' });
 
   const currentTierIndex = state.tier ? TIER_STEPS.indexOf(state.tier) : -1;
+  const nextTier = currentTierIndex >= 0 && currentTierIndex < TIER_STEPS.length - 1
+    ? TIER_STEPS[currentTierIndex + 1]
+    : null;
+  const nextUpgradeCoins = nextTier
+    ? monthlyTierCoinDelta(state.tier, nextTier)
+    : 0;
 
   return (
     <div className="card p-6">
@@ -38,9 +46,12 @@ export default function MonthlyChallengesCard({ sessions, monthKey = getMonthKey
             size={64}
           />
           {state.tier && (
-            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold text-white bg-gradient-to-r ring-1 ${TIER_STYLES[state.tier]}`}>
-              {t(`monthlyChallenges.tiers.${state.tier}`)}
-            </span>
+            <div className="flex flex-col items-center gap-1.5">
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold text-white bg-gradient-to-r ring-1 ${TIER_STYLES[state.tier]}`}>
+                {t(`monthlyChallenges.tiers.${state.tier}`)}
+              </span>
+              <CoinBadge amount={monthlyTierCoins(state.tier)} size="sm" />
+            </div>
           )}
           <div className="flex gap-1.5 mt-1" aria-hidden="true">
             {TIER_STEPS.map((tier, i) => (
@@ -68,7 +79,7 @@ export default function MonthlyChallengesCard({ sessions, monthKey = getMonthKey
           return (
             <li
               key={ch.id}
-              className={`rounded-xl border p-3 ${ch.completed ? 'border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-900/10' : 'border-gray-200 dark:border-gray-800'}`}
+              className={`monthly-challenge-row rounded-xl border p-3 ${ch.completed ? 'border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-900/10' : 'border-gray-200 dark:border-gray-800'}`}
             >
               <div className="flex items-center justify-between gap-2 mb-1">
                 <p className="text-sm font-medium text-ink">{t(`monthlyChallenges.types.${ch.type}`)}</p>
@@ -98,6 +109,42 @@ export default function MonthlyChallengesCard({ sessions, monthKey = getMonthKey
           );
         })}
       </ul>
+
+      <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint mb-2">
+          {t('coins.monthlyRewards')}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {TIER_STEPS.map((tier, i) => {
+            const earned = currentTierIndex >= i;
+            const isCurrent = state.tier === tier;
+            return (
+              <div
+                key={tier}
+                className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 ${
+                  isCurrent
+                    ? 'border-brand/40 bg-tint-soft/40 dark:bg-brand/10'
+                    : earned
+                      ? 'border-green-200/80 bg-green-50/50 dark:border-green-900/40 dark:bg-green-900/10'
+                      : 'border-gray-200 dark:border-gray-800 opacity-80'
+                }`}
+              >
+                <span className="text-[11px] font-medium text-ink capitalize">
+                  {t(`monthlyChallenges.tiers.${tier}`)}
+                </span>
+                <CoinBadge amount={monthlyTierCoins(tier)} size="sm" />
+              </div>
+            );
+          })}
+        </div>
+        {nextTier && nextUpgradeCoins > 0 && (
+          <p className="text-[11px] text-ink-faint mt-2 leading-relaxed">
+            {t('coins.monthlyNextUpgrade')
+              .replace('{tier}', t(`monthlyChallenges.tiers.${nextTier}`))
+              .replace('{amount}', String(nextUpgradeCoins))}
+          </p>
+        )}
+      </div>
 
       <p className="text-[11px] text-ink-faint mt-4 leading-relaxed">
         {t('monthlyChallenges.tierHint')}

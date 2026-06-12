@@ -8,11 +8,18 @@ import {
 
 const sampleData = {
   profile: { sex: 'male', age: 35 },
+  totalCoins: 42,
+  spentCoinClaims: [{
+    date: '2025-06-01',
+    metrics: { distanceM: 1000, durationSec: 900, paceSecPer100m: 120, timeRange: '' },
+  }],
   sessions: [
     {
       id: 'test-1',
       date: '2025-06-03',
       createdAt: '2025-06-03T12:00:00.000Z',
+      coinsEarned: 24,
+      coinBonus: 25,
       metrics: {
         durationSec: 3267,
         distanceM: 2550,
@@ -36,10 +43,14 @@ describe('swimImportExport', () => {
     const exported = await generateSwimExportString(sampleData);
     assert.ok(exported.includes(':'));
     const imported = await parseSwimImportString(exported);
-    assert.deepEqual(imported.profile, sampleData.profile);
+    assert.deepEqual(imported.profile, { ...sampleData.profile, aiApiKey: '' });
     assert.equal(imported.sessions.length, 1);
     assert.equal(imported.sessions[0].metrics.distanceM, 2550);
     assert.equal(imported.sessions[0].metrics.paceSecPer100m, 130);
+    assert.equal(imported.sessions[0].coinsEarned, 24);
+    assert.equal(imported.sessions[0].coinBonus, 25);
+    assert.equal(imported.totalCoins, 42);
+    assert.equal(imported.spentCoinClaims.length, 1);
   });
 
   it('rejects invalid checksum', async () => {

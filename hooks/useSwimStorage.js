@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { DEFAULT_SWIM_DATA } from '../lib/swimConstants';
 import { loadSwimData, saveSwimData, createSessionId } from '../lib/swimStorage';
+import { createCoinClaim, sessionTotalCoins } from '../lib/swimCoinClaims';
 
 export function useSwimStorage(debounceDelay = 500) {
   const [data, setData] = useState(DEFAULT_SWIM_DATA);
@@ -35,6 +36,7 @@ export function useSwimStorage(debounceDelay = 500) {
       date,
       metrics,
       coinsEarned,
+      coinBonus,
     };
     setData((prev) => ({
       ...prev,
@@ -47,10 +49,24 @@ export function useSwimStorage(debounceDelay = 500) {
   }, []);
 
   const removeSession = useCallback((id) => {
-    setData((prev) => ({
-      ...prev,
-      sessions: prev.sessions.filter((s) => s.id !== id),
-    }));
+    setData((prev) => {
+      const session = prev.sessions.find((s) => s.id === id);
+      if (!session) return prev;
+
+      const coinsRemoved = sessionTotalCoins(session);
+      const spentCoinClaims = [...(prev.spentCoinClaims || [])];
+
+      if (coinsRemoved > 0) {
+        spentCoinClaims.push(createCoinClaim(session));
+      }
+
+      return {
+        ...prev,
+        totalCoins: Math.max(0, (prev.totalCoins || 0) - coinsRemoved),
+        spentCoinClaims,
+        sessions: prev.sessions.filter((s) => s.id !== id),
+      };
+    });
   }, []);
 
   const replaceData = useCallback((nextData) => {
@@ -58,11 +74,12 @@ export function useSwimStorage(debounceDelay = 500) {
       profile: { ...DEFAULT_SWIM_DATA.profile, ...nextData.profile },
       totalCoins: typeof nextData.totalCoins === 'number' ? nextData.totalCoins : 0,
       sessions: Array.isArray(nextData.sessions) ? nextData.sessions : [],
+      spentCoinClaims: Array.isArray(nextData.spentCoinClaims) ? nextData.spentCoinClaims : [],
     });
   }, []);
 
   const clearAll = useCallback(() => {
-    setData({ ...DEFAULT_SWIM_DATA, sessions: [] });
+    setData({ ...DEFAULT_SWIM_DATA, sessions: [], spentCoinClaims: [] });
   }, []);
 
   return {
@@ -71,6 +88,7 @@ export function useSwimStorage(debounceDelay = 500) {
     profile: data.profile,
     sessions: data.sessions,
     totalCoins: data.totalCoins || 0,
+    spentCoinClaims: data.spentCoinClaims || [],
     updateProfile,
     addSession,
     removeSession,

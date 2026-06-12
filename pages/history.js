@@ -11,6 +11,8 @@ import {
   formatDuration,
   formatPace,
 } from '../lib/swimFormatters';
+import CoinBadge from '../components/swim/CoinBadge';
+import { sessionTotalCoins } from '../lib/swimCoinClaims';
 
 export default function HistoryPage() {
   const { t } = useLanguage();
@@ -60,24 +62,34 @@ export default function HistoryPage() {
         {filtered.map((session) => {
           const m = session.metrics || {};
           const isOpen = expandedId === session.id;
+          const coins = sessionTotalCoins(session);
           return (
             <div key={session.id} className="card p-4">
               <button
                 type="button"
-                className="w-full flex items-center justify-between text-left"
+                className="w-full flex items-center justify-between text-left gap-3"
                 onClick={() => setExpandedId(isOpen ? null : session.id)}
               >
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-ink">{formatDateLong(session.date)}</p>
                   <p className="text-sm text-ink-soft">
                     {formatDistance(m.distanceM)} · {formatPace(m.paceSecPer100m)} · {formatDuration(m.durationSec)}
                   </p>
                 </div>
-                {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                <div className="flex items-center gap-2 shrink-0">
+                  {coins > 0 && <CoinBadge amount={coins} size="sm" />}
+                  {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                </div>
               </button>
 
               {isOpen && (
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-3 text-sm">
+                  {coins > 0 && (
+                    <div className="col-span-2 flex items-center justify-between rounded-lg bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-800/40 px-3 py-2">
+                      <span className="text-ink-soft text-xs font-medium">{t('history.coinsEarned')}</span>
+                      <CoinBadge amount={coins} size="sm" />
+                    </div>
+                  )}
                   <div><span className="text-ink-faint">{t('upload.fields.activeKcal')}: </span>{m.activeKcal ?? '—'}</div>
                   <div><span className="text-ink-faint">{t('upload.fields.totalKcal')}: </span>{m.totalKcal ?? '—'}</div>
                   <div><span className="text-ink-faint">{t('upload.fields.heartRate')}: </span>{m.avgHeartRate ?? '—'}</div>

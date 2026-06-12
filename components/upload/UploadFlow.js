@@ -20,7 +20,7 @@ import { calculateUploadCoins } from '../../lib/swimCoins';
 import { formatDateShort } from '../../lib/swimFormatters';
 import SessionFeedback from '../swim/SessionFeedback';
 import MedalCelebrationModal from '../swim/MedalCelebrationModal';
-import CoinBadge from '../swim/CoinBadge';
+import CoinEarnedModal from '../swim/CoinEarnedModal';
 import ConfirmModal from '../ConfirmModal';
 
 const emptyForm = () => ({
@@ -87,7 +87,7 @@ const formToMetrics = (form) => ({
 
 export default function UploadFlow() {
   const { t, language } = useLanguage();
-  const { sessions, addSession, profile, cheats } = useSwim();
+  const { sessions, addSession, profile, cheats, spentCoinClaims } = useSwim();
   const fileRef = useRef(null);
 
   const [step, setStep] = useState('drop');
@@ -102,6 +102,7 @@ export default function UploadFlow() {
   const [newMedals, setNewMedals] = useState([]);
   const [monthlyUpgrade, setMonthlyUpgrade] = useState(null);
   const [coinBreakdown, setCoinBreakdown] = useState(null);
+  const [showCoinCelebration, setShowCoinCelebration] = useState(false);
   const [showMedalCelebration, setShowMedalCelebration] = useState(false);
 
   const updateField = (key, value) => {
@@ -179,6 +180,7 @@ export default function UploadFlow() {
       sessionsBefore: sessions,
       newMedals: earnedNow,
       monthlyUpgrade: monthUpgrade,
+      spentCoinClaims,
     });
     const session = addSession({
       date: form.date,
@@ -191,7 +193,8 @@ export default function UploadFlow() {
     setNewMedals(earnedNow);
     setMonthlyUpgrade(monthUpgrade);
     setCoinBreakdown(coins);
-    setShowMedalCelebration(earnedNow.length > 0 || Boolean(monthUpgrade));
+    setShowCoinCelebration(coins.total > 0 || coins.alreadyClaimed);
+    setShowMedalCelebration(false);
     setStep('done');
     setSavedFeedback({ ...localFeedback, aiEnhanced: false });
     setFeedbackLoading(Boolean(profile.aiApiKey?.trim()));
@@ -235,6 +238,7 @@ export default function UploadFlow() {
     setNewMedals([]);
     setMonthlyUpgrade(null);
     setCoinBreakdown(null);
+    setShowCoinCelebration(false);
     setShowMedalCelebration(false);
     if (fileRef.current) fileRef.current.value = '';
   };
@@ -245,28 +249,25 @@ export default function UploadFlow() {
     ? findDuplicateSession(sessions, { date: form.date, metrics: formToMetrics(form) })
     : null;
 
+  const handleCoinModalClose = () => {
+    setShowCoinCelebration(false);
+    if (newMedals.length > 0 || monthlyUpgrade) {
+      setShowMedalCelebration(true);
+    }
+  };
+
   if (step === 'done') {
     return (
       <div className="space-y-6">
+        {showCoinCelebration && coinBreakdown && (
+          <CoinEarnedModal breakdown={coinBreakdown} onClose={handleCoinModalClose} />
+        )}
         {(showMedalCelebration && (newMedals.length > 0 || monthlyUpgrade)) && (
           <MedalCelebrationModal
             medals={newMedals}
             monthlyChallenge={monthlyUpgrade}
             onClose={() => setShowMedalCelebration(false)}
           />
-        )}
-        {coinBreakdown && coinBreakdown.total > 0 && (
-          <div className="card p-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-ink">{t('coins.earnedTitle')}</p>
-              <p className="text-xs text-ink-soft mt-0.5">
-                {t('coins.earnedBreakdown')
-                  .replace('{session}', String(coinBreakdown.sessionCoins))
-                  .replace('{medals}', String(coinBreakdown.medalCoins + coinBreakdown.monthlyCoins))}
-              </p>
-            </div>
-            <CoinBadge amount={coinBreakdown.total} />
-          </div>
         )}
         <SessionFeedback
           insights={savedFeedback?.insights || []}

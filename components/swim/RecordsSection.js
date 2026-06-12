@@ -36,7 +36,7 @@ export default function RecordsSection({ records }) {
         {entries.map(({ key, labelKey, format, color, record }) => (
           <div
             key={key}
-            className="rounded-lg border border-gray-100 dark:border-gray-800 bg-black/[0.02] dark:bg-white/[0.03] p-4"
+            className="rounded-lg border border-gray-100 dark:border-gray-800 bg-black/[0.02] dark:bg-white/[0.03] p-4 record-tile"
           >
             <p className="text-xs text-ink-faint mb-1">{t(labelKey)}</p>
             <p className={`text-xl font-bold ${color}`}>

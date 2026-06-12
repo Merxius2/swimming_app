@@ -1,6 +1,8 @@
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { formatDistance, formatPace, formatDuration, formatDateLong } from '../../lib/swimFormatters';
+import { medalTierCoins } from '../../lib/swimCoins';
 import MedalIcon from './MedalIcon';
+import CoinBadge from './CoinBadge';
 
 const TIER_RING = {
   bronze: 'ring-amber-600/30',
@@ -56,6 +58,7 @@ export default function MedalCard({ medal, periodLabel }) {
   };
 
   const ring = TIER_RING[tier] || TIER_RING.bronze;
+  const coinValue = medalTierCoins(tier);
   const showProgress = !earned && progress && progress.percent != null;
 
   const progressLabel = showProgress
@@ -88,10 +91,10 @@ export default function MedalCard({ medal, periodLabel }) {
 
   return (
     <div
-      className={`group relative rounded-xl border p-4 transition ${
+      className={`group relative medal-card card p-4 transition ${
         earned
-          ? 'border-transparent bg-white dark:bg-gray-900 shadow-soft-md ring-2 ' + ring
-          : 'border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80'
+          ? 'ring-2 ' + ring
+          : 'opacity-90'
       }`}
     >
       {showProgress && tooltipLines.length > 0 && (
@@ -112,9 +115,18 @@ export default function MedalCard({ medal, periodLabel }) {
       >
         <MedalIcon id={id} tier={tier} size={48} locked={!earned} />
         <div className="min-w-0 flex-1">
-          <p className={`font-semibold text-sm leading-snug ${earned ? 'text-ink dark:text-gray-100' : 'text-ink-soft dark:text-gray-300'}`}>
-            {t(`medals.items.${id}.title`)}
-          </p>
+          <div className="flex items-start justify-between gap-2">
+            <p className={`font-semibold text-sm leading-snug ${earned ? 'text-ink dark:text-gray-100' : 'text-ink-soft dark:text-gray-300'}`}>
+              {t(`medals.items.${id}.title`)}
+            </p>
+            {coinValue > 0 && (
+              <CoinBadge
+                amount={coinValue}
+                size="sm"
+                className={`shrink-0 ${earned ? '' : 'opacity-75'}`}
+              />
+            )}
+          </div>
           <p className="text-xs text-ink-soft mt-1 leading-relaxed">
             {t(`medals.items.${id}.desc`)}
           </p>

@@ -6,6 +6,8 @@ import {
   tr,
 } from '../../lib/monthlyChallengeFormatters';
 import MonthlyMedalIcon from './MonthlyMedalIcon';
+import CoinBadge from './CoinBadge';
+import { monthlyTierCoins } from '../../lib/swimCoins';
 
 /**
  * Monthly medal with hover tooltip showing tier and challenge breakdown.
@@ -119,9 +121,12 @@ export default function MonthlyMedalTile({
         <>
           <p className="text-[10px] font-medium text-ink leading-tight">{monthShort}</p>
           {tier ? (
-            <p className="text-[9px] text-brand font-semibold capitalize leading-tight">
-              {t(`monthlyChallenges.tiers.${tier}`)}
-            </p>
+            <>
+              <p className="text-[9px] text-brand font-semibold capitalize leading-tight">
+                {t(`monthlyChallenges.tiers.${tier}`)}
+              </p>
+              <CoinBadge amount={monthlyTierCoins(tier)} size="sm" className="mt-0.5" />
+            </>
           ) : hasSessions ? (
             <p className="text-[9px] text-ink-faint leading-tight">{t('monthlyChallenges.inProgress')}</p>
           ) : (

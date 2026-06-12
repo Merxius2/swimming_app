@@ -380,12 +380,42 @@ html.theme-gen-z.dark .recharts-tooltip-wrapper > div {
   color: #FAFAFA !important;
 }
 
-/* ---- Mobile: page canvas + bottom nav readability ---- */
-@media (max-width: 1023px) {
-  html.theme-gen-z .min-h-screen.bg-white {
-    background-color: var(--genz-canvas) !important;
-  }
+/* ---- Page canvas (all viewports) ---- */
+html.theme-gen-z .min-h-screen.bg-white {
+  background-color: var(--genz-canvas) !important;
+}
 
+/* ---- Medal cards + nested record tiles ---- */
+html.theme-gen-z .medal-card {
+  background: var(--genz-surface) !important;
+  border: var(--genz-border) !important;
+  border-radius: var(--genz-radius) !important;
+  box-shadow: var(--genz-shadow) !important;
+}
+
+html.theme-gen-z .record-tile {
+  background: rgba(98, 0, 238, 0.04) !important;
+  border: 2px solid rgba(98, 0, 238, 0.12) !important;
+  border-radius: 1rem !important;
+}
+
+html.theme-gen-z .monthly-challenge-row {
+  border-radius: 1rem !important;
+}
+
+html.theme-gen-z .min-h-screen.bg-white .border-gray-100,
+html.theme-gen-z .min-h-screen.bg-white .border-gray-200 {
+  border-color: rgba(98, 0, 238, 0.12) !important;
+}
+
+html.theme-gen-z.dark .min-h-screen.bg-white .border-gray-100,
+html.theme-gen-z.dark .min-h-screen.bg-white .border-gray-200,
+html.theme-gen-z.dark .min-h-screen.bg-white .border-gray-800 {
+  border-color: rgba(212, 255, 0, 0.14) !important;
+}
+
+/* ---- Mobile: bottom nav readability ---- */
+@media (max-width: 1023px) {
   html.theme-gen-z nav.mobile-nav-bar {
     left: 0 !important;
     right: 0 !important;
