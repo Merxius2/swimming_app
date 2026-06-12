@@ -15,10 +15,10 @@ export default function Document() {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Aap-SC" />
-        <link rel="apple-touch-icon" href="/icon-e-192.png" />
+        <link rel="apple-touch-icon" href="/icon-sc-192.png" />
 
         {/* Favicon — initial; AppContent swaps it per language at runtime */}
-        <link rel="icon" type="image/png" href="/icon-e-192.png" />
+        <link rel="icon" type="image/png" href="/icon-sc-192.png" />
 
         {/* Fonts: Bricolage Grotesque (variable, opsz+wght) + Geist Mono */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

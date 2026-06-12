@@ -9,16 +9,10 @@ import Image from 'next/image';
 import { ArrowRight, Upload, BarChart3, TrendingUp, History } from 'lucide-react';
 
 import { useLanguage, useDarkMode } from '../context/UserPreferencesContext';
-import { LANGUAGES, LANGUAGE_FAVICON_MAP } from '../lib/appConstants';
+import { LANGUAGES, APP_ICON_512 } from '../lib/appConstants';
 import ToolTile from '../components/ToolTile';
 
-const LANG_ICON = {
-  en: LANGUAGE_FAVICON_MAP.en.replace('-192', '-512'),
-  nl: LANGUAGE_FAVICON_MAP.nl.replace('-192', '-512'),
-  ru: LANGUAGE_FAVICON_MAP.ru.replace('-192', '-512'),
-  tr: LANGUAGE_FAVICON_MAP.tr.replace('-192', '-512'),
-  mu: LANGUAGE_FAVICON_MAP.mu.replace('-192', '-512'),
-};
+const LANG_ICON = Object.fromEntries(LANGUAGES.map((l) => [l.code, APP_ICON_512]));
 
 export default function Home() {
   const { t, language, changeLanguage, isLoading } = useLanguage();

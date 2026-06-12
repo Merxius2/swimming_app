@@ -13,6 +13,9 @@ out/
 # tesseract language data (downloaded at runtime)
 *.traineddata
 
+# large icon source (sized variants are committed)
+public/icon-sc-source.png
+
 # debug
 npm-debug.log*
 
