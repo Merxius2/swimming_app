@@ -4,10 +4,10 @@ import { medalTierCoins } from '../../lib/swimCoins';
 import MedalIcon from './MedalIcon';
 import CoinBadge from './CoinBadge';
 
-const TIER_RING = {
-  bronze: 'ring-amber-600/30',
-  silver: 'ring-gray-400/30',
-  gold: 'ring-yellow-500/40',
+const EARNED_TIER_CLASS = {
+  bronze: 'medal-card-earned-bronze',
+  silver: 'medal-card-earned-silver',
+  gold: 'medal-card-earned-gold',
 };
 
 const formatValue = (kind, value, t) => {
@@ -57,9 +57,9 @@ export default function MedalCard({ medal, periodLabel }) {
     return str;
   };
 
-  const ring = TIER_RING[tier] || TIER_RING.bronze;
   const coinValue = medalTierCoins(tier);
   const showProgress = !earned && progress && progress.percent != null;
+  const earnedTierClass = EARNED_TIER_CLASS[tier] || EARNED_TIER_CLASS.bronze;
 
   const progressLabel = showProgress
     ? tr('medals.progress.summary', {
@@ -93,10 +93,17 @@ export default function MedalCard({ medal, periodLabel }) {
     <div
       className={`group relative medal-card card p-4 transition ${
         earned
-          ? 'ring-2 ' + ring
-          : 'opacity-90'
+          ? `medal-card-earned ${earnedTierClass}`
+          : 'medal-card-locked'
       }`}
     >
+      {earned && (
+        <>
+          <div className="medal-card-shine" aria-hidden="true" />
+          <span className="medal-card-earned-badge">{t('medals.earned')}</span>
+        </>
+      )}
+
       {showProgress && tooltipLines.length > 0 && (
         <div
           role="tooltip"
@@ -111,7 +118,7 @@ export default function MedalCard({ medal, periodLabel }) {
 
       <div
         tabIndex={showProgress ? 0 : undefined}
-        className={`flex items-start gap-3 outline-none ${showProgress ? 'cursor-help' : ''}`}
+        className={`relative z-[2] flex items-start gap-3 outline-none ${showProgress ? 'cursor-help' : ''} ${earned ? 'pt-5' : ''}`}
       >
         <MedalIcon id={id} tier={tier} size={48} locked={!earned} />
         <div className="min-w-0 flex-1">
@@ -123,11 +130,11 @@ export default function MedalCard({ medal, periodLabel }) {
               <CoinBadge
                 amount={coinValue}
                 size="sm"
-                className={`shrink-0 ${earned ? '' : 'opacity-75'}`}
+                className={`shrink-0 ${earned ? '' : 'opacity-60'}`}
               />
             )}
           </div>
-          <p className="text-xs text-ink-soft mt-1 leading-relaxed">
+          <p className={`text-xs mt-1 leading-relaxed ${earned ? 'text-ink-soft' : 'text-ink-faint'}`}>
             {t(`medals.items.${id}.desc`)}
           </p>
 
