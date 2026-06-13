@@ -1,11 +1,10 @@
-import Image from 'next/image';
-import { useLanguage } from '../context/UserPreferencesContext';
-import { LANGUAGE_FAVICON_MAP } from '../lib/appConstants';
+import { useSwim } from '../context/SwimContext';
+import { resolveAppIconPath } from '../lib/storeAppIcons';
 import SecretMenuTrigger from './SecretMenuTrigger';
 
 export default function SecretAppIcon({ size = 32, className = '' }) {
-  const { language } = useLanguage();
-  const iconPath = LANGUAGE_FAVICON_MAP[language] || LANGUAGE_FAVICON_MAP.en;
+  const { profile, storeUnlocks } = useSwim();
+  const iconPath = resolveAppIconPath(profile?.activeAppIcon, storeUnlocks);
 
   return (
     <SecretMenuTrigger
@@ -14,7 +13,14 @@ export default function SecretAppIcon({ size = 32, className = '' }) {
       className={`rounded-full shrink-0 focus:outline-none ${className}`.trim()}
       aria-label="Aap-SC"
     >
-      <Image src={iconPath} alt="" width={size} height={size} className="rounded-full" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={iconPath}
+        alt=""
+        width={size}
+        height={size}
+        className="rounded-full"
+      />
     </SecretMenuTrigger>
   );
 }

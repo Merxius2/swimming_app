@@ -1,0 +1,177 @@
+/* Platinum Elite — cool silver canvas, icy accents, podium prestige */
+
+html.theme-platinum-elite {
+  --pe-canvas: #F1F5F9;
+  --pe-panel: #F8FAFC;
+  --pe-platinum: #94A3B8;
+  --pe-platinum-deep: #475569;
+  --pe-ice: #A5B4FC;
+  --pe-ink: #1E293B;
+  --pe-muted: #64748B;
+  --pe-border: rgba(100, 116, 139, 0.22);
+  --pe-night: #0F172A;
+  --pe-night-panel: #1E293B;
+  background-color: var(--pe-canvas);
+}
+
+html.theme-platinum-elite body {
+  background:
+    radial-gradient(90% 60% at 100% 0%, rgba(165, 180, 252, 0.18) 0%, transparent 55%),
+    radial-gradient(80% 50% at 0% 100%, rgba(148, 163, 184, 0.16) 0%, transparent 50%),
+    var(--pe-canvas) !important;
+  color: var(--pe-ink);
+}
+
+html.theme-platinum-elite .text-ink { color: var(--pe-ink) !important; }
+html.theme-platinum-elite .text-ink-soft { color: var(--pe-muted) !important; }
+html.theme-platinum-elite .text-ink-faint { color: #94A3B8 !important; }
+html.theme-platinum-elite .text-brand-primary { color: var(--pe-platinum-deep) !important; }
+
+html.theme-platinum-elite .card,
+html.theme-platinum-elite .glass,
+html.theme-platinum-elite .chart-glass,
+html.theme-platinum-elite .glass-thick {
+  background: var(--pe-panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 2px solid var(--pe-border) !important;
+  box-shadow: 0 2px 0 var(--pe-platinum-deep), 0 8px 28px rgba(71, 85, 105, 0.08) !important;
+}
+
+html.theme-platinum-elite aside.glass-thick,
+html.theme-platinum-elite nav.glass-thick {
+  background: linear-gradient(165deg, #334155 0%, #1E293B 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(165, 180, 252, 0.35) !important;
+  color: #F8FAFC !important;
+  box-shadow: inset 0 -4px 0 var(--pe-ice) !important;
+}
+
+html.theme-platinum-elite aside.glass-thick .text-ink-soft,
+html.theme-platinum-elite nav.glass-thick .text-ink-soft,
+html.theme-platinum-elite aside.glass-thick .text-ink-faint {
+  color: rgba(248, 250, 252, 0.82) !important;
+}
+
+html.theme-platinum-elite aside.glass-thick .font-semibold,
+html.theme-platinum-elite nav.glass-thick .font-semibold {
+  color: #F8FAFC !important;
+}
+
+html.theme-platinum-elite aside.glass-thick .bg-tint-soft,
+html.theme-platinum-elite nav.glass-thick .bg-tint-soft {
+  background: rgba(165, 180, 252, 0.18) !important;
+  color: #F8FAFC !important;
+}
+
+html.theme-platinum-elite .bg-gradient-to-br.from-brand-primary.to-brand-secondary,
+html.theme-platinum-elite .from-brand-primary.to-brand-secondary {
+  background: linear-gradient(135deg, #64748B 0%, #334155 100%) !important;
+  border-bottom: 3px solid var(--pe-ice) !important;
+}
+
+html.theme-platinum-elite button.bg-gray-100,
+html.theme-platinum-elite button.bg-gray-200 {
+  background: #E2E8F0 !important;
+  border: 1px solid var(--pe-border) !important;
+}
+
+html.theme-platinum-elite input[type='number'],
+html.theme-platinum-elite input[type='text'],
+html.theme-platinum-elite select {
+  border: 2px solid var(--pe-border) !important;
+  background: #F8FAFC !important;
+}
+
+html.theme-platinum-elite .min-h-screen.bg-white {
+  background-color: var(--pe-canvas) !important;
+}
+
+html.theme-platinum-elite .recharts-line .recharts-line-curve { stroke: var(--pe-platinum-deep) !important; }
+
+html.theme-platinum-elite.dark {
+  background-color: var(--pe-night);
+}
+
+html.theme-platinum-elite.dark body {
+  background:
+    radial-gradient(80% 55% at 100% 0%, rgba(165, 180, 252, 0.1) 0%, transparent 55%),
+    var(--pe-night) !important;
+  color: #F8FAFC;
+}
+
+html.theme-platinum-elite.dark .text-ink,
+html.theme-platinum-elite.dark .text-gray-900,
+html.theme-platinum-elite.dark .dark\:text-\[\#FAFAFA\] {
+  color: #F8FAFC !important;
+}
+
+html.theme-platinum-elite.dark .text-ink-soft,
+html.theme-platinum-elite.dark .text-gray-600 {
+  color: #CBD5E1 !important;
+}
+
+html.theme-platinum-elite.dark .card,
+html.theme-platinum-elite.dark .glass,
+html.theme-platinum-elite.dark .chart-glass,
+html.theme-platinum-elite.dark .glass-thick:not(aside):not(nav) {
+  background: var(--pe-night-panel) !important;
+  border-color: rgba(165, 180, 252, 0.22) !important;
+}
+
+html.theme-platinum-elite.dark aside.glass-thick,
+html.theme-platinum-elite.dark nav.glass-thick {
+  background: linear-gradient(165deg, #1E293B 0%, #0F172A 100%) !important;
+  color: #F8FAFC !important;
+}
+
+html.theme-platinum-elite.dark .min-h-screen.bg-white {
+  background-color: var(--pe-night) !important;
+}
+
+@media (max-width: 1023px) {
+  html.theme-platinum-elite nav.mobile-nav-bar .mobile-nav-tab-btn,
+  html.theme-platinum-elite.dark nav.mobile-nav-bar .mobile-nav-tab-btn {
+    color: rgba(248, 250, 252, 0.88) !important;
+  }
+
+  html.theme-platinum-elite nav.mobile-nav-bar .mobile-nav-tab-btn svg,
+  html.theme-platinum-elite.dark nav.mobile-nav-bar .mobile-nav-tab-btn svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+  }
+
+  html.theme-platinum-elite nav.mobile-nav-bar .mobile-nav-tab-active,
+  html.theme-platinum-elite.dark nav.mobile-nav-bar .mobile-nav-tab-active {
+    color: var(--pe-ice) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-platinum-elite nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-platinum-elite.dark nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-platinum-elite nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft,
+  html.theme-platinum-elite.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft {
+    color: rgba(248, 250, 252, 0.88) !important;
+  }
+
+  html.theme-platinum-elite nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\],
+  html.theme-platinum-elite.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\] {
+    color: var(--pe-ice) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-platinum-elite nav.mobile-nav-bar .mobile-nav-fab,
+  html.theme-platinum-elite.dark nav.mobile-nav-bar .mobile-nav-fab {
+    background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 100%) !important;
+    color: #1E293B !important;
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 4px 14px rgba(148, 163, 184, 0.45) !important;
+  }
+
+  html.theme-platinum-elite nav.mobile-nav-bar .mobile-nav-fab svg,
+  html.theme-platinum-elite.dark nav.mobile-nav-bar .mobile-nav-fab svg {
+    color: #1E293B !important;
+    stroke: #1E293B !important;
+  }
+}

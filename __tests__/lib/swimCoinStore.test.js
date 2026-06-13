@@ -4,6 +4,7 @@ import {
   canPurchaseStoreItem,
   canPurchaseTheme,
   getDailyPaidSpinLimit,
+  getStoreItem,
   getUnlockedThemes,
   hasConfettiCannon,
   hasGoldenCoinBadge,
@@ -69,6 +70,18 @@ describe('swimCoinStore', () => {
       ).map((t) => t.code),
       ['liquid-os', 'gen-z', 'classic']
     );
+  });
+
+  it('premium themes have tiered pricing', () => {
+    assert.equal(getStoreItem('theme:gold-luxe').price, 1000);
+    assert.equal(getStoreItem('theme:platinum-elite').price, 2000);
+    assert.equal(canPurchaseStoreItem('theme:gold-luxe', [], 999), false);
+    assert.equal(canPurchaseStoreItem('theme:platinum-elite', [], 1999), false);
+  });
+
+  it('app icon store items require purchase', () => {
+    assert.equal(isStoreItemOwned('icon:gold-medal', []), false);
+    assert.equal(isStoreItemOwned('icon:gold-medal', ['icon:gold-medal']), true);
   });
 
   it('deprecated theme helpers still work', () => {

@@ -1,0 +1,177 @@
+/* Gold Luxe — champagne canvas, trophy gold accents, podium warmth */
+
+html.theme-gold-luxe {
+  --gl-canvas: #FFF8E7;
+  --gl-panel: #FFFBEB;
+  --gl-gold: #D97706;
+  --gl-gold-light: #FBBF24;
+  --gl-gold-deep: #92400E;
+  --gl-ink: #422006;
+  --gl-muted: #92400E;
+  --gl-border: rgba(217, 119, 6, 0.22);
+  --gl-night: #1A1408;
+  --gl-night-panel: #2D220F;
+  background-color: var(--gl-canvas);
+}
+
+html.theme-gold-luxe body {
+  background:
+    radial-gradient(90% 60% at 100% 0%, rgba(251, 191, 36, 0.22) 0%, transparent 55%),
+    radial-gradient(80% 50% at 0% 100%, rgba(245, 158, 11, 0.14) 0%, transparent 50%),
+    var(--gl-canvas) !important;
+  color: var(--gl-ink);
+}
+
+html.theme-gold-luxe .text-ink { color: var(--gl-ink) !important; }
+html.theme-gold-luxe .text-ink-soft { color: var(--gl-muted) !important; }
+html.theme-gold-luxe .text-ink-faint { color: #B45309 !important; }
+html.theme-gold-luxe .text-brand-primary { color: var(--gl-gold) !important; }
+
+html.theme-gold-luxe .card,
+html.theme-gold-luxe .glass,
+html.theme-gold-luxe .chart-glass,
+html.theme-gold-luxe .glass-thick {
+  background: var(--gl-panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 2px solid var(--gl-border) !important;
+  box-shadow: 0 2px 0 var(--gl-gold-deep), 0 8px 28px rgba(180, 83, 9, 0.1) !important;
+}
+
+html.theme-gold-luxe aside.glass-thick,
+html.theme-gold-luxe nav.glass-thick {
+  background: linear-gradient(165deg, var(--gl-gold-deep) 0%, #78350F 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(251, 191, 36, 0.35) !important;
+  color: #FFFBEB !important;
+  box-shadow: inset 0 -4px 0 var(--gl-gold-light) !important;
+}
+
+html.theme-gold-luxe aside.glass-thick .text-ink-soft,
+html.theme-gold-luxe nav.glass-thick .text-ink-soft,
+html.theme-gold-luxe aside.glass-thick .text-ink-faint {
+  color: rgba(255, 251, 235, 0.82) !important;
+}
+
+html.theme-gold-luxe aside.glass-thick .font-semibold,
+html.theme-gold-luxe nav.glass-thick .font-semibold {
+  color: #FFFBEB !important;
+}
+
+html.theme-gold-luxe aside.glass-thick .bg-tint-soft,
+html.theme-gold-luxe nav.glass-thick .bg-tint-soft {
+  background: rgba(251, 191, 36, 0.2) !important;
+  color: #FFFBEB !important;
+}
+
+html.theme-gold-luxe .bg-gradient-to-br.from-brand-primary.to-brand-secondary,
+html.theme-gold-luxe .from-brand-primary.to-brand-secondary {
+  background: linear-gradient(135deg, var(--gl-gold) 0%, var(--gl-gold-deep) 100%) !important;
+  border-bottom: 3px solid var(--gl-gold-light) !important;
+}
+
+html.theme-gold-luxe button.bg-gray-100,
+html.theme-gold-luxe button.bg-gray-200 {
+  background: #FEF3C7 !important;
+  border: 1px solid var(--gl-border) !important;
+}
+
+html.theme-gold-luxe input[type='number'],
+html.theme-gold-luxe input[type='text'],
+html.theme-gold-luxe select {
+  border: 2px solid var(--gl-border) !important;
+  background: #FFFBEB !important;
+}
+
+html.theme-gold-luxe .min-h-screen.bg-white {
+  background-color: var(--gl-canvas) !important;
+}
+
+html.theme-gold-luxe .recharts-line .recharts-line-curve { stroke: var(--gl-gold) !important; }
+
+html.theme-gold-luxe.dark {
+  background-color: var(--gl-night);
+}
+
+html.theme-gold-luxe.dark body {
+  background:
+    radial-gradient(80% 55% at 100% 0%, rgba(251, 191, 36, 0.12) 0%, transparent 55%),
+    var(--gl-night) !important;
+  color: #FFFBEB;
+}
+
+html.theme-gold-luxe.dark .text-ink,
+html.theme-gold-luxe.dark .text-gray-900,
+html.theme-gold-luxe.dark .dark\:text-\[\#FAFAFA\] {
+  color: #FFFBEB !important;
+}
+
+html.theme-gold-luxe.dark .text-ink-soft,
+html.theme-gold-luxe.dark .text-gray-600 {
+  color: #FDE68A !important;
+}
+
+html.theme-gold-luxe.dark .card,
+html.theme-gold-luxe.dark .glass,
+html.theme-gold-luxe.dark .chart-glass,
+html.theme-gold-luxe.dark .glass-thick:not(aside):not(nav) {
+  background: var(--gl-night-panel) !important;
+  border-color: rgba(251, 191, 36, 0.28) !important;
+}
+
+html.theme-gold-luxe.dark aside.glass-thick,
+html.theme-gold-luxe.dark nav.glass-thick {
+  background: linear-gradient(165deg, #78350F 0%, #451A03 100%) !important;
+  color: #FFFBEB !important;
+}
+
+html.theme-gold-luxe.dark .min-h-screen.bg-white {
+  background-color: var(--gl-night) !important;
+}
+
+@media (max-width: 1023px) {
+  html.theme-gold-luxe nav.mobile-nav-bar .mobile-nav-tab-btn,
+  html.theme-gold-luxe.dark nav.mobile-nav-bar .mobile-nav-tab-btn {
+    color: rgba(255, 251, 235, 0.88) !important;
+  }
+
+  html.theme-gold-luxe nav.mobile-nav-bar .mobile-nav-tab-btn svg,
+  html.theme-gold-luxe.dark nav.mobile-nav-bar .mobile-nav-tab-btn svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+  }
+
+  html.theme-gold-luxe nav.mobile-nav-bar .mobile-nav-tab-active,
+  html.theme-gold-luxe.dark nav.mobile-nav-bar .mobile-nav-tab-active {
+    color: var(--gl-gold-light) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-gold-luxe nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-gold-luxe.dark nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-gold-luxe nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft,
+  html.theme-gold-luxe.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft {
+    color: rgba(255, 251, 235, 0.88) !important;
+  }
+
+  html.theme-gold-luxe nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\],
+  html.theme-gold-luxe.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\] {
+    color: var(--gl-gold-light) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-gold-luxe nav.mobile-nav-bar .mobile-nav-fab,
+  html.theme-gold-luxe.dark nav.mobile-nav-bar .mobile-nav-fab {
+    background: var(--gl-gold-light) !important;
+    color: var(--gl-gold-deep) !important;
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 4px 14px rgba(251, 191, 36, 0.45) !important;
+  }
+
+  html.theme-gold-luxe nav.mobile-nav-bar .mobile-nav-fab svg,
+  html.theme-gold-luxe.dark nav.mobile-nav-bar .mobile-nav-fab svg {
+    color: var(--gl-gold-deep) !important;
+    stroke: var(--gl-gold-deep) !important;
+  }
+}

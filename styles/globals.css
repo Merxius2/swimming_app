@@ -719,19 +719,95 @@ html.dark .coin-badge-golden {
 
 .ambient-bubble {
   position: absolute;
-  bottom: -10%;
+  bottom: -8%;
   border-radius: 9999px;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85), rgba(186, 230, 253, 0.25));
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(186, 230, 253, 0.35));
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow:
+    0 0 12px rgba(186, 230, 253, 0.55),
+    inset 0 0 8px rgba(255, 255, 255, 0.4);
   animation-name: ambient-bubble-rise;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+  will-change: transform, opacity;
 }
 
 @keyframes ambient-bubble-rise {
-  0% { transform: translateY(0) scale(1); opacity: 0; }
-  10% { opacity: 0.7; }
-  100% { transform: translateY(-120vh) scale(1.15); opacity: 0; }
+  0% { transform: translateY(0) scale(0.85); opacity: 0; }
+  8% { opacity: 0.85; }
+  92% { opacity: 0.75; }
+  100% { transform: translateY(-125vh) scale(1.2); opacity: 0; }
+}
+
+.ambient-gradient-neon-lagoon {
+  background: linear-gradient(-45deg, #020617, #0c1445, #1a0533, #7c3aed, #00e5ff, #ff00aa, #020617);
+  background-size: 400% 400%;
+  animation: ambient-gradient-drift 18s ease infinite;
+}
+
+.ambient-gradient-sunset-lap {
+  background: linear-gradient(-45deg, #431407, #9a3412, #fb923c, #f472b6, #fbbf24, #7c2d12, #1c1917);
+  background-size: 400% 400%;
+  animation: ambient-gradient-drift 22s ease infinite;
+}
+
+.ambient-gradient-bubble-trail {
+  background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 30%, #0369a1 55%, #0c4a6e 80%, #082f49 100%);
+  background-size: 100% 220%;
+  animation: ambient-gradient-vertical-drift 16s ease infinite;
+}
+
+.ambient-gradient-aurora-lap {
+  background: linear-gradient(-45deg, #042f2e, #134e4a, #065f46, #312e81, #4338ca, #0e7490, #042f2e);
+  background-size: 400% 400%;
+  animation: ambient-gradient-drift 20s ease infinite;
+}
+
+.ambient-gradient-deep-current {
+  background: linear-gradient(-45deg, #020617, #0c4a6e, #0369a1, #164e63, #0ea5e9, #082f49, #020617);
+  background-size: 400% 400%;
+  animation: ambient-gradient-drift 24s ease infinite;
+}
+
+.ambient-blob-drift {
+  animation: ambient-blob-drift 28s ease-in-out infinite;
+}
+
+@keyframes ambient-gradient-drift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes ambient-gradient-vertical-drift {
+  0% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+  100% { background-position: 50% 0%; }
+}
+
+@keyframes ambient-blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(3vw, -2vh) scale(1.04); }
+  66% { transform: translate(-2vw, 2vh) scale(0.98); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-gradient-neon-lagoon,
+  .ambient-gradient-sunset-lap,
+  .ambient-gradient-bubble-trail,
+  .ambient-gradient-aurora-lap,
+  .ambient-gradient-deep-current {
+    animation: none;
+  }
+
+  .ambient-blob-drift {
+    animation: none;
+  }
+
+  .ambient-bubble {
+    animation: none;
+    opacity: 0.35;
+  }
 }
 
 .store-bubble {
@@ -744,6 +820,14 @@ html.dark .coin-badge-golden {
 .store-bubble-a { width: 14px; height: 14px; left: 18%; bottom: 20%; animation: store-bubble-float 3s ease-in-out infinite; }
 .store-bubble-b { width: 10px; height: 10px; left: 52%; bottom: 35%; animation: store-bubble-float 4s ease-in-out infinite 0.6s; }
 .store-bubble-c { width: 16px; height: 16px; left: 78%; bottom: 15%; animation: store-bubble-float 3.5s ease-in-out infinite 1.2s; }
+
+.store-preview-animated-neon,
+.store-preview-animated-sunset,
+.store-preview-animated-aurora,
+.store-preview-animated-deep {
+  background-size: 300% 300%;
+  animation: ambient-gradient-drift 5s ease infinite;
+}
 
 @keyframes store-bubble-float {
   0%, 100% { transform: translateY(0); }
@@ -1439,6 +1523,8 @@ html.dark svg text { fill: #A1A1AA; }
 @import './themes/midnight-lane.css';
 @import './themes/retro-wave.css';
 @import './themes/tropical-open.css';
+@import './themes/gold-luxe.css';
+@import './themes/platinum-elite.css';
 
 /* ============================================================
    Active store ambient — let fixed vibe layer show through.
@@ -1451,7 +1537,9 @@ html.ambient-active.theme-retro-wave,
 html.ambient-active.theme-olympic-pool,
 html.ambient-active.theme-tropical-open,
 html.ambient-active.theme-gen-z,
-html.ambient-active.theme-classic {
+html.ambient-active.theme-classic,
+html.ambient-active.theme-gold-luxe,
+html.ambient-active.theme-platinum-elite {
   background-color: transparent !important;
 }
 
@@ -1462,12 +1550,16 @@ html.ambient-active.theme-olympic-pool body,
 html.ambient-active.theme-tropical-open body,
 html.ambient-active.theme-gen-z body,
 html.ambient-active.theme-classic body,
+html.ambient-active.theme-gold-luxe body,
+html.ambient-active.theme-platinum-elite body,
 html.ambient-active.theme-midnight-lane.dark body,
 html.ambient-active.theme-retro-wave.dark body,
 html.ambient-active.theme-olympic-pool.dark body,
 html.ambient-active.theme-tropical-open.dark body,
 html.ambient-active.theme-gen-z.dark body,
-html.ambient-active.theme-classic.dark body {
+html.ambient-active.theme-classic.dark body,
+html.ambient-active.theme-gold-luxe.dark body,
+html.ambient-active.theme-platinum-elite.dark body {
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
@@ -1479,6 +1571,8 @@ html.ambient-active.theme-retro-wave .min-h-screen.bg-white,
 html.ambient-active.theme-olympic-pool .min-h-screen.bg-white,
 html.ambient-active.theme-tropical-open .min-h-screen.bg-white,
 html.ambient-active.theme-gen-z .min-h-screen.bg-white,
-html.ambient-active.theme-classic .min-h-screen.bg-white {
+html.ambient-active.theme-classic .min-h-screen.bg-white,
+html.ambient-active.theme-gold-luxe .min-h-screen.bg-white,
+html.ambient-active.theme-platinum-elite .min-h-screen.bg-white {
   background-color: transparent !important;
 }

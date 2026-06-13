@@ -1,9 +1,10 @@
 import {
-  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper,
+  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper, AppWindow,
 } from 'lucide-react';
 import { useLanguage, useTheme } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import CoinBadge from './CoinBadge';
+import { getAppIconPreset } from '../../lib/storeAppIcons';
 import {
   STORE_CATEGORIES,
   getStoreItemsByCategory,
@@ -15,6 +16,7 @@ import {
 
 const CATEGORY_META = {
   themes: { icon: Palette, labelKey: 'coins.store.categories.themes' },
+  icons: { icon: AppWindow, labelKey: 'coins.store.categories.icons' },
   vibes: { icon: Sparkles, labelKey: 'coins.store.categories.vibes' },
   flair: { icon: PartyPopper, labelKey: 'coins.store.categories.flair' },
   boosts: { icon: Zap, labelKey: 'coins.store.categories.boosts' },
@@ -64,25 +66,39 @@ function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
       return <ThemePreview item={item} THEMES={THEMES} />;
     case 'ambient-neon':
       return (
-        <div className="store-preview-ambient h-20 rounded-lg overflow-hidden flex">
-          <span className="flex-1 bg-[#020617]" style={{ boxShadow: 'inset -20px 0 40px #00E5FF55' }} />
-          <span className="flex-1 bg-[#1a0533]" style={{ boxShadow: 'inset 20px 0 40px #FF00AA44' }} />
-        </div>
+        <div
+          className="store-preview-ambient store-preview-animated-neon h-20 rounded-lg overflow-hidden"
+          style={{ background: 'linear-gradient(-45deg, #020617, #0c1445, #1a0533, #7c3aed, #00e5ff, #ff00aa)' }}
+        />
       );
     case 'ambient-sunset':
       return (
         <div
-          className="store-preview-ambient h-20 rounded-lg"
-          style={{ background: 'linear-gradient(135deg, #431407, #FB923C 45%, #F472B6 75%, #7c2d12)' }}
+          className="store-preview-ambient store-preview-animated-sunset h-20 rounded-lg overflow-hidden"
+          style={{ background: 'linear-gradient(-45deg, #431407, #9a3412, #fb923c, #f472b6, #fbbf24, #7c2d12)' }}
         />
       );
     case 'ambient-bubbles':
       return (
-        <div className="store-preview-bubbles h-20 rounded-lg relative overflow-hidden bg-gradient-to-br from-sky-100 to-cyan-200 dark:from-sky-950 dark:to-cyan-950">
+        <div className="store-preview-bubbles h-20 rounded-lg relative overflow-hidden bg-gradient-to-br from-sky-400 to-cyan-700">
           <span className="store-bubble store-bubble-a" />
           <span className="store-bubble store-bubble-b" />
           <span className="store-bubble store-bubble-c" />
         </div>
+      );
+    case 'ambient-aurora':
+      return (
+        <div
+          className="store-preview-ambient store-preview-animated-aurora h-20 rounded-lg overflow-hidden"
+          style={{ background: 'linear-gradient(-45deg, #042f2e, #134e4a, #312e81, #4338ca, #0e7490)' }}
+        />
+      );
+    case 'ambient-deep':
+      return (
+        <div
+          className="store-preview-ambient store-preview-animated-deep h-20 rounded-lg overflow-hidden"
+          style={{ background: 'linear-gradient(-45deg, #020617, #0c4a6e, #0369a1, #164e63, #0ea5e9)' }}
+        />
       );
     case 'golden-coins':
       return (
@@ -125,6 +141,22 @@ function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
           </span>
         </div>
       );
+    case 'icon-gold-medal':
+    case 'icon-neon-lane':
+    case 'icon-trophy-splash':
+    case 'icon-platinum-star': {
+      const preset = getAppIconPreset(item.id);
+      if (!preset) return null;
+      return (
+        <div
+          className="h-20 rounded-lg flex items-center justify-center overflow-hidden border border-black/[0.08] dark:border-white/10"
+          style={{ background: preset.preview }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={preset.path} alt="" className="w-14 h-14 rounded-full shadow-md" />
+        </div>
+      );
+    }
     default:
       return (
         <div className="h-20 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800">
@@ -147,6 +179,7 @@ export default function SwimCoinStore() {
     if (item.themeCode) changeTheme(item.themeCode);
     if (item.id.startsWith('ambient:')) updateProfile({ activeAmbient: item.id });
     if (item.id.startsWith('title:')) updateProfile({ swimmerTitle: item.id });
+    if (item.id.startsWith('icon:')) updateProfile({ activeAppIcon: item.id });
   };
 
   return (

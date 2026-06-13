@@ -25,12 +25,18 @@ const MURICA_BLOBS = [
 ];
 
 const BUBBLE_POSITIONS = [
-  { left: '8%', size: 18, delay: '0s', duration: '9s' },
-  { left: '22%', size: 12, delay: '1.5s', duration: '11s' },
-  { left: '38%', size: 22, delay: '0.8s', duration: '10s' },
-  { left: '55%', size: 14, delay: '2.2s', duration: '12s' },
-  { left: '71%', size: 20, delay: '0.4s', duration: '9.5s' },
-  { left: '86%', size: 10, delay: '3s', duration: '8s' },
+  { left: '6%', size: 28, delay: '0s', duration: '9s' },
+  { left: '14%', size: 18, delay: '2.4s', duration: '11s' },
+  { left: '24%', size: 34, delay: '0.8s', duration: '10.5s' },
+  { left: '33%', size: 22, delay: '3.6s', duration: '12s' },
+  { left: '42%', size: 16, delay: '1.2s', duration: '8.5s' },
+  { left: '51%', size: 30, delay: '4.2s', duration: '11.5s' },
+  { left: '60%', size: 20, delay: '0.3s', duration: '9.8s' },
+  { left: '69%', size: 26, delay: '2.8s', duration: '10.2s' },
+  { left: '78%', size: 14, delay: '5s', duration: '8s' },
+  { left: '87%', size: 32, delay: '1.6s', duration: '12.5s' },
+  { left: '93%', size: 18, delay: '3.2s', duration: '9.2s' },
+  { left: '48%', size: 24, delay: '6s', duration: '13s' },
 ];
 
 export default function AmbientBackground() {
@@ -43,14 +49,16 @@ export default function AmbientBackground() {
   const ambientPreset = ambientOwned ? getAmbientPreset(activeAmbient) : null;
 
   let blobs = DEFAULT_BLOBS;
-  let baseGradient = null;
+  let gradientClass = null;
+  let driftBlobs = false;
   let showBubbles = false;
 
   if (language === 'mu') {
     blobs = MURICA_BLOBS;
   } else if (ambientPreset) {
     blobs = ambientPreset.blobs;
-    baseGradient = ambientPreset.gradient;
+    gradientClass = ambientPreset.gradientClass;
+    driftBlobs = ambientPreset.driftBlobs;
     showBubbles = ambientPreset.bubbles;
   } else if (theme !== 'liquid-os') {
     blobs = [];
@@ -62,35 +70,36 @@ export default function AmbientBackground() {
   }, [ambientPreset]);
 
   return (
-    <div aria-hidden className="pointer-events-none fixed -inset-x-[20vw] -inset-y-[20vh] -z-10 overflow-hidden">
-      {language === 'mu' && (
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(160deg, #991B1B 0%, #DC2626 45%, #7F1D1D 100%)' }}
-        />
-      )}
-      {baseGradient && (
-        <div className="absolute inset-0" style={{ background: baseGradient }} />
-      )}
-      {blobs.map((blob, index) => (
-        <div
-          key={index}
-          className="absolute rounded-full"
-          style={{
-            width: blob.width,
-            height: blob.height,
-            left: blob.left,
-            right: blob.right,
-            top: blob.top,
-            bottom: blob.bottom,
-            background: `radial-gradient(circle, ${blob.color} 0%, transparent 65%)`,
-            filter: 'blur(80px)',
-            opacity: blob.opacity,
-          }}
-        />
-      ))}
+    <>
+      <div aria-hidden className="pointer-events-none fixed -inset-x-[20vw] -inset-y-[20vh] -z-10 overflow-hidden">
+        {language === 'mu' && (
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(160deg, #991B1B 0%, #DC2626 45%, #7F1D1D 100%)' }}
+          />
+        )}
+        {gradientClass && <div className={`absolute inset-0 ${gradientClass}`} />}
+        {blobs.map((blob, index) => (
+          <div
+            key={index}
+            className={`absolute rounded-full${driftBlobs ? ' ambient-blob-drift' : ''}`}
+            style={{
+              width: blob.width,
+              height: blob.height,
+              left: blob.left,
+              right: blob.right,
+              top: blob.top,
+              bottom: blob.bottom,
+              background: `radial-gradient(circle, ${blob.color} 0%, transparent 65%)`,
+              filter: 'blur(80px)',
+              opacity: blob.opacity,
+              animationDelay: driftBlobs ? `${index * -4.5}s` : undefined,
+            }}
+          />
+        ))}
+      </div>
       {showBubbles && (
-        <div className="ambient-bubbles absolute inset-0">
+        <div aria-hidden className="ambient-bubbles pointer-events-none fixed inset-0 z-[1] overflow-hidden">
           {BUBBLE_POSITIONS.map((bubble, index) => (
             <span
               key={index}
@@ -106,6 +115,6 @@ export default function AmbientBackground() {
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 }

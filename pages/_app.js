@@ -9,8 +9,9 @@ import { useRouter } from 'next/router';
 import { UserPreferencesProvider, useLanguage, useTheme } from '../context/UserPreferencesContext';
 import { SwimProvider, useSwim } from '../context/SwimContext';
 import { FeatureProvider } from '../context/FeatureContext';
-import { DEFAULT_THEME, LANGUAGE_FAVICON_MAP, THEMES } from '../lib/appConstants';
+import { DEFAULT_THEME, THEMES } from '../lib/appConstants';
 import { isThemeUnlocked } from '../lib/swimCoinStore';
+import { resolveAppIconPath } from '../lib/storeAppIcons';
 import { loadFromCookie } from '../lib/cookieStorage';
 
 import Sidebar from '../components/Sidebar';
@@ -24,7 +25,7 @@ function AppContent({ Component, pageProps }) {
   const router = useRouter();
   const { language } = useLanguage();
   const { theme, changeTheme, isLoading: prefsLoading } = useTheme();
-  const { storeUnlocks, isLoading: swimLoading, cheats } = useSwim();
+  const { storeUnlocks, isLoading: swimLoading, cheats, profile } = useSwim();
   const themeHydratedRef = useRef(false);
   const isHomePage = router.pathname === '/' || router.pathname === '/index';
 
@@ -72,20 +73,21 @@ function AppContent({ Component, pageProps }) {
   }, [theme]);
 
   useEffect(() => {
-    const iconPath = LANGUAGE_FAVICON_MAP[language] || LANGUAGE_FAVICON_MAP.en;
+    const iconPath = resolveAppIconPath(profile?.activeAppIcon, storeUnlocks);
+    const isSvg = iconPath.endsWith('.svg');
 
-    let faviconLink = document.querySelector("link[rel='icon'][type='image/png']");
+    let faviconLink = document.querySelector("link[rel='icon']");
     if (!faviconLink) {
       faviconLink = document.createElement('link');
       faviconLink.rel = 'icon';
-      faviconLink.type = 'image/png';
       document.head.appendChild(faviconLink);
     }
+    faviconLink.type = isSvg ? 'image/svg+xml' : 'image/png';
     faviconLink.href = iconPath;
 
     const appleTouchIcon = document.querySelector("link[rel='apple-touch-icon']");
     if (appleTouchIcon) appleTouchIcon.href = iconPath;
-  }, [language]);
+  }, [profile?.activeAppIcon, storeUnlocks]);
 
   return (
     <>

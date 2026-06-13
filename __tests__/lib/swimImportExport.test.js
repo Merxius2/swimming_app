@@ -48,6 +48,7 @@ describe('swimImportExport', () => {
       aiApiKey: '',
       activeAmbient: null,
       swimmerTitle: null,
+      activeAppIcon: null,
     });
     assert.equal(imported.sessions.length, 1);
     assert.equal(imported.sessions[0].metrics.distanceM, 2550);
