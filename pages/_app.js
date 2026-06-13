@@ -7,9 +7,10 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 import { UserPreferencesProvider, useLanguage, useTheme } from '../context/UserPreferencesContext';
-import { SwimProvider } from '../context/SwimContext';
+import { SwimProvider, useSwim } from '../context/SwimContext';
 import { FeatureProvider } from '../context/FeatureContext';
-import { LANGUAGE_FAVICON_MAP } from '../lib/appConstants';
+import { DEFAULT_THEME, LANGUAGE_FAVICON_MAP } from '../lib/appConstants';
+import { isThemeUnlocked } from '../lib/swimCoinStore';
 
 import Sidebar from '../components/Sidebar';
 import MobileNav from '../components/MobileNav';
@@ -21,13 +22,21 @@ import SecretSettingsModal from '../components/SecretSettingsModal';
 function AppContent({ Component, pageProps }) {
   const router = useRouter();
   const { language } = useLanguage();
-  const { theme } = useTheme();
+  const { theme, changeTheme } = useTheme();
+  const { purchasedThemes, isLoading: swimLoading } = useSwim();
   const isHomePage = router.pathname === '/' || router.pathname === '/index';
 
   // Redirect legacy landing route to progress (all devices).
   useEffect(() => {
     if (isHomePage) router.replace('/progress');
   }, [isHomePage, router]);
+
+  useEffect(() => {
+    if (swimLoading) return;
+    if (!isThemeUnlocked(theme, purchasedThemes)) {
+      changeTheme(DEFAULT_THEME);
+    }
+  }, [theme, purchasedThemes, swimLoading, changeTheme]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('lang-mu', language === 'mu');

@@ -1,6 +1,7 @@
 import { Coins } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import WheelOfFortune from '../components/swim/WheelOfFortune';
+import SwimCoinStore from '../components/swim/SwimCoinStore';
 import { useLanguage } from '../context/UserPreferencesContext';
 
 export default function CoinsPage() {
@@ -14,6 +15,7 @@ export default function CoinsPage() {
           {t('coins.wheel.subtitle')}
         </p>
         <WheelOfFortune />
+        <SwimCoinStore />
       </div>
     </div>
   );

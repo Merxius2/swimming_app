@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --test __tests__/lib/screenshotParser.test.js __tests__/lib/swimImportExport.test.js __tests__/lib/swimMedals.test.js __tests__/lib/swimDuplicates.test.js"
+    "test": "node --test __tests__/lib/screenshotParser.test.js __tests__/lib/swimImportExport.test.js __tests__/lib/swimMedals.test.js __tests__/lib/swimDuplicates.test.js __tests__/lib/swimCoinStore.test.js"
   },
   "dependencies": {
     "autoprefixer": "^10.5.0",

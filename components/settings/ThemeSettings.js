@@ -1,10 +1,14 @@
 import { Palette } from 'lucide-react';
 import { useLanguage, useTheme } from '../../context/UserPreferencesContext';
+import { useSwim } from '../../context/SwimContext';
+import { isThemeUnlocked } from '../../lib/swimCoinStore';
 import ThemedIcon from '../ThemedIcon';
 
 export default function ThemeSettings() {
   const { t } = useLanguage();
   const { theme, changeTheme, THEMES } = useTheme();
+  const { purchasedThemes } = useSwim();
+  const visibleThemes = THEMES.filter((item) => isThemeUnlocked(item.code, purchasedThemes));
 
   return (
     <div className="card p-8">
@@ -14,7 +18,7 @@ export default function ThemeSettings() {
       </div>
       <p className="text-gray-600 dark:text-gray-300 mb-6">{t('settings.themeDesc')}</p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {THEMES.map((item) => {
+        {visibleThemes.map((item) => {
           const isSelected = theme === item.code;
 
           return (
