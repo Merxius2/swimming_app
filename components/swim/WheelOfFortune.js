@@ -9,7 +9,6 @@ import {
   pickRandomSegmentIndex,
   getSpinRotation,
   resolveWheelOutcome,
-  canAffordSpin,
   segmentPathFromLayout,
   segmentLabelArcPath,
   segmentTextPositionFromLayout,
@@ -19,6 +18,11 @@ import {
   segmentUsesRadialLabel,
   segmentShouldShowLabel,
 } from '../../lib/swimWheel';
+import {
+  DAILY_PAID_SPIN_LIMIT,
+  getPaidSpinsRemaining,
+  canStartWheelSpin,
+} from '../../lib/swimWheelSpins';
 
 const SPIN_MS = 4200;
 
@@ -147,7 +151,7 @@ function WheelDisc({ rotation, spinning, bet, layout, t, onSpinEnd }) {
 
 export default function WheelOfFortune() {
   const { t } = useLanguage();
-  const { totalCoins, adjustCoins } = useSwim();
+  const { totalCoins, adjustCoins, wheelSpins, recordWheelPaidSpin } = useSwim();
   const [bet, setBet] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -158,7 +162,9 @@ export default function WheelOfFortune() {
 
   const layout = useMemo(() => buildWheelLayout(bet), [bet]);
   const displayLayout = spinning && spinLayoutRef.current ? spinLayoutRef.current : layout;
-  const affordable = canAffordSpin(totalCoins, bet, freeSpins);
+  const paidSpinsRemaining = getPaidSpinsRemaining(wheelSpins);
+  const canSpin = canStartWheelSpin(totalCoins, bet, freeSpins, wheelSpins);
+  const atDailyLimit = freeSpins === 0 && paidSpinsRemaining === 0;
 
   const handleSpinEnd = useCallback(() => {
     if (!pendingOutcomeRef.current) return;
@@ -180,7 +186,7 @@ export default function WheelOfFortune() {
   }, [adjustCoins, bet]);
 
   const spin = () => {
-    if (spinning || !affordable) return;
+    if (spinning || !canSpin) return;
 
     const spinLayout = buildWheelLayout(bet);
     spinLayoutRef.current = spinLayout;
@@ -190,6 +196,7 @@ export default function WheelOfFortune() {
       setFreeSpins((count) => count - 1);
     } else {
       adjustCoins(-bet);
+      recordWheelPaidSpin();
     }
 
     const segmentIndex = pickRandomSegmentIndex(spinLayout);
@@ -204,14 +211,22 @@ export default function WheelOfFortune() {
 
   return (
     <div className="wheel-of-fortune max-w-xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-2 mb-6 sm:flex-row sm:items-center sm:justify-between">
         <CoinBadge amount={totalCoins} />
-        {freeSpins > 0 && (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7B5BFF] dark:text-[#C8D2FF] bg-[#7B5BFF]/10 px-2.5 py-1 rounded-full">
-            <Sparkles size={13} />
-            {tf(t, 'coins.wheel.freeSpinReady', { count: freeSpins })}
+        <div className="flex flex-wrap items-center gap-2">
+          {freeSpins > 0 && (
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7B5BFF] dark:text-[#C8D2FF] bg-[#7B5BFF]/10 px-2.5 py-1 rounded-full">
+              <Sparkles size={13} />
+              {tf(t, 'coins.wheel.freeSpinReady', { count: freeSpins })}
+            </span>
+          )}
+          <span className="text-xs font-medium text-ink-soft tabular-nums">
+            {tf(t, 'coins.wheel.paidSpinsRemaining', {
+              remaining: paidSpinsRemaining,
+              limit: DAILY_PAID_SPIN_LIMIT,
+            })}
           </span>
-        )}
+        </div>
       </div>
 
       <div className="wheel-stage relative mx-auto mb-8" aria-live="polite">
@@ -230,7 +245,7 @@ export default function WheelOfFortune() {
       <div className="flex justify-center gap-2 mb-6">
         {WHEEL_BETS.map((amount) => {
           const active = bet === amount;
-          const disabled = spinning || (!freeSpins && totalCoins < amount);
+          const disabled = spinning || (!freeSpins && (totalCoins < amount || atDailyLimit));
           return (
             <button
               key={amount}
@@ -254,7 +269,7 @@ export default function WheelOfFortune() {
       <button
         type="button"
         onClick={spin}
-        disabled={spinning || !affordable}
+        disabled={spinning || !canSpin}
         className="wheel-spin-btn w-full py-3.5 rounded-xl text-[15px] font-semibold text-white disabled:opacity-45 disabled:cursor-not-allowed"
       >
         {spinning
@@ -264,7 +279,11 @@ export default function WheelOfFortune() {
             : tf(t, 'coins.wheel.spin', { bet })}
       </button>
 
-      {!affordable && !spinning && (
+      {!canSpin && !spinning && atDailyLimit && (
+        <p className="text-xs text-center text-ink-faint mt-3">{t('coins.wheel.dailyLimitReached')}</p>
+      )}
+
+      {!canSpin && !spinning && !atDailyLimit && totalCoins < bet && (
         <p className="text-xs text-center text-ink-faint mt-3">{t('coins.wheel.notEnough')}</p>
       )}
 

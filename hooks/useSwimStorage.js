@@ -3,6 +3,7 @@ import { DEFAULT_SWIM_DATA } from '../lib/swimConstants';
 import { loadSwimData, saveSwimData, createSessionId } from '../lib/swimStorage';
 import { createCoinClaim, sessionTotalCoins } from '../lib/swimCoinClaims';
 import { migrateSessionCoins, migrateCoinBonuses, reconcileTotalCoins } from '../lib/swimCoins';
+import { normalizeWheelSpins, getWheelSpinDayKey, recordPaidSpin } from '../lib/swimWheelSpins';
 
 export function useSwimStorage(debounceDelay = 500) {
   const [data, setData] = useState(DEFAULT_SWIM_DATA);
@@ -79,6 +80,7 @@ export function useSwimStorage(debounceDelay = 500) {
       totalCoins: reconcileTotalCoins(sessions, nextData.totalCoins),
       sessions,
       spentCoinClaims: Array.isArray(nextData.spentCoinClaims) ? nextData.spentCoinClaims : [],
+      wheelSpins: normalizeWheelSpins(nextData.wheelSpins, getWheelSpinDayKey()),
     });
   }, []);
 
@@ -93,6 +95,14 @@ export function useSwimStorage(debounceDelay = 500) {
     }));
   }, []);
 
+  const recordWheelPaidSpin = useCallback(() => {
+    const today = getWheelSpinDayKey();
+    setData((prev) => ({
+      ...prev,
+      wheelSpins: recordPaidSpin(prev.wheelSpins, today),
+    }));
+  }, []);
+
   return {
     data,
     isLoading,
@@ -100,11 +110,13 @@ export function useSwimStorage(debounceDelay = 500) {
     sessions: data.sessions,
     totalCoins: data.totalCoins || 0,
     spentCoinClaims: data.spentCoinClaims || [],
+    wheelSpins: data.wheelSpins,
     updateProfile,
     addSession,
     removeSession,
     replaceData,
     clearAll,
     adjustCoins,
+    recordWheelPaidSpin,
   };
 }
