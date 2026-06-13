@@ -10,15 +10,11 @@ import {
   getSpinRotation,
   resolveWheelOutcome,
   canAffordSpin,
-  betSegmentWeight,
+  segmentShouldShowLabel,
+  segmentUsesRadialLabel,
 } from '../../lib/swimWheel.js';
 
 describe('swimWheel', () => {
-  it('betSegmentWeight floors small bets for readability', () => {
-    assert.equal(betSegmentWeight(1), 5);
-    assert.equal(betSegmentWeight(100), 100);
-  });
-
   it('nothingCombinedShare is at least 50% and shrinks slightly on high bets', () => {
     assert.equal(nothingCombinedShare(100), MIN_NOTHING_SHARE);
     assert.ok(nothingCombinedShare(1) > nothingCombinedShare(100));
@@ -36,12 +32,14 @@ describe('swimWheel', () => {
     }
   });
 
-  it('buildWheelLayout scales prize slice with bet', () => {
-    const low = buildWheelLayout(1);
-    const high = buildWheelLayout(100);
-    const prizeSweepLow = low.segments.find((s) => s.type === 'prize').sweepDeg;
-    const prizeSweepHigh = high.segments.find((s) => s.type === 'prize').sweepDeg;
-    assert.ok(prizeSweepHigh > prizeSweepLow);
+  it('buildWheelLayout makes 5× the smallest win slice and always labelable', () => {
+    const layout = buildWheelLayout(100);
+    const coins5 = layout.segments.find((s) => s.id === 'coins-5');
+    const coins2 = layout.segments.find((s) => s.id === 'coins-2');
+    assert.ok(coins5.sweepDeg < coins2.sweepDeg);
+    assert.ok(coins5.sweepDeg < 15, '5× should be a very small slice');
+    assert.equal(segmentShouldShowLabel(coins5), true);
+    assert.equal(segmentUsesRadialLabel(coins5), true);
   });
 
   it('pickRandomSegmentIndex stays in range', () => {
@@ -66,41 +64,44 @@ describe('swimWheel', () => {
       type: 'coins',
       multiplier: 3,
       coinsDelta: 30,
-      freeSpin: false,
     });
   });
 
-  it('resolveWheelOutcome free spin refunds bet', () => {
+  it('resolveWheelOutcome free spin refunds bet and grants spins', () => {
     const seg = WHEEL_SEGMENT_DEFS.find((s) => s.id === 'free');
     assert.deepEqual(resolveWheelOutcome(seg, 100), {
       type: 'free_spin',
       coinsDelta: 100,
-      freeSpin: true,
+      freeSpinsGranted: 1,
+    });
+    assert.deepEqual(resolveWheelOutcome(seg, 100, { usedFreeSpin: true }), {
+      type: 'free_spin',
+      coinsDelta: 0,
+      freeSpinsGranted: 1,
     });
   });
 
-  it('resolveWheelOutcome prize gives nothing', () => {
-    const seg = WHEEL_SEGMENT_DEFS.find((s) => s.id === 'prize');
+  it('resolveWheelOutcome 2× free spin grants two spins', () => {
+    const seg = WHEEL_SEGMENT_DEFS.find((s) => s.id === 'free-2');
     assert.deepEqual(resolveWheelOutcome(seg, 10), {
-      type: 'prize',
-      coinsDelta: 0,
-      freeSpin: false,
+      type: 'free_spin',
+      coinsDelta: 20,
+      freeSpinsGranted: 2,
     });
   });
 
   it('resolveWheelOutcome nothing loses the bet', () => {
-    const seg = WHEEL_SEGMENT_DEFS.find((s) => s.id === 'nothing');
+    const seg = WHEEL_SEGMENT_DEFS.find((s) => s.id === 'nothing-1');
     assert.deepEqual(resolveWheelOutcome(seg, 10), {
       type: 'nothing',
       coinsDelta: 0,
-      freeSpin: false,
       amountLost: 10,
     });
   });
 
-  it('canAffordSpin respects balance and free spin', () => {
-    assert.equal(canAffordSpin(5, 10, false), false);
-    assert.equal(canAffordSpin(10, 10, false), true);
-    assert.equal(canAffordSpin(0, 100, true), true);
+  it('canAffordSpin respects balance and free spins', () => {
+    assert.equal(canAffordSpin(5, 10, 0), false);
+    assert.equal(canAffordSpin(10, 10, 0), true);
+    assert.equal(canAffordSpin(0, 100, 1), true);
   });
 });

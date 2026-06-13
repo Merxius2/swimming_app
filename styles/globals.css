@@ -739,6 +739,33 @@ html.dark .wheel-pointer {
   animation: wheel-result-in 0.35s ease-out;
 }
 
+.wheel-segment-gold {
+  animation: wheel-gold-glow 2.4s ease-in-out infinite;
+}
+
+.wheel-segment-gold-shine {
+  mix-blend-mode: soft-light;
+  animation: wheel-gold-shine 2.4s ease-in-out infinite;
+}
+
+@keyframes wheel-gold-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px rgba(255, 215, 0, 0.45));
+  }
+  50% {
+    filter: drop-shadow(0 0 11px rgba(255, 230, 120, 1)) brightness(1.1);
+  }
+}
+
+@keyframes wheel-gold-shine {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
 @keyframes wheel-result-in {
   from {
     opacity: 0;

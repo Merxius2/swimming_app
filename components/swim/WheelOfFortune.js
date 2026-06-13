@@ -11,9 +11,13 @@ import {
   resolveWheelOutcome,
   canAffordSpin,
   segmentPathFromLayout,
+  segmentLabelArcPath,
   segmentTextPositionFromLayout,
   segmentLabelKey,
   segmentLabelParams,
+  segmentShowsLabel,
+  segmentUsesRadialLabel,
+  segmentShouldShowLabel,
 } from '../../lib/swimWheel';
 
 const SPIN_MS = 4200;
@@ -24,6 +28,14 @@ function tf(t, key, params = {}) {
     text = text.replace(`{${name}}`, String(value));
   });
   return text;
+}
+
+function segmentDisplayLabel(segment, bet, t) {
+  const labelKey = segmentLabelKey(segment);
+  if (segment.type === 'coins' || (segment.type === 'free_spin' && segment.multiplier > 1)) {
+    return tf(t, labelKey, segmentLabelParams(segment, bet));
+  }
+  return t(labelKey);
 }
 
 function WheelDisc({ rotation, spinning, bet, layout, t, onSpinEnd }) {
@@ -39,35 +51,88 @@ function WheelDisc({ rotation, spinning, bet, layout, t, onSpinEnd }) {
       }}
     >
       <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-lg" aria-hidden="true">
+        <defs>
+          <linearGradient id="wheelGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFF4B8" />
+            <stop offset="40%" stopColor="#FFD700" />
+            <stop offset="100%" stopColor="#B8860B" />
+          </linearGradient>
+          <linearGradient id="wheelGoldShine" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="45%" stopColor="rgba(255,255,255,0.55)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </linearGradient>
+          <radialGradient id="wheelHub" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stopColor="#FFD700" />
+            <stop offset="100%" stopColor="#F59E0B" />
+          </radialGradient>
+          {layout.segments
+            .filter((segment) => segmentShouldShowLabel(segment) && !segmentUsesRadialLabel(segment))
+            .map((segment) => (
+            <path
+              key={`arc-${segment.id}`}
+              id={`wheel-label-arc-${segment.id}`}
+              d={segmentLabelArcPath(segment)}
+              fill="none"
+            />
+          ))}
+        </defs>
         <circle cx="100" cy="100" r="98" fill="#18181B" />
         {layout.segments.map((segment) => {
-          const { x, y, rotate, fontSize } = segmentTextPositionFromLayout(segment);
-          const labelKey = segmentLabelKey(segment);
-          const shortLabel = segment.type === 'coins'
-            ? tf(t, labelKey, segmentLabelParams(segment, bet))
-            : t(labelKey);
+          const pathD = segmentPathFromLayout(segment);
+          const showLabel = segmentShouldShowLabel(segment);
+          const useRadial = segmentUsesRadialLabel(segment);
+          const shortLabel = showLabel ? segmentDisplayLabel(segment, bet, t) : null;
+          const isGold = segment.shiny;
+          const radial = useRadial ? segmentTextPositionFromLayout(segment) : null;
+          const fontSize = radial?.fontSize ?? segmentTextPositionFromLayout(segment).fontSize;
 
           return (
             <g key={segment.id}>
               <path
-                d={segmentPathFromLayout(segment)}
-                fill={segment.color}
+                d={pathD}
+                fill={isGold ? 'url(#wheelGoldGrad)' : segment.color}
                 stroke="rgba(255,255,255,0.15)"
                 strokeWidth="1"
+                className={isGold ? 'wheel-segment-gold' : undefined}
               />
-              {segment.sweepDeg >= 10 && (
+              {isGold && (
+                <path
+                  d={pathD}
+                  fill="url(#wheelGoldShine)"
+                  className="wheel-segment-gold-shine"
+                  stroke="none"
+                />
+              )}
+              {showLabel && shortLabel && useRadial && radial && (
                 <text
-                  x={x}
-                  y={y}
-                  fill="#fff"
+                  x={radial.x}
+                  y={radial.y}
+                  fill={isGold ? '#78350F' : '#fff'}
                   fontSize={fontSize}
                   fontWeight="700"
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  transform={`rotate(${rotate}, ${x}, ${y})`}
-                  style={{ textShadow: '0 1px 2px rgba(0,0,0,0.45)' }}
+                  transform={`rotate(${radial.rotate}, ${radial.x}, ${radial.y})`}
+                  style={{ textShadow: isGold ? '0 0 6px rgba(255,255,255,0.8)' : '0 1px 2px rgba(0,0,0,0.45)' }}
                 >
                   {shortLabel}
+                </text>
+              )}
+              {showLabel && shortLabel && !useRadial && (
+                <text
+                  fill={isGold ? '#78350F' : '#fff'}
+                  fontSize={fontSize}
+                  fontWeight="700"
+                  style={{ textShadow: isGold ? '0 0 6px rgba(255,255,255,0.8)' : '0 1px 2px rgba(0,0,0,0.45)' }}
+                >
+                  <textPath
+                    href={`#wheel-label-arc-${segment.id}`}
+                    startOffset="50%"
+                    textAnchor="middle"
+                  >
+                    {shortLabel}
+                  </textPath>
                 </text>
               )}
             </g>
@@ -75,12 +140,6 @@ function WheelDisc({ rotation, spinning, bet, layout, t, onSpinEnd }) {
         })}
         <circle cx="100" cy="100" r="18" fill="#FAFAFA" stroke="#E4E4E7" strokeWidth="2" />
         <circle cx="100" cy="100" r="10" fill="url(#wheelHub)" />
-        <defs>
-          <radialGradient id="wheelHub" cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stopColor="#FFD700" />
-            <stop offset="100%" stopColor="#F59E0B" />
-          </radialGradient>
-        </defs>
       </svg>
     </div>
   );
@@ -92,14 +151,14 @@ export default function WheelOfFortune() {
   const [bet, setBet] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
-  const [hasFreeSpin, setHasFreeSpin] = useState(false);
+  const [freeSpins, setFreeSpins] = useState(0);
   const [result, setResult] = useState(null);
   const pendingOutcomeRef = useRef(null);
   const spinLayoutRef = useRef(null);
 
   const layout = useMemo(() => buildWheelLayout(bet), [bet]);
   const displayLayout = spinning && spinLayoutRef.current ? spinLayoutRef.current : layout;
-  const affordable = canAffordSpin(totalCoins, bet, hasFreeSpin);
+  const affordable = canAffordSpin(totalCoins, bet, freeSpins);
 
   const handleSpinEnd = useCallback(() => {
     if (!pendingOutcomeRef.current) return;
@@ -107,17 +166,13 @@ export default function WheelOfFortune() {
     const { segment, usedFreeSpin } = pendingOutcomeRef.current;
     pendingOutcomeRef.current = null;
     spinLayoutRef.current = null;
-    const resolved = resolveWheelOutcome(segment, bet);
+    const resolved = resolveWheelOutcome(segment, bet, { usedFreeSpin });
 
     if (resolved.coinsDelta > 0) {
       adjustCoins(resolved.coinsDelta);
     }
-
-    if (usedFreeSpin) {
-      setHasFreeSpin(false);
-    }
-    if (resolved.freeSpin) {
-      setHasFreeSpin(true);
+    if (resolved.freeSpinsGranted) {
+      setFreeSpins((count) => count + resolved.freeSpinsGranted);
     }
 
     setResult({ segment, resolved });
@@ -130,8 +185,10 @@ export default function WheelOfFortune() {
     const spinLayout = buildWheelLayout(bet);
     spinLayoutRef.current = spinLayout;
 
-    const usedFreeSpin = hasFreeSpin;
-    if (!usedFreeSpin) {
+    const usedFreeSpin = freeSpins > 0;
+    if (usedFreeSpin) {
+      setFreeSpins((count) => count - 1);
+    } else {
       adjustCoins(-bet);
     }
 
@@ -149,10 +206,10 @@ export default function WheelOfFortune() {
     <div className="wheel-of-fortune max-w-xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <CoinBadge amount={totalCoins} />
-        {hasFreeSpin && (
+        {freeSpins > 0 && (
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7B5BFF] dark:text-[#C8D2FF] bg-[#7B5BFF]/10 px-2.5 py-1 rounded-full">
             <Sparkles size={13} />
-            {t('coins.wheel.freeSpinReady')}
+            {tf(t, 'coins.wheel.freeSpinReady', { count: freeSpins })}
           </span>
         )}
       </div>
@@ -173,7 +230,7 @@ export default function WheelOfFortune() {
       <div className="flex justify-center gap-2 mb-6">
         {WHEEL_BETS.map((amount) => {
           const active = bet === amount;
-          const disabled = spinning || (!hasFreeSpin && totalCoins < amount);
+          const disabled = spinning || (!freeSpins && totalCoins < amount);
           return (
             <button
               key={amount}
@@ -202,8 +259,8 @@ export default function WheelOfFortune() {
       >
         {spinning
           ? t('coins.wheel.spinning')
-          : hasFreeSpin
-            ? t('coins.wheel.spinFree')
+          : freeSpins > 0
+            ? tf(t, 'coins.wheel.spinFree', { count: freeSpins })
             : tf(t, 'coins.wheel.spin', { bet })}
       </button>
 
@@ -220,8 +277,11 @@ export default function WheelOfFortune() {
             {result.resolved.type === 'coins' && tf(t, 'coins.wheel.wonCoins', {
               amount: result.resolved.coinsDelta,
             })}
-            {result.resolved.type === 'free_spin' && t('coins.wheel.wonFreeSpin')}
-            {result.resolved.type === 'prize' && tf(t, 'coins.wheel.wonPrize', { amount: bet })}
+            {result.resolved.type === 'free_spin' && (
+              result.resolved.freeSpinsGranted > 1
+                ? tf(t, 'coins.wheel.wonFreeSpinMulti', { count: result.resolved.freeSpinsGranted })
+                : t('coins.wheel.wonFreeSpin')
+            )}
             {result.resolved.type === 'nothing' && tf(t, 'coins.wheel.wonNothing', {
               amount: result.resolved.amountLost ?? bet,
             })}
