@@ -26,11 +26,16 @@ export function useSwimCheats() {
     setCheats({ previewMonthlyMedals: Boolean(value) });
   }, [setCheats]);
 
+  const setAllThemesUnlocked = useCallback((value) => {
+    setCheats({ allThemesUnlocked: Boolean(value) });
+  }, [setCheats]);
+
   return {
     cheats,
     cheatsReady: ready,
     setCheats,
     setAllMedalsUnlocked,
     setPreviewMonthlyMedals,
+    setAllThemesUnlocked,
   };
 }

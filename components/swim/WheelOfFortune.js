@@ -19,10 +19,10 @@ import {
   segmentShouldShowLabel,
 } from '../../lib/swimWheel';
 import {
-  DAILY_PAID_SPIN_LIMIT,
   getPaidSpinsRemaining,
   canStartWheelSpin,
 } from '../../lib/swimWheelSpins';
+import { getDailyPaidSpinLimit } from '../../lib/swimCoinStore';
 
 const SPIN_MS = 4200;
 
@@ -151,7 +151,7 @@ function WheelDisc({ rotation, spinning, bet, layout, t, onSpinEnd }) {
 
 export default function WheelOfFortune() {
   const { t } = useLanguage();
-  const { totalCoins, adjustCoins, wheelSpins, recordWheelPaidSpin } = useSwim();
+  const { totalCoins, adjustCoins, wheelSpins, recordWheelPaidSpin, storeUnlocks } = useSwim();
   const [bet, setBet] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -162,8 +162,9 @@ export default function WheelOfFortune() {
 
   const layout = useMemo(() => buildWheelLayout(bet), [bet]);
   const displayLayout = spinning && spinLayoutRef.current ? spinLayoutRef.current : layout;
-  const paidSpinsRemaining = getPaidSpinsRemaining(wheelSpins);
-  const canSpin = canStartWheelSpin(totalCoins, bet, freeSpins, wheelSpins);
+  const dailySpinLimit = getDailyPaidSpinLimit(storeUnlocks);
+  const paidSpinsRemaining = getPaidSpinsRemaining(wheelSpins, undefined, dailySpinLimit);
+  const canSpin = canStartWheelSpin(totalCoins, bet, freeSpins, wheelSpins, undefined, dailySpinLimit);
   const atDailyLimit = freeSpins === 0 && paidSpinsRemaining === 0;
 
   const handleSpinEnd = useCallback(() => {
@@ -223,7 +224,7 @@ export default function WheelOfFortune() {
           <span className="text-xs font-medium text-ink-soft tabular-nums">
             {tf(t, 'coins.wheel.paidSpinsRemaining', {
               remaining: paidSpinsRemaining,
-              limit: DAILY_PAID_SPIN_LIMIT,
+              limit: dailySpinLimit,
             })}
           </span>
         </div>

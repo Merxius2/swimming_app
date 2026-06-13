@@ -1,0 +1,192 @@
+/* Midnight Lane — late-night pool, deep water and bioluminescent cyan */
+
+html.theme-midnight-lane {
+  --ml-bg: #070B14;
+  --ml-panel: #0F172A;
+  --ml-nav: #080E1C;
+  --ml-glow: #22D3EE;
+  --ml-glow-soft: #0891B2;
+  --ml-ink: #E2E8F0;
+  --ml-muted: #94A3B8;
+  background-color: var(--ml-bg);
+}
+
+html.theme-midnight-lane body {
+  background: radial-gradient(120% 80% at 50% -10%, rgba(34, 211, 238, 0.12) 0%, var(--ml-bg) 55%) !important;
+  color: var(--ml-ink);
+}
+
+html.theme-midnight-lane .text-ink,
+html.theme-midnight-lane.dark .text-ink { color: var(--ml-ink) !important; }
+html.theme-midnight-lane .text-ink-soft { color: var(--ml-muted) !important; }
+html.theme-midnight-lane .text-ink-faint { color: #64748B !important; }
+html.theme-midnight-lane .text-brand-primary { color: var(--ml-glow) !important; }
+
+/* Always-dark theme — remap Tailwind grays when app is in light mode */
+html.theme-midnight-lane .text-gray-900,
+html.theme-midnight-lane .text-gray-800,
+html.theme-midnight-lane .text-gray-700 {
+  color: var(--ml-ink) !important;
+}
+
+html.theme-midnight-lane .text-gray-600,
+html.theme-midnight-lane .text-gray-500 {
+  color: var(--ml-muted) !important;
+}
+
+html.theme-midnight-lane .text-gray-400,
+html.theme-midnight-lane .text-gray-300 {
+  color: #94A3B8 !important;
+}
+
+html.theme-midnight-lane h1,
+html.theme-midnight-lane h2,
+html.theme-midnight-lane h3,
+html.theme-midnight-lane h4 {
+  color: var(--ml-ink);
+}
+
+html.theme-midnight-lane .card,
+html.theme-midnight-lane .glass,
+html.theme-midnight-lane .chart-glass,
+html.theme-midnight-lane .glass-thick {
+  background: var(--ml-panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(34, 211, 238, 0.22) !important;
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+html.theme-midnight-lane aside.glass-thick,
+html.theme-midnight-lane nav.glass-thick {
+  background: var(--ml-nav) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(34, 211, 238, 0.28) !important;
+  box-shadow: 0 0 32px rgba(34, 211, 238, 0.12) !important;
+  color: var(--ml-ink) !important;
+}
+
+html.theme-midnight-lane aside.glass-thick .text-ink-soft,
+html.theme-midnight-lane nav.glass-thick .text-ink-soft,
+html.theme-midnight-lane aside.glass-thick .text-ink-faint {
+  color: var(--ml-muted) !important;
+}
+
+html.theme-midnight-lane aside.glass-thick .font-semibold,
+html.theme-midnight-lane nav.glass-thick .font-semibold {
+  color: var(--ml-ink) !important;
+}
+
+html.theme-midnight-lane aside.glass-thick .bg-tint-soft,
+html.theme-midnight-lane nav.glass-thick .bg-tint-soft {
+  background: rgba(34, 211, 238, 0.12) !important;
+  color: var(--ml-glow) !important;
+}
+
+html.theme-midnight-lane .bg-gradient-to-br.from-brand-primary.to-brand-secondary,
+html.theme-midnight-lane .from-brand-primary.to-brand-secondary {
+  background: linear-gradient(135deg, var(--ml-glow-soft) 0%, var(--ml-glow) 100%) !important;
+  color: #042F2E !important;
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.35) !important;
+}
+
+html.theme-midnight-lane button.bg-gray-100,
+html.theme-midnight-lane button.bg-gray-200,
+html.theme-midnight-lane .bg-gray-100,
+html.theme-midnight-lane .dark\:bg-gray-800 {
+  background: var(--ml-panel) !important;
+  color: var(--ml-ink) !important;
+  border: 1px solid rgba(34, 211, 238, 0.15) !important;
+}
+
+html.theme-midnight-lane input[type='number'],
+html.theme-midnight-lane input[type='text'],
+html.theme-midnight-lane select {
+  background: var(--ml-panel) !important;
+  border-color: rgba(34, 211, 238, 0.25) !important;
+  color: var(--ml-ink) !important;
+}
+
+html.theme-midnight-lane .min-h-screen.bg-white {
+  background-color: var(--ml-bg) !important;
+}
+
+html.theme-midnight-lane .recharts-line .recharts-line-curve { stroke: var(--ml-glow) !important; }
+
+/* ---- Dark mode — reinforce theme over global dark glass ---- */
+html.theme-midnight-lane.dark {
+  background-color: var(--ml-bg);
+}
+
+html.theme-midnight-lane.dark body {
+  background: radial-gradient(120% 80% at 50% -10%, rgba(34, 211, 238, 0.12) 0%, var(--ml-bg) 55%) !important;
+  background-image: radial-gradient(120% 80% at 50% -10%, rgba(34, 211, 238, 0.12) 0%, var(--ml-bg) 55%) !important;
+  color: var(--ml-ink);
+}
+
+html.theme-midnight-lane.dark .text-ink,
+html.theme-midnight-lane.dark .text-gray-900,
+html.theme-midnight-lane.dark .dark\:text-\[\#FAFAFA\] {
+  color: var(--ml-ink) !important;
+}
+
+html.theme-midnight-lane.dark .text-ink-soft,
+html.theme-midnight-lane.dark .text-gray-600 {
+  color: var(--ml-muted) !important;
+}
+
+html.theme-midnight-lane.dark .card,
+html.theme-midnight-lane.dark .glass,
+html.theme-midnight-lane.dark .chart-glass,
+html.theme-midnight-lane.dark .card-gradient,
+html.theme-midnight-lane.dark .card-income,
+html.theme-midnight-lane.dark .card-savings,
+html.theme-midnight-lane.dark .card-expenses,
+html.theme-midnight-lane.dark .card-summary,
+html.theme-midnight-lane.dark .glass-thick:not(aside):not(nav) {
+  background: var(--ml-panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(34, 211, 238, 0.22) !important;
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+html.theme-midnight-lane.dark aside.glass-thick,
+html.theme-midnight-lane.dark nav.glass-thick {
+  background: var(--ml-nav) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(34, 211, 238, 0.28) !important;
+  color: var(--ml-ink) !important;
+  box-shadow: 0 0 32px rgba(34, 211, 238, 0.12) !important;
+}
+
+html.theme-midnight-lane.dark aside.glass-thick .text-ink-soft,
+html.theme-midnight-lane.dark nav.glass-thick .text-ink-soft,
+html.theme-midnight-lane.dark aside.glass-thick .text-ink-faint {
+  color: var(--ml-muted) !important;
+}
+
+html.theme-midnight-lane.dark aside.glass-thick .bg-tint-soft,
+html.theme-midnight-lane.dark nav.glass-thick .bg-tint-soft,
+html.theme-midnight-lane.dark nav.glass-thick button.bg-white {
+  background: rgba(34, 211, 238, 0.12) !important;
+  color: var(--ml-glow) !important;
+}
+
+html.theme-midnight-lane.dark .min-h-screen.bg-white {
+  background-color: var(--ml-bg) !important;
+}
+
+html.theme-midnight-lane.dark .border-black\/\[0\.06\],
+html.theme-midnight-lane.dark .border-black\/\[0\.08\] {
+  border-color: rgba(34, 211, 238, 0.14) !important;
+}
+
+html.theme-midnight-lane.dark .recharts-default-tooltip,
+html.theme-midnight-lane.dark .recharts-tooltip-wrapper > div {
+  background: var(--ml-panel) !important;
+  border-color: rgba(34, 211, 238, 0.22) !important;
+  color: var(--ml-ink) !important;
+}

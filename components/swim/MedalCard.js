@@ -41,7 +41,7 @@ const formatPeriodShort = (period, t) => {
   return `${t(`medals.seasons.${season}`)} ${year}`;
 };
 
-export default function MedalCard({ medal, periodLabel }) {
+export default function MedalCard({ medal, periodLabel, shimmerPlus = false }) {
   const { t, language } = useLanguage();
   const { id, tier, earned, periods, progress, earnedAt } = medal;
 
@@ -93,7 +93,7 @@ export default function MedalCard({ medal, periodLabel }) {
     <div
       className={`group relative medal-card card p-4 transition ${
         earned
-          ? `medal-card-earned ${earnedTierClass}`
+          ? `medal-card-earned ${earnedTierClass}${shimmerPlus ? ' medal-shimmer-plus' : ''}`
           : 'medal-card-locked'
       }`}
     >

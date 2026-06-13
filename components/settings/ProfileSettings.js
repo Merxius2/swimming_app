@@ -3,6 +3,7 @@ import { User } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import ThemedIcon from '../ThemedIcon';
+import StoreCosmeticsPanel from './StoreCosmeticsPanel';
 
 export default function ProfileSettings() {
   const { t } = useLanguage();
@@ -74,6 +75,7 @@ export default function ProfileSettings() {
           />
         </div>
       </div>
+      <StoreCosmeticsPanel />
     </div>
   );
 }

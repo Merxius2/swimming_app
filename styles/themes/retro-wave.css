@@ -1,0 +1,200 @@
+/* Retro Wave — synthwave pool deck, neon pink and violet on midnight */
+
+html.theme-retro-wave {
+  --rw-bg: #12061F;
+  --rw-panel: #1E0A33;
+  --rw-nav: #1A0A2E;
+  --rw-pink: #FF6EC7;
+  --rw-violet: #9D4EDD;
+  --rw-cyan: #5CE1E6;
+  --rw-ink: #FCE7FF;
+  --rw-font: 'Oxanium', system-ui, sans-serif;
+  background-color: var(--rw-bg);
+}
+
+html.theme-retro-wave body {
+  background:
+    linear-gradient(180deg, #2D1B69 0%, var(--rw-bg) 38%, #0A0412 100%) !important;
+  color: var(--rw-ink);
+  font-family: var(--rw-font) !important;
+}
+
+html.theme-retro-wave h1,
+html.theme-retro-wave h2,
+html.theme-retro-wave h3 {
+  font-family: var(--rw-font) !important;
+  letter-spacing: 0.04em;
+}
+
+html.theme-retro-wave .text-ink { color: var(--rw-ink) !important; }
+html.theme-retro-wave .text-ink-soft { color: #C4B5FD !important; }
+html.theme-retro-wave .text-ink-faint { color: #A78BFA !important; }
+html.theme-retro-wave .text-brand-primary { color: var(--rw-pink) !important; }
+
+/* Always-dark theme — remap Tailwind grays when app is in light mode */
+html.theme-retro-wave .text-gray-900,
+html.theme-retro-wave .text-gray-800,
+html.theme-retro-wave .text-gray-700 {
+  color: var(--rw-ink) !important;
+}
+
+html.theme-retro-wave .text-gray-600,
+html.theme-retro-wave .text-gray-500 {
+  color: #C4B5FD !important;
+}
+
+html.theme-retro-wave .text-gray-400,
+html.theme-retro-wave .text-gray-300 {
+  color: #A78BFA !important;
+}
+
+html.theme-retro-wave h1,
+html.theme-retro-wave h2,
+html.theme-retro-wave h3,
+html.theme-retro-wave h4 {
+  color: var(--rw-ink);
+}
+
+html.theme-retro-wave .card,
+html.theme-retro-wave .glass,
+html.theme-retro-wave .chart-glass,
+html.theme-retro-wave .glass-thick {
+  background: var(--rw-panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 2px solid rgba(255, 110, 199, 0.35) !important;
+  box-shadow: 0 0 18px rgba(157, 78, 221, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+html.theme-retro-wave aside.glass-thick,
+html.theme-retro-wave nav.glass-thick {
+  background: linear-gradient(180deg, #2D1B69 0%, var(--rw-nav) 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(255, 110, 199, 0.4) !important;
+  box-shadow: 0 4px 0 rgba(92, 225, 230, 0.35) !important;
+  color: var(--rw-ink) !important;
+}
+
+html.theme-retro-wave aside.glass-thick .text-ink-soft,
+html.theme-retro-wave nav.glass-thick .text-ink-soft,
+html.theme-retro-wave aside.glass-thick .text-ink-faint {
+  color: #DDD6FE !important;
+}
+
+html.theme-retro-wave aside.glass-thick .font-semibold,
+html.theme-retro-wave nav.glass-thick .font-semibold {
+  color: var(--rw-ink) !important;
+}
+
+html.theme-retro-wave aside.glass-thick .bg-tint-soft,
+html.theme-retro-wave nav.glass-thick .bg-tint-soft {
+  background: rgba(255, 110, 199, 0.18) !important;
+  color: var(--rw-pink) !important;
+}
+
+html.theme-retro-wave .bg-gradient-to-br.from-brand-primary.to-brand-secondary,
+html.theme-retro-wave .from-brand-primary.to-brand-secondary {
+  background: linear-gradient(135deg, var(--rw-violet) 0%, var(--rw-pink) 100%) !important;
+  box-shadow: 0 0 22px rgba(255, 110, 199, 0.45) !important;
+}
+
+html.theme-retro-wave button.bg-gray-100,
+html.theme-retro-wave button.bg-gray-200,
+html.theme-retro-wave .bg-gray-100,
+html.theme-retro-wave .dark\:bg-gray-800 {
+  background: var(--rw-panel) !important;
+  color: var(--rw-ink) !important;
+  border: 1px solid rgba(157, 78, 221, 0.45) !important;
+}
+
+html.theme-retro-wave input[type='number'],
+html.theme-retro-wave input[type='text'],
+html.theme-retro-wave select {
+  background: var(--rw-panel) !important;
+  border-color: rgba(157, 78, 221, 0.45) !important;
+  color: var(--rw-ink) !important;
+}
+
+html.theme-retro-wave .min-h-screen.bg-white {
+  background-color: var(--rw-bg) !important;
+}
+
+html.theme-retro-wave .recharts-line .recharts-line-curve { stroke: var(--rw-cyan) !important; }
+
+/* ---- Dark mode — reinforce theme over global dark glass ---- */
+html.theme-retro-wave.dark {
+  background-color: var(--rw-bg);
+}
+
+html.theme-retro-wave.dark body {
+  background:
+    linear-gradient(180deg, #2D1B69 0%, var(--rw-bg) 38%, #0A0412 100%) !important;
+  color: var(--rw-ink);
+}
+
+html.theme-retro-wave.dark .text-ink,
+html.theme-retro-wave.dark .text-gray-900,
+html.theme-retro-wave.dark .dark\:text-\[\#FAFAFA\] {
+  color: var(--rw-ink) !important;
+}
+
+html.theme-retro-wave.dark .text-ink-soft,
+html.theme-retro-wave.dark .text-gray-600 {
+  color: #C4B5FD !important;
+}
+
+html.theme-retro-wave.dark .card,
+html.theme-retro-wave.dark .glass,
+html.theme-retro-wave.dark .chart-glass,
+html.theme-retro-wave.dark .card-gradient,
+html.theme-retro-wave.dark .card-income,
+html.theme-retro-wave.dark .card-savings,
+html.theme-retro-wave.dark .card-expenses,
+html.theme-retro-wave.dark .card-summary,
+html.theme-retro-wave.dark .glass-thick:not(aside):not(nav) {
+  background: var(--rw-panel) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(255, 110, 199, 0.35) !important;
+  box-shadow: 0 0 18px rgba(157, 78, 221, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+html.theme-retro-wave.dark aside.glass-thick,
+html.theme-retro-wave.dark nav.glass-thick {
+  background: linear-gradient(180deg, #2D1B69 0%, var(--rw-nav) 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(255, 110, 199, 0.4) !important;
+  color: var(--rw-ink) !important;
+  box-shadow: 0 4px 0 rgba(92, 225, 230, 0.35) !important;
+}
+
+html.theme-retro-wave.dark aside.glass-thick .text-ink-soft,
+html.theme-retro-wave.dark nav.glass-thick .text-ink-soft,
+html.theme-retro-wave.dark aside.glass-thick .text-ink-faint {
+  color: #DDD6FE !important;
+}
+
+html.theme-retro-wave.dark aside.glass-thick .bg-tint-soft,
+html.theme-retro-wave.dark nav.glass-thick .bg-tint-soft,
+html.theme-retro-wave.dark nav.glass-thick button.bg-white {
+  background: rgba(255, 110, 199, 0.18) !important;
+  color: var(--rw-pink) !important;
+}
+
+html.theme-retro-wave.dark .min-h-screen.bg-white {
+  background-color: var(--rw-bg) !important;
+}
+
+html.theme-retro-wave.dark .border-black\/\[0\.06\],
+html.theme-retro-wave.dark .border-black\/\[0\.08\] {
+  border-color: rgba(255, 110, 199, 0.2) !important;
+}
+
+html.theme-retro-wave.dark .recharts-default-tooltip,
+html.theme-retro-wave.dark .recharts-tooltip-wrapper > div {
+  background: var(--rw-panel) !important;
+  border-color: rgba(255, 110, 199, 0.35) !important;
+  color: var(--rw-ink) !important;
+}

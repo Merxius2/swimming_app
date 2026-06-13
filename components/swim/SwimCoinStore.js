@@ -1,13 +1,25 @@
-import { ShoppingBag } from 'lucide-react';
+import {
+  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper,
+} from 'lucide-react';
 import { useLanguage, useTheme } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import CoinBadge from './CoinBadge';
 import {
-  THEME_STORE_PRICE,
-  STORED_THEME_CODES,
-  canPurchaseTheme,
+  STORE_CATEGORIES,
+  getStoreItemsByCategory,
+  canPurchaseStoreItem,
+  isStoreItemOwned,
   isThemeUnlocked,
+  getDailyPaidSpinLimit,
 } from '../../lib/swimCoinStore';
+
+const CATEGORY_META = {
+  themes: { icon: Palette, labelKey: 'coins.store.categories.themes' },
+  vibes: { icon: Sparkles, labelKey: 'coins.store.categories.vibes' },
+  flair: { icon: PartyPopper, labelKey: 'coins.store.categories.flair' },
+  boosts: { icon: Zap, labelKey: 'coins.store.categories.boosts' },
+  titles: { icon: Award, labelKey: 'coins.store.categories.titles' },
+};
 
 function tf(t, key, params = {}) {
   let text = t(key);
@@ -17,42 +29,124 @@ function tf(t, key, params = {}) {
   return text;
 }
 
-function ThemePreview({ item }) {
+function ThemePreview({ item, THEMES }) {
+  const theme = THEMES.find((entry) => entry.code === item.themeCode);
+  if (!theme) return null;
+
   return (
     <div
       className="h-20 w-full rounded-lg border border-black/[0.08] dark:border-white/10 overflow-hidden flex"
       style={
-        item.previewStyle === 'flat'
+        theme.previewStyle === 'flat'
           ? undefined
           : {
-              background: `linear-gradient(135deg, ${item.preview.from} 0%, ${item.preview.via} 55%, ${item.preview.to} 100%)`,
+              background: `linear-gradient(135deg, ${theme.preview.from} 0%, ${theme.preview.via} 55%, ${theme.preview.to} 100%)`,
             }
       }
     >
-      {item.previewStyle === 'flat' && (
+      {theme.previewStyle === 'flat' && (
         <>
-          <span className="flex-1" style={{ background: item.preview.from }} />
-          <span className="flex-1" style={{ background: item.preview.via }} />
-          {item.preview.quaternary && (
-            <span className="flex-1" style={{ background: item.preview.quaternary }} />
+          <span className="flex-1" style={{ background: theme.preview.from }} />
+          <span className="flex-1" style={{ background: theme.preview.via }} />
+          {theme.preview.quaternary && (
+            <span className="flex-1" style={{ background: theme.preview.quaternary }} />
           )}
-          <span className="flex-1" style={{ background: item.preview.to }} />
+          <span className="flex-1" style={{ background: theme.preview.to }} />
         </>
       )}
     </div>
   );
 }
 
+function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
+  switch (item.preview) {
+    case 'theme':
+      return <ThemePreview item={item} THEMES={THEMES} />;
+    case 'ambient-neon':
+      return (
+        <div className="store-preview-ambient h-20 rounded-lg overflow-hidden flex">
+          <span className="flex-1 bg-[#020617]" style={{ boxShadow: 'inset -20px 0 40px #00E5FF55' }} />
+          <span className="flex-1 bg-[#1a0533]" style={{ boxShadow: 'inset 20px 0 40px #FF00AA44' }} />
+        </div>
+      );
+    case 'ambient-sunset':
+      return (
+        <div
+          className="store-preview-ambient h-20 rounded-lg"
+          style={{ background: 'linear-gradient(135deg, #431407, #FB923C 45%, #F472B6 75%, #7c2d12)' }}
+        />
+      );
+    case 'ambient-bubbles':
+      return (
+        <div className="store-preview-bubbles h-20 rounded-lg relative overflow-hidden bg-gradient-to-br from-sky-100 to-cyan-200 dark:from-sky-950 dark:to-cyan-950">
+          <span className="store-bubble store-bubble-a" />
+          <span className="store-bubble store-bubble-b" />
+          <span className="store-bubble store-bubble-c" />
+        </div>
+      );
+    case 'golden-coins':
+      return (
+        <div className="h-20 rounded-lg flex items-center justify-center bg-gradient-to-br from-amber-50 to-yellow-100 dark:from-amber-950/40 dark:to-yellow-950/30 border border-amber-200/60 dark:border-amber-700/40">
+          <CoinBadge amount={1337} size="sm" golden />
+        </div>
+      );
+    case 'confetti':
+      return (
+        <div className="h-20 rounded-lg flex items-center justify-center gap-1 bg-gradient-to-br from-violet-100 to-pink-100 dark:from-violet-950/50 dark:to-pink-950/40 overflow-hidden relative">
+          <span className="text-2xl animate-bounce" style={{ animationDelay: '0ms' }}>🎊</span>
+          <span className="text-xl animate-bounce" style={{ animationDelay: '120ms' }}>✨</span>
+          <span className="text-2xl animate-bounce" style={{ animationDelay: '240ms' }}>🎉</span>
+        </div>
+      );
+    case 'medal-shimmer':
+      return (
+        <div className="h-20 rounded-lg flex items-center justify-center bg-gradient-to-br from-amber-100/80 to-orange-100/60 dark:from-amber-950/40 dark:to-orange-950/30 medal-shimmer-plus-preview">
+          <Award size={36} className="text-amber-500" strokeWidth={1.75} />
+        </div>
+      );
+    case 'bonus-spin':
+      return (
+        <div className="h-20 rounded-lg flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-brand-primary/10 to-brand-secondary/15 border border-brand-primary/20">
+          <span className="text-2xl font-black text-brand-primary tabular-nums">
+            {getDailyPaidSpinLimit(storeUnlocks) + (isStoreItemOwned(item.id, storeUnlocks) ? 0 : 1)}/day
+          </span>
+          <span className="text-[10px] uppercase tracking-wider text-ink-soft font-semibold">
+            {t('coins.store.items.bonusSpin.preview')}
+          </span>
+        </div>
+      );
+    case 'title-lane-seven':
+    case 'title-pool-shark':
+    case 'title-splash-zone':
+      return (
+        <div className="h-20 rounded-lg flex items-center justify-center px-4 bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-950 dark:to-slate-800">
+          <span className="text-sm font-bold text-white tracking-wide text-center leading-tight">
+            {t(item.nameKey)}
+          </span>
+        </div>
+      );
+    default:
+      return (
+        <div className="h-20 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+          <Coins size={28} className="text-amber-500" />
+        </div>
+      );
+  }
+}
+
 export default function SwimCoinStore() {
   const { t } = useLanguage();
-  const { theme, changeTheme, THEMES } = useTheme();
-  const { totalCoins, purchasedThemes, purchaseTheme, isLoading } = useSwim();
-  const storeThemes = THEMES.filter((item) => STORED_THEME_CODES.includes(item.code));
+  const { changeTheme, THEMES } = useTheme();
+  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats } = useSwim();
+  const allThemesUnlocked = Boolean(cheats?.allThemesUnlocked);
 
-  const handlePurchase = (themeCode) => {
-    if (!canPurchaseTheme(themeCode, purchasedThemes, totalCoins)) return;
-    purchaseTheme(themeCode);
-    changeTheme(themeCode);
+  const handlePurchase = (item) => {
+    if (!canPurchaseStoreItem(item.id, storeUnlocks, totalCoins)) return;
+    if (!purchaseStoreItem(item.id)) return;
+
+    if (item.themeCode) changeTheme(item.themeCode);
+    if (item.id.startsWith('ambient:')) updateProfile({ activeAmbient: item.id });
+    if (item.id.startsWith('title:')) updateProfile({ swimmerTitle: item.id });
   };
 
   return (
@@ -63,50 +157,77 @@ export default function SwimCoinStore() {
           {t('coins.store.title')}
         </h2>
       </div>
-      <p className="text-sm text-ink-soft text-center mb-8 max-w-md mx-auto">
+      <p className="text-sm text-ink-soft text-center mb-10 max-w-lg mx-auto">
         {t('coins.store.subtitle')}
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-        {storeThemes.map((item) => {
-          const owned = isThemeUnlocked(item.code, purchasedThemes);
-          const canBuy = canPurchaseTheme(item.code, purchasedThemes, totalCoins);
-          const shortfall = Math.max(0, THEME_STORE_PRICE - (totalCoins ?? 0));
+      <div className="max-w-3xl mx-auto space-y-10">
+        {STORE_CATEGORIES.map((category) => {
+          const items = getStoreItemsByCategory(category);
+          const meta = CATEGORY_META[category];
+          const Icon = meta.icon;
 
           return (
-            <article
-              key={item.code}
-              className="coin-store-item card p-5 flex flex-col gap-4"
-            >
-              <ThemePreview item={item} />
-              <div>
-                <h3 className="text-base font-semibold text-ink dark:text-[#FAFAFA]">
-                  {t(item.nameKey)}
+            <div key={category}>
+              <div className="flex items-center gap-2 mb-4 px-1">
+                <Icon size={17} className="text-brand-primary" strokeWidth={2.25} />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-ink-soft">
+                  {t(meta.labelKey)}
                 </h3>
-                <p className="mt-1 text-xs text-ink-soft">{t(item.descKey)}</p>
               </div>
-              <div className="mt-auto flex items-center justify-between gap-3 pt-1">
-                {owned ? (
-                  <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                    {t('coins.store.owned')}
-                  </span>
-                ) : (
-                  <CoinBadge amount={THEME_STORE_PRICE} size="sm" />
-                )}
-                {!owned && (
-                  <button
-                    type="button"
-                    disabled={isLoading || !canBuy}
-                    onClick={() => handlePurchase(item.code)}
-                    className="wheel-spin-btn text-sm px-4 py-2 rounded-lg disabled:opacity-45 disabled:cursor-not-allowed"
-                  >
-                    {canBuy
-                      ? t('coins.store.buy')
-                      : tf(t, 'coins.store.notEnough', { amount: shortfall.toLocaleString() })}
-                  </button>
-                )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {items.map((item) => {
+                  const owned = item.themeCode
+                    ? isThemeUnlocked(item.themeCode, storeUnlocks, allThemesUnlocked)
+                    : isStoreItemOwned(item.id, storeUnlocks);
+                  const canBuy = canPurchaseStoreItem(item.id, storeUnlocks, totalCoins);
+                  const shortfall = Math.max(0, item.price - (totalCoins ?? 0));
+
+                  return (
+                    <article
+                      key={item.id}
+                      className="coin-store-item card p-5 flex flex-col gap-4"
+                    >
+                      <StoreItemPreview
+                        item={item}
+                        t={t}
+                        THEMES={THEMES}
+                        storeUnlocks={storeUnlocks}
+                      />
+                      <div>
+                        <h4 className="text-base font-semibold text-ink dark:text-[#FAFAFA]">
+                          {t(item.nameKey)}
+                        </h4>
+                        <p className="mt-1 text-xs text-ink-soft leading-relaxed">
+                          {t(item.descKey)}
+                        </p>
+                      </div>
+                      <div className="mt-auto flex items-center justify-between gap-3 pt-1">
+                        {owned ? (
+                          <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                            {t('coins.store.owned')}
+                          </span>
+                        ) : (
+                          <CoinBadge amount={item.price} size="sm" />
+                        )}
+                        {!owned && (
+                          <button
+                            type="button"
+                            disabled={isLoading || !canBuy}
+                            onClick={() => handlePurchase(item)}
+                            className="wheel-spin-btn text-sm px-4 py-2 rounded-lg disabled:opacity-45 disabled:cursor-not-allowed shrink-0"
+                          >
+                            {canBuy
+                              ? t('coins.store.buy')
+                              : tf(t, 'coins.store.notEnough', { amount: shortfall.toLocaleString() })}
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  );
+                })}
               </div>
-            </article>
+            </div>
           );
         })}
       </div>

@@ -4,7 +4,11 @@ import { loadSwimData, saveSwimData, createSessionId } from '../lib/swimStorage'
 import { createCoinClaim, sessionTotalCoins } from '../lib/swimCoinClaims';
 import { migrateSessionCoins, migrateCoinBonuses, reconcileTotalCoins } from '../lib/swimCoins';
 import { normalizeWheelSpins, getWheelSpinDayKey, recordPaidSpin } from '../lib/swimWheelSpins';
-import { purchaseThemeUpdate, normalizePurchasedThemes } from '../lib/swimCoinStore';
+import {
+  purchaseStoreItemUpdate,
+  normalizeStoreUnlocks,
+  sanitizeProfileCosmetics,
+} from '../lib/swimCoinStore';
 
 export function useSwimStorage(debounceDelay = 500) {
   const [data, setData] = useState(DEFAULT_SWIM_DATA);
@@ -28,7 +32,10 @@ export function useSwimStorage(debounceDelay = 500) {
   const updateProfile = useCallback((updates) => {
     setData((prev) => ({
       ...prev,
-      profile: { ...prev.profile, ...updates },
+      profile: sanitizeProfileCosmetics(
+        { ...prev.profile, ...updates },
+        prev.storeUnlocks
+      ),
     }));
   }, []);
 
@@ -76,13 +83,20 @@ export function useSwimStorage(debounceDelay = 500) {
     const sessions = migrateCoinBonuses(
       migrateSessionCoins(Array.isArray(nextData.sessions) ? nextData.sessions : [])
     );
+    const storeUnlocks = normalizeStoreUnlocks(
+      nextData.storeUnlocks,
+      nextData.purchasedThemes
+    );
     setData({
-      profile: { ...DEFAULT_SWIM_DATA.profile, ...nextData.profile },
+      profile: sanitizeProfileCosmetics(
+        { ...DEFAULT_SWIM_DATA.profile, ...nextData.profile },
+        storeUnlocks
+      ),
       totalCoins: reconcileTotalCoins(sessions, nextData.totalCoins),
       sessions,
       spentCoinClaims: Array.isArray(nextData.spentCoinClaims) ? nextData.spentCoinClaims : [],
       wheelSpins: normalizeWheelSpins(nextData.wheelSpins, getWheelSpinDayKey()),
-      purchasedThemes: normalizePurchasedThemes(nextData.purchasedThemes),
+      storeUnlocks,
     });
   }, []);
 
@@ -105,21 +119,23 @@ export function useSwimStorage(debounceDelay = 500) {
     }));
   }, []);
 
-  const purchaseTheme = useCallback((themeCode) => {
+  const purchaseStoreItem = useCallback((itemId) => {
     let purchased = false;
     setData((prev) => {
-      const update = purchaseThemeUpdate(
-        themeCode,
-        prev.purchasedThemes,
+      const update = purchaseStoreItemUpdate(
+        itemId,
+        prev.storeUnlocks,
         prev.totalCoins || 0
       );
       if (!update) return prev;
       purchased = true;
-      return {
+      const next = {
         ...prev,
-        purchasedThemes: update.purchasedThemes,
+        storeUnlocks: update.storeUnlocks,
         totalCoins: update.totalCoins,
       };
+      saveSwimData(next);
+      return next;
     });
     return purchased;
   }, []);
@@ -132,7 +148,7 @@ export function useSwimStorage(debounceDelay = 500) {
     totalCoins: data.totalCoins || 0,
     spentCoinClaims: data.spentCoinClaims || [],
     wheelSpins: data.wheelSpins,
-    purchasedThemes: data.purchasedThemes || [],
+    storeUnlocks: data.storeUnlocks || [],
     updateProfile,
     addSession,
     removeSession,
@@ -140,6 +156,6 @@ export function useSwimStorage(debounceDelay = 500) {
     clearAll,
     adjustCoins,
     recordWheelPaidSpin,
-    purchaseTheme,
+    purchaseStoreItem,
   };
 }

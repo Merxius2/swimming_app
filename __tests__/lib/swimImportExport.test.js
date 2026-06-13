@@ -43,7 +43,12 @@ describe('swimImportExport', () => {
     const exported = await generateSwimExportString(sampleData);
     assert.ok(exported.includes(':'));
     const imported = await parseSwimImportString(exported);
-    assert.deepEqual(imported.profile, { ...sampleData.profile, aiApiKey: '' });
+    assert.deepEqual(imported.profile, {
+      ...sampleData.profile,
+      aiApiKey: '',
+      activeAmbient: null,
+      swimmerTitle: null,
+    });
     assert.equal(imported.sessions.length, 1);
     assert.equal(imported.sessions[0].metrics.distanceM, 2550);
     assert.equal(imported.sessions[0].metrics.paceSecPer100m, 130);

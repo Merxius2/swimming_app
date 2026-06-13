@@ -1,0 +1,174 @@
+/* Tropical Open Water — turquoise lagoon, coral accents, sun-warmed sand */
+
+html.theme-tropical-open {
+  --to-sand: #FFF7ED;
+  --to-sea: #0D9488;
+  --to-sea-light: #5EEAD4;
+  --to-coral: #FB7185;
+  --to-sky: #38BDF8;
+  --to-ink: #134E4A;
+  --to-night: #062623;
+  --to-night-panel: #0F3D38;
+  background-color: var(--to-sand);
+}
+
+html.theme-tropical-open body {
+  background:
+    radial-gradient(90% 60% at 100% 0%, rgba(56, 189, 248, 0.22) 0%, transparent 55%),
+    radial-gradient(80% 50% at 0% 100%, rgba(251, 113, 133, 0.16) 0%, transparent 50%),
+    var(--to-sand) !important;
+  color: var(--to-ink);
+}
+
+html.theme-tropical-open .text-ink { color: var(--to-ink) !important; }
+html.theme-tropical-open .text-ink-soft { color: #0F766E !important; }
+html.theme-tropical-open .text-ink-faint { color: #14B8A6 !important; }
+html.theme-tropical-open .text-brand-primary { color: var(--to-sea) !important; }
+
+html.theme-tropical-open .card,
+html.theme-tropical-open .glass,
+html.theme-tropical-open .chart-glass,
+html.theme-tropical-open .glass-thick {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(13, 148, 136, 0.2) !important;
+  box-shadow: 0 8px 28px rgba(13, 148, 136, 0.1) !important;
+}
+
+html.theme-tropical-open aside.glass-thick,
+html.theme-tropical-open nav.glass-thick {
+  background: linear-gradient(165deg, var(--to-sea) 0%, #0F766E 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: rgba(94, 234, 212, 0.35) !important;
+  color: #FFFFFF !important;
+}
+
+html.theme-tropical-open aside.glass-thick .text-ink-soft,
+html.theme-tropical-open nav.glass-thick .text-ink-soft {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+html.theme-tropical-open aside.glass-thick .bg-tint-soft {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #FFFFFF !important;
+}
+
+html.theme-tropical-open .bg-gradient-to-br.from-brand-primary.to-brand-secondary,
+html.theme-tropical-open .from-brand-primary.to-brand-secondary {
+  background: linear-gradient(135deg, var(--to-sea) 0%, var(--to-coral) 100%) !important;
+}
+
+html.theme-tropical-open button.bg-gray-100,
+html.theme-tropical-open button.bg-gray-200 {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(13, 148, 136, 0.2) !important;
+}
+
+html.theme-tropical-open .min-h-screen.bg-white {
+  background-color: var(--to-sand) !important;
+}
+
+html.theme-tropical-open .recharts-line .recharts-line-curve { stroke: var(--to-sea) !important; }
+html.theme-tropical-open .recharts-bar [fill="#10b981"],
+html.theme-tropical-open .recharts-bar [fill="#10B981"] { fill: var(--to-sea-light) !important; }
+
+/* ---- Dark mode — moonlit lagoon ---- */
+html.theme-tropical-open.dark {
+  background-color: var(--to-night);
+}
+
+html.theme-tropical-open.dark body {
+  background:
+    radial-gradient(80% 55% at 100% 0%, rgba(56, 189, 248, 0.14) 0%, transparent 55%),
+    radial-gradient(70% 45% at 0% 100%, rgba(251, 113, 133, 0.1) 0%, transparent 50%),
+    var(--to-night) !important;
+  color: #ECFDF5;
+}
+
+html.theme-tropical-open.dark .text-ink,
+html.theme-tropical-open.dark .text-gray-900,
+html.theme-tropical-open.dark .dark\:text-\[\#FAFAFA\] {
+  color: #ECFDF5 !important;
+}
+
+html.theme-tropical-open.dark .text-ink-soft,
+html.theme-tropical-open.dark .text-gray-600 {
+  color: #99F6E4 !important;
+}
+
+html.theme-tropical-open.dark .text-ink-faint,
+html.theme-tropical-open.dark .text-gray-300 {
+  color: #5EEAD4 !important;
+}
+
+html.theme-tropical-open.dark .text-brand-primary {
+  color: var(--to-sea-light) !important;
+}
+
+html.theme-tropical-open.dark .card,
+html.theme-tropical-open.dark .glass,
+html.theme-tropical-open.dark .chart-glass,
+html.theme-tropical-open.dark .glass-thick:not(aside):not(nav) {
+  background: var(--to-night-panel) !important;
+  border-color: rgba(94, 234, 212, 0.22) !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35) !important;
+}
+
+html.theme-tropical-open.dark aside.glass-thick,
+html.theme-tropical-open.dark nav.glass-thick {
+  background: linear-gradient(165deg, #0F766E 0%, #064E3B 100%) !important;
+  border-color: rgba(94, 234, 212, 0.3) !important;
+  color: #ECFDF5 !important;
+}
+
+html.theme-tropical-open.dark aside.glass-thick .text-ink-soft,
+html.theme-tropical-open.dark nav.glass-thick .text-ink-soft,
+html.theme-tropical-open.dark aside.glass-thick .text-ink-faint {
+  color: rgba(236, 253, 245, 0.78) !important;
+}
+
+html.theme-tropical-open.dark aside.glass-thick .font-semibold,
+html.theme-tropical-open.dark nav.glass-thick .font-semibold {
+  color: #ECFDF5 !important;
+}
+
+html.theme-tropical-open.dark aside.glass-thick .bg-tint-soft,
+html.theme-tropical-open.dark nav.glass-thick .bg-tint-soft {
+  background: rgba(94, 234, 212, 0.16) !important;
+  color: #99F6E4 !important;
+}
+
+html.theme-tropical-open.dark button.bg-gray-100,
+html.theme-tropical-open.dark button.bg-gray-200,
+html.theme-tropical-open.dark .bg-gray-100,
+html.theme-tropical-open.dark .dark\:bg-gray-800 {
+  background: var(--to-night-panel) !important;
+  color: #ECFDF5 !important;
+  border-color: rgba(94, 234, 212, 0.2) !important;
+}
+
+html.theme-tropical-open.dark input[type='number'],
+html.theme-tropical-open.dark input[type='text'],
+html.theme-tropical-open.dark select {
+  background: var(--to-night-panel) !important;
+  border-color: rgba(94, 234, 212, 0.25) !important;
+  color: #ECFDF5 !important;
+}
+
+html.theme-tropical-open.dark .min-h-screen.bg-white {
+  background-color: var(--to-night) !important;
+}
+
+html.theme-tropical-open.dark .border-black\/\[0\.06\],
+html.theme-tropical-open.dark .border-black\/\[0\.08\] {
+  border-color: rgba(94, 234, 212, 0.14) !important;
+}
+
+html.theme-tropical-open.dark .recharts-default-tooltip,
+html.theme-tropical-open.dark .recharts-tooltip-wrapper > div {
+  background: var(--to-night-panel) !important;
+  border-color: rgba(94, 234, 212, 0.22) !important;
+  color: #ECFDF5 !important;
+}

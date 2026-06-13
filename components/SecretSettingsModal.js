@@ -1,17 +1,20 @@
-import { X, Award, Sparkles } from 'lucide-react';
+import { X, Award, Sparkles, Palette } from 'lucide-react';
+import { THEMES } from '../lib/appConstants';
 import { useSecretSettings } from '../context/FeatureContext';
 import { useSwim } from '../context/SwimContext';
 import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
 
 export default function SecretSettingsModal() {
   const { isSecretSettingsOpen, closeSecretSettings } = useSecretSettings();
-  const { sessions, cheats, setAllMedalsUnlocked, setPreviewMonthlyMedals } = useSwim();
+  const { sessions, cheats, setAllMedalsUnlocked, setPreviewMonthlyMedals, setAllThemesUnlocked } = useSwim();
 
   if (!isSecretSettingsOpen) return null;
 
   const medalStats = getMedalStats(evaluateAllMedals(sessions));
   const allUnlocked = Boolean(cheats?.allMedalsUnlocked);
   const previewMonthly = Boolean(cheats?.previewMonthlyMedals);
+  const allThemesUnlocked = Boolean(cheats?.allThemesUnlocked);
+  const paidThemeCount = THEMES.filter((t) => t.code !== 'liquid-os').length;
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] p-4">
@@ -69,6 +72,40 @@ export default function SecretSettingsModal() {
             {allUnlocked && (
               <p className="text-green-300 text-xs mt-3 font-medium">
                 Cheat active — all medals are unlocked for display.
+              </p>
+            )}
+          </div>
+
+          <div className="bg-indigo-800/50 border border-indigo-400/60 rounded-lg p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-indigo-100 text-sm font-semibold mb-1 flex items-center gap-1.5">
+                  <Palette size={16} />
+                  Unlock all themes
+                </p>
+                <p className="text-indigo-200/80 text-xs leading-relaxed">
+                  Make every store theme selectable in Settings ({paidThemeCount} themes).
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={allThemesUnlocked}
+                onClick={() => setAllThemesUnlocked(!allThemesUnlocked)}
+                className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${
+                  allThemesUnlocked ? 'bg-green-500' : 'bg-purple-950/80 border border-purple-500/50'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+                    allThemesUnlocked ? 'translate-x-5' : ''
+                  }`}
+                />
+              </button>
+            </div>
+            {allThemesUnlocked && (
+              <p className="text-green-300 text-xs mt-3 font-medium">
+                Cheat active — all themes are unlocked for selection.
               </p>
             )}
           </div>

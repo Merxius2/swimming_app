@@ -11,6 +11,7 @@ import {
 import { useLanguage } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
+import { getSwimmerTitleLabel } from '../lib/swimCoinStore';
 import SecretAppIcon from './SecretAppIcon';
 import CoinBadge from './swim/CoinBadge';
 
@@ -30,7 +31,8 @@ const NAV = [
 export default function Sidebar() {
   const router = useRouter();
   const { t } = useLanguage();
-  const { sessions, isLoading, cheats, totalCoins } = useSwim();
+  const { sessions, isLoading, cheats, totalCoins, profile } = useSwim();
+  const swimmerTitle = getSwimmerTitleLabel(profile?.swimmerTitle, t);
   const isActive = (path) => router.pathname === path;
 
   const medalStats = getMedalStats(
@@ -65,6 +67,11 @@ export default function Sidebar() {
         <div>
           <span className="font-semibold text-[15px] tracking-tight block">Aap-SC</span>
           <span className="text-[10px] text-ink-faint uppercase tracking-wider">Swim Coach</span>
+          {swimmerTitle && (
+            <span className="text-[10px] text-brand-primary dark:text-[#C8D2FF] font-semibold block mt-0.5 truncate max-w-[140px]">
+              {swimmerTitle}
+            </span>
+          )}
         </div>
       </div>
 

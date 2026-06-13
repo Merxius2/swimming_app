@@ -6,13 +6,14 @@ import CoinBadge from '../components/swim/CoinBadge';
 import { useLanguage } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
+import { hasMedalShimmerPlus } from '../lib/swimCoinStore';
 import Link from 'next/link';
 
 const CATEGORIES = ['milestone', 'distance', 'weekly', 'streak', 'monthly', 'seasonal', 'special'];
 
 export default function MedalsPage() {
   const { t } = useLanguage();
-  const { sessions, isLoading, cheats, totalCoins } = useSwim();
+  const { sessions, isLoading, cheats, totalCoins, storeUnlocks } = useSwim();
 
   const formatPeriods = (periods) => {
     if (!periods?.length) return '';
@@ -38,6 +39,7 @@ export default function MedalsPage() {
 
   const medals = evaluateAllMedals(sessions, { allMedalsUnlocked: cheats?.allMedalsUnlocked });
   const stats = getMedalStats(medals);
+  const shimmerPlus = hasMedalShimmerPlus(storeUnlocks);
 
   return (
     <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0">
@@ -99,6 +101,7 @@ export default function MedalsPage() {
                     key={medal.id}
                     medal={medal}
                     periodLabel={formatPeriods}
+                    shimmerPlus={shimmerPlus}
                   />
                 ))}
               </div>

@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Award, X } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
+import { useSwim } from '../../context/SwimContext';
+import { hasConfettiCannon } from '../../lib/swimCoinStore';
 import { formatDateLong } from '../../lib/swimFormatters';
 import MedalIcon from './MedalIcon';
 import MonthlyMedalIcon from './MonthlyMedalIcon';
@@ -24,6 +26,8 @@ const tierRank = (tier) => ({ bronze: 1, silver: 2, gold: 3 }[tier] || 0);
 
 export default function MedalCelebrationModal({ medals = [], monthlyChallenge, onClose }) {
   const { t, language } = useLanguage();
+  const { storeUnlocks } = useSwim();
+  const megaConfetti = hasConfettiCannon(storeUnlocks);
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -76,7 +80,13 @@ export default function MedalCelebrationModal({ medals = [], monthlyChallenge, o
 
   const modal = (
     <>
-      {visible && <Confetti active particleCount={140} duration={6000} />}
+      {visible && (
+        <Confetti
+          active
+          particleCount={megaConfetti ? 280 : 70}
+          duration={megaConfetti ? 9000 : 3500}
+        />
+      )}
       <div
         className={`fixed inset-0 z-[10000] flex items-center justify-center p-4 ${
           visible ? 'medal-celebration-backdrop-in' : 'opacity-0'

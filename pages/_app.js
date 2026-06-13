@@ -3,14 +3,15 @@
  */
 
 import '../styles/globals.css';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 
 import { UserPreferencesProvider, useLanguage, useTheme } from '../context/UserPreferencesContext';
 import { SwimProvider, useSwim } from '../context/SwimContext';
 import { FeatureProvider } from '../context/FeatureContext';
-import { DEFAULT_THEME, LANGUAGE_FAVICON_MAP } from '../lib/appConstants';
+import { DEFAULT_THEME, LANGUAGE_FAVICON_MAP, THEMES } from '../lib/appConstants';
 import { isThemeUnlocked } from '../lib/swimCoinStore';
+import { loadFromCookie } from '../lib/cookieStorage';
 
 import Sidebar from '../components/Sidebar';
 import MobileNav from '../components/MobileNav';
@@ -22,8 +23,9 @@ import SecretSettingsModal from '../components/SecretSettingsModal';
 function AppContent({ Component, pageProps }) {
   const router = useRouter();
   const { language } = useLanguage();
-  const { theme, changeTheme } = useTheme();
-  const { purchasedThemes, isLoading: swimLoading } = useSwim();
+  const { theme, changeTheme, isLoading: prefsLoading } = useTheme();
+  const { storeUnlocks, isLoading: swimLoading, cheats } = useSwim();
+  const themeHydratedRef = useRef(false);
   const isHomePage = router.pathname === '/' || router.pathname === '/index';
 
   // Redirect legacy landing route to progress (all devices).
@@ -32,11 +34,29 @@ function AppContent({ Component, pageProps }) {
   }, [isHomePage, router]);
 
   useEffect(() => {
-    if (swimLoading) return;
-    if (!isThemeUnlocked(theme, purchasedThemes)) {
+    if (prefsLoading || swimLoading) return;
+
+    const allThemesUnlocked = Boolean(cheats?.allThemesUnlocked);
+
+    if (!themeHydratedRef.current) {
+      themeHydratedRef.current = true;
+      const savedTheme = loadFromCookie('AUDIT_THEME_PREFERENCE');
+      const savedCode = savedTheme?.theme;
+      if (
+        savedCode
+        && THEMES.some((item) => item.code === savedCode)
+        && isThemeUnlocked(savedCode, storeUnlocks, allThemesUnlocked)
+        && theme !== savedCode
+      ) {
+        changeTheme(savedCode);
+        return;
+      }
+    }
+
+    if (!isThemeUnlocked(theme, storeUnlocks, allThemesUnlocked)) {
       changeTheme(DEFAULT_THEME);
     }
-  }, [theme, purchasedThemes, swimLoading, changeTheme]);
+  }, [theme, storeUnlocks, swimLoading, prefsLoading, changeTheme, cheats?.allThemesUnlocked]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('lang-mu', language === 'mu');

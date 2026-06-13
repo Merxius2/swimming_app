@@ -1,0 +1,192 @@
+/* Olympic Pool — crisp competition tiles, lane blue, touchpad gold */
+
+html.theme-olympic-pool {
+  --op-white: #F8FAFC;
+  --op-tile: #E2E8F0;
+  --op-lane: #0066CC;
+  --op-lane-deep: #004C99;
+  --op-gold: #F5C518;
+  --op-ink: #0F172A;
+  --op-border: rgba(0, 102, 204, 0.18);
+  --op-night: #0B1628;
+  --op-night-panel: #152238;
+  background-color: var(--op-white);
+}
+
+html.theme-olympic-pool body {
+  background-color: var(--op-white) !important;
+  background-image:
+    linear-gradient(90deg, rgba(0, 102, 204, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(0, 102, 204, 0.04) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+  color: var(--op-ink);
+}
+
+html.theme-olympic-pool .text-ink { color: var(--op-ink) !important; }
+html.theme-olympic-pool .text-ink-soft { color: #475569 !important; }
+html.theme-olympic-pool .text-ink-faint { color: #64748B !important; }
+html.theme-olympic-pool .text-brand-primary { color: var(--op-lane) !important; }
+
+html.theme-olympic-pool .card,
+html.theme-olympic-pool .glass,
+html.theme-olympic-pool .chart-glass,
+html.theme-olympic-pool .glass-thick {
+  background: #FFFFFF !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 2px solid var(--op-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 0 var(--op-lane-deep), 0 8px 24px rgba(0, 76, 153, 0.08) !important;
+}
+
+html.theme-olympic-pool aside.glass-thick,
+html.theme-olympic-pool nav.glass-thick {
+  background: var(--op-lane) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: var(--op-lane-deep) !important;
+  color: #FFFFFF !important;
+  box-shadow: inset 0 -4px 0 var(--op-gold) !important;
+}
+
+html.theme-olympic-pool aside.glass-thick .text-ink-soft,
+html.theme-olympic-pool nav.glass-thick .text-ink-soft,
+html.theme-olympic-pool aside.glass-thick .text-ink-faint {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+html.theme-olympic-pool aside.glass-thick .font-semibold,
+html.theme-olympic-pool nav.glass-thick .font-semibold {
+  color: #FFFFFF !important;
+}
+
+html.theme-olympic-pool aside.glass-thick .bg-tint-soft,
+html.theme-olympic-pool nav.glass-thick .bg-tint-soft {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #FFFFFF !important;
+}
+
+html.theme-olympic-pool .bg-gradient-to-br.from-brand-primary.to-brand-secondary,
+html.theme-olympic-pool .from-brand-primary.to-brand-secondary {
+  background: linear-gradient(135deg, var(--op-lane) 0%, var(--op-lane-deep) 100%) !important;
+  border-bottom: 3px solid var(--op-gold) !important;
+}
+
+html.theme-olympic-pool button.bg-gray-100,
+html.theme-olympic-pool button.bg-gray-200 {
+  background: var(--op-tile) !important;
+  border: 1px solid var(--op-border) !important;
+}
+
+html.theme-olympic-pool input[type='number'],
+html.theme-olympic-pool input[type='text'],
+html.theme-olympic-pool select {
+  border: 2px solid var(--op-border) !important;
+  background: #FFFFFF !important;
+}
+
+html.theme-olympic-pool .min-h-screen.bg-white {
+  background-color: var(--op-white) !important;
+}
+
+html.theme-olympic-pool .recharts-line .recharts-line-curve { stroke: var(--op-lane) !important; }
+
+/* ---- Dark mode — evening finals session ---- */
+html.theme-olympic-pool.dark {
+  background-color: var(--op-night);
+}
+
+html.theme-olympic-pool.dark body {
+  background-color: var(--op-night) !important;
+  background-image:
+    linear-gradient(90deg, rgba(0, 102, 204, 0.12) 1px, transparent 1px),
+    linear-gradient(rgba(0, 102, 204, 0.12) 1px, transparent 1px) !important;
+  color: #F1F5F9;
+}
+
+html.theme-olympic-pool.dark .text-ink,
+html.theme-olympic-pool.dark .text-gray-900,
+html.theme-olympic-pool.dark .dark\:text-\[\#FAFAFA\] {
+  color: #F1F5F9 !important;
+}
+
+html.theme-olympic-pool.dark .text-ink-soft,
+html.theme-olympic-pool.dark .text-gray-600 {
+  color: #94A3B8 !important;
+}
+
+html.theme-olympic-pool.dark .text-ink-faint,
+html.theme-olympic-pool.dark .text-gray-300 {
+  color: #64748B !important;
+}
+
+html.theme-olympic-pool.dark .text-brand-primary {
+  color: #60A5FA !important;
+}
+
+html.theme-olympic-pool.dark .card,
+html.theme-olympic-pool.dark .glass,
+html.theme-olympic-pool.dark .chart-glass,
+html.theme-olympic-pool.dark .glass-thick:not(aside):not(nav) {
+  background: var(--op-night-panel) !important;
+  border-color: rgba(0, 102, 204, 0.35) !important;
+  box-shadow: 0 2px 0 var(--op-lane-deep), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+html.theme-olympic-pool.dark aside.glass-thick,
+html.theme-olympic-pool.dark nav.glass-thick {
+  background: #004C99 !important;
+  border-color: #003366 !important;
+  color: #F1F5F9 !important;
+  box-shadow: inset 0 -4px 0 var(--op-gold) !important;
+}
+
+html.theme-olympic-pool.dark aside.glass-thick .text-ink-soft,
+html.theme-olympic-pool.dark nav.glass-thick .text-ink-soft,
+html.theme-olympic-pool.dark aside.glass-thick .text-ink-faint {
+  color: rgba(241, 245, 249, 0.82) !important;
+}
+
+html.theme-olympic-pool.dark aside.glass-thick .font-semibold,
+html.theme-olympic-pool.dark nav.glass-thick .font-semibold {
+  color: #FFFFFF !important;
+}
+
+html.theme-olympic-pool.dark aside.glass-thick .bg-tint-soft,
+html.theme-olympic-pool.dark nav.glass-thick .bg-tint-soft {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #F1F5F9 !important;
+}
+
+html.theme-olympic-pool.dark button.bg-gray-100,
+html.theme-olympic-pool.dark button.bg-gray-200,
+html.theme-olympic-pool.dark .bg-gray-100,
+html.theme-olympic-pool.dark .dark\:bg-gray-800 {
+  background: var(--op-night-panel) !important;
+  color: #F1F5F9 !important;
+  border-color: rgba(0, 102, 204, 0.3) !important;
+}
+
+html.theme-olympic-pool.dark input[type='number'],
+html.theme-olympic-pool.dark input[type='text'],
+html.theme-olympic-pool.dark select {
+  background: var(--op-night-panel) !important;
+  border-color: rgba(0, 102, 204, 0.35) !important;
+  color: #F1F5F9 !important;
+}
+
+html.theme-olympic-pool.dark .min-h-screen.bg-white {
+  background-color: var(--op-night) !important;
+}
+
+html.theme-olympic-pool.dark .border-black\/\[0\.06\],
+html.theme-olympic-pool.dark .border-black\/\[0\.08\] {
+  border-color: rgba(0, 102, 204, 0.22) !important;
+}
+
+html.theme-olympic-pool.dark .recharts-default-tooltip,
+html.theme-olympic-pool.dark .recharts-tooltip-wrapper > div {
+  background: var(--op-night-panel) !important;
+  border-color: rgba(0, 102, 204, 0.35) !important;
+  color: #F1F5F9 !important;
+}
