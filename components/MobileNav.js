@@ -29,7 +29,8 @@ function useVisualViewportPin(ref) {
 
     const sync = () => {
       const inset = Math.max(0, window.innerHeight - vv.offsetTop - vv.height);
-      el.style.transform = inset > 0 ? `translate3d(0, ${-inset}px, 0)` : '';
+      // Only lift for keyboard-sized insets — small values leave a gap at the screen bottom.
+      el.style.transform = inset > 75 ? `translate3d(0, ${-inset}px, 0)` : '';
     };
 
     sync();

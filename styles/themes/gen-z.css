@@ -447,7 +447,6 @@ html.theme-gen-z.dark .min-h-screen.bg-white .border-gray-800 {
     border-left: none !important;
     border-right: none !important;
     border-bottom: none !important;
-    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
   }
 
   html.theme-gen-z .mobile-nav-tab-btn {
