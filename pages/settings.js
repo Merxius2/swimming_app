@@ -16,7 +16,7 @@ import ResetDataSection from '../components/settings/ResetDataSection';
 export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-white pb-40 lg:ml-64 md:pb-0">
-      <div className="lg:hidden px-4 pt-5 pb-1 max-w-7xl mx-auto pr-14">
+      <div className="lg:hidden px-4 pt-5 pb-1 max-w-7xl mx-auto mobile-top-actions-offset">
         <div className="flex items-center gap-3">
           <SecretAppIcon size={40} />
           <div>
