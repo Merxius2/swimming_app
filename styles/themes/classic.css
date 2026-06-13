@@ -419,3 +419,78 @@ html.theme-classic.dark .recharts-tooltip-wrapper > div {
   border-color: rgba(255, 255, 255, 0.10) !important;
   color: #F0F0F0 !important;
 }
+
+/* ---- Mobile: bottom nav on matte gray bar ---- */
+@media (max-width: 1023px) {
+  html.theme-classic nav.mobile-nav-bar {
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    border-radius: 0 !important;
+    border-top-left-radius: 1.25rem !important;
+    border-top-right-radius: 1.25rem !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-bottom: 3px solid var(--ps-lightbar) !important;
+  }
+
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-tab-btn {
+    color: var(--ps-ink) !important;
+  }
+
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-tab-btn {
+    color: rgba(240, 240, 240, 0.88) !important;
+  }
+
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-tab-btn svg,
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-tab-btn svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+  }
+
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-tab-active,
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-tab-active {
+    color: var(--ps-lightbar) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft {
+    color: #2D2D2D !important;
+  }
+
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft {
+    color: rgba(240, 240, 240, 0.88) !important;
+  }
+
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\],
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\] {
+    color: var(--ps-lightbar) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-fab,
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-fab {
+    background: var(--ps-gray-light) !important;
+    color: var(--ps-ink) !important;
+    border: 3px solid rgba(255, 255, 255, 0.9) !important;
+    border-bottom: 3px solid var(--ps-lightbar) !important;
+    box-shadow: var(--ps-raised) !important;
+  }
+
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-fab {
+    color: #FFFFFF !important;
+  }
+
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-fab svg {
+    color: var(--ps-ink) !important;
+    stroke: var(--ps-ink) !important;
+  }
+
+  html.theme-classic.dark nav.mobile-nav-bar .mobile-nav-fab svg {
+    color: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+  }
+}

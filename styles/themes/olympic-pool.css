@@ -190,3 +190,50 @@ html.theme-olympic-pool.dark .recharts-tooltip-wrapper > div {
   border-color: rgba(0, 102, 204, 0.35) !important;
   color: #F1F5F9 !important;
 }
+
+/* ---- Mobile: bottom nav on colored bar ---- */
+@media (max-width: 1023px) {
+  html.theme-olympic-pool nav.mobile-nav-bar .mobile-nav-tab-btn,
+  html.theme-olympic-pool.dark nav.mobile-nav-bar .mobile-nav-tab-btn {
+    color: rgba(255, 255, 255, 0.88) !important;
+  }
+
+  html.theme-olympic-pool nav.mobile-nav-bar .mobile-nav-tab-btn svg,
+  html.theme-olympic-pool.dark nav.mobile-nav-bar .mobile-nav-tab-btn svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+  }
+
+  html.theme-olympic-pool nav.mobile-nav-bar .mobile-nav-tab-active,
+  html.theme-olympic-pool.dark nav.mobile-nav-bar .mobile-nav-tab-active {
+    color: var(--op-gold) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-olympic-pool nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-olympic-pool.dark nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-olympic-pool nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft,
+  html.theme-olympic-pool.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft {
+    color: rgba(255, 255, 255, 0.88) !important;
+  }
+
+  html.theme-olympic-pool nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\],
+  html.theme-olympic-pool.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\] {
+    color: var(--op-gold) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-olympic-pool nav.mobile-nav-bar .mobile-nav-fab,
+  html.theme-olympic-pool.dark nav.mobile-nav-bar .mobile-nav-fab {
+    background: var(--op-gold) !important;
+    color: var(--op-lane-deep) !important;
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 4px 14px rgba(245, 197, 24, 0.45) !important;
+  }
+
+  html.theme-olympic-pool nav.mobile-nav-bar .mobile-nav-fab svg,
+  html.theme-olympic-pool.dark nav.mobile-nav-bar .mobile-nav-fab svg {
+    color: var(--op-lane-deep) !important;
+    stroke: var(--op-lane-deep) !important;
+  }
+}

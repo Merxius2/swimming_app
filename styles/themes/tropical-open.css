@@ -172,3 +172,50 @@ html.theme-tropical-open.dark .recharts-tooltip-wrapper > div {
   border-color: rgba(94, 234, 212, 0.22) !important;
   color: #ECFDF5 !important;
 }
+
+/* ---- Mobile: bottom nav on colored bar ---- */
+@media (max-width: 1023px) {
+  html.theme-tropical-open nav.mobile-nav-bar .mobile-nav-tab-btn,
+  html.theme-tropical-open.dark nav.mobile-nav-bar .mobile-nav-tab-btn {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  html.theme-tropical-open nav.mobile-nav-bar .mobile-nav-tab-btn svg,
+  html.theme-tropical-open.dark nav.mobile-nav-bar .mobile-nav-tab-btn svg {
+    color: inherit !important;
+    stroke: currentColor !important;
+  }
+
+  html.theme-tropical-open nav.mobile-nav-bar .mobile-nav-tab-active,
+  html.theme-tropical-open.dark nav.mobile-nav-bar .mobile-nav-tab-active {
+    color: var(--to-sea-light) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-tropical-open nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-tropical-open.dark nav.mobile-nav-bar .mobile-nav-fab-label,
+  html.theme-tropical-open nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft,
+  html.theme-tropical-open.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-ink-soft {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  html.theme-tropical-open nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\],
+  html.theme-tropical-open.dark nav.mobile-nav-bar .mobile-nav-fab-label.text-\[\#2A45CC\] {
+    color: var(--to-sea-light) !important;
+    font-weight: 700 !important;
+  }
+
+  html.theme-tropical-open nav.mobile-nav-bar .mobile-nav-fab,
+  html.theme-tropical-open.dark nav.mobile-nav-bar .mobile-nav-fab {
+    background: linear-gradient(135deg, var(--to-coral) 0%, #FB923C 100%) !important;
+    color: #FFFFFF !important;
+    border-color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: 0 4px 14px rgba(251, 113, 133, 0.45) !important;
+  }
+
+  html.theme-tropical-open nav.mobile-nav-bar .mobile-nav-fab svg,
+  html.theme-tropical-open.dark nav.mobile-nav-bar .mobile-nav-fab svg {
+    color: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+  }
+}
