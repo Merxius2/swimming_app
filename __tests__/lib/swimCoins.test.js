@@ -97,6 +97,12 @@ describe('swimCoins', () => {
     assert.equal(reconcileTotalCoins(sessions, 669), 669);
   });
 
+  it('reconcileTotalCoins preserves store and wheel spending after reload', () => {
+    const sessions = [{ coinsEarned: 1000, coinBonus: 0 }];
+    assert.equal(reconcileTotalCoins(sessions, 500, 500), 500);
+    assert.equal(reconcileTotalCoins(sessions, 1000, 500), 500);
+  });
+
   it('migrateCoinBonuses backfills medal bonuses on legacy sessions', () => {
     const sessions = migrateCoinBonuses([
       { id: '1', date: '2025-01-01', metrics: { distanceM: 1000, durationSec: 900 }, coinsEarned: 15 },

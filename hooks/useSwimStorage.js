@@ -8,6 +8,7 @@ import {
   purchaseStoreItemUpdate,
   normalizeStoreUnlocks,
   sanitizeProfileCosmetics,
+  migrateCoinsSpent,
 } from '../lib/swimCoinStore';
 
 export function useSwimStorage(debounceDelay = 500) {
@@ -30,13 +31,17 @@ export function useSwimStorage(debounceDelay = 500) {
   }, [data, isLoading, debounceDelay]);
 
   const updateProfile = useCallback((updates) => {
-    setData((prev) => ({
-      ...prev,
-      profile: sanitizeProfileCosmetics(
-        { ...prev.profile, ...updates },
-        prev.storeUnlocks
-      ),
-    }));
+    setData((prev) => {
+      const next = {
+        ...prev,
+        profile: sanitizeProfileCosmetics(
+          { ...prev.profile, ...updates },
+          prev.storeUnlocks
+        ),
+      };
+      saveSwimData(next);
+      return next;
+    });
   }, []);
 
   const addSession = useCallback(({ date, metrics, coinsEarned = 0, coinBonus = 0 }) => {
@@ -87,12 +92,14 @@ export function useSwimStorage(debounceDelay = 500) {
       nextData.storeUnlocks,
       nextData.purchasedThemes
     );
+    const coinsSpent = migrateCoinsSpent(nextData.coinsSpent, storeUnlocks);
     setData({
       profile: sanitizeProfileCosmetics(
         { ...DEFAULT_SWIM_DATA.profile, ...nextData.profile },
         storeUnlocks
       ),
-      totalCoins: reconcileTotalCoins(sessions, nextData.totalCoins),
+      totalCoins: reconcileTotalCoins(sessions, nextData.totalCoins, coinsSpent),
+      coinsSpent,
       sessions,
       spentCoinClaims: Array.isArray(nextData.spentCoinClaims) ? nextData.spentCoinClaims : [],
       wheelSpins: normalizeWheelSpins(nextData.wheelSpins, getWheelSpinDayKey()),
@@ -101,14 +108,21 @@ export function useSwimStorage(debounceDelay = 500) {
   }, []);
 
   const clearAll = useCallback(() => {
-    setData({ ...DEFAULT_SWIM_DATA, sessions: [], spentCoinClaims: [] });
+    setData({ ...DEFAULT_SWIM_DATA, sessions: [], spentCoinClaims: [], coinsSpent: 0 });
   }, []);
 
   const adjustCoins = useCallback((delta) => {
-    setData((prev) => ({
-      ...prev,
-      totalCoins: Math.max(0, (prev.totalCoins || 0) + delta),
-    }));
+    setData((prev) => {
+      const next = {
+        ...prev,
+        totalCoins: Math.max(0, (prev.totalCoins || 0) + delta),
+        coinsSpent: delta < 0
+          ? (prev.coinsSpent || 0) + Math.abs(delta)
+          : (prev.coinsSpent || 0),
+      };
+      if (delta < 0) saveSwimData(next);
+      return next;
+    });
   }, []);
 
   const recordWheelPaidSpin = useCallback(() => {
@@ -125,7 +139,8 @@ export function useSwimStorage(debounceDelay = 500) {
       const update = purchaseStoreItemUpdate(
         itemId,
         prev.storeUnlocks,
-        prev.totalCoins || 0
+        prev.totalCoins || 0,
+        prev.coinsSpent || 0
       );
       if (!update) return prev;
       purchased = true;
@@ -133,6 +148,7 @@ export function useSwimStorage(debounceDelay = 500) {
         ...prev,
         storeUnlocks: update.storeUnlocks,
         totalCoins: update.totalCoins,
+        coinsSpent: update.coinsSpent,
       };
       saveSwimData(next);
       return next;
@@ -146,6 +162,7 @@ export function useSwimStorage(debounceDelay = 500) {
     profile: data.profile,
     sessions: data.sessions,
     totalCoins: data.totalCoins || 0,
+    coinsSpent: data.coinsSpent || 0,
     spentCoinClaims: data.spentCoinClaims || [],
     wheelSpins: data.wheelSpins,
     storeUnlocks: data.storeUnlocks || [],

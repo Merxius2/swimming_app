@@ -2,9 +2,10 @@
  * AmbientBackground
  * Fixed-position mesh-gradient blobs that sit behind all content.
  * Liquid-glass surfaces above pick up tint from this layer through backdrop-filter.
- * Rendered once at the app root.
+ * Portaled to document.body so iOS Safari keeps the layer visible behind the page.
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLanguage, useTheme } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import { isStoreItemOwned } from '../lib/swimCoinStore';
@@ -39,15 +40,7 @@ const BUBBLE_POSITIONS = [
   { left: '48%', size: 24, delay: '6s', duration: '13s' },
 ];
 
-export default function AmbientBackground() {
-  const { language } = useLanguage();
-  const { theme } = useTheme();
-  const { profile, storeUnlocks } = useSwim();
-
-  const activeAmbient = profile?.activeAmbient;
-  const ambientOwned = activeAmbient && isStoreItemOwned(activeAmbient, storeUnlocks);
-  const ambientPreset = ambientOwned ? getAmbientPreset(activeAmbient) : null;
-
+function AmbientLayer({ language, theme, ambientPreset }) {
   let blobs = DEFAULT_BLOBS;
   let gradientClass = null;
   let driftBlobs = false;
@@ -64,14 +57,9 @@ export default function AmbientBackground() {
     blobs = [];
   }
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('ambient-active', Boolean(ambientPreset));
-    return () => document.documentElement.classList.remove('ambient-active');
-  }, [ambientPreset]);
-
   return (
     <>
-      <div aria-hidden className="pointer-events-none fixed -inset-x-[20vw] -inset-y-[20vh] -z-10 overflow-hidden">
+      <div aria-hidden className="ambient-layer pointer-events-none fixed inset-0 z-0 overflow-hidden">
         {language === 'mu' && (
           <div
             className="absolute inset-0"
@@ -116,5 +104,32 @@ export default function AmbientBackground() {
         </div>
       )}
     </>
+  );
+}
+
+export default function AmbientBackground() {
+  const { language } = useLanguage();
+  const { theme } = useTheme();
+  const { profile, storeUnlocks } = useSwim();
+  const [mounted, setMounted] = useState(false);
+
+  const activeAmbient = profile?.activeAmbient;
+  const ambientOwned = activeAmbient && isStoreItemOwned(activeAmbient, storeUnlocks);
+  const ambientPreset = ambientOwned ? getAmbientPreset(activeAmbient) : null;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('ambient-active', Boolean(ambientPreset));
+    return () => document.documentElement.classList.remove('ambient-active');
+  }, [ambientPreset]);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <AmbientLayer language={language} theme={theme} ambientPreset={ambientPreset} />,
+    document.body
   );
 }

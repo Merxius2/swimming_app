@@ -63,7 +63,7 @@ export default function StoreCosmeticsPanel() {
                   key={id}
                   active={profile.activeAppIcon === id}
                   onClick={() => updateProfile({ activeAppIcon: id })}
-                  src={preset.path}
+                  src={preset.ui}
                   label={t(item.nameKey)}
                 />
               );

@@ -44,6 +44,7 @@ describe('swimCoinStore', () => {
     assert.deepEqual(result, {
       storeUnlocks: ['badge:golden-coins'],
       totalCoins: 50,
+      coinsSpent: 150,
     });
   });
 

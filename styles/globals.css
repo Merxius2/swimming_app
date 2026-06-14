@@ -717,6 +717,17 @@ html.dark .coin-badge-golden {
   overflow: hidden;
 }
 
+.ambient-layer {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.app-shell {
+  isolation: isolate;
+}
+
 .ambient-bubble {
   position: absolute;
   bottom: -8%;
@@ -1532,6 +1543,7 @@ html.dark svg text { fill: #A1A1AA; }
    that otherwise hide AmbientBackground (z-index: -10).
    ============================================================ */
 html.ambient-active,
+html.ambient-active.theme-liquid-os,
 html.ambient-active.theme-midnight-lane,
 html.ambient-active.theme-retro-wave,
 html.ambient-active.theme-olympic-pool,
@@ -1544,6 +1556,7 @@ html.ambient-active.theme-platinum-elite {
 }
 
 html.ambient-active body,
+html.ambient-active.theme-liquid-os body,
 html.ambient-active.theme-midnight-lane body,
 html.ambient-active.theme-retro-wave body,
 html.ambient-active.theme-olympic-pool body,
@@ -1552,6 +1565,7 @@ html.ambient-active.theme-gen-z body,
 html.ambient-active.theme-classic body,
 html.ambient-active.theme-gold-luxe body,
 html.ambient-active.theme-platinum-elite body,
+html.ambient-active.theme-liquid-os.dark body,
 html.ambient-active.theme-midnight-lane.dark body,
 html.ambient-active.theme-retro-wave.dark body,
 html.ambient-active.theme-olympic-pool.dark body,
@@ -1566,6 +1580,8 @@ html.ambient-active.theme-platinum-elite.dark body {
 }
 
 html.ambient-active .min-h-screen.bg-white,
+html.ambient-active .min-h-screen,
+html.ambient-active.theme-liquid-os .min-h-screen.bg-white,
 html.ambient-active.theme-midnight-lane .min-h-screen.bg-white,
 html.ambient-active.theme-retro-wave .min-h-screen.bg-white,
 html.ambient-active.theme-olympic-pool .min-h-screen.bg-white,

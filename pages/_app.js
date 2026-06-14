@@ -11,7 +11,7 @@ import { SwimProvider, useSwim } from '../context/SwimContext';
 import { FeatureProvider } from '../context/FeatureContext';
 import { DEFAULT_THEME, THEMES } from '../lib/appConstants';
 import { isThemeUnlocked } from '../lib/swimCoinStore';
-import { resolveAppIconPath } from '../lib/storeAppIcons';
+import { resolveAppIconSet } from '../lib/storeAppIcons';
 import { loadFromCookie } from '../lib/cookieStorage';
 
 import Sidebar from '../components/Sidebar';
@@ -73,8 +73,9 @@ function AppContent({ Component, pageProps }) {
   }, [theme]);
 
   useEffect(() => {
-    const iconPath = resolveAppIconPath(profile?.activeAppIcon, storeUnlocks);
-    const isSvg = iconPath.endsWith('.svg');
+    const iconSet = resolveAppIconSet(profile?.activeAppIcon, storeUnlocks);
+    const faviconPath = iconSet.favicon;
+    const isSvg = faviconPath.endsWith('.svg');
 
     let faviconLink = document.querySelector("link[rel='icon']");
     if (!faviconLink) {
@@ -83,21 +84,49 @@ function AppContent({ Component, pageProps }) {
       document.head.appendChild(faviconLink);
     }
     faviconLink.type = isSvg ? 'image/svg+xml' : 'image/png';
-    faviconLink.href = iconPath;
+    faviconLink.href = faviconPath;
 
-    const appleTouchIcon = document.querySelector("link[rel='apple-touch-icon']");
-    if (appleTouchIcon) appleTouchIcon.href = iconPath;
+    let appleTouchIcon = document.querySelector("link[rel='apple-touch-icon']");
+    if (!appleTouchIcon) {
+      appleTouchIcon = document.createElement('link');
+      appleTouchIcon.rel = 'apple-touch-icon';
+      document.head.appendChild(appleTouchIcon);
+    }
+    appleTouchIcon.href = iconSet.appleTouchIcon;
+
+    let manifestLink = document.querySelector("link[rel='manifest']");
+    if (manifestLink) {
+      const manifest = {
+        name: 'Aap-SC',
+        short_name: 'Aap-SC',
+        description: 'Swim Coach - Analyze Apple Fitness swim workouts',
+        start_url: '/',
+        display: 'standalone',
+        background_color: '#ffffff',
+        theme_color: '#3B5BFF',
+        scope: '/',
+        icons: [
+          { src: iconSet.pwa192, sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: iconSet.pwa512, sizes: '512x512', type: 'image/png', purpose: 'any' },
+        ],
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+      const nextUrl = URL.createObjectURL(blob);
+      const previousUrl = manifestLink.href.startsWith('blob:') ? manifestLink.href : null;
+      manifestLink.href = nextUrl;
+      if (previousUrl) URL.revokeObjectURL(previousUrl);
+    }
   }, [profile?.activeAppIcon, storeUnlocks]);
 
   return (
-    <>
+    <div className="app-shell relative z-[1]">
       <AmbientBackground />
       <Sidebar />
       <MobileTopActions />
       <MobileNav />
       <SecretSettingsModal />
       <Component {...pageProps} />
-    </>
+    </div>
   );
 }
 

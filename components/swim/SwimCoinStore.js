@@ -153,7 +153,7 @@ function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
           style={{ background: preset.preview }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preset.path} alt="" className="w-14 h-14 rounded-full shadow-md" />
+          <img src={preset.ui} alt="" className="w-14 h-14 rounded-full shadow-md" />
         </div>
       );
     }
