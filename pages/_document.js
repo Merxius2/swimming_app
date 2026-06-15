@@ -14,7 +14,7 @@ export default function Document() {
 
         {/* iOS PWA */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Aap-SC" />
         <link rel="apple-touch-icon" href="/icon-sc-192.png" />
 

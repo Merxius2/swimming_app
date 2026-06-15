@@ -9,7 +9,14 @@
    per-file edits — they auto-pick up the new look.
    ============================================================ */
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background-color: #EEF1F6;
+}
+html.dark { background-color: #0A0A0B; }
+html.lang-mu { background-color: #991B1B; }
+html.dark.lang-mu { background-color: #7F1D1D; }
+
 body {
   font-family: 'Bricolage Grotesque', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -717,17 +724,15 @@ html.dark .coin-badge-golden {
   overflow: hidden;
 }
 
-/* Fixed full-screen layers — extend into iOS safe areas so vibes reach the status bar */
+/* Fixed full-screen layers — overscan viewport so iOS never shows gaps at edges */
 .ambient-layer,
 .ambient-bubbles {
   position: fixed;
   z-index: 0;
-  top: calc(0px - env(safe-area-inset-top, 0px));
-  right: calc(0px - env(safe-area-inset-right, 0px));
-  bottom: calc(0px - env(safe-area-inset-bottom, 0px));
-  left: calc(0px - env(safe-area-inset-left, 0px));
-  min-height: 100dvh;
-  min-height: -webkit-fill-available;
+  top: -30vh;
+  right: -25vw;
+  bottom: -30vh;
+  left: -25vw;
   pointer-events: none;
 }
 
@@ -1657,7 +1662,7 @@ html.ambient-active.theme-gen-z,
 html.ambient-active.theme-classic,
 html.ambient-active.theme-gold-luxe,
 html.ambient-active.theme-platinum-elite {
-  background-color: transparent !important;
+  background-color: var(--ambient-backdrop, #020617) !important;
 }
 
 html.ambient-active body,
@@ -1679,8 +1684,8 @@ html.ambient-active.theme-gen-z.dark body,
 html.ambient-active.theme-classic.dark body,
 html.ambient-active.theme-gold-luxe.dark body,
 html.ambient-active.theme-platinum-elite.dark body {
-  background: transparent !important;
-  background-color: transparent !important;
+  background: var(--ambient-backdrop, #020617) !important;
+  background-color: var(--ambient-backdrop, #020617) !important;
   background-image: none !important;
 }
 

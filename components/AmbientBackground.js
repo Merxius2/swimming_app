@@ -60,6 +60,14 @@ function AmbientLayer({ language, theme, ambientPreset }) {
   return (
     <>
       <div aria-hidden className="ambient-layer pointer-events-none overflow-hidden">
+        {(ambientPreset?.backdropColor || language === 'mu') && (
+          <div
+            className="ambient-backdrop absolute inset-0"
+            style={{
+              backgroundColor: ambientPreset?.backdropColor || (language === 'mu' ? '#991B1B' : undefined),
+            }}
+          />
+        )}
         {language === 'mu' && (
           <div
             className="absolute inset-0"
@@ -127,8 +135,17 @@ export default function AmbientBackground() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('ambient-active', Boolean(ambientPreset));
-    return () => document.documentElement.classList.remove('ambient-active');
+    const root = document.documentElement;
+    root.classList.toggle('ambient-active', Boolean(ambientPreset));
+    if (ambientPreset?.backdropColor) {
+      root.style.setProperty('--ambient-backdrop', ambientPreset.backdropColor);
+    } else {
+      root.style.removeProperty('--ambient-backdrop');
+    }
+    return () => {
+      root.classList.remove('ambient-active');
+      root.style.removeProperty('--ambient-backdrop');
+    };
   }, [ambientPreset]);
 
   if (!mounted) return null;
