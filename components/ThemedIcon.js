@@ -1,5 +1,7 @@
 import { useTheme } from '../context/UserPreferencesContext';
+import { useSwim } from '../context/SwimContext';
 import { getThemeIconStyles } from '../lib/themeIconStyles';
+import { getPageIconKey, resolveStorePageIconPath } from '../lib/storePageIcons';
 
 /**
  * Theme-aware icon — optional chip wrapper per theme (page headers, settings, inline).
@@ -27,6 +29,19 @@ export default function ThemedIcon({
 
 /** Page title icon chip (compact, beside h1). */
 export function ThemedPageIcon({ icon, className = '' }) {
+  const { profile, storeUnlocks } = useSwim();
+  const pageKey = getPageIconKey(icon);
+  const storeIconPath = resolveStorePageIconPath(profile?.activeAppIcon, pageKey, storeUnlocks);
+
+  if (storeIconPath) {
+    return (
+      <span className={`inline-flex w-9 h-9 shrink-0 items-center justify-center ${className}`.trim()}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={storeIconPath} alt="" width={36} height={36} className="w-9 h-9" />
+      </span>
+    );
+  }
+
   return <ThemedIcon icon={icon} variant="pageHeader" className={className} />;
 }
 
