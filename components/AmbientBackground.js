@@ -66,11 +66,11 @@ function AmbientLayer({ language, theme, ambientPreset }) {
             style={{ background: 'linear-gradient(160deg, #991B1B 0%, #DC2626 45%, #7F1D1D 100%)' }}
           />
         )}
-        {gradientClass && <div className={`absolute inset-0 ${gradientClass}`} />}
+        {gradientClass && <div className={`ambient-gradient absolute inset-0 ${gradientClass}`} />}
         {blobs.map((blob, index) => (
           <div
             key={index}
-            className={`absolute rounded-full${driftBlobs ? ' ambient-blob-drift' : ''}`}
+            className={`ambient-blob absolute${driftBlobs ? ' ambient-blob-drift' : ''}`}
             style={{
               width: blob.width,
               height: blob.height,
@@ -78,12 +78,17 @@ function AmbientLayer({ language, theme, ambientPreset }) {
               right: blob.right,
               top: blob.top,
               bottom: blob.bottom,
-              background: `radial-gradient(circle, ${blob.color} 0%, transparent 65%)`,
-              filter: 'blur(80px)',
-              opacity: blob.opacity,
               animationDelay: driftBlobs ? `${index * -4.5}s` : undefined,
             }}
-          />
+          >
+            <div
+              className="ambient-blob-glow absolute inset-0 rounded-full"
+              style={{
+                background: `radial-gradient(circle, ${blob.color} 0%, transparent 65%)`,
+                opacity: blob.opacity,
+              }}
+            />
+          </div>
         ))}
       </div>
       {showBubbles && (

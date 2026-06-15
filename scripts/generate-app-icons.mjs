@@ -10,7 +10,6 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 const PUBLIC = path.join(ROOT, 'public');
 
 const ICON_SETS = [
-  { svg: 'icon.svg', outputs: ['icon-sc-192.png', 'icon-sc-512.png'] },
   { svg: 'icons/store/gold-medal.svg', outputs: ['icons/store/gold-medal-192.png', 'icons/store/gold-medal-512.png'] },
   { svg: 'icons/store/neon-lane.svg', outputs: ['icons/store/neon-lane-192.png', 'icons/store/neon-lane-512.png'] },
   { svg: 'icons/store/trophy-splash.svg', outputs: ['icons/store/trophy-splash-192.png', 'icons/store/trophy-splash-512.png'] },

@@ -724,6 +724,25 @@ html.dark .coin-badge-golden {
   -webkit-backface-visibility: hidden;
 }
 
+.ambient-gradient {
+  will-change: background-position;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.ambient-blob {
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+.ambient-blob-glow {
+  filter: blur(80px);
+  -webkit-filter: blur(80px);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
 .app-shell {
   isolation: isolate;
 }
@@ -737,50 +756,64 @@ html.dark .coin-badge-golden {
   box-shadow:
     0 0 12px rgba(186, 230, 253, 0.55),
     inset 0 0 8px rgba(255, 255, 255, 0.4);
+  -webkit-animation-name: ambient-bubble-rise;
   animation-name: ambient-bubble-rise;
+  -webkit-animation-timing-function: ease-in-out;
   animation-timing-function: ease-in-out;
+  -webkit-animation-iteration-count: infinite;
   animation-iteration-count: infinite;
   will-change: transform, opacity;
 }
 
 @keyframes ambient-bubble-rise {
-  0% { transform: translateY(0) scale(0.85); opacity: 0; }
+  0% { transform: translate3d(0, 0, 0) scale(0.85); opacity: 0; }
   8% { opacity: 0.85; }
   92% { opacity: 0.75; }
-  100% { transform: translateY(-125vh) scale(1.2); opacity: 0; }
+  100% { transform: translate3d(0, -125vh, 0) scale(1.2); opacity: 0; }
 }
 
 .ambient-gradient-neon-lagoon {
   background: linear-gradient(-45deg, #020617, #0c1445, #1a0533, #7c3aed, #00e5ff, #ff00aa, #020617);
+  -webkit-background-size: 400% 400%;
   background-size: 400% 400%;
+  -webkit-animation: ambient-gradient-drift 18s ease infinite;
   animation: ambient-gradient-drift 18s ease infinite;
 }
 
 .ambient-gradient-sunset-lap {
   background: linear-gradient(-45deg, #431407, #9a3412, #fb923c, #f472b6, #fbbf24, #7c2d12, #1c1917);
+  -webkit-background-size: 400% 400%;
   background-size: 400% 400%;
+  -webkit-animation: ambient-gradient-drift 22s ease infinite;
   animation: ambient-gradient-drift 22s ease infinite;
 }
 
 .ambient-gradient-bubble-trail {
   background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 30%, #0369a1 55%, #0c4a6e 80%, #082f49 100%);
+  -webkit-background-size: 100% 220%;
   background-size: 100% 220%;
+  -webkit-animation: ambient-gradient-vertical-drift 16s ease infinite;
   animation: ambient-gradient-vertical-drift 16s ease infinite;
 }
 
 .ambient-gradient-aurora-lap {
   background: linear-gradient(-45deg, #042f2e, #134e4a, #065f46, #312e81, #4338ca, #0e7490, #042f2e);
+  -webkit-background-size: 400% 400%;
   background-size: 400% 400%;
+  -webkit-animation: ambient-gradient-drift 20s ease infinite;
   animation: ambient-gradient-drift 20s ease infinite;
 }
 
 .ambient-gradient-deep-current {
   background: linear-gradient(-45deg, #020617, #0c4a6e, #0369a1, #164e63, #0ea5e9, #082f49, #020617);
+  -webkit-background-size: 400% 400%;
   background-size: 400% 400%;
+  -webkit-animation: ambient-gradient-drift 24s ease infinite;
   animation: ambient-gradient-drift 24s ease infinite;
 }
 
 .ambient-blob-drift {
+  -webkit-animation: ambient-blob-drift 28s ease-in-out infinite;
   animation: ambient-blob-drift 28s ease-in-out infinite;
 }
 
@@ -797,25 +830,79 @@ html.dark .coin-badge-golden {
 }
 
 @keyframes ambient-blob-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(3vw, -2vh) scale(1.04); }
-  66% { transform: translate(-2vw, 2vh) scale(0.98); }
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(3vw, -2vh, 0) scale(1.04); }
+  66% { transform: translate3d(-2vw, 2vh, 0) scale(0.98); }
+}
+
+/* iOS/touch: background-position animation is unreliable on fixed layers — pan via transform */
+@keyframes ambient-gradient-pan {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-10%, -6%, 0) scale(1.06); }
+}
+
+@keyframes ambient-gradient-pan-vertical {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -8%, 0) scale(1.05); }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .ambient-layer .ambient-gradient {
+    width: 160%;
+    height: 160%;
+    left: -30%;
+    top: -30%;
+    -webkit-background-size: 100% 100%;
+    background-size: 100% 100%;
+    will-change: transform;
+  }
+
+  .ambient-layer .ambient-gradient-neon-lagoon,
+  .ambient-layer .ambient-gradient-sunset-lap,
+  .ambient-layer .ambient-gradient-aurora-lap,
+  .ambient-layer .ambient-gradient-deep-current {
+    -webkit-animation: ambient-gradient-pan 18s ease-in-out infinite;
+    animation: ambient-gradient-pan 18s ease-in-out infinite;
+  }
+
+  .ambient-layer .ambient-gradient-sunset-lap {
+    -webkit-animation-duration: 22s;
+    animation-duration: 22s;
+  }
+
+  .ambient-layer .ambient-gradient-aurora-lap {
+    -webkit-animation-duration: 20s;
+    animation-duration: 20s;
+  }
+
+  .ambient-layer .ambient-gradient-deep-current {
+    -webkit-animation-duration: 24s;
+    animation-duration: 24s;
+  }
+
+  .ambient-layer .ambient-gradient-bubble-trail {
+    -webkit-animation: ambient-gradient-pan-vertical 16s ease-in-out infinite;
+    animation: ambient-gradient-pan-vertical 16s ease-in-out infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ambient-gradient-neon-lagoon,
-  .ambient-gradient-sunset-lap,
-  .ambient-gradient-bubble-trail,
-  .ambient-gradient-aurora-lap,
-  .ambient-gradient-deep-current {
+  html:not(.ambient-active) .ambient-gradient-neon-lagoon,
+  html:not(.ambient-active) .ambient-gradient-sunset-lap,
+  html:not(.ambient-active) .ambient-gradient-bubble-trail,
+  html:not(.ambient-active) .ambient-gradient-aurora-lap,
+  html:not(.ambient-active) .ambient-gradient-deep-current {
+    -webkit-animation: none;
     animation: none;
   }
 
-  .ambient-blob-drift {
+  html:not(.ambient-active) .ambient-blob-drift {
+    -webkit-animation: none;
     animation: none;
   }
 
-  .ambient-bubble {
+  html:not(.ambient-active) .ambient-bubble {
+    -webkit-animation: none;
     animation: none;
     opacity: 0.35;
   }
