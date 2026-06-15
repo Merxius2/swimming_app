@@ -45,6 +45,8 @@ function AmbientLayer({ language, theme, ambientPreset }) {
   let gradientClass = null;
   let driftBlobs = false;
   let showBubbles = false;
+  const screenFillColor = ambientPreset?.backdropColor
+    || (language === 'mu' ? '#991B1B' : null);
 
   if (language === 'mu') {
     blobs = MURICA_BLOBS;
@@ -59,13 +61,18 @@ function AmbientLayer({ language, theme, ambientPreset }) {
 
   return (
     <>
+      {screenFillColor && (
+        <div
+          aria-hidden
+          className="ambient-screen-fill pointer-events-none"
+          style={{ backgroundColor: screenFillColor }}
+        />
+      )}
       <div aria-hidden className="ambient-layer pointer-events-none overflow-hidden">
-        {(ambientPreset?.backdropColor || language === 'mu') && (
+        {screenFillColor && (
           <div
             className="ambient-backdrop absolute inset-0"
-            style={{
-              backgroundColor: ambientPreset?.backdropColor || (language === 'mu' ? '#991B1B' : undefined),
-            }}
+            style={{ backgroundColor: screenFillColor }}
           />
         )}
         {language === 'mu' && (
@@ -125,45 +132,98 @@ export default function AmbientBackground() {
   const { theme } = useTheme();
   const { profile, storeUnlocks } = useSwim();
   const [mounted, setMounted] = useState(false);
+  const [portalTarget, setPortalTarget] = useState(null);
 
   const activeAmbient = profile?.activeAmbient;
   const ambientOwned = activeAmbient && isStoreItemOwned(activeAmbient, storeUnlocks);
   const ambientPreset = ambientOwned ? getAmbientPreset(activeAmbient) : null;
 
   useEffect(() => {
+    const mount = document.createElement('div');
+    mount.id = 'ambient-mount';
+    document.body.insertBefore(mount, document.body.firstChild);
+    setPortalTarget(mount);
     setMounted(true);
+    return () => mount.remove();
   }, []);
 
   useEffect(() => {
     const root = document.documentElement;
     const statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    const manifestLink = document.querySelector('link[rel="manifest"]');
     const previousStatusBar = statusBarMeta?.content;
     const previousThemeColor = themeColorMeta?.content;
+    const previousManifestUrl = manifestLink?.href?.startsWith('blob:') ? manifestLink.href : null;
 
     root.classList.toggle('ambient-active', Boolean(ambientPreset));
     if (ambientPreset?.backdropColor) {
-      root.style.setProperty('--ambient-backdrop', ambientPreset.backdropColor);
-      if (statusBarMeta) statusBarMeta.content = 'black-translucent';
-      if (themeColorMeta) themeColorMeta.content = ambientPreset.backdropColor;
+      const { backdropColor } = ambientPreset;
+      root.style.setProperty('--ambient-backdrop', backdropColor);
+      root.style.backgroundColor = backdropColor;
+      if (statusBarMeta) statusBarMeta.content = 'black';
+      if (themeColorMeta) themeColorMeta.content = backdropColor;
+      if (manifestLink) {
+        const manifest = {
+          name: 'Aap-SC',
+          short_name: 'Aap-SC',
+          description: 'Swim Coach - Analyze Apple Fitness swim workouts',
+          start_url: '/',
+          display: 'standalone',
+          background_color: backdropColor,
+          theme_color: backdropColor,
+          scope: '/',
+          icons: [
+            { src: '/icon-sc-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: '/icon-sc-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          ],
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        manifestLink.href = URL.createObjectURL(blob);
+      }
     } else {
       root.style.removeProperty('--ambient-backdrop');
+      root.style.backgroundColor = '';
       if (statusBarMeta) statusBarMeta.content = 'default';
-      if (themeColorMeta) themeColorMeta.content = root.classList.contains('dark') ? '#0A0A0B' : '#EEF1F6';
+      if (themeColorMeta) {
+        themeColorMeta.content = root.classList.contains('dark') ? '#0A0A0B' : '#EEF1F6';
+      }
+      if (manifestLink) {
+        const manifest = {
+          name: 'Aap-SC',
+          short_name: 'Aap-SC',
+          description: 'Swim Coach - Analyze Apple Fitness swim workouts',
+          start_url: '/',
+          display: 'standalone',
+          background_color: '#ffffff',
+          theme_color: '#3B5BFF',
+          scope: '/',
+          icons: [
+            { src: '/icon-sc-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: '/icon-sc-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          ],
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        manifestLink.href = URL.createObjectURL(blob);
+      }
     }
 
     return () => {
       root.classList.remove('ambient-active');
       root.style.removeProperty('--ambient-backdrop');
+      root.style.backgroundColor = '';
       if (statusBarMeta && previousStatusBar) statusBarMeta.content = previousStatusBar;
       if (themeColorMeta && previousThemeColor) themeColorMeta.content = previousThemeColor;
+      if (previousManifestUrl) {
+        URL.revokeObjectURL(previousManifestUrl);
+      }
     };
   }, [ambientPreset]);
 
-  if (!mounted) return null;
+  if (!mounted || !portalTarget) return null;
 
   return createPortal(
     <AmbientLayer language={language} theme={theme} ambientPreset={ambientPreset} />,
-    document.body
+    portalTarget
   );
 }

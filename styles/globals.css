@@ -725,14 +725,24 @@ html.dark .coin-badge-golden {
 }
 
 /* Fixed full-screen layers — overscan viewport so iOS never shows gaps at edges */
+.ambient-screen-fill {
+  position: fixed;
+  z-index: 0;
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  right: calc(-1 * env(safe-area-inset-right, 0px));
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  left: calc(-1 * env(safe-area-inset-left, 0px));
+  pointer-events: none;
+}
+
 .ambient-layer,
 .ambient-bubbles {
   position: fixed;
   z-index: 0;
-  top: -30vh;
-  right: -25vw;
-  bottom: -30vh;
-  left: -25vw;
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  right: calc(-1 * env(safe-area-inset-right, 0px));
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  left: calc(-1 * env(safe-area-inset-left, 0px));
   pointer-events: none;
 }
 
@@ -747,27 +757,21 @@ html.dark .coin-badge-golden {
   -webkit-backface-visibility: hidden;
 }
 
-/* Store vibes — stretch further into iOS safe areas and status bar inset */
-html.ambient-active .ambient-layer,
-html.ambient-active .ambient-bubbles {
-  top: calc(-1 * env(safe-area-inset-top, 0px) - 40vh);
-  right: calc(-1 * env(safe-area-inset-right, 0px) - 25vw);
-  bottom: calc(-1 * env(safe-area-inset-bottom, 0px) - 30vh);
-  left: calc(-1 * env(safe-area-inset-left, 0px) - 25vw);
+/* Default liquid-os mesh — extra overscan for blob drift */
+html:not(.ambient-active) .ambient-layer,
+html:not(.ambient-active) .ambient-bubbles {
+  top: -30vh;
+  right: -25vw;
+  bottom: -30vh;
+  left: -25vw;
 }
 
-html.ambient-active .ambient-backdrop {
-  top: -35%;
-  right: -35%;
-  bottom: -25%;
-  left: -35%;
-}
-
+html.ambient-active .ambient-backdrop,
 html.ambient-active .ambient-gradient {
-  top: -45%;
-  right: -45%;
-  bottom: -35%;
-  left: -45%;
+  top: -20%;
+  right: -20%;
+  bottom: -20%;
+  left: -20%;
 }
 
 .ambient-gradient {
@@ -1738,9 +1742,11 @@ html.ambient-active.theme-tropical-open.dark body,
 html.ambient-active.theme-gen-z.dark body,
 html.ambient-active.theme-classic.dark body,
 html.ambient-active.theme-gold-luxe.dark body,
-html.ambient-active.theme-platinum-elite.dark body {
-  background: var(--ambient-backdrop, #020617) !important;
-  background-color: var(--ambient-backdrop, #020617) !important;
+html.ambient-active.theme-platinum-elite.dark body,
+html.ambient-active #__next,
+html.ambient-active .app-shell {
+  background: transparent !important;
+  background-color: transparent !important;
   background-image: none !important;
 }
 
