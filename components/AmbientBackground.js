@@ -136,15 +136,27 @@ export default function AmbientBackground() {
 
   useEffect(() => {
     const root = document.documentElement;
+    const statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    const previousStatusBar = statusBarMeta?.content;
+    const previousThemeColor = themeColorMeta?.content;
+
     root.classList.toggle('ambient-active', Boolean(ambientPreset));
     if (ambientPreset?.backdropColor) {
       root.style.setProperty('--ambient-backdrop', ambientPreset.backdropColor);
+      if (statusBarMeta) statusBarMeta.content = 'black-translucent';
+      if (themeColorMeta) themeColorMeta.content = ambientPreset.backdropColor;
     } else {
       root.style.removeProperty('--ambient-backdrop');
+      if (statusBarMeta) statusBarMeta.content = 'default';
+      if (themeColorMeta) themeColorMeta.content = root.classList.contains('dark') ? '#0A0A0B' : '#EEF1F6';
     }
+
     return () => {
       root.classList.remove('ambient-active');
       root.style.removeProperty('--ambient-backdrop');
+      if (statusBarMeta && previousStatusBar) statusBarMeta.content = previousStatusBar;
+      if (themeColorMeta && previousThemeColor) themeColorMeta.content = previousThemeColor;
     };
   }, [ambientPreset]);
 

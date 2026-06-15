@@ -747,6 +747,29 @@ html.dark .coin-badge-golden {
   -webkit-backface-visibility: hidden;
 }
 
+/* Store vibes — stretch further into iOS safe areas and status bar inset */
+html.ambient-active .ambient-layer,
+html.ambient-active .ambient-bubbles {
+  top: calc(-1 * env(safe-area-inset-top, 0px) - 40vh);
+  right: calc(-1 * env(safe-area-inset-right, 0px) - 25vw);
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px) - 30vh);
+  left: calc(-1 * env(safe-area-inset-left, 0px) - 25vw);
+}
+
+html.ambient-active .ambient-backdrop {
+  top: -35%;
+  right: -35%;
+  bottom: -25%;
+  left: -35%;
+}
+
+html.ambient-active .ambient-gradient {
+  top: -45%;
+  right: -45%;
+  bottom: -35%;
+  left: -45%;
+}
+
 .ambient-gradient {
   will-change: background-position;
   -webkit-backface-visibility: hidden;
@@ -864,9 +887,19 @@ html.dark .coin-badge-golden {
   50% { transform: translate3d(-10%, -6%, 0) scale(1.06); }
 }
 
+@keyframes ambient-gradient-pan-safe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.04); }
+  50% { transform: translate3d(-6%, 2%, 0) scale(1.1); }
+}
+
 @keyframes ambient-gradient-pan-vertical {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(0, -8%, 0) scale(1.05); }
+}
+
+@keyframes ambient-gradient-pan-vertical-safe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.04); }
+  50% { transform: translate3d(0, 4%, 0) scale(1.08); }
 }
 
 @media (hover: none) and (pointer: coarse) {
@@ -880,12 +913,27 @@ html.dark .coin-badge-golden {
     will-change: transform;
   }
 
+  html.ambient-active .ambient-layer .ambient-gradient {
+    width: 220%;
+    height: 220%;
+    left: -60%;
+    top: -60%;
+  }
+
   .ambient-layer .ambient-gradient-neon-lagoon,
   .ambient-layer .ambient-gradient-sunset-lap,
   .ambient-layer .ambient-gradient-aurora-lap,
   .ambient-layer .ambient-gradient-deep-current {
     -webkit-animation: ambient-gradient-pan 18s ease-in-out infinite;
     animation: ambient-gradient-pan 18s ease-in-out infinite;
+  }
+
+  html.ambient-active .ambient-layer .ambient-gradient-neon-lagoon,
+  html.ambient-active .ambient-layer .ambient-gradient-sunset-lap,
+  html.ambient-active .ambient-layer .ambient-gradient-aurora-lap,
+  html.ambient-active .ambient-layer .ambient-gradient-deep-current {
+    -webkit-animation: ambient-gradient-pan-safe 18s ease-in-out infinite;
+    animation: ambient-gradient-pan-safe 18s ease-in-out infinite;
   }
 
   .ambient-layer .ambient-gradient-sunset-lap {
@@ -906,6 +954,11 @@ html.dark .coin-badge-golden {
   .ambient-layer .ambient-gradient-bubble-trail {
     -webkit-animation: ambient-gradient-pan-vertical 16s ease-in-out infinite;
     animation: ambient-gradient-pan-vertical 16s ease-in-out infinite;
+  }
+
+  html.ambient-active .ambient-layer .ambient-gradient-bubble-trail {
+    -webkit-animation: ambient-gradient-pan-vertical-safe 16s ease-in-out infinite;
+    animation: ambient-gradient-pan-vertical-safe 16s ease-in-out infinite;
   }
 }
 
@@ -1663,6 +1716,8 @@ html.ambient-active.theme-classic,
 html.ambient-active.theme-gold-luxe,
 html.ambient-active.theme-platinum-elite {
   background-color: var(--ambient-backdrop, #020617) !important;
+  min-height: 100%;
+  min-height: 100dvh;
 }
 
 html.ambient-active body,
