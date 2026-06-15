@@ -717,6 +717,24 @@ html.dark .coin-badge-golden {
   overflow: hidden;
 }
 
+/* Fixed full-screen layers — extend into iOS safe areas so vibes reach the status bar */
+.ambient-layer,
+.ambient-bubbles {
+  position: fixed;
+  z-index: 0;
+  top: calc(0px - env(safe-area-inset-top, 0px));
+  right: calc(0px - env(safe-area-inset-right, 0px));
+  bottom: calc(0px - env(safe-area-inset-bottom, 0px));
+  left: calc(0px - env(safe-area-inset-left, 0px));
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  pointer-events: none;
+}
+
+.ambient-bubbles {
+  z-index: 1;
+}
+
 .ambient-layer {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);

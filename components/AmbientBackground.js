@@ -59,7 +59,7 @@ function AmbientLayer({ language, theme, ambientPreset }) {
 
   return (
     <>
-      <div aria-hidden className="ambient-layer pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      <div aria-hidden className="ambient-layer pointer-events-none overflow-hidden">
         {language === 'mu' && (
           <div
             className="absolute inset-0"
@@ -92,7 +92,7 @@ function AmbientLayer({ language, theme, ambientPreset }) {
         ))}
       </div>
       {showBubbles && (
-        <div aria-hidden className="ambient-bubbles pointer-events-none fixed inset-0 z-[1] overflow-hidden">
+        <div aria-hidden className="ambient-bubbles pointer-events-none overflow-hidden">
           {BUBBLE_POSITIONS.map((bubble, index) => (
             <span
               key={index}
