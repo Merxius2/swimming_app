@@ -208,6 +208,11 @@ export default function SwimCoinStore() {
                   {t(meta.labelKey)}
                 </h3>
               </div>
+              {category === 'vibes' && (
+                <p className="text-xs text-ink-soft mb-4 px-1 leading-relaxed">
+                  {t('coins.store.vibesIosNote')}
+                </p>
+              )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {items.map((item) => {
                   const owned = item.themeCode

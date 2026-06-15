@@ -77,6 +77,9 @@ export default function StoreCosmeticsPanel() {
           <label className="block text-sm font-medium text-ink-soft mb-2">
             {t('settings.activeAmbient')}
           </label>
+          <p className="text-xs text-ink-soft mb-2 leading-relaxed">
+            {t('settings.ambientIosNote')}
+          </p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
