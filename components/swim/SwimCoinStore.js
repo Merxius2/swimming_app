@@ -15,6 +15,7 @@ import {
   getDailyPaidSpinLimit,
   isConsumableStoreItem,
   CHALLENGE_REROLL_STORE_ITEM_ID,
+  BONUS_WHEEL_SPIN_STORE_ITEM_ID,
 } from '../../lib/swimCoinStore';
 
 const CATEGORY_META = {
@@ -67,7 +68,7 @@ function ThemePreview({ item, THEMES }) {
   );
 }
 
-function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
+function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits }) {
   switch (item.preview) {
     case 'theme':
       return <ThemePreview item={item} THEMES={THEMES} />;
@@ -131,7 +132,7 @@ function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
       return (
         <div className="h-20 rounded-lg flex flex-col items-center justify-center gap-1 bg-gradient-to-br from-brand-primary/10 to-brand-secondary/15 border border-brand-primary/20">
           <span className="text-2xl font-black text-brand-primary tabular-nums">
-            {getDailyPaidSpinLimit(storeUnlocks) + (isStoreItemOwned(item.id, storeUnlocks) ? 0 : 1)}/day
+            {getDailyPaidSpinLimit(bonusWheelSpinCredits)}/day
           </span>
           <span className="text-[10px] uppercase tracking-wider text-ink-soft font-semibold">
             {t('coins.store.items.bonusSpin.preview')}
@@ -185,7 +186,7 @@ function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
 export default function SwimCoinStore() {
   const { t } = useLanguage();
   const { changeTheme, THEMES } = useTheme();
-  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats, challengeRerollCredits } = useSwim();
+  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats, challengeRerollCredits, bonusWheelSpinCredits } = useSwim();
   const allThemesUnlocked = Boolean(cheats?.allThemesUnlocked);
 
   useEffect(() => {
@@ -248,7 +249,11 @@ export default function SwimCoinStore() {
                     ? (totalCoins ?? 0) >= item.price
                     : canPurchaseStoreItem(item.id, storeUnlocks, totalCoins);
                   const shortfall = Math.max(0, item.price - (totalCoins ?? 0));
-                  const ownedCount = item.id === CHALLENGE_REROLL_STORE_ITEM_ID ? challengeRerollCredits : 0;
+                  const ownedCount = item.id === CHALLENGE_REROLL_STORE_ITEM_ID
+                    ? challengeRerollCredits
+                    : item.id === BONUS_WHEEL_SPIN_STORE_ITEM_ID
+                      ? bonusWheelSpinCredits
+                      : 0;
 
                   return (
                     <article
@@ -261,7 +266,7 @@ export default function SwimCoinStore() {
                         item={item}
                         t={t}
                         THEMES={THEMES}
-                        storeUnlocks={storeUnlocks}
+                        bonusWheelSpinCredits={bonusWheelSpinCredits}
                       />
                       <div>
                         <h4 className="text-base font-semibold text-ink dark:text-[#FAFAFA]">
@@ -272,7 +277,9 @@ export default function SwimCoinStore() {
                         </p>
                         {isConsumable && ownedCount > 0 && (
                           <p className="mt-2 text-[11px] font-medium text-brand">
-                            {t('coins.store.ownedCount').replace('{count}', String(ownedCount))}
+                            {item.id === BONUS_WHEEL_SPIN_STORE_ITEM_ID
+                              ? tf(t, 'coins.store.bonusSpinOwned', { count: ownedCount })
+                              : t('coins.store.ownedCount').replace('{count}', String(ownedCount))}
                           </p>
                         )}
                       </div>

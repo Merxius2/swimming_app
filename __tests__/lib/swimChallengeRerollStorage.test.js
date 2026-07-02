@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { DEFAULT_SWIM_DATA } from '../../lib/swimConstants.js';
-import { CHALLENGE_REROLL_STORE_ITEM_ID } from '../../lib/swimCoinStore.js';
+import { CHALLENGE_REROLL_STORE_ITEM_ID, BONUS_WHEEL_SPIN_STORE_ITEM_ID } from '../../lib/swimCoinStore.js';
 import {
   applyMonthlyChallengeReroll,
   applyConsumableStorePurchase,
@@ -52,6 +52,15 @@ describe('swimChallengeRerollStorage', () => {
     assert.equal(result.data.challengeRerollCredits, 1);
     assert.equal(result.data.totalCoins, 500);
     assert.equal(result.data.coinsSpent, 500);
+  });
+
+  it('grants a bonus spin credit when purchasing the wheel consumable', () => {
+    const result = applyConsumableStorePurchase(baseData(), BONUS_WHEEL_SPIN_STORE_ITEM_ID);
+
+    assert.equal(result.purchased, true);
+    assert.equal(result.data.bonusWheelSpinCredits, 1);
+    assert.equal(result.data.totalCoins, 650);
+    assert.equal(result.data.coinsSpent, 350);
   });
 
   it('rejects consumable purchase when coins are insufficient', () => {

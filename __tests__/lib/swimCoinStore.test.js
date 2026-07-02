@@ -13,9 +13,12 @@ import {
   isStoreItemOwned,
   isThemeUnlocked,
   normalizeStoreUnlocks,
+  normalizeBonusWheelSpinCredits,
+  stripBonusSpinUnlock,
   purchaseConsumableStoreItemUpdate,
   purchaseStoreItemUpdate,
   CHALLENGE_REROLL_STORE_ITEM_ID,
+  BONUS_WHEEL_SPIN_STORE_ITEM_ID,
 } from '../../lib/swimCoinStore.js';
 
 describe('swimCoinStore', () => {
@@ -52,9 +55,15 @@ describe('swimCoinStore', () => {
     });
   });
 
-  it('bonus spin raises daily limit', () => {
-    assert.equal(getDailyPaidSpinLimit([]), 3);
-    assert.equal(getDailyPaidSpinLimit(['wheel:bonus-spin']), 4);
+  it('bonus spin raises daily limit per purchase', () => {
+    assert.equal(getDailyPaidSpinLimit(0), 3);
+    assert.equal(getDailyPaidSpinLimit(1), 4);
+    assert.equal(getDailyPaidSpinLimit(3), 6);
+  });
+
+  it('legacy bonus spin unlock migrates to one credit', () => {
+    assert.equal(normalizeBonusWheelSpinCredits(0, ['wheel:bonus-spin']), 1);
+    assert.deepEqual(stripBonusSpinUnlock(['wheel:bonus-spin', 'badge:golden-coins']), ['badge:golden-coins']);
   });
 
   it('flair helpers reflect ownership', () => {
@@ -101,6 +110,18 @@ describe('swimCoinStore', () => {
     assert.equal(boosts.length, 2);
     assert.equal(boosts[0].id, CHALLENGE_REROLL_STORE_ITEM_ID);
     assert.equal(boosts[1].id, 'wheel:bonus-spin');
+  });
+
+  it('consumable bonus wheel spin can be purchased repeatedly', () => {
+    assert.equal(isConsumableStoreItem(BONUS_WHEEL_SPIN_STORE_ITEM_ID), true);
+    assert.equal(canPurchaseStoreItem(BONUS_WHEEL_SPIN_STORE_ITEM_ID, [], 350), true);
+    assert.equal(canPurchaseStoreItem(BONUS_WHEEL_SPIN_STORE_ITEM_ID, [], 349), false);
+
+    const first = purchaseConsumableStoreItemUpdate(BONUS_WHEEL_SPIN_STORE_ITEM_ID, 1000, 0);
+    assert.deepEqual(first, { totalCoins: 650, coinsSpent: 350 });
+
+    const second = purchaseConsumableStoreItemUpdate(BONUS_WHEEL_SPIN_STORE_ITEM_ID, 650, 350);
+    assert.deepEqual(second, { totalCoins: 300, coinsSpent: 700 });
   });
 
   it('consumable challenge reroll can be purchased repeatedly', () => {

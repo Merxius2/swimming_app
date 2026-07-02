@@ -10,6 +10,8 @@ import {
   normalizeStoreUnlocks,
   sanitizeProfileCosmetics,
   migrateCoinsSpent,
+  normalizeBonusWheelSpinCredits,
+  stripBonusSpinUnlock,
 } from '../lib/swimCoinStore';
 import { normalizeMonthlyChallengeRerolls } from '../lib/swimMonthlyChallenges';
 import {
@@ -94,10 +96,15 @@ export function useSwimStorage(debounceDelay = 500) {
     const sessions = migrateCoinBonuses(
       migrateSessionCoins(Array.isArray(nextData.sessions) ? nextData.sessions : [])
     );
-    const storeUnlocks = normalizeStoreUnlocks(
+    const rawStoreUnlocks = normalizeStoreUnlocks(
       nextData.storeUnlocks,
       nextData.purchasedThemes
     );
+    const bonusWheelSpinCredits = normalizeBonusWheelSpinCredits(
+      nextData.bonusWheelSpinCredits,
+      rawStoreUnlocks
+    );
+    const storeUnlocks = stripBonusSpinUnlock(rawStoreUnlocks);
     const coinsSpent = migrateCoinsSpent(nextData.coinsSpent, storeUnlocks);
     setData({
       profile: sanitizeProfileCosmetics(
@@ -112,6 +119,7 @@ export function useSwimStorage(debounceDelay = 500) {
       storeUnlocks,
       monthlyChallengeRerolls: normalizeMonthlyChallengeRerolls(nextData.monthlyChallengeRerolls),
       challengeRerollCredits: Math.max(0, Number(nextData.challengeRerollCredits) || 0),
+      bonusWheelSpinCredits,
     });
   }, []);
 
@@ -196,6 +204,7 @@ export function useSwimStorage(debounceDelay = 500) {
     storeUnlocks: data.storeUnlocks || [],
     monthlyChallengeRerolls: data.monthlyChallengeRerolls || {},
     challengeRerollCredits: data.challengeRerollCredits || 0,
+    bonusWheelSpinCredits: data.bonusWheelSpinCredits || 0,
     updateProfile,
     addSession,
     removeSession,

@@ -151,7 +151,7 @@ function WheelDisc({ rotation, spinning, bet, layout, t, onSpinEnd }) {
 
 export default function WheelOfFortune() {
   const { t } = useLanguage();
-  const { totalCoins, adjustCoins, wheelSpins, recordWheelPaidSpin, storeUnlocks } = useSwim();
+  const { totalCoins, adjustCoins, wheelSpins, recordWheelPaidSpin, bonusWheelSpinCredits } = useSwim();
   const [bet, setBet] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -162,7 +162,7 @@ export default function WheelOfFortune() {
 
   const layout = useMemo(() => buildWheelLayout(bet), [bet]);
   const displayLayout = spinning && spinLayoutRef.current ? spinLayoutRef.current : layout;
-  const dailySpinLimit = getDailyPaidSpinLimit(storeUnlocks);
+  const dailySpinLimit = getDailyPaidSpinLimit(bonusWheelSpinCredits);
   const paidSpinsRemaining = getPaidSpinsRemaining(wheelSpins, undefined, dailySpinLimit);
   const canSpin = canStartWheelSpin(totalCoins, bet, freeSpins, wheelSpins, undefined, dailySpinLimit);
   const atDailyLimit = freeSpins === 0 && paidSpinsRemaining === 0;

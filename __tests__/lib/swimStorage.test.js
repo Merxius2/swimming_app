@@ -57,6 +57,19 @@ describe('swimStorage reroll persistence', () => {
     });
   });
 
+  it('migrates legacy bonus spin unlock into credits on load', () => {
+    memory.set(SWIM_STORAGE_KEY, JSON.stringify({
+      sessions: [],
+      profile: { sex: 'male', age: 30 },
+      totalCoins: 0,
+      storeUnlocks: ['wheel:bonus-spin', 'badge:golden-coins'],
+    }));
+
+    const data = loadSwimData();
+    assert.equal(data.bonusWheelSpinCredits, 1);
+    assert.deepEqual(data.storeUnlocks, ['badge:golden-coins']);
+  });
+
   it('round-trips reroll fields through save and load', () => {
     const payload = {
       sessions: [],
@@ -70,12 +83,14 @@ describe('swimStorage reroll persistence', () => {
         '2025-07': { overrides: { 2: 'streak' }, freeUsed: false },
       },
       challengeRerollCredits: 3,
+      bonusWheelSpinCredits: 2,
     };
 
     saveSwimData(payload);
     const loaded = loadSwimData();
 
     assert.equal(loaded.challengeRerollCredits, 3);
+    assert.equal(loaded.bonusWheelSpinCredits, 2);
     assert.deepEqual(loaded.monthlyChallengeRerolls, payload.monthlyChallengeRerolls);
   });
 });
