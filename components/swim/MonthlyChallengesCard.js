@@ -1,5 +1,11 @@
+import { Shuffle } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
-import { evaluateMonthlyChallenges, getMonthKey } from '../../lib/swimMonthlyChallenges';
+import {
+  evaluateMonthlyChallenges,
+  getMonthKey,
+  canRerollMonthlyChallenge,
+  hasMonthlyChallengeReroll,
+} from '../../lib/swimMonthlyChallenges';
 import {
   formatChallengeTarget,
   formatChallengeValue,
@@ -17,9 +23,16 @@ const TIER_STYLES = {
 
 const TIER_STEPS = ['bronze', 'silver', 'gold'];
 
-export default function MonthlyChallengesCard({ sessions, monthKey = getMonthKey() }) {
+export default function MonthlyChallengesCard({
+  sessions,
+  monthKey = getMonthKey(),
+  monthlyChallengeRerolls = {},
+  onRerollChallenge,
+}) {
   const { t, language } = useLanguage();
-  const state = evaluateMonthlyChallenges(sessions, monthKey);
+  const state = evaluateMonthlyChallenges(sessions, monthKey, monthlyChallengeRerolls);
+  const isCurrentMonth = monthKey === getMonthKey();
+  const rerollUsed = hasMonthlyChallengeReroll(monthKey, monthlyChallengeRerolls);
 
   const locale = language === 'nl' ? 'nl-NL' : language === 'ru' ? 'ru-RU' : language === 'tr' ? 'tr-TR' : 'en-US';
   const monthLabel = new Date(`${monthKey}-01`).toLocaleDateString(locale, { month: 'long', year: 'numeric' });
@@ -74,8 +87,12 @@ export default function MonthlyChallengesCard({ sessions, monthKey = getMonthKey
       </div>
 
       <ul className="space-y-3">
-        {state.challenges.map((ch) => {
+        {state.challenges.map((ch, index) => {
           const pct = ch.target > 0 ? Math.min(100, Math.round((ch.current / ch.target) * 100)) : 0;
+          const showReroll = isCurrentMonth
+            && onRerollChallenge
+            && !rerollUsed
+            && canRerollMonthlyChallenge(sessions, monthKey, index, monthlyChallengeRerolls);
           return (
             <li
               key={ch.id}
@@ -83,11 +100,25 @@ export default function MonthlyChallengesCard({ sessions, monthKey = getMonthKey
             >
               <div className="flex items-center justify-between gap-2 mb-1">
                 <p className="text-sm font-medium text-ink">{t(`monthlyChallenges.types.${ch.type}`)}</p>
-                {ch.completed && (
-                  <span className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase">
-                    {t('monthlyChallenges.done')}
-                  </span>
-                )}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {showReroll && (
+                    <button
+                      type="button"
+                      onClick={() => onRerollChallenge(monthKey, index)}
+                      className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-1.5 py-0.5 text-[10px] font-medium text-ink-soft hover:border-brand/40 hover:text-brand hover:bg-tint-soft/40 dark:border-gray-700 transition-colors"
+                      title={t('monthlyChallenges.reroll')}
+                      aria-label={t('monthlyChallenges.reroll')}
+                    >
+                      <Shuffle size={12} aria-hidden="true" />
+                      <span>{t('monthlyChallenges.reroll')}</span>
+                    </button>
+                  )}
+                  {ch.completed && (
+                    <span className="text-[10px] font-semibold text-green-600 dark:text-green-400 uppercase">
+                      {t('monthlyChallenges.done')}
+                    </span>
+                  )}
+                </div>
               </div>
               <p className="text-xs text-ink-soft mb-2">{formatChallengeTarget(ch.type, ch.target, t)}</p>
               <div className="flex items-center justify-between gap-2 mb-1">
@@ -109,6 +140,12 @@ export default function MonthlyChallengesCard({ sessions, monthKey = getMonthKey
           );
         })}
       </ul>
+
+      {isCurrentMonth && rerollUsed && (
+        <p className="text-[11px] text-ink-faint mt-3 leading-relaxed">
+          {t('monthlyChallenges.rerollUsed')}
+        </p>
+      )}
 
       <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-faint mb-2">

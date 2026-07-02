@@ -7,6 +7,9 @@ import {
   getMonthlyChallengeHistory,
   getPreviewMonthlyMedalHistory,
   getMonthlyMedalsForYear,
+  createMonthlyChallengeReroll,
+  canRerollMonthlyChallenge,
+  hasMonthlyChallengeReroll,
   __testing,
 } from '../../lib/swimMonthlyChallenges.js';
 
@@ -79,5 +82,34 @@ describe('swimMonthlyChallenges', () => {
 
     const merged = getMonthlyChallengeHistory([], { previewMonthlyMedals: true });
     assert.equal(merged.length, 3);
+  });
+
+  it('rerolls one challenge per month with a new unused type', () => {
+    const monthKey = '2025-06';
+    const base = generateMonthlyChallenges([], monthKey);
+    const override = createMonthlyChallengeReroll([], monthKey, 0);
+    assert.ok(override);
+    assert.equal(override.tierIndex, 0);
+    assert.notEqual(override.type, base[0].type);
+
+    const rerolls = { [monthKey]: override };
+    const after = generateMonthlyChallenges([], monthKey, rerolls);
+    assert.equal(after[0].type, override.type);
+    assert.equal(after[1].type, base[1].type);
+    assert.equal(after[2].type, base[2].type);
+    assert.ok(hasMonthlyChallengeReroll(monthKey, rerolls));
+    assert.equal(canRerollMonthlyChallenge([], monthKey, 1, rerolls), false);
+  });
+
+  it('blocks reroll on completed challenges', () => {
+    const monthKey = '2025-06';
+    const sessions = Array.from({ length: 8 }, (_, i) =>
+      session(String(i), `2025-06-${String(i + 1).padStart(2, '0')}`, { distanceM: 3000, activeKcal: 800 })
+    );
+    const state = evaluateMonthlyChallenges(sessions, monthKey);
+    const completedIndex = state.challenges.findIndex((ch) => ch.completed);
+    if (completedIndex >= 0) {
+      assert.equal(canRerollMonthlyChallenge(sessions, monthKey, completedIndex), false);
+    }
   });
 });

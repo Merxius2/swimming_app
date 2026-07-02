@@ -31,7 +31,7 @@ import SessionFeedback from '../components/swim/SessionFeedback';
 
 export default function ProgressPage() {
   const { t } = useLanguage();
-  const { sessions, isLoading, profile, totalCoins } = useSwim();
+  const { sessions, isLoading, profile, totalCoins, monthlyChallengeRerolls, rerollMonthlyChallenge } = useSwim();
   const { tooltipStyle, tooltipLabelStyle, gridStyle, axisStyle } = useChartTheme();
 
   if (isLoading) {
@@ -78,7 +78,11 @@ export default function ProgressPage() {
     <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0">
       <PageHeader icon={BarChart3} titleKey="progress.title" />
       <div className="max-w-7xl mx-auto space-y-6 px-4 py-8 md:px-8">
-        <MonthlyChallengesCard sessions={sessions} />
+        <MonthlyChallengesCard
+          sessions={sessions}
+          monthlyChallengeRerolls={monthlyChallengeRerolls}
+          onRerollChallenge={rerollMonthlyChallenge}
+        />
         <div className="card p-6">
           <h2 className="text-lg font-bold mb-4">{t('progress.latestSession')}</h2>
           <p className="text-sm text-ink-soft mb-4">{formatDateShort(latest.date)}</p>

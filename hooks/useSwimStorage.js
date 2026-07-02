@@ -10,6 +10,7 @@ import {
   sanitizeProfileCosmetics,
   migrateCoinsSpent,
 } from '../lib/swimCoinStore';
+import { createMonthlyChallengeReroll } from '../lib/swimMonthlyChallenges';
 
 export function useSwimStorage(debounceDelay = 500) {
   const [data, setData] = useState(DEFAULT_SWIM_DATA);
@@ -104,7 +105,30 @@ export function useSwimStorage(debounceDelay = 500) {
       spentCoinClaims: Array.isArray(nextData.spentCoinClaims) ? nextData.spentCoinClaims : [],
       wheelSpins: normalizeWheelSpins(nextData.wheelSpins, getWheelSpinDayKey()),
       storeUnlocks,
+      monthlyChallengeRerolls: nextData.monthlyChallengeRerolls && typeof nextData.monthlyChallengeRerolls === 'object'
+        ? nextData.monthlyChallengeRerolls
+        : {},
     });
+  }, []);
+
+  const rerollMonthlyChallenge = useCallback((monthKey, tierIndex) => {
+    let success = false;
+    setData((prev) => {
+      if (prev.monthlyChallengeRerolls?.[monthKey]) return prev;
+      const override = createMonthlyChallengeReroll(prev.sessions, monthKey, tierIndex);
+      if (!override) return prev;
+      success = true;
+      const next = {
+        ...prev,
+        monthlyChallengeRerolls: {
+          ...(prev.monthlyChallengeRerolls || {}),
+          [monthKey]: override,
+        },
+      };
+      saveSwimData(next);
+      return next;
+    });
+    return success;
   }, []);
 
   const clearAll = useCallback(() => {
@@ -166,6 +190,7 @@ export function useSwimStorage(debounceDelay = 500) {
     spentCoinClaims: data.spentCoinClaims || [],
     wheelSpins: data.wheelSpins,
     storeUnlocks: data.storeUnlocks || [],
+    monthlyChallengeRerolls: data.monthlyChallengeRerolls || {},
     updateProfile,
     addSession,
     removeSession,
@@ -174,5 +199,6 @@ export function useSwimStorage(debounceDelay = 500) {
     adjustCoins,
     recordWheelPaidSpin,
     purchaseStoreItem,
+    rerollMonthlyChallenge,
   };
 }

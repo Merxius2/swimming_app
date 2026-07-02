@@ -11,12 +11,12 @@ const earnedYearsFromHistory = (history) => {
 
 export default function MonthlyChallengeHistory({ sessions }) {
   const { t } = useLanguage();
-  const { cheats } = useSwim();
+  const { cheats, monthlyChallengeRerolls } = useSwim();
   const previewMonthlyMedals = Boolean(cheats?.previewMonthlyMedals);
 
   const earned = useMemo(
-    () => getMonthlyChallengeHistory(sessions, { previewMonthlyMedals }),
-    [sessions, previewMonthlyMedals]
+    () => getMonthlyChallengeHistory(sessions, { previewMonthlyMedals, monthlyChallengeRerolls }),
+    [sessions, previewMonthlyMedals, monthlyChallengeRerolls]
   );
   const years = useMemo(() => earnedYearsFromHistory(earned), [earned]);
   const [year, setYear] = useState(() => years[0] ?? new Date().getFullYear());

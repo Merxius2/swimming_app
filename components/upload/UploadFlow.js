@@ -87,7 +87,7 @@ const formToMetrics = (form) => ({
 
 export default function UploadFlow() {
   const { t, language } = useLanguage();
-  const { sessions, addSession, profile, cheats, spentCoinClaims } = useSwim();
+  const { sessions, addSession, profile, cheats, spentCoinClaims, monthlyChallengeRerolls } = useSwim();
   const fileRef = useRef(null);
 
   const [step, setStep] = useState('drop');
@@ -174,7 +174,7 @@ export default function UploadFlow() {
       allMedalsUnlocked: cheats?.allMedalsUnlocked,
     });
     const monthKey = form.date.slice(0, 7);
-    const monthUpgrade = getMonthlyTierUpgrade(sessions, allWithNew, monthKey);
+    const monthUpgrade = getMonthlyTierUpgrade(sessions, allWithNew, monthKey, monthlyChallengeRerolls);
     const coins = calculateUploadCoins({
       session: pendingSession,
       sessionsBefore: sessions,
