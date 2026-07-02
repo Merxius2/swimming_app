@@ -1,12 +1,22 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { BarChart3, Coins } from 'lucide-react';
-import { getPageIconKey, resolveStorePageIconPath } from '../../lib/storePageIcons.js';
+import {
+  getPageIconKey,
+  resolveStorePageIconPath,
+  __testing,
+} from '../../lib/storePageIcons.js';
+
+const progressIcon = [...__testing.LUCIDE_PAGE_ICON_MAP.keys()].find(
+  (icon) => __testing.LUCIDE_PAGE_ICON_MAP.get(icon) === 'progress'
+);
+const coinsIcon = [...__testing.LUCIDE_PAGE_ICON_MAP.keys()].find(
+  (icon) => __testing.LUCIDE_PAGE_ICON_MAP.get(icon) === 'coins'
+);
 
 describe('storePageIcons', () => {
   it('maps lucide page header components to icon keys', () => {
-    assert.equal(getPageIconKey(BarChart3), 'progress');
-    assert.equal(getPageIconKey(Coins), 'coins');
+    assert.equal(getPageIconKey(progressIcon), 'progress');
+    assert.equal(getPageIconKey(coinsIcon), 'coins');
   });
 
   it('resolves store page icon paths for owned icon sets', () => {
