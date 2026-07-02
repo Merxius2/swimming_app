@@ -168,6 +168,9 @@ export default function ProgressPage() {
           badges={feedback.badges}
           coachMessage={feedback.coachMessage}
           motivation={feedback.motivation}
+          highlights={feedback.highlights}
+          tip={feedback.tip}
+          benchmarkLevel={feedback.benchmarkLevel}
         />
 
         <div className="card p-6">

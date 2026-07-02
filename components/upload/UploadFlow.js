@@ -274,6 +274,9 @@ export default function UploadFlow() {
           badges={savedFeedback?.badges || []}
           coachMessage={savedFeedback?.coachMessage}
           motivation={savedFeedback?.motivation}
+          highlights={savedFeedback?.highlights || []}
+          tip={savedFeedback?.tip}
+          benchmarkLevel={savedFeedback?.benchmarkLevel}
           aiEnhanced={savedFeedback?.aiEnhanced}
           loading={feedbackLoading}
         />
