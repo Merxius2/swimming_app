@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper, AppWindow, Shuffle,
 } from 'lucide-react';
@@ -31,6 +32,10 @@ function tf(t, key, params = {}) {
     text = text.replace(`{${name}}`, String(value));
   });
   return text;
+}
+
+function storeItemDomId(itemId) {
+  return `store-item-${itemId.replace(/:/g, '-')}`;
 }
 
 function ThemePreview({ item, THEMES }) {
@@ -183,6 +188,15 @@ export default function SwimCoinStore() {
   const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats, challengeRerollCredits } = useSwim();
   const allThemesUnlocked = Boolean(cheats?.allThemesUnlocked);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.location.hash) return;
+    const target = document.querySelector(window.location.hash);
+    if (!target) return;
+    window.requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }, []);
+
   const handlePurchase = (item) => {
     if (!canPurchaseStoreItem(item.id, storeUnlocks, totalCoins)) return;
     if (!purchaseStoreItem(item.id)) return;
@@ -239,7 +253,9 @@ export default function SwimCoinStore() {
                   return (
                     <article
                       key={item.id}
-                      className="coin-store-item card p-5 flex flex-col gap-4"
+                      id={storeItemDomId(item.id)}
+                      data-store-item-id={item.id}
+                      className="coin-store-item card p-5 flex flex-col gap-4 scroll-mt-28"
                     >
                       <StoreItemPreview
                         item={item}

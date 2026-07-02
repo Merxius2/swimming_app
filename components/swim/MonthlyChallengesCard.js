@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Shuffle } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import {
@@ -161,7 +162,12 @@ export default function MonthlyChallengesCard({
 
       {isCurrentMonth && !rerollAvailable && (
         <p className="text-[11px] text-ink-faint leading-relaxed">
-          {t('monthlyChallenges.rerollBuyHint')}
+          <Link
+            href="/coins#store-item-boost-challenge-reroll"
+            className="text-brand hover:underline underline-offset-2"
+          >
+            {t('monthlyChallenges.rerollBuyHint')}
+          </Link>
         </p>
       )}
 

@@ -5,6 +5,7 @@ import {
   canPurchaseTheme,
   getDailyPaidSpinLimit,
   getStoreItem,
+  getStoreItemsByCategory,
   getUnlockedThemes,
   hasConfettiCannon,
   hasGoldenCoinBadge,
@@ -93,6 +94,13 @@ describe('swimCoinStore', () => {
     const result = purchaseStoreItemUpdate('theme:gen-z', [], 600);
     assert.equal(result.totalCoins, 100);
     assert.deepEqual(result.storeUnlocks, ['theme:gen-z']);
+  });
+
+  it('boosts category lists challenge reroll and bonus spin', () => {
+    const boosts = getStoreItemsByCategory('boosts');
+    assert.equal(boosts.length, 2);
+    assert.equal(boosts[0].id, CHALLENGE_REROLL_STORE_ITEM_ID);
+    assert.equal(boosts[1].id, 'wheel:bonus-spin');
   });
 
   it('consumable challenge reroll can be purchased repeatedly', () => {
