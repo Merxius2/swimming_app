@@ -6,20 +6,16 @@ import { migrateSessionCoins, migrateCoinBonuses, reconcileTotalCoins } from '..
 import { normalizeWheelSpins, getWheelSpinDayKey, recordPaidSpin } from '../lib/swimWheelSpins';
 import {
   purchaseStoreItemUpdate,
-  purchaseConsumableStoreItemUpdate,
   isConsumableStoreItem,
-  CHALLENGE_REROLL_STORE_ITEM_ID,
   normalizeStoreUnlocks,
   sanitizeProfileCosmetics,
   migrateCoinsSpent,
 } from '../lib/swimCoinStore';
+import { normalizeMonthlyChallengeRerolls } from '../lib/swimMonthlyChallenges';
 import {
-  createMonthlyChallengeReroll,
-  canRerollMonthlyChallenge,
-  normalizeMonthRerollEntry,
-  normalizeMonthlyChallengeRerolls,
-  hasRerollAvailability,
-} from '../lib/swimMonthlyChallenges';
+  applyMonthlyChallengeReroll,
+  applyConsumableStorePurchase,
+} from '../lib/swimChallengeRerollStorage';
 
 export function useSwimStorage(debounceDelay = 500) {
   const [data, setData] = useState(DEFAULT_SWIM_DATA);
@@ -122,36 +118,11 @@ export function useSwimStorage(debounceDelay = 500) {
   const rerollMonthlyChallenge = useCallback((monthKey, tierIndex) => {
     let success = false;
     setData((prev) => {
-      const credits = prev.challengeRerollCredits || 0;
-      if (!canRerollMonthlyChallenge(prev.sessions, monthKey, tierIndex, prev.monthlyChallengeRerolls, credits)) {
-        return prev;
-      }
-      const override = createMonthlyChallengeReroll(
-        prev.sessions,
-        monthKey,
-        tierIndex,
-        prev.monthlyChallengeRerolls
-      );
-      if (!override) return prev;
-
-      const monthEntry = normalizeMonthRerollEntry(prev.monthlyChallengeRerolls?.[monthKey]);
-      const useFree = !monthEntry.freeUsed;
-      if (!useFree && credits < 1) return prev;
-
-      success = true;
-      const next = {
-        ...prev,
-        challengeRerollCredits: useFree ? credits : credits - 1,
-        monthlyChallengeRerolls: {
-          ...(prev.monthlyChallengeRerolls || {}),
-          [monthKey]: {
-            overrides: { ...monthEntry.overrides, [tierIndex]: override.type },
-            freeUsed: monthEntry.freeUsed || useFree,
-          },
-        },
-      };
-      saveSwimData(next);
-      return next;
+      const result = applyMonthlyChallengeReroll(prev, monthKey, tierIndex);
+      success = result.success;
+      if (!result.success) return prev;
+      saveSwimData(result.data);
+      return result.data;
     });
     return success;
   }, []);
@@ -186,23 +157,11 @@ export function useSwimStorage(debounceDelay = 500) {
     let purchased = false;
     setData((prev) => {
       if (isConsumableStoreItem(itemId)) {
-        const update = purchaseConsumableStoreItemUpdate(
-          itemId,
-          prev.totalCoins || 0,
-          prev.coinsSpent || 0
-        );
-        if (!update) return prev;
+        const result = applyConsumableStorePurchase(prev, itemId);
+        if (!result.purchased) return prev;
         purchased = true;
-        const next = {
-          ...prev,
-          totalCoins: update.totalCoins,
-          coinsSpent: update.coinsSpent,
-          challengeRerollCredits: itemId === CHALLENGE_REROLL_STORE_ITEM_ID
-            ? (prev.challengeRerollCredits || 0) + 1
-            : (prev.challengeRerollCredits || 0),
-        };
-        saveSwimData(next);
-        return next;
+        saveSwimData(result.data);
+        return result.data;
       }
 
       const update = purchaseStoreItemUpdate(

@@ -11,6 +11,7 @@ import {
   canRerollMonthlyChallenge,
   hasMonthlyChallengeReroll,
   hasRerollAvailability,
+  normalizeMonthlyChallengeRerolls,
   __testing,
 } from '../../lib/swimMonthlyChallenges.js';
 
@@ -116,5 +117,23 @@ describe('swimMonthlyChallenges', () => {
     if (completedIndex >= 0) {
       assert.equal(canRerollMonthlyChallenge(sessions, monthKey, completedIndex), false);
     }
+  });
+
+  it('normalizes legacy reroll entries to the new overrides format', () => {
+    const normalized = normalizeMonthlyChallengeRerolls({
+      '2025-06': { tierIndex: 0, type: 'kcal' },
+      '2025-07': { overrides: { 1: 'distance' }, freeUsed: false },
+      invalid: null,
+    });
+
+    assert.deepEqual(normalized['2025-06'], {
+      overrides: { 0: 'kcal' },
+      freeUsed: true,
+    });
+    assert.deepEqual(normalized['2025-07'], {
+      overrides: { 1: 'distance' },
+      freeUsed: false,
+    });
+    assert.deepEqual(normalized.invalid, { overrides: {}, freeUsed: false });
   });
 });
