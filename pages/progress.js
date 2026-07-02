@@ -31,7 +31,15 @@ import SessionFeedback from '../components/swim/SessionFeedback';
 
 export default function ProgressPage() {
   const { t } = useLanguage();
-  const { sessions, isLoading, profile, totalCoins, monthlyChallengeRerolls, rerollMonthlyChallenge } = useSwim();
+  const {
+    sessions,
+    isLoading,
+    profile,
+    totalCoins,
+    monthlyChallengeRerolls,
+    challengeRerollCredits,
+    rerollMonthlyChallenge,
+  } = useSwim();
   const { tooltipStyle, tooltipLabelStyle, gridStyle, axisStyle } = useChartTheme();
 
   if (isLoading) {
@@ -81,6 +89,7 @@ export default function ProgressPage() {
         <MonthlyChallengesCard
           sessions={sessions}
           monthlyChallengeRerolls={monthlyChallengeRerolls}
+          challengeRerollCredits={challengeRerollCredits}
           onRerollChallenge={rerollMonthlyChallenge}
         />
         <div className="card p-6">

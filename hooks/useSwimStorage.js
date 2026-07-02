@@ -6,11 +6,20 @@ import { migrateSessionCoins, migrateCoinBonuses, reconcileTotalCoins } from '..
 import { normalizeWheelSpins, getWheelSpinDayKey, recordPaidSpin } from '../lib/swimWheelSpins';
 import {
   purchaseStoreItemUpdate,
+  purchaseConsumableStoreItemUpdate,
+  isConsumableStoreItem,
+  CHALLENGE_REROLL_STORE_ITEM_ID,
   normalizeStoreUnlocks,
   sanitizeProfileCosmetics,
   migrateCoinsSpent,
 } from '../lib/swimCoinStore';
-import { createMonthlyChallengeReroll } from '../lib/swimMonthlyChallenges';
+import {
+  createMonthlyChallengeReroll,
+  canRerollMonthlyChallenge,
+  normalizeMonthRerollEntry,
+  normalizeMonthlyChallengeRerolls,
+  hasRerollAvailability,
+} from '../lib/swimMonthlyChallenges';
 
 export function useSwimStorage(debounceDelay = 500) {
   const [data, setData] = useState(DEFAULT_SWIM_DATA);
@@ -105,24 +114,40 @@ export function useSwimStorage(debounceDelay = 500) {
       spentCoinClaims: Array.isArray(nextData.spentCoinClaims) ? nextData.spentCoinClaims : [],
       wheelSpins: normalizeWheelSpins(nextData.wheelSpins, getWheelSpinDayKey()),
       storeUnlocks,
-      monthlyChallengeRerolls: nextData.monthlyChallengeRerolls && typeof nextData.monthlyChallengeRerolls === 'object'
-        ? nextData.monthlyChallengeRerolls
-        : {},
+      monthlyChallengeRerolls: normalizeMonthlyChallengeRerolls(nextData.monthlyChallengeRerolls),
+      challengeRerollCredits: Math.max(0, Number(nextData.challengeRerollCredits) || 0),
     });
   }, []);
 
   const rerollMonthlyChallenge = useCallback((monthKey, tierIndex) => {
     let success = false;
     setData((prev) => {
-      if (prev.monthlyChallengeRerolls?.[monthKey]) return prev;
-      const override = createMonthlyChallengeReroll(prev.sessions, monthKey, tierIndex);
+      const credits = prev.challengeRerollCredits || 0;
+      if (!canRerollMonthlyChallenge(prev.sessions, monthKey, tierIndex, prev.monthlyChallengeRerolls, credits)) {
+        return prev;
+      }
+      const override = createMonthlyChallengeReroll(
+        prev.sessions,
+        monthKey,
+        tierIndex,
+        prev.monthlyChallengeRerolls
+      );
       if (!override) return prev;
+
+      const monthEntry = normalizeMonthRerollEntry(prev.monthlyChallengeRerolls?.[monthKey]);
+      const useFree = !monthEntry.freeUsed;
+      if (!useFree && credits < 1) return prev;
+
       success = true;
       const next = {
         ...prev,
+        challengeRerollCredits: useFree ? credits : credits - 1,
         monthlyChallengeRerolls: {
           ...(prev.monthlyChallengeRerolls || {}),
-          [monthKey]: override,
+          [monthKey]: {
+            overrides: { ...monthEntry.overrides, [tierIndex]: override.type },
+            freeUsed: monthEntry.freeUsed || useFree,
+          },
         },
       };
       saveSwimData(next);
@@ -160,6 +185,26 @@ export function useSwimStorage(debounceDelay = 500) {
   const purchaseStoreItem = useCallback((itemId) => {
     let purchased = false;
     setData((prev) => {
+      if (isConsumableStoreItem(itemId)) {
+        const update = purchaseConsumableStoreItemUpdate(
+          itemId,
+          prev.totalCoins || 0,
+          prev.coinsSpent || 0
+        );
+        if (!update) return prev;
+        purchased = true;
+        const next = {
+          ...prev,
+          totalCoins: update.totalCoins,
+          coinsSpent: update.coinsSpent,
+          challengeRerollCredits: itemId === CHALLENGE_REROLL_STORE_ITEM_ID
+            ? (prev.challengeRerollCredits || 0) + 1
+            : (prev.challengeRerollCredits || 0),
+        };
+        saveSwimData(next);
+        return next;
+      }
+
       const update = purchaseStoreItemUpdate(
         itemId,
         prev.storeUnlocks,
@@ -191,6 +236,7 @@ export function useSwimStorage(debounceDelay = 500) {
     wheelSpins: data.wheelSpins,
     storeUnlocks: data.storeUnlocks || [],
     monthlyChallengeRerolls: data.monthlyChallengeRerolls || {},
+    challengeRerollCredits: data.challengeRerollCredits || 0,
     updateProfile,
     addSession,
     removeSession,

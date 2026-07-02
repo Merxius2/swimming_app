@@ -1,5 +1,5 @@
 import {
-  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper, AppWindow,
+  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper, AppWindow, Shuffle,
 } from 'lucide-react';
 import { useLanguage, useTheme } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
@@ -12,6 +12,8 @@ import {
   isStoreItemOwned,
   isThemeUnlocked,
   getDailyPaidSpinLimit,
+  isConsumableStoreItem,
+  CHALLENGE_REROLL_STORE_ITEM_ID,
 } from '../../lib/swimCoinStore';
 
 const CATEGORY_META = {
@@ -131,6 +133,15 @@ function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
           </span>
         </div>
       );
+    case 'challenge-reroll':
+      return (
+        <div className="h-20 rounded-lg flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-brand-primary/10 to-[#7B5BFF]/15 border border-brand-primary/20 px-4">
+          <Shuffle size={28} className="text-brand-primary" strokeWidth={2} />
+          <span className="text-[10px] uppercase tracking-wider text-ink-soft font-semibold text-center">
+            {t('coins.store.items.challengeReroll.preview')}
+          </span>
+        </div>
+      );
     case 'title-lane-seven':
     case 'title-pool-shark':
     case 'title-splash-zone':
@@ -169,7 +180,7 @@ function StoreItemPreview({ item, t, THEMES, storeUnlocks }) {
 export default function SwimCoinStore() {
   const { t } = useLanguage();
   const { changeTheme, THEMES } = useTheme();
-  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats } = useSwim();
+  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats, challengeRerollCredits } = useSwim();
   const allThemesUnlocked = Boolean(cheats?.allThemesUnlocked);
 
   const handlePurchase = (item) => {
@@ -215,11 +226,15 @@ export default function SwimCoinStore() {
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {items.map((item) => {
-                  const owned = item.themeCode
+                  const isConsumable = isConsumableStoreItem(item.id);
+                  const owned = !isConsumable && (item.themeCode
                     ? isThemeUnlocked(item.themeCode, storeUnlocks, allThemesUnlocked)
-                    : isStoreItemOwned(item.id, storeUnlocks);
-                  const canBuy = canPurchaseStoreItem(item.id, storeUnlocks, totalCoins);
+                    : isStoreItemOwned(item.id, storeUnlocks));
+                  const canBuy = isConsumable
+                    ? (totalCoins ?? 0) >= item.price
+                    : canPurchaseStoreItem(item.id, storeUnlocks, totalCoins);
                   const shortfall = Math.max(0, item.price - (totalCoins ?? 0));
+                  const ownedCount = item.id === CHALLENGE_REROLL_STORE_ITEM_ID ? challengeRerollCredits : 0;
 
                   return (
                     <article
@@ -239,6 +254,11 @@ export default function SwimCoinStore() {
                         <p className="mt-1 text-xs text-ink-soft leading-relaxed">
                           {t(item.descKey)}
                         </p>
+                        {isConsumable && ownedCount > 0 && (
+                          <p className="mt-2 text-[11px] font-medium text-brand">
+                            {t('coins.store.ownedCount').replace('{count}', String(ownedCount))}
+                          </p>
+                        )}
                       </div>
                       <div className="mt-auto flex items-center justify-between gap-3 pt-1">
                         {owned ? (
@@ -256,7 +276,7 @@ export default function SwimCoinStore() {
                             className="wheel-spin-btn text-sm px-4 py-2 rounded-lg disabled:opacity-45 disabled:cursor-not-allowed shrink-0"
                           >
                             {canBuy
-                              ? t('coins.store.buy')
+                              ? (isConsumable ? t('coins.store.buyConsumable') : t('coins.store.buy'))
                               : tf(t, 'coins.store.notEnough', { amount: shortfall.toLocaleString() })}
                           </button>
                         )}

@@ -10,6 +10,7 @@ import {
   createMonthlyChallengeReroll,
   canRerollMonthlyChallenge,
   hasMonthlyChallengeReroll,
+  hasRerollAvailability,
   __testing,
 } from '../../lib/swimMonthlyChallenges.js';
 
@@ -92,13 +93,17 @@ describe('swimMonthlyChallenges', () => {
     assert.equal(override.tierIndex, 0);
     assert.notEqual(override.type, base[0].type);
 
-    const rerolls = { [monthKey]: override };
+    const rerolls = {
+      [monthKey]: { overrides: { 0: override.type }, freeUsed: true },
+    };
     const after = generateMonthlyChallenges([], monthKey, rerolls);
     assert.equal(after[0].type, override.type);
     assert.equal(after[1].type, base[1].type);
     assert.equal(after[2].type, base[2].type);
     assert.ok(hasMonthlyChallengeReroll(monthKey, rerolls));
-    assert.equal(canRerollMonthlyChallenge([], monthKey, 1, rerolls), false);
+    assert.equal(canRerollMonthlyChallenge([], monthKey, 1, rerolls, 0), false);
+    assert.equal(canRerollMonthlyChallenge([], monthKey, 1, rerolls, 1), true);
+    assert.equal(hasRerollAvailability(monthKey, rerolls, 1), true);
   });
 
   it('blocks reroll on completed challenges', () => {

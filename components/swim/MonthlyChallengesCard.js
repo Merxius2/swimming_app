@@ -4,7 +4,7 @@ import {
   evaluateMonthlyChallenges,
   getMonthKey,
   canRerollMonthlyChallenge,
-  hasMonthlyChallengeReroll,
+  hasRerollAvailability,
 } from '../../lib/swimMonthlyChallenges';
 import {
   formatChallengeTarget,
@@ -27,12 +27,13 @@ export default function MonthlyChallengesCard({
   sessions,
   monthKey = getMonthKey(),
   monthlyChallengeRerolls = {},
+  challengeRerollCredits = 0,
   onRerollChallenge,
 }) {
   const { t, language } = useLanguage();
   const state = evaluateMonthlyChallenges(sessions, monthKey, monthlyChallengeRerolls);
   const isCurrentMonth = monthKey === getMonthKey();
-  const rerollUsed = hasMonthlyChallengeReroll(monthKey, monthlyChallengeRerolls);
+  const rerollAvailable = hasRerollAvailability(monthKey, monthlyChallengeRerolls, challengeRerollCredits);
 
   const locale = language === 'nl' ? 'nl-NL' : language === 'ru' ? 'ru-RU' : language === 'tr' ? 'tr-TR' : 'en-US';
   const monthLabel = new Date(`${monthKey}-01`).toLocaleDateString(locale, { month: 'long', year: 'numeric' });
@@ -91,8 +92,13 @@ export default function MonthlyChallengesCard({
           const pct = ch.target > 0 ? Math.min(100, Math.round((ch.current / ch.target) * 100)) : 0;
           const showReroll = isCurrentMonth
             && onRerollChallenge
-            && !rerollUsed
-            && canRerollMonthlyChallenge(sessions, monthKey, index, monthlyChallengeRerolls);
+            && canRerollMonthlyChallenge(
+              sessions,
+              monthKey,
+              index,
+              monthlyChallengeRerolls,
+              challengeRerollCredits
+            );
           return (
             <li
               key={ch.id}
@@ -141,9 +147,21 @@ export default function MonthlyChallengesCard({
         })}
       </ul>
 
-      {isCurrentMonth && rerollUsed && (
+      {isCurrentMonth && challengeRerollCredits > 0 && (
+        <p className="text-[11px] text-ink-faint mt-3 leading-relaxed">
+          {t('monthlyChallenges.rerollCredits').replace('{count}', String(challengeRerollCredits))}
+        </p>
+      )}
+
+      {isCurrentMonth && !rerollAvailable && (
         <p className="text-[11px] text-ink-faint mt-3 leading-relaxed">
           {t('monthlyChallenges.rerollUsed')}
+        </p>
+      )}
+
+      {isCurrentMonth && !rerollAvailable && (
+        <p className="text-[11px] text-ink-faint leading-relaxed">
+          {t('monthlyChallenges.rerollBuyHint')}
         </p>
       )}
 

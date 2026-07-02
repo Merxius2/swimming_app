@@ -8,10 +8,13 @@ import {
   getUnlockedThemes,
   hasConfettiCannon,
   hasGoldenCoinBadge,
+  isConsumableStoreItem,
   isStoreItemOwned,
   isThemeUnlocked,
   normalizeStoreUnlocks,
+  purchaseConsumableStoreItemUpdate,
   purchaseStoreItemUpdate,
+  CHALLENGE_REROLL_STORE_ITEM_ID,
 } from '../../lib/swimCoinStore.js';
 
 describe('swimCoinStore', () => {
@@ -90,5 +93,17 @@ describe('swimCoinStore', () => {
     const result = purchaseStoreItemUpdate('theme:gen-z', [], 600);
     assert.equal(result.totalCoins, 100);
     assert.deepEqual(result.storeUnlocks, ['theme:gen-z']);
+  });
+
+  it('consumable challenge reroll can be purchased repeatedly', () => {
+    assert.equal(isConsumableStoreItem(CHALLENGE_REROLL_STORE_ITEM_ID), true);
+    assert.equal(canPurchaseStoreItem(CHALLENGE_REROLL_STORE_ITEM_ID, [], 500), true);
+    assert.equal(canPurchaseStoreItem(CHALLENGE_REROLL_STORE_ITEM_ID, [], 499), false);
+
+    const first = purchaseConsumableStoreItemUpdate(CHALLENGE_REROLL_STORE_ITEM_ID, 1200, 0);
+    assert.deepEqual(first, { totalCoins: 700, coinsSpent: 500 });
+
+    const second = purchaseConsumableStoreItemUpdate(CHALLENGE_REROLL_STORE_ITEM_ID, 700, 500);
+    assert.deepEqual(second, { totalCoins: 200, coinsSpent: 1000 });
   });
 });
