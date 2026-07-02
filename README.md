@@ -119,16 +119,16 @@ All components can access this data via the `useFinancial()` hook.
 1. Push to GitHub:
 ```bash
 git add .
-git commit -m "Add Aap-FT financial tools app"
-git push origin main
+git commit -m "Your changes"
+git push origin your-branch
 ```
 
 2. Go to [vercel.com](https://vercel.com)
 3. Import your repository
-4. Set Root Directory to `audit/`
+4. Leave **Root Directory** empty (app lives at the repository root)
 5. Click Deploy
 
-Your app will be live within minutes!
+Preview deployments are created automatically for pull requests. Use the **Vercel** check on the latest commit (or the auto-updated preview comment on the PR) for the current preview URL.
 
 ## Mobile App (iOS/iPad)
 
