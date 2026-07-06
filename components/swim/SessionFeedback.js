@@ -2,7 +2,8 @@ import { Sparkles, TrendingUp, TrendingDown, Bot, Lightbulb } from 'lucide-react
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import MascotCoach from '../mascot/MascotCoach';
-import { resolveMascotLevel, resolveMascotLook, resolveMascotSex } from '../../lib/mascotConstants';
+import { getMascotName, resolveMascotLevel, resolveMascotLook, resolveMascotSex } from '../../lib/mascotConstants';
+import { resolveMascotBubbleTone } from '../../lib/mascotPresentation';
 
 function pickMascotMessage({ coachMessage, motivation, tip, insights, loading, t }) {
   if (loading) return t('mascot.thinking');
@@ -40,6 +41,16 @@ export default function SessionFeedback({
   });
 
   const mascotLevel = resolveMascotLevel(benchmarkLevel);
+  const bubbleTone = resolveMascotBubbleTone({
+    loading,
+    coachMessage,
+    motivation,
+    tip,
+    badges,
+    benchmarkLevel,
+    message: mascotMessage,
+  });
+  const coachName = getMascotName(mascotSex, t);
   const hasContent = loading
     || insights.length
     || badges.length
@@ -59,8 +70,11 @@ export default function SessionFeedback({
             sex={mascotSex}
             level={mascotLevel}
             look={mascotLook}
+            bubbleTone={bubbleTone}
+            coachName={coachName}
             size={200}
             animated
+            showStage
           />
         </div>
 

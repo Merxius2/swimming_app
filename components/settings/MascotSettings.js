@@ -3,6 +3,7 @@ import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import MascotCoach from '../mascot/MascotCoach';
 import MascotCharacter from '../mascot/MascotCharacter';
+import MascotLevelStrip from '../mascot/MascotLevelStrip';
 import {
   getMascotName,
   MASCOT_LOOKS,
@@ -114,18 +115,29 @@ export default function MascotSettings() {
         </div>
       </div>
 
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-ink-soft mb-2">
+          {t('settings.mascotLevelTitle')}
+        </label>
+        <p className="text-xs text-ink-soft mb-3 leading-relaxed">{t('settings.mascotLevelDesc')}</p>
+        <MascotLevelStrip activeLevel={mascotLevel} />
+      </div>
+
       <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
         <p className="text-sm font-medium text-ink-soft mb-1">
           {t('settings.mascotActiveCoach').replace('{name}', mascotName)}
         </p>
-        <div className="flex justify-center py-4 rounded-xl bg-gradient-to-br from-tint/5 to-brand-accent/5">
+        <div className="py-2">
           <MascotCoach
             message={previewMessage}
             sex={mascotSex}
             level={mascotLevel}
             look={mascotLook}
+            coachName={mascotName}
+            bubbleTone="default"
             size={220}
             animated
+            showStage
           />
         </div>
       </div>

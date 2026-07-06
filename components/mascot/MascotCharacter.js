@@ -1,6 +1,6 @@
 /**
  * Flip/Flo coach mascots — artwork cropped from variants-animation.png
- * and design-mockup.png, with blink frames from the character sheet.
+ * with blink frames from the character sheet.
  */
 
 import { useEffect, useState } from 'react';
@@ -16,12 +16,6 @@ const COACH_IMAGE = {
   },
 };
 
-const LEVEL_IMAGE = {
-  beginner: '/mascot/level-beginner.png',
-  intermediate: '/mascot/level-intermediate.png',
-  advanced: '/mascot/level-advanced.png',
-};
-
 const BLINK_FRAMES = [
   '/mascot/flip-blink-0.png',
   '/mascot/flip-blink-1.png',
@@ -29,28 +23,18 @@ const BLINK_FRAMES = [
   '/mascot/flip-blink-3.png',
 ];
 
-const COACH_ZOOM = 1.85;
-const CLASSIC_ZOOM = 1.85;
-const LEVEL_ZOOM = 1.35;
+const ZOOM = 1.85;
+const ASPECT = 1.12;
 
-function resolveMascotAsset(sex, level, look = 'coach') {
+function resolveMascotAsset(sex, look = 'coach') {
   const isFemale = sex === 'female';
   const resolvedLook = look === 'classic' ? 'classic' : 'coach';
 
-  if (isFemale || level === 'intermediate') {
-    return {
-      src: COACH_IMAGE[resolvedLook][isFemale ? 'female' : 'male'],
-      zoom: resolvedLook === 'classic' ? CLASSIC_ZOOM : COACH_ZOOM,
-      aspect: 1.12,
-      blink: true,
-    };
-  }
-
   return {
-    src: LEVEL_IMAGE[level] || LEVEL_IMAGE.beginner,
-    zoom: LEVEL_ZOOM,
-    aspect: 266 / 477,
-    blink: false,
+    src: COACH_IMAGE[resolvedLook][isFemale ? 'female' : 'male'],
+    zoom: ZOOM,
+    aspect: ASPECT,
+    blink: true,
   };
 }
 
@@ -64,10 +48,10 @@ export default function MascotCharacter({
   size = 220,
 }) {
   const [blinkFrame, setBlinkFrame] = useState(-1);
-  const asset = resolveMascotAsset(sex, level, look);
+  const asset = resolveMascotAsset(sex, look);
 
   const viewW = size;
-  const viewH = Math.round(size * (asset.aspect > 1 ? asset.aspect : 1.12));
+  const viewH = Math.round(size * ASPECT);
   const artW = Math.round(viewW * asset.zoom);
 
   useEffect(() => {
@@ -123,6 +107,7 @@ export default function MascotCharacter({
     <div
       className={`relative overflow-hidden mx-auto ${className}`}
       style={{ width: viewW, height: viewH }}
+      data-mascot-level={level}
     >
       <div
         className="absolute left-1/2 bottom-0 -translate-x-1/2"

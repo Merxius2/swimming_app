@@ -1692,6 +1692,92 @@ html.ambient-active.theme-platinum-elite .min-h-screen.bg-white {
   70% { transform: scale(1.03) rotate(0.8deg); }
 }
 
+.mascot-stage {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(59, 91, 255, 0.16) 0%, rgba(48, 197, 165, 0.08) 42%, transparent 72%),
+    linear-gradient(165deg, rgba(219, 234, 254, 0.55) 0%, rgba(224, 242, 254, 0.35) 45%, rgba(237, 233, 254, 0.25) 100%);
+  border: 1px solid rgba(59, 91, 255, 0.12);
+}
+
+html.dark .mascot-stage {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(59, 91, 255, 0.22) 0%, rgba(48, 197, 165, 0.1) 42%, transparent 72%),
+    linear-gradient(165deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.75) 50%, rgba(49, 46, 129, 0.35) 100%);
+  border-color: rgba(147, 197, 253, 0.12);
+}
+
+.mascot-stage-glow {
+  position: absolute;
+  inset: auto 10% -30% 10%;
+  height: 55%;
+  background: radial-gradient(ellipse at center, rgba(59, 91, 255, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.mascot-stage-bubbles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mascot-bubble {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.mascot-bubble-a { width: 12px; height: 12px; left: 12%; top: 18%; animation: mascot-bubble-rise 7s ease-in-out infinite; }
+.mascot-bubble-b { width: 8px; height: 8px; right: 16%; top: 28%; animation: mascot-bubble-rise 9s ease-in-out infinite 1.2s; }
+.mascot-bubble-c { width: 10px; height: 10px; left: 72%; bottom: 22%; animation: mascot-bubble-rise 8s ease-in-out infinite 2s; }
+
+@keyframes mascot-bubble-rise {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.45; }
+  50% { transform: translateY(-10px) scale(1.08); opacity: 0.75; }
+}
+
+.mascot-speech-bubble {
+  border-radius: 1rem;
+  padding: 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1.5px solid rgba(28, 46, 90, 0.85);
+  box-shadow: 0 10px 30px -18px rgba(28, 46, 90, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+html.dark .mascot-speech-bubble {
+  background: rgba(15, 23, 42, 0.82);
+  border-color: rgba(147, 197, 253, 0.35);
+}
+
+.mascot-speech-bubble--reward {
+  border-color: rgba(245, 166, 35, 0.65);
+}
+
+.mascot-speech-bubble--tip {
+  border-color: rgba(48, 197, 165, 0.65);
+}
+
+.mascot-speech-bubble--levelUp {
+  border-color: rgba(123, 91, 255, 0.55);
+}
+
+.mascot-speech-tail {
+  width: 0.85rem;
+  height: 0.85rem;
+  margin: -0.35rem auto 0;
+  transform: rotate(45deg);
+  background: rgba(255, 255, 255, 0.82);
+  border-right: 1.5px solid rgba(28, 46, 90, 0.85);
+  border-bottom: 1.5px solid rgba(28, 46, 90, 0.85);
+}
+
+html.dark .mascot-speech-tail {
+  background: rgba(15, 23, 42, 0.82);
+  border-color: rgba(147, 197, 253, 0.35);
+}
+
 .mascot-speech-enter {
   animation: mascot-speech-enter 0.35s ease-out;
 }
@@ -1703,7 +1789,10 @@ html.ambient-active.theme-platinum-elite .min-h-screen.bg-white {
 
 @media (prefers-reduced-motion: reduce) {
   .mascot-alive,
-  .mascot-speech-enter {
+  .mascot-speech-enter,
+  .mascot-bubble-a,
+  .mascot-bubble-b,
+  .mascot-bubble-c {
     animation: none;
   }
 }

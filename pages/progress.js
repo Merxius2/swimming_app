@@ -30,7 +30,8 @@ import {
 import DonutChart from '../components/DonutChart';
 import SessionFeedback from '../components/swim/SessionFeedback';
 import MascotCoach from '../components/mascot/MascotCoach';
-import { resolveMascotLevel, resolveMascotLook, resolveMascotSex } from '../lib/mascotConstants';
+import { getMascotName, resolveMascotLevel, resolveMascotLook, resolveMascotSex } from '../lib/mascotConstants';
+import { resolveMascotBubbleTone } from '../lib/mascotPresentation';
 
 function pickProgressMascotMessage(feedback, t) {
   if (feedback?.coachMessage) return feedback.coachMessage;
@@ -66,12 +67,14 @@ export default function ProgressPage() {
       <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0">
         <PageHeader icon={BarChart3} titleKey="progress.title" />
         <div className="max-w-7xl mx-auto px-4 py-8 md:px-8 space-y-6">
-          <div className="card p-6 bg-gradient-to-br from-tint/5 to-brand-accent/5">
+          <div className="card p-4 md:p-6">
             <MascotCoach
               message={t('progress.mascotEmpty')}
               sex={resolveMascotSex(profile)}
               level="beginner"
               look={resolveMascotLook(profile)}
+              coachName={getMascotName(resolveMascotSex(profile), t)}
+              bubbleTone="default"
               size={200}
               animated
             />
@@ -107,18 +110,31 @@ export default function ProgressPage() {
   const records = getPersonalRecords(sessions);
   const feedback = buildPersonalFeedback(latest, sessions, t, profile);
   const mascotMessage = pickProgressMascotMessage(feedback, t);
+  const mascotSex = resolveMascotSex(profile);
+  const mascotLook = resolveMascotLook(profile);
+  const mascotLevel = resolveMascotLevel(feedback.benchmarkLevel);
+  const bubbleTone = resolveMascotBubbleTone({
+    coachMessage: feedback?.coachMessage,
+    motivation: feedback?.motivation,
+    tip: feedback?.tip,
+    badges: feedback?.badges,
+    benchmarkLevel: feedback?.benchmarkLevel,
+    message: mascotMessage,
+  });
   const m = latest.metrics || {};
 
   return (
     <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0">
       <PageHeader icon={BarChart3} titleKey="progress.title" />
       <div className="max-w-7xl mx-auto space-y-6 px-4 py-8 md:px-8">
-        <div className="card p-4 md:p-6 bg-gradient-to-br from-tint/5 to-brand-accent/5">
+        <div className="card p-4 md:p-6">
           <MascotCoach
             message={mascotMessage}
-            sex={resolveMascotSex(profile)}
-            level={resolveMascotLevel(feedback.benchmarkLevel)}
-            look={resolveMascotLook(profile)}
+            sex={mascotSex}
+            level={mascotLevel}
+            look={mascotLook}
+            bubbleTone={bubbleTone}
+            coachName={getMascotName(mascotSex, t)}
             size={240}
             animated
           />
