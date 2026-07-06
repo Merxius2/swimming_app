@@ -3,7 +3,7 @@ import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import { getStoreItem } from '../../lib/swimCoinStore';
 import { getAppIconPreset, DEFAULT_APP_ICON_PATH } from '../../lib/storeAppIcons';
-import { equipMascotItem, unequipMascotItem } from '../../lib/mascotConstants';
+import { equipMascotItem, unequipMascotItem, resolveMascotSex } from '../../lib/mascotConstants';
 import MascotSvg from '../mascot/MascotSvg';
 
 function IconChoiceButton({ active, onClick, src, label }) {
@@ -34,6 +34,8 @@ export default function StoreCosmeticsPanel() {
   const ownedMascot = storeUnlocks.filter((id) => id.startsWith('mascot:'));
 
   const equippedMascot = profile.mascotEquipped || [];
+
+  const mascotSex = resolveMascotSex(profile);
 
   const toggleMascotItem = (id) => {
     const isEquipped = equippedMascot.includes(id);
@@ -81,7 +83,7 @@ export default function StoreCosmeticsPanel() {
                   }`}
                 >
                   <MascotSvg
-                    sex={profile.sex || 'male'}
+                    sex={mascotSex}
                     level="intermediate"
                     equipped={active ? [id] : []}
                     size={40}
