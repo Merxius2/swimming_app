@@ -29,6 +29,16 @@ import {
 } from '../lib/swimFormatters';
 import DonutChart from '../components/DonutChart';
 import SessionFeedback from '../components/swim/SessionFeedback';
+import MascotCoach from '../components/mascot/MascotCoach';
+import { resolveMascotLevel, resolveMascotSex } from '../lib/mascotConstants';
+
+function pickProgressMascotMessage(feedback, t) {
+  if (feedback?.coachMessage) return feedback.coachMessage;
+  if (feedback?.motivation) return feedback.motivation;
+  if (feedback?.tip) return feedback.tip;
+  if (feedback?.insights?.length) return feedback.insights[0];
+  return t('progress.mascotDefault');
+}
 
 export default function ProgressPage() {
   const { t } = useLanguage();
@@ -54,16 +64,29 @@ export default function ProgressPage() {
   if (!sessions.length) {
     return (
       <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0">
-        <div className="max-w-7xl mx-auto px-4 py-16 md:px-8 text-center">
-          <div className="card p-12 max-w-lg mx-auto">
-            <BarChart3 size={48} className="mx-auto text-brand mb-4" />
-            <h2 className="text-2xl font-bold mb-2">{t('progress.emptyTitle')}</h2>
-            <p className="text-ink-soft mb-6">{t('progress.emptyDesc')}</p>
-            <Link href="/upload">
-              <button type="button" className="px-6 py-3 rounded-full bg-brand text-white font-semibold">
-                {t('progress.emptyCta')}
-              </button>
-            </Link>
+        <PageHeader icon={BarChart3} titleKey="progress.title" />
+        <div className="max-w-7xl mx-auto px-4 py-8 md:px-8 space-y-6">
+          <div className="card p-6 bg-gradient-to-br from-tint/5 to-brand-accent/5">
+            <MascotCoach
+              message={t('progress.mascotEmpty')}
+              sex={resolveMascotSex(profile)}
+              level="beginner"
+              equipped={profile?.mascotEquipped || []}
+              size={110}
+              animated
+            />
+          </div>
+          <div className="text-center">
+            <div className="card p-12 max-w-lg mx-auto">
+              <BarChart3 size={48} className="mx-auto text-brand mb-4" />
+              <h2 className="text-2xl font-bold mb-2">{t('progress.emptyTitle')}</h2>
+              <p className="text-ink-soft mb-6">{t('progress.emptyDesc')}</p>
+              <Link href="/upload">
+                <button type="button" className="px-6 py-3 rounded-full bg-brand text-white font-semibold">
+                  {t('progress.emptyCta')}
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -83,12 +106,24 @@ export default function ProgressPage() {
   const excludedCount = sessions.length - statsSessionCount;
   const records = getPersonalRecords(sessions);
   const feedback = buildPersonalFeedback(latest, sessions, t, profile);
+  const mascotMessage = pickProgressMascotMessage(feedback, t);
   const m = latest.metrics || {};
 
   return (
     <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0">
       <PageHeader icon={BarChart3} titleKey="progress.title" />
       <div className="max-w-7xl mx-auto space-y-6 px-4 py-8 md:px-8">
+        <div className="card p-4 md:p-6 bg-gradient-to-br from-tint/5 to-brand-accent/5">
+          <MascotCoach
+            message={mascotMessage}
+            sex={resolveMascotSex(profile)}
+            level={resolveMascotLevel(feedback.benchmarkLevel)}
+            equipped={profile?.mascotEquipped || []}
+            size={110}
+            animated
+          />
+        </div>
+
         <MonthlyChallengesCard
           sessions={sessions}
           monthlyChallengeRerolls={monthlyChallengeRerolls}
