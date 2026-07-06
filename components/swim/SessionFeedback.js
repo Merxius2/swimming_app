@@ -2,7 +2,7 @@ import { Sparkles, TrendingUp, TrendingDown, Bot, Lightbulb } from 'lucide-react
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import MascotCoach from '../mascot/MascotCoach';
-import { resolveMascotLevel, resolveMascotSex } from '../../lib/mascotConstants';
+import { resolveMascotLevel, resolveMascotLook, resolveMascotSex } from '../../lib/mascotConstants';
 
 function pickMascotMessage({ coachMessage, motivation, tip, insights, loading, t }) {
   if (loading) return t('mascot.thinking');
@@ -28,6 +28,7 @@ export default function SessionFeedback({
   const { profile } = useSwim();
 
   const mascotSex = resolveMascotSex(profile);
+  const mascotLook = resolveMascotLook(profile);
 
   const mascotMessage = pickMascotMessage({
     coachMessage,
@@ -57,6 +58,7 @@ export default function SessionFeedback({
             message={mascotMessage}
             sex={mascotSex}
             level={mascotLevel}
+            look={mascotLook}
             size={200}
             animated
           />

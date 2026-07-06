@@ -30,7 +30,7 @@ import {
 import DonutChart from '../components/DonutChart';
 import SessionFeedback from '../components/swim/SessionFeedback';
 import MascotCoach from '../components/mascot/MascotCoach';
-import { resolveMascotLevel, resolveMascotSex } from '../lib/mascotConstants';
+import { resolveMascotLevel, resolveMascotLook, resolveMascotSex } from '../lib/mascotConstants';
 
 function pickProgressMascotMessage(feedback, t) {
   if (feedback?.coachMessage) return feedback.coachMessage;
@@ -71,6 +71,7 @@ export default function ProgressPage() {
               message={t('progress.mascotEmpty')}
               sex={resolveMascotSex(profile)}
               level="beginner"
+              look={resolveMascotLook(profile)}
               size={200}
               animated
             />
@@ -117,6 +118,7 @@ export default function ProgressPage() {
             message={mascotMessage}
             sex={resolveMascotSex(profile)}
             level={resolveMascotLevel(feedback.benchmarkLevel)}
+            look={resolveMascotLook(profile)}
             size={240}
             animated
           />

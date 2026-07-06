@@ -6,8 +6,14 @@
 import { useEffect, useState } from 'react';
 
 const COACH_IMAGE = {
-  male: '/mascot/flip-coach.png',
-  female: '/mascot/flo-coach.png',
+  coach: {
+    male: '/mascot/flip-coach.png',
+    female: '/mascot/flo-coach.png',
+  },
+  classic: {
+    male: '/mascot/flip-team.png',
+    female: '/mascot/flo-coach.png',
+  },
 };
 
 const LEVEL_IMAGE = {
@@ -24,15 +30,17 @@ const BLINK_FRAMES = [
 ];
 
 const COACH_ZOOM = 1.85;
+const CLASSIC_ZOOM = 1.85;
 const LEVEL_ZOOM = 1.35;
 
-function resolveMascotAsset(sex, level) {
+function resolveMascotAsset(sex, level, look = 'coach') {
   const isFemale = sex === 'female';
+  const resolvedLook = look === 'classic' ? 'classic' : 'coach';
 
   if (isFemale || level === 'intermediate') {
     return {
-      src: COACH_IMAGE[isFemale ? 'female' : 'male'],
-      zoom: COACH_ZOOM,
+      src: COACH_IMAGE[resolvedLook][isFemale ? 'female' : 'male'],
+      zoom: resolvedLook === 'classic' ? CLASSIC_ZOOM : COACH_ZOOM,
       aspect: 1.12,
       blink: true,
     };
@@ -49,13 +57,14 @@ function resolveMascotAsset(sex, level) {
 export default function MascotCharacter({
   sex = 'male',
   level = 'intermediate',
+  look = 'coach',
   blink = false,
   animated = true,
   className = '',
   size = 220,
 }) {
   const [blinkFrame, setBlinkFrame] = useState(-1);
-  const asset = resolveMascotAsset(sex, level);
+  const asset = resolveMascotAsset(sex, level, look);
 
   const viewW = size;
   const viewH = Math.round(size * (asset.aspect > 1 ? asset.aspect : 1.12));
