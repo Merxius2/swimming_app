@@ -27,9 +27,9 @@ const tierRank = (tier) => ({ bronze: 1, silver: 2, gold: 3 }[tier] || 0);
 
 export default function MedalCelebrationModal({ medals = [], monthlyChallenge, onClose }) {
   const { t, language } = useLanguage();
-  const { storeUnlocks, profile } = useSwim();
+  const { storeUnlocks, profile, sessions, monthlyChallengeRerolls } = useSwim();
   const megaConfetti = hasConfettiCannon(storeUnlocks);
-  const mascotId = resolveMascotId(profile);
+  const mascotId = resolveMascotId(profile, { sessions, monthlyChallengeRerolls });
   // Flip is over the moon about any monthly medal — even bronze
   const showCoachCheer = getMascotGameplay(mascotId).positiveOnly && Boolean(monthlyChallenge?.tier);
   const [mounted, setMounted] = useState(false);

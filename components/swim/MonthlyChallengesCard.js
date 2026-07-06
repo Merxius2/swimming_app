@@ -35,7 +35,7 @@ export default function MonthlyChallengesCard({
 }) {
   const { t, language } = useLanguage();
   const { profile } = useSwim();
-  const mascotId = resolveMascotId(profile);
+  const mascotId = resolveMascotId(profile, { sessions, monthlyChallengeRerolls });
   const gameplay = getMascotGameplay(mascotId);
   const state = evaluateMonthlyChallenges(
     sessions,

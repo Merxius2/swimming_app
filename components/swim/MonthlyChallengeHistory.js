@@ -14,7 +14,7 @@ export default function MonthlyChallengeHistory({ sessions }) {
   const { t } = useLanguage();
   const { cheats, monthlyChallengeRerolls, profile } = useSwim();
   const previewMonthlyMedals = Boolean(cheats?.previewMonthlyMedals);
-  const intensity = getMascotGameplay(resolveMascotId(profile)).challengeIntensity;
+  const intensity = getMascotGameplay(resolveMascotId(profile, { sessions, monthlyChallengeRerolls })).challengeIntensity;
 
   const earned = useMemo(
     () => getMonthlyChallengeHistory(sessions, { previewMonthlyMedals, monthlyChallengeRerolls, intensity }),

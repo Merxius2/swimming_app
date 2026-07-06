@@ -39,9 +39,9 @@ export default function SessionFeedback({
   loading = false,
 }) {
   const { t } = useLanguage();
-  const { profile } = useSwim();
+  const { profile, sessions, monthlyChallengeRerolls } = useSwim();
 
-  const mascotId = resolveMascotId(profile);
+  const mascotId = resolveMascotId(profile, { sessions, monthlyChallengeRerolls });
   // Flip only ever shares the good news
   const visibleInsights = getMascotGameplay(mascotId).positiveOnly
     ? insights.filter(isPositiveInsight)

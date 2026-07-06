@@ -13,7 +13,9 @@ import {
   normalizeBonusWheelSpinCredits,
   stripBonusSpinUnlock,
 } from '../lib/swimCoinStore';
-import { normalizeMonthlyChallengeRerolls } from '../lib/swimMonthlyChallenges';
+import { normalizeMonthlyChallengeRerolls, getMonthKey } from '../lib/swimMonthlyChallenges';
+import { canSwitchMascot } from '../lib/mascotUnlock';
+import { resolveMascotId } from '../lib/mascotConstants';
 import {
   applyMonthlyChallengeReroll,
   applyConsumableStorePurchase,
@@ -50,6 +52,42 @@ export function useSwimStorage(debounceDelay = 500) {
       saveSwimData(next);
       return next;
     });
+  }, []);
+
+  const switchMascot = useCallback((nextMascotId) => {
+    let switched = false;
+    setData((prev) => {
+      const monthKey = getMonthKey();
+      const currentMascotId = resolveMascotId(prev.profile, {
+        sessions: prev.sessions,
+        monthlyChallengeRerolls: prev.monthlyChallengeRerolls,
+      });
+      const switchCheck = canSwitchMascot({
+        profile: prev.profile,
+        sessions: prev.sessions,
+        monthKey,
+        currentMascotId,
+        nextMascotId,
+      });
+
+      if (!switchCheck.allowed) return prev;
+
+      const isChanging = nextMascotId !== currentMascotId;
+      const nextProfile = sanitizeProfileCosmetics(
+        {
+          ...prev.profile,
+          mascotId: nextMascotId,
+          mascotSwitchMonthKey: isChanging ? monthKey : prev.profile.mascotSwitchMonthKey,
+        },
+        prev.storeUnlocks
+      );
+
+      switched = true;
+      const next = { ...prev, profile: nextProfile };
+      saveSwimData(next);
+      return next;
+    });
+    return switched;
   }, []);
 
   const addSession = useCallback(({ date, metrics, coinsEarned = 0, coinBonus = 0 }) => {
@@ -248,6 +286,7 @@ export function useSwimStorage(debounceDelay = 500) {
     bonusWheelSpinCredits: data.bonusWheelSpinCredits || 0,
     monthlySettlements: data.monthlySettlements || {},
     updateProfile,
+    switchMascot,
     addSession,
     applyMonthlySettlement,
     removeSession,

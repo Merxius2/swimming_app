@@ -183,7 +183,7 @@ export default function UploadFlow() {
     const earnedNow = getNewlyEarnedMedals(sessions, allWithNew, {
       allMedalsUnlocked: cheats?.allMedalsUnlocked,
     });
-    const mascotId = resolveMascotId(profile);
+    const mascotId = resolveMascotId(profile, { sessions, monthlyChallengeRerolls });
     const gameplay = getMascotGameplay(mascotId);
     const monthKey = form.date.slice(0, 7);
     const monthUpgrade = getMonthlyTierUpgrade(
@@ -249,7 +249,7 @@ export default function UploadFlow() {
           sessions: allWithNew,
           profile,
           localFeedback,
-          mascot: getMascot(resolveMascotId(profile)),
+          mascot: getMascot(resolveMascotId(profile, { sessions, monthlyChallengeRerolls })),
         });
         if (aiResult) {
           setSavedFeedback({

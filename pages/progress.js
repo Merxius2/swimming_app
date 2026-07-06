@@ -64,9 +64,9 @@ export default function ProgressPage() {
           <div className="card p-4 md:p-6">
             <MascotCoach
               message={applyMessagePlaceholders(t('progress.mascotEmpty'), profile, t)}
-              mascotId={resolveMascotId(profile)}
-              level={getMascotCoachedLevel(resolveMascotId(profile))}
-              coachName={getMascotName(resolveMascotId(profile), t)}
+              mascotId={resolveMascotId(profile, { sessions: [] })}
+              level={getMascotCoachedLevel(resolveMascotId(profile, { sessions: [] }))}
+              coachName={getMascotName(resolveMascotId(profile, { sessions: [] }), t)}
               bubbleTone="default"
               size={200}
               animated
@@ -105,7 +105,8 @@ export default function ProgressPage() {
   const overviewMessage = buildProgressOverviewMessage(sessions, profile, t, {
     monthlyChallengeRerolls,
   });
-  const mascotId = resolveMascotId(profile);
+  const mascotContext = { sessions, monthlyChallengeRerolls };
+  const mascotId = resolveMascotId(profile, mascotContext);
   const mascotLevel = getMascotCoachedLevel(mascotId);
   const overviewTone = resolveMascotBubbleTone({
     message: overviewMessage,

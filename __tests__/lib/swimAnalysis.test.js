@@ -62,10 +62,15 @@ describe('buildPersonalFeedback', () => {
 
   it('returns disappointed mood for Fins on a slower swim', () => {
     const sessions = [
-      session('1', '2025-06-01', { distanceM: 2000, paceSecPer100m: 110 }),
-      session('2', '2025-06-10', { distanceM: 1800, paceSecPer100m: 125 }),
+      ...Array.from({ length: 8 }, (_, index) =>
+        session(String(index + 1), `2025-05-${String(index + 1).padStart(2, '0')}`, {
+          distanceM: 2000,
+          paceSecPer100m: 95,
+        })
+      ),
+      session('10', '2025-06-10', { distanceM: 1800, paceSecPer100m: 125 }),
     ];
-    const feedback = buildPersonalFeedback(sessions[1], sessions, t, {
+    const feedback = buildPersonalFeedback(sessions[sessions.length - 1], sessions, t, {
       sex: 'male',
       age: 30,
       mascotId: 'fins',

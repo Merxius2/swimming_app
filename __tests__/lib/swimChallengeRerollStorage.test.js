@@ -49,7 +49,12 @@ describe('swimChallengeRerollStorage', () => {
     const monthKey = '2025-06';
     const finsData = () => ({
       ...baseData(),
-      profile: { ...DEFAULT_SWIM_DATA.profile, mascotId: 'fins' },
+      profile: { ...DEFAULT_SWIM_DATA.profile, sex: 'male', age: 30, mascotId: 'fins' },
+      sessions: [{
+        id: '1',
+        date: '2025-05-01',
+        metrics: { paceSecPer100m: 95, distanceM: 2000 },
+      }],
     });
 
     const first = applyMonthlyChallengeReroll(finsData(), monthKey, 0);
