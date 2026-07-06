@@ -9,7 +9,14 @@
    per-file edits — they auto-pick up the new look.
    ============================================================ */
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background-color: #EEF1F6;
+}
+html.dark { background-color: #0A0A0B; }
+html.lang-mu { background-color: #991B1B; }
+html.dark.lang-mu { background-color: #7F1D1D; }
+
 body {
   font-family: 'Bricolage Grotesque', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -717,11 +724,54 @@ html.dark .coin-badge-golden {
   overflow: hidden;
 }
 
+/* Fixed full-screen layers — overscan viewport so iOS never shows gaps at edges */
+.ambient-screen-fill {
+  position: fixed;
+  z-index: 0;
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  right: calc(-1 * env(safe-area-inset-right, 0px));
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  left: calc(-1 * env(safe-area-inset-left, 0px));
+  pointer-events: none;
+}
+
+.ambient-layer,
+.ambient-bubbles {
+  position: fixed;
+  z-index: 0;
+  top: calc(-1 * env(safe-area-inset-top, 0px));
+  right: calc(-1 * env(safe-area-inset-right, 0px));
+  bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
+  left: calc(-1 * env(safe-area-inset-left, 0px));
+  pointer-events: none;
+}
+
+.ambient-bubbles {
+  z-index: 1;
+}
+
 .ambient-layer {
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+}
+
+/* Default liquid-os mesh — extra overscan for blob drift */
+html:not(.ambient-active) .ambient-layer,
+html:not(.ambient-active) .ambient-bubbles {
+  top: -30vh;
+  right: -25vw;
+  bottom: -30vh;
+  left: -25vw;
+}
+
+html.ambient-active .ambient-backdrop,
+html.ambient-active .ambient-gradient {
+  top: -20%;
+  right: -20%;
+  bottom: -20%;
+  left: -20%;
 }
 
 .ambient-gradient {
@@ -841,9 +891,19 @@ html.dark .coin-badge-golden {
   50% { transform: translate3d(-10%, -6%, 0) scale(1.06); }
 }
 
+@keyframes ambient-gradient-pan-safe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.04); }
+  50% { transform: translate3d(-6%, 2%, 0) scale(1.1); }
+}
+
 @keyframes ambient-gradient-pan-vertical {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(0, -8%, 0) scale(1.05); }
+}
+
+@keyframes ambient-gradient-pan-vertical-safe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.04); }
+  50% { transform: translate3d(0, 4%, 0) scale(1.08); }
 }
 
 @media (hover: none) and (pointer: coarse) {
@@ -857,12 +917,27 @@ html.dark .coin-badge-golden {
     will-change: transform;
   }
 
+  html.ambient-active .ambient-layer .ambient-gradient {
+    width: 220%;
+    height: 220%;
+    left: -60%;
+    top: -60%;
+  }
+
   .ambient-layer .ambient-gradient-neon-lagoon,
   .ambient-layer .ambient-gradient-sunset-lap,
   .ambient-layer .ambient-gradient-aurora-lap,
   .ambient-layer .ambient-gradient-deep-current {
     -webkit-animation: ambient-gradient-pan 18s ease-in-out infinite;
     animation: ambient-gradient-pan 18s ease-in-out infinite;
+  }
+
+  html.ambient-active .ambient-layer .ambient-gradient-neon-lagoon,
+  html.ambient-active .ambient-layer .ambient-gradient-sunset-lap,
+  html.ambient-active .ambient-layer .ambient-gradient-aurora-lap,
+  html.ambient-active .ambient-layer .ambient-gradient-deep-current {
+    -webkit-animation: ambient-gradient-pan-safe 18s ease-in-out infinite;
+    animation: ambient-gradient-pan-safe 18s ease-in-out infinite;
   }
 
   .ambient-layer .ambient-gradient-sunset-lap {
@@ -883,6 +958,11 @@ html.dark .coin-badge-golden {
   .ambient-layer .ambient-gradient-bubble-trail {
     -webkit-animation: ambient-gradient-pan-vertical 16s ease-in-out infinite;
     animation: ambient-gradient-pan-vertical 16s ease-in-out infinite;
+  }
+
+  html.ambient-active .ambient-layer .ambient-gradient-bubble-trail {
+    -webkit-animation: ambient-gradient-pan-vertical-safe 16s ease-in-out infinite;
+    animation: ambient-gradient-pan-vertical-safe 16s ease-in-out infinite;
   }
 }
 
@@ -1639,7 +1719,9 @@ html.ambient-active.theme-gen-z,
 html.ambient-active.theme-classic,
 html.ambient-active.theme-gold-luxe,
 html.ambient-active.theme-platinum-elite {
-  background-color: transparent !important;
+  background-color: var(--ambient-backdrop, #020617) !important;
+  min-height: 100%;
+  min-height: 100dvh;
 }
 
 html.ambient-active body,
@@ -1660,7 +1742,9 @@ html.ambient-active.theme-tropical-open.dark body,
 html.ambient-active.theme-gen-z.dark body,
 html.ambient-active.theme-classic.dark body,
 html.ambient-active.theme-gold-luxe.dark body,
-html.ambient-active.theme-platinum-elite.dark body {
+html.ambient-active.theme-platinum-elite.dark body,
+html.ambient-active #__next,
+html.ambient-active .app-shell {
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
