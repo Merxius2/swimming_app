@@ -1,10 +1,21 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPersonalFeedback } from '../../lib/swimAnalysis.js';
+import {
+  buildPersonalFeedback,
+  getCombinedStats,
+  getChartSessions,
+  getStatsSessions,
+} from '../../lib/swimAnalysis.js';
+import { getPersonalRecords } from '../../lib/swimRecords.js';
 
 const t = (key) => key;
 
-const session = (id, date, metrics) => ({ id, date, metrics });
+const session = (id, date, metrics, excludeFromStats = false) => ({
+  id,
+  date,
+  metrics,
+  ...(excludeFromStats ? { excludeFromStats: true } : {}),
+});
 
 describe('buildPersonalFeedback', () => {
   it('returns rich first-session feedback without AI', () => {
@@ -47,5 +58,32 @@ describe('buildPersonalFeedback', () => {
 
     assert.ok(feedback.badges.length > 0);
     assert.equal(feedback.motivation, 'feedback.motivationPersonalBest');
+  });
+});
+
+describe('excludeFromStats', () => {
+  const sessions = [
+    session('1', '2025-06-01', { distanceM: 2000, paceSecPer100m: 130, durationSec: 2600, activeKcal: 400, laps: 80 }),
+    session('2', '2025-06-05', { distanceM: 1500, paceSecPer100m: 150, durationSec: 2250, activeKcal: 300, laps: 60 }, true),
+    session('3', '2025-06-10', { distanceM: 2500, paceSecPer100m: 118, durationSec: 2950, activeKcal: 500, laps: 100 }),
+  ];
+
+  it('filters excluded sessions from stats helpers', () => {
+    assert.equal(getStatsSessions(sessions).length, 2);
+    assert.equal(getCombinedStats(sessions).sessionCount, 2);
+    assert.equal(getCombinedStats(sessions).totalDistanceM, 4500);
+    assert.equal(getChartSessions(sessions).length, 2);
+  });
+
+  it('ignores excluded sessions for personal records', () => {
+    const records = getPersonalRecords(sessions);
+    assert.equal(records.fastestPace.sessionId, '3');
+    assert.equal(records.longestDistance.sessionId, '3');
+  });
+
+  it('still analyzes excluded sessions without polluting combined stats', () => {
+    const feedback = buildPersonalFeedback(sessions[1], sessions, t, { sex: 'male', age: 30 });
+    assert.equal(feedback.combined.sessionCount, 2);
+    assert.equal(feedback.combined.totalDistanceM, 4500);
   });
 });

@@ -13,6 +13,7 @@ import {
   paceVsMedian,
   getAgeGroup,
 } from '../lib/swimBenchmarks';
+import { getStatsSessions } from '../lib/swimAnalysis';
 import { formatPace } from '../lib/swimFormatters';
 
 const BAR_COLORS = {
@@ -28,7 +29,8 @@ export default function BenchmarkPage() {
   const { sessions, profile, isLoading } = useSwim();
   const { tooltipStyle, tooltipLabelStyle, gridStyle, axisStyle } = useChartTheme();
 
-  const latest = sessions.length ? sessions[sessions.length - 1] : null;
+  const statsSessions = getStatsSessions(sessions);
+  const latest = statsSessions.length ? statsSessions[statsSessions.length - 1] : null;
   const pace = latest?.metrics?.paceSecPer100m;
   const hasProfile = profile?.sex && profile?.age;
 

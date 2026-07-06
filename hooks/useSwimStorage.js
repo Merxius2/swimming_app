@@ -60,6 +60,7 @@ export function useSwimStorage(debounceDelay = 500) {
       metrics,
       coinsEarned,
       coinBonus,
+      excludeFromStats: false,
     };
     setData((prev) => ({
       ...prev,
@@ -89,6 +90,16 @@ export function useSwimStorage(debounceDelay = 500) {
         spentCoinClaims,
         sessions: prev.sessions.filter((s) => s.id !== id),
       };
+    });
+  }, []);
+
+  const updateSession = useCallback((id, updates) => {
+    setData((prev) => {
+      const idx = prev.sessions.findIndex((s) => s.id === id);
+      if (idx < 0) return prev;
+      const sessions = [...prev.sessions];
+      sessions[idx] = { ...sessions[idx], ...updates };
+      return { ...prev, sessions };
     });
   }, []);
 
@@ -208,6 +219,7 @@ export function useSwimStorage(debounceDelay = 500) {
     updateProfile,
     addSession,
     removeSession,
+    updateSession,
     replaceData,
     clearAll,
     adjustCoins,

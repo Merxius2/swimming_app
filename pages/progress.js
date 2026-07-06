@@ -14,6 +14,7 @@ import {
   getStrokeChartData,
   buildPersonalFeedback,
   getCombinedStats,
+  getStatsSessions,
 } from '../lib/swimAnalysis';
 import { getPersonalRecords } from '../lib/swimRecords';
 import MonthlyChallengesCard from '../components/swim/MonthlyChallengesCard';
@@ -78,6 +79,8 @@ export default function ProgressPage() {
   const latest = sessions[sessions.length - 1];
   const strokeData = getStrokeChartData(latest, t);
   const combined = getCombinedStats(sessions);
+  const statsSessionCount = getStatsSessions(sessions).length;
+  const excludedCount = sessions.length - statsSessionCount;
   const records = getPersonalRecords(sessions);
   const feedback = buildPersonalFeedback(latest, sessions, t, profile);
   const m = latest.metrics || {};
@@ -117,7 +120,13 @@ export default function ProgressPage() {
 
         {combined && (
           <div className="card p-6">
-            <h2 className="text-lg font-bold mb-4">{t('progress.allTimeStats')}</h2>
+            <h2 className="text-lg font-bold mb-1">{t('progress.allTimeStats')}</h2>
+            {excludedCount > 0 && (
+              <p className="text-sm text-ink-soft mb-4">
+                {t('progress.statsBasedOn').replace('{count}', String(statsSessionCount)).replace('{total}', String(sessions.length))}
+              </p>
+            )}
+            {excludedCount === 0 && <div className="mb-4" />}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
                 <p className="text-xs text-ink-faint">{t('progress.totalSessions')}</p>

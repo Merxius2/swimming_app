@@ -74,4 +74,14 @@ describe('swimImportExport', () => {
     const restored = __testing.decompressSession(compressed);
     assert.equal(restored.metrics.distanceM, 2550);
   });
+
+  it('round-trips excludeFromStats', async () => {
+    const data = {
+      ...sampleData,
+      sessions: [{ ...sampleData.sessions[0], excludeFromStats: true }],
+    };
+    const exported = await generateSwimExportString(data);
+    const imported = await parseSwimImportString(exported);
+    assert.equal(imported.sessions[0].excludeFromStats, true);
+  });
 });

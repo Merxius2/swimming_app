@@ -14,9 +14,35 @@ import {
 import CoinBadge from '../components/swim/CoinBadge';
 import { sessionTotalCoins } from '../lib/swimCoinClaims';
 
+function StatsToggle({ checked, onChange, label, description }) {
+  return (
+    <div className="col-span-2 flex items-start justify-between gap-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 px-3 py-3">
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-ink">{label}</p>
+        {description && <p className="text-xs text-ink-soft mt-0.5">{description}</p>}
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative shrink-0 w-11 h-6 rounded-full transition-colors ${
+          checked ? 'bg-brand' : 'bg-gray-300 dark:bg-gray-600'
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+            checked ? 'translate-x-5' : ''
+          }`}
+        />
+      </button>
+    </div>
+  );
+}
+
 export default function HistoryPage() {
   const { t } = useLanguage();
-  const { sessions, removeSession, isLoading } = useSwim();
+  const { sessions, removeSession, updateSession, isLoading } = useSwim();
   const [expandedId, setExpandedId] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -63,15 +89,26 @@ export default function HistoryPage() {
           const m = session.metrics || {};
           const isOpen = expandedId === session.id;
           const coins = sessionTotalCoins(session);
+          const countsTowardStats = !session.excludeFromStats;
           return (
-            <div key={session.id} className="card p-4">
+            <div
+              key={session.id}
+              className={`card p-4 ${!countsTowardStats ? 'opacity-80' : ''}`}
+            >
               <button
                 type="button"
                 className="w-full flex items-center justify-between text-left gap-3"
                 onClick={() => setExpandedId(isOpen ? null : session.id)}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-ink">{formatDateLong(session.date)}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-semibold text-ink">{formatDateLong(session.date)}</p>
+                    {!countsTowardStats && (
+                      <span className="text-[10px] uppercase tracking-wide font-semibold px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700 text-ink-soft">
+                        {t('history.excludedBadge')}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-ink-soft">
                     {formatDistance(m.distanceM)} · {formatPace(m.paceSecPer100m)} · {formatDuration(m.durationSec)}
                   </p>
@@ -96,6 +133,12 @@ export default function HistoryPage() {
                   <div><span className="text-ink-faint">{t('upload.fields.laps')}: </span>{m.laps ?? '—'}</div>
                   <div><span className="text-ink-faint">{t('upload.fields.location')}: </span>{m.location || '—'}</div>
                   <div><span className="text-ink-faint">{t('upload.fields.timeRange')}: </span>{m.timeRange || '—'}</div>
+                  <StatsToggle
+                    checked={countsTowardStats}
+                    onChange={(include) => updateSession(session.id, { excludeFromStats: !include })}
+                    label={t('history.includeInStats')}
+                    description={t('history.includeInStatsDesc')}
+                  />
                   <button
                     type="button"
                     onClick={() => setDeleteId(session.id)}
