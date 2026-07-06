@@ -78,7 +78,6 @@ export default function MascotSettings() {
             message={previewMessage}
             sex={mascotSex}
             level={mascotLevel}
-            equipped={profile.mascotEquipped || []}
             size={220}
             animated
           />

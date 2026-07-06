@@ -7,7 +7,6 @@ export default function MascotCoach({
   message = '',
   sex = 'male',
   level = 'intermediate',
-  equipped = [],
   size = 220,
   animated = true,
   className = '',
@@ -30,7 +29,6 @@ export default function MascotCoach({
       <MascotCharacter
         sex={sex}
         level={level}
-        equipped={equipped}
         size={size}
         animated={animated}
       />

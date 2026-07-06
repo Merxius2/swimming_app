@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import {
-  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper, AppWindow, Shuffle, Smile,
+  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper, AppWindow, Shuffle,
 } from 'lucide-react';
 import { useLanguage, useTheme } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
@@ -17,8 +17,6 @@ import {
   CHALLENGE_REROLL_STORE_ITEM_ID,
   BONUS_WHEEL_SPIN_STORE_ITEM_ID,
 } from '../../lib/swimCoinStore';
-import { equipMascotItem, getMascotPreviewSex, resolveMascotSex } from '../../lib/mascotConstants';
-import MascotCharacter from '../mascot/MascotCharacter';
 
 const CATEGORY_META = {
   themes: { icon: Palette, labelKey: 'coins.store.categories.themes' },
@@ -27,7 +25,6 @@ const CATEGORY_META = {
   flair: { icon: PartyPopper, labelKey: 'coins.store.categories.flair' },
   boosts: { icon: Zap, labelKey: 'coins.store.categories.boosts' },
   titles: { icon: Award, labelKey: 'coins.store.categories.titles' },
-  mascot: { icon: Smile, labelKey: 'coins.store.categories.mascot' },
 };
 
 function tf(t, key, params = {}) {
@@ -71,7 +68,7 @@ function ThemePreview({ item, THEMES }) {
   );
 }
 
-function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits, mascotSex }) {
+function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits }) {
   switch (item.preview) {
     case 'theme':
       return <ThemePreview item={item} THEMES={THEMES} />;
@@ -177,25 +174,6 @@ function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits, mascotSex })
         </div>
       );
     }
-    case 'mascot-neon-cap':
-    case 'mascot-gold-goggles':
-    case 'mascot-medal-chain':
-    case 'mascot-party-hat':
-    case 'mascot-snorkel':
-    case 'mascot-champion-cape':
-    case 'mascot-suit-classic':
-    case 'mascot-suit-racing':
-    case 'mascot-suit-tropical':
-    case 'mascot-shorts-classic':
-    case 'mascot-shorts-jammer':
-    case 'mascot-shorts-sunset': {
-      const previewSex = getMascotPreviewSex(item.id, mascotSex);
-      return (
-        <div className="h-20 rounded-lg flex items-center justify-center bg-gradient-to-br from-tint/10 to-brand-accent/10 border border-brand-primary/15">
-          <MascotCharacter sex={previewSex} level="intermediate" equipped={[item.id]} size={96} animated />
-        </div>
-      );
-    }
     default:
       return (
         <div className="h-20 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800">
@@ -228,20 +206,7 @@ export default function SwimCoinStore() {
     if (item.id.startsWith('ambient:')) updateProfile({ activeAmbient: item.id });
     if (item.id.startsWith('title:')) updateProfile({ swimmerTitle: item.id });
     if (item.id.startsWith('icon:')) updateProfile({ activeAppIcon: item.id });
-    if (item.id.startsWith('mascot:')) {
-      const mascotSex = resolveMascotSex(profile);
-      updateProfile({
-        mascotEquipped: equipMascotItem(
-          profile.mascotEquipped || [],
-          item.id,
-          [...storeUnlocks, item.id],
-          mascotSex
-        ),
-      });
-    }
   };
-
-  const mascotSex = resolveMascotSex(profile);
 
   return (
     <section className="coin-store mt-14 pt-10 border-t border-black/[0.06] dark:border-white/10">
@@ -302,19 +267,11 @@ export default function SwimCoinStore() {
                         t={t}
                         THEMES={THEMES}
                         bonusWheelSpinCredits={bonusWheelSpinCredits}
-                        mascotSex={mascotSex}
                       />
                       <div>
                         <h4 className="text-base font-semibold text-ink dark:text-[#FAFAFA]">
                           {t(item.nameKey)}
                         </h4>
-                        {item.mascotSex && (
-                          <span className="inline-flex mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-tint-soft text-[#2A45CC] dark:bg-tint/15">
-                            {item.mascotSex === 'female'
-                              ? t('coins.store.forFlo')
-                              : t('coins.store.forFlip')}
-                          </span>
-                        )}
                         <p className="mt-1 text-xs text-ink-soft leading-relaxed">
                           {t(item.descKey)}
                         </p>
