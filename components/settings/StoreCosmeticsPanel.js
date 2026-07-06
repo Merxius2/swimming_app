@@ -3,7 +3,7 @@ import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import { getStoreItem } from '../../lib/swimCoinStore';
 import { getAppIconPreset, DEFAULT_APP_ICON_PATH } from '../../lib/storeAppIcons';
-import { equipMascotItem, unequipMascotItem, resolveMascotSex } from '../../lib/mascotConstants';
+import { equipMascotItem, unequipMascotItem, resolveMascotSex, isMascotItemForSex } from '../../lib/mascotConstants';
 import MascotSvg from '../mascot/MascotSvg';
 
 function IconChoiceButton({ active, onClick, src, label }) {
@@ -31,17 +31,18 @@ export default function StoreCosmeticsPanel() {
   const ownedAmbients = storeUnlocks.filter((id) => id.startsWith('ambient:'));
   const ownedTitles = storeUnlocks.filter((id) => id.startsWith('title:'));
   const ownedIcons = storeUnlocks.filter((id) => id.startsWith('icon:'));
-  const ownedMascot = storeUnlocks.filter((id) => id.startsWith('mascot:'));
+  const mascotSex = resolveMascotSex(profile);
+  const ownedMascot = storeUnlocks.filter(
+    (id) => id.startsWith('mascot:') && isMascotItemForSex(id, mascotSex)
+  );
 
   const equippedMascot = profile.mascotEquipped || [];
-
-  const mascotSex = resolveMascotSex(profile);
 
   const toggleMascotItem = (id) => {
     const isEquipped = equippedMascot.includes(id);
     const next = isEquipped
-      ? unequipMascotItem(equippedMascot, id, storeUnlocks)
-      : equipMascotItem(equippedMascot, id, storeUnlocks);
+      ? unequipMascotItem(equippedMascot, id, storeUnlocks, mascotSex)
+      : equipMascotItem(equippedMascot, id, storeUnlocks, mascotSex);
     updateProfile({ mascotEquipped: next });
   };
 

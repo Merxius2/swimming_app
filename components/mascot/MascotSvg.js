@@ -2,6 +2,8 @@
  * SVG swim-coach monkey mascot — male/female variants, level upgrades, shop cosmetics.
  */
 
+import { isMascotItemForSex } from '../../lib/mascotConstants';
+
 const LEVEL_STYLES = {
   beginner: {
     cap: '#F59E0B',
@@ -117,6 +119,101 @@ function ChampionCape() {
   );
 }
 
+function SuitClassic() {
+  return (
+    <>
+      <path
+        d="M56 86 C64 80, 96 80, 104 86 L102 130 Q80 136 58 130 Z"
+        fill="#3B5BFF"
+        stroke="#2563EB"
+        strokeWidth="1.5"
+      />
+      <path d="M62 86 L68 94" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M98 86 L92 94" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" />
+      <ellipse cx="80" cy="100" rx="10" ry="6" fill="#60A5FA" opacity="0.35" />
+    </>
+  );
+}
+
+function SuitRacing() {
+  return (
+    <>
+      <path
+        d="M58 88 L56 132 Q80 138 104 132 L102 88 Q80 84 58 88 Z"
+        fill="#0F172A"
+        stroke="#1E293B"
+        strokeWidth="1.5"
+      />
+      <path d="M80 88 L80 132" stroke="#EF4444" strokeWidth="3" />
+      <path d="M64 92 L72 100 M96 92 L88 100" stroke="#334155" strokeWidth="2" strokeLinecap="round" />
+    </>
+  );
+}
+
+function SuitTropical() {
+  return (
+    <>
+      <path
+        d="M56 86 C64 80, 96 80, 104 86 L102 130 Q80 136 58 130 Z"
+        fill="#0D9488"
+        stroke="#0F766E"
+        strokeWidth="1.5"
+      />
+      <circle cx="72" cy="108" r="5" fill="#FB7185" opacity="0.9" />
+      <circle cx="90" cy="118" r="4" fill="#FBBF24" opacity="0.9" />
+      <path d="M62 86 L68 94 M98 86 L92 94" stroke="#14B8A6" strokeWidth="2.5" strokeLinecap="round" />
+    </>
+  );
+}
+
+function ShortsClassic() {
+  return (
+    <>
+      <path
+        d="M54 104 L52 132 Q80 138 108 132 L106 104 Q80 112 54 104 Z"
+        fill="#1E3A8A"
+        stroke="#1E40AF"
+        strokeWidth="1.5"
+      />
+      <path d="M54 118 H106" stroke="#3B82F6" strokeWidth="1.5" opacity="0.6" />
+    </>
+  );
+}
+
+function ShortsJammer() {
+  return (
+    <>
+      <path
+        d="M56 96 L54 134 Q80 140 106 134 L104 96 Q80 100 56 96 Z"
+        fill="#0F172A"
+        stroke="#3B82F6"
+        strokeWidth="2"
+      />
+      <path d="M80 96 L80 134" stroke="#2563EB" strokeWidth="2" opacity="0.5" />
+    </>
+  );
+}
+
+function ShortsSunset() {
+  return (
+    <>
+      <defs>
+        <linearGradient id="shortsSunsetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#F97316" />
+          <stop offset="50%" stopColor="#EF4444" />
+          <stop offset="100%" stopColor="#FBBF24" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M54 104 L52 132 Q80 138 108 132 L106 104 Q80 112 54 104 Z"
+        fill="url(#shortsSunsetGrad)"
+        stroke="#EA580C"
+        strokeWidth="1.5"
+      />
+    </>
+  );
+}
+
 const EQUIPPED_LAYERS = {
   'mascot:neon-cap': { render: NeonCap, hideCap: true },
   'mascot:party-hat': { render: PartyHat, hideCap: true },
@@ -124,6 +221,12 @@ const EQUIPPED_LAYERS = {
   'mascot:snorkel': { render: Snorkel },
   'mascot:medal-chain': { render: MedalChain, hideLevelAccessory: 'medal' },
   'mascot:champion-cape': { render: ChampionCape, behindBody: true },
+  'mascot:suit-classic': { render: SuitClassic, onBody: true, hideBelly: true },
+  'mascot:suit-racing': { render: SuitRacing, onBody: true, hideBelly: true },
+  'mascot:suit-tropical': { render: SuitTropical, onBody: true, hideBelly: true },
+  'mascot:shorts-classic': { render: ShortsClassic, onBody: true, hideBelly: true },
+  'mascot:shorts-jammer': { render: ShortsJammer, onBody: true, hideBelly: true },
+  'mascot:shorts-sunset': { render: ShortsSunset, onBody: true, hideBelly: true },
 };
 
 export default function MascotSvg({
@@ -140,12 +243,18 @@ export default function MascotSvg({
   const capAccent = isFemale ? '#DB2777' : style.capAccent;
   const uid = `${level}-${sex}-${equipped.join(',')}`;
 
-  const hideCap = equipped.some((id) => EQUIPPED_LAYERS[id]?.hideCap);
-  const hideGoggles = equipped.some((id) => EQUIPPED_LAYERS[id]?.hideLevelAccessory === 'goggles');
-  const hideMedal = equipped.some((id) => EQUIPPED_LAYERS[id]?.hideLevelAccessory === 'medal');
+  const activeEquipped = equipped.filter((id) => isMascotItemForSex(id, sex));
 
-  const backLayers = equipped.filter((id) => EQUIPPED_LAYERS[id]?.behindBody);
-  const frontLayers = equipped.filter((id) => !EQUIPPED_LAYERS[id]?.behindBody);
+  const hideCap = activeEquipped.some((id) => EQUIPPED_LAYERS[id]?.hideCap);
+  const hideGoggles = activeEquipped.some((id) => EQUIPPED_LAYERS[id]?.hideLevelAccessory === 'goggles');
+  const hideMedal = activeEquipped.some((id) => EQUIPPED_LAYERS[id]?.hideLevelAccessory === 'medal');
+  const hideBelly = activeEquipped.some((id) => EQUIPPED_LAYERS[id]?.hideBelly);
+
+  const backLayers = activeEquipped.filter((id) => EQUIPPED_LAYERS[id]?.behindBody);
+  const bodyLayers = activeEquipped.filter((id) => EQUIPPED_LAYERS[id]?.onBody);
+  const frontLayers = activeEquipped.filter(
+    (id) => !EQUIPPED_LAYERS[id]?.behindBody && !EQUIPPED_LAYERS[id]?.onBody
+  );
 
   return (
     <svg
@@ -180,7 +289,12 @@ export default function MascotSvg({
 
       {/* Body */}
       <ellipse cx="80" cy="108" rx="34" ry="30" fill="#A0714F" />
-      <ellipse cx="80" cy="104" rx="24" ry="20" fill="#F5DEB3" />
+      {!hideBelly && <ellipse cx="80" cy="104" rx="24" ry="20" fill="#F5DEB3" />}
+
+      {bodyLayers.map((id) => {
+        const Layer = EQUIPPED_LAYERS[id]?.render;
+        return Layer ? <Layer key={id} /> : null;
+      })}
 
       {/* Arms */}
       <ellipse cx="48" cy="102" rx="10" ry="16" fill="#8B5E3C" transform="rotate(-18 48 102)" />
