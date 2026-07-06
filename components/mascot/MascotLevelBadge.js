@@ -1,3 +1,4 @@
+import { Medal, Trophy, Waves } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { getMascotLevelMeta } from '../../lib/mascotPresentation';
 
@@ -7,17 +8,23 @@ const ACCENT_CLASS = {
   violet: 'bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-900/30 dark:text-violet-300 dark:border-violet-800/50',
 };
 
+const LEVEL_ICON = {
+  beginner: Waves,
+  intermediate: Medal,
+  advanced: Trophy,
+};
+
 export default function MascotLevelBadge({ level = 'intermediate', className = '' }) {
   const { t } = useLanguage();
   const meta = getMascotLevelMeta(level);
   const accent = ACCENT_CLASS[meta.accent] || ACCENT_CLASS.brand;
+  const Icon = LEVEL_ICON[level] || Medal;
 
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide border ${accent} ${className}`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={meta.icon} alt="" className="w-4 h-4 rounded-full object-cover" />
+      <Icon size={13} strokeWidth={2.5} />
       {t(meta.labelKey)}
     </span>
   );

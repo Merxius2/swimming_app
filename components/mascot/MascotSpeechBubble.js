@@ -1,16 +1,21 @@
 import { Coins, Lightbulb, Sparkles, TrendingUp, Waves } from 'lucide-react';
 
 const TONE_META = {
-  default: { Icon: Waves, iconClass: 'text-brand-primary' },
+  default: { Icon: Waves, iconClass: 'text-brand' },
   reward: { Icon: Coins, iconClass: 'text-amber-500' },
   tip: { Icon: Lightbulb, iconClass: 'text-teal-500' },
   levelUp: { Icon: TrendingUp, iconClass: 'text-emerald-500' },
-  thinking: { Icon: Sparkles, iconClass: 'text-brand-primary animate-pulse' },
+  thinking: { Icon: Sparkles, iconClass: 'text-brand animate-pulse' },
 };
 
+/**
+ * Rounded speech bubble matching the design-sheet variants.
+ * `tail` points toward the mascot: 'left' (side-by-side) or 'bottom' (stacked).
+ */
 export default function MascotSpeechBubble({
   message = '',
   tone = 'default',
+  tail = 'left',
   className = '',
 }) {
   if (!message) return null;
@@ -18,7 +23,7 @@ export default function MascotSpeechBubble({
   const { Icon, iconClass } = TONE_META[tone] || TONE_META.default;
 
   return (
-    <div className={`relative z-10 w-full max-w-sm ${className}`}>
+    <div className={`relative ${className}`}>
       <div
         className={`mascot-speech-bubble mascot-speech-bubble--${tone} mascot-speech-enter flex gap-3 items-start`}
       >
@@ -32,7 +37,7 @@ export default function MascotSpeechBubble({
           {message}
         </p>
       </div>
-      <div className="mascot-speech-tail" aria-hidden="true" />
+      <div className={`mascot-speech-tail mascot-speech-tail--${tail}`} aria-hidden="true" />
     </div>
   );
 }

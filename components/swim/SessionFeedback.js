@@ -2,7 +2,7 @@ import { Sparkles, TrendingUp, TrendingDown, Bot, Lightbulb } from 'lucide-react
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import MascotCoach from '../mascot/MascotCoach';
-import { getMascotName, resolveMascotLevel, resolveMascotLook, resolveMascotSex } from '../../lib/mascotConstants';
+import { getMascotName, resolveMascotLevel, resolveMascotSex } from '../../lib/mascotConstants';
 import { resolveMascotBubbleTone } from '../../lib/mascotPresentation';
 
 function pickMascotMessage({ coachMessage, motivation, tip, insights, loading, t }) {
@@ -29,7 +29,6 @@ export default function SessionFeedback({
   const { profile } = useSwim();
 
   const mascotSex = resolveMascotSex(profile);
-  const mascotLook = resolveMascotLook(profile);
 
   const mascotMessage = pickMascotMessage({
     coachMessage,
@@ -63,23 +62,19 @@ export default function SessionFeedback({
 
   return (
     <div className="card p-6 space-y-5 overflow-hidden">
-      <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-        <div className="shrink-0 w-full sm:w-auto flex justify-center sm:pt-2">
-          <MascotCoach
-            message={mascotMessage}
-            sex={mascotSex}
-            level={mascotLevel}
-            look={mascotLook}
-            bubbleTone={bubbleTone}
-            coachName={coachName}
-            size={200}
-            animated
-            showStage
-          />
-        </div>
+      <MascotCoach
+        message={mascotMessage}
+        sex={mascotSex}
+        level={mascotLevel}
+        bubbleTone={bubbleTone}
+        coachName={coachName}
+        size={170}
+        animated
+        showStage
+      />
 
-        <div className="flex-1 min-w-0 space-y-4 w-full">
-          <div className="flex items-center gap-2 flex-wrap">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 flex-wrap">
             <Sparkles size={20} className="text-brand" />
             <h3 className="text-lg font-bold text-ink dark:text-gray-100">{t('feedback.title')}</h3>
             {benchmarkLevel && benchmarkLevel !== 'unknown' && (
@@ -159,7 +154,6 @@ export default function SessionFeedback({
               )}
             </>
           )}
-        </div>
       </div>
     </div>
   );

@@ -4,13 +4,13 @@ import MascotSpeechBubble from './MascotSpeechBubble';
 import MascotStage from './MascotStage';
 
 /**
- * Swim-coach mascot with stage, speech bubble, and level badge.
+ * Flip/Flo swim coach: character with speech bubble, name, and level badge.
+ * Stacks vertically on small screens, side-by-side from `sm` upward.
  */
 export default function MascotCoach({
   message = '',
   sex = 'male',
   level = 'intermediate',
-  look = 'coach',
   bubbleTone = 'default',
   coachName = '',
   showLevelBadge = true,
@@ -18,34 +18,37 @@ export default function MascotCoach({
   size = 220,
   animated = true,
   className = '',
-  bubbleClassName = '',
 }) {
-  const displayName = coachName;
-
   const content = (
-    <div className={`flex flex-col items-center gap-3 ${className}`}>
-      {displayName && (
-        <p className="text-xs font-semibold uppercase tracking-wider text-ink-soft">
-          {displayName}
-        </p>
-      )}
+    <div className={`flex flex-col sm:flex-row items-center sm:items-end gap-4 sm:gap-6 ${className}`}>
+      <div className="order-2 sm:order-1 shrink-0 flex flex-col items-center mascot-enter">
+        <MascotCharacter sex={sex} size={size} animated={animated} />
+        <div className="mascot-shadow" aria-hidden="true" />
+      </div>
 
-      <MascotSpeechBubble
-        message={message}
-        tone={bubbleTone}
-        className={bubbleClassName}
-      />
-
-      <div className="flex flex-col items-center gap-2">
-        {showLevelBadge && (
-          <MascotLevelBadge level={level} />
+      <div className="order-1 sm:order-2 flex-1 min-w-0 w-full flex flex-col items-center sm:items-start gap-2 sm:pb-8">
+        {(coachName || showLevelBadge) && (
+          <div className="flex items-center gap-2.5 flex-wrap justify-center sm:justify-start">
+            {coachName && (
+              <p className="text-xs font-bold uppercase tracking-wider text-ink-soft">
+                {coachName}
+              </p>
+            )}
+            {showLevelBadge && <MascotLevelBadge level={level} />}
+          </div>
         )}
-        <MascotCharacter
-          sex={sex}
-          level={level}
-          look={look}
-          size={size}
-          animated={animated}
+
+        <MascotSpeechBubble
+          message={message}
+          tone={bubbleTone}
+          tail="left"
+          className="w-full max-w-md hidden sm:block"
+        />
+        <MascotSpeechBubble
+          message={message}
+          tone={bubbleTone}
+          tail="bottom"
+          className="w-full max-w-md sm:hidden"
         />
       </div>
     </div>

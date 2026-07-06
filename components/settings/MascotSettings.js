@@ -1,14 +1,11 @@
-import { Sparkles } from 'lucide-react';
+import { Check, Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import MascotCoach from '../mascot/MascotCoach';
 import MascotCharacter from '../mascot/MascotCharacter';
-import MascotLevelStrip from '../mascot/MascotLevelStrip';
 import {
   getMascotName,
-  MASCOT_LOOKS,
   resolveMascotLevel,
-  resolveMascotLook,
   resolveMascotSex,
 } from '../../lib/mascotConstants';
 import { getSwimLevel, getBenchmarkForProfile } from '../../lib/swimBenchmarks';
@@ -19,32 +16,20 @@ function MascotChoiceCard({ sex, active, name, description, onSelect }) {
     <button
       type="button"
       onClick={onSelect}
-      className={`flex flex-col items-center text-left p-4 rounded-xl border transition w-full ${
+      aria-pressed={active}
+      className={`relative flex flex-col items-center p-4 rounded-xl border transition w-full ${
         active
           ? 'border-brand bg-tint-soft ring-2 ring-brand/30 dark:bg-tint/15'
-          : 'border-gray-200 dark:border-gray-700 hover:bg-black/5'
+          : 'border-gray-200 dark:border-gray-700 hover:bg-black/5 dark:hover:bg-white/5'
       }`}
     >
-      <MascotCharacter sex={sex} level="intermediate" look="coach" size={100} animated className="mb-3" />
+      {active && (
+        <span className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center">
+          <Check size={14} strokeWidth={3} />
+        </span>
+      )}
+      <MascotCharacter sex={sex} size={120} animated={active} className="mb-3" />
       <span className="text-lg font-bold text-ink dark:text-gray-100">{name}</span>
-      <span className="text-xs text-ink-soft mt-1 leading-relaxed text-center">{description}</span>
-    </button>
-  );
-}
-
-function MascotLookCard({ lookId, active, name, description, sex, onSelect }) {
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={`flex flex-col items-center text-left p-4 rounded-xl border transition w-full ${
-        active
-          ? 'border-brand bg-tint-soft ring-2 ring-brand/30 dark:bg-tint/15'
-          : 'border-gray-200 dark:border-gray-700 hover:bg-black/5'
-      }`}
-    >
-      <MascotCharacter sex={sex} level="intermediate" look={lookId} size={100} animated={false} className="mb-3" />
-      <span className="text-base font-bold text-ink dark:text-gray-100">{name}</span>
       <span className="text-xs text-ink-soft mt-1 leading-relaxed text-center">{description}</span>
     </button>
   );
@@ -55,7 +40,6 @@ export default function MascotSettings() {
   const { profile, updateProfile, sessions } = useSwim();
 
   const mascotSex = resolveMascotSex(profile);
-  const mascotLook = resolveMascotLook(profile);
   const mascotName = getMascotName(mascotSex, t);
 
   const statsSessions = getStatsSessions(sessions);
@@ -95,51 +79,21 @@ export default function MascotSettings() {
         />
       </div>
 
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-ink-soft mb-2">
-          {t('settings.mascotLookTitle')}
-        </label>
-        <p className="text-xs text-ink-soft mb-3 leading-relaxed">{t('settings.mascotLookDesc')}</p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {Object.values(MASCOT_LOOKS).map((look) => (
-            <MascotLookCard
-              key={look.id}
-              lookId={look.id}
-              sex={mascotSex}
-              active={mascotLook === look.id}
-              name={t(look.nameKey)}
-              description={t(look.descKey)}
-              onSelect={() => updateProfile({ mascotLook: look.id })}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-ink-soft mb-2">
-          {t('settings.mascotLevelTitle')}
-        </label>
-        <p className="text-xs text-ink-soft mb-3 leading-relaxed">{t('settings.mascotLevelDesc')}</p>
-        <MascotLevelStrip activeLevel={mascotLevel} />
-      </div>
-
       <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-        <p className="text-sm font-medium text-ink-soft mb-1">
+        <p className="text-sm font-medium text-ink-soft mb-3">
           {t('settings.mascotActiveCoach').replace('{name}', mascotName)}
         </p>
-        <div className="py-2">
-          <MascotCoach
-            message={previewMessage}
-            sex={mascotSex}
-            level={mascotLevel}
-            look={mascotLook}
-            coachName={mascotName}
-            bubbleTone="default"
-            size={220}
-            animated
-            showStage
-          />
-        </div>
+        <MascotCoach
+          key={mascotSex}
+          message={previewMessage}
+          sex={mascotSex}
+          level={mascotLevel}
+          coachName={mascotName}
+          bubbleTone="default"
+          size={190}
+          animated
+          showStage
+        />
       </div>
     </div>
   );

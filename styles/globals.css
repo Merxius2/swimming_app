@@ -1687,9 +1687,37 @@ html.ambient-active.theme-platinum-elite .min-h-screen.bg-white {
 }
 
 @keyframes mascot-alive {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  35% { transform: scale(1.03) rotate(-0.8deg); }
-  70% { transform: scale(1.03) rotate(0.8deg); }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-5px) rotate(-1deg); }
+  60% { transform: translateY(-1px) rotate(0.9deg); }
+}
+
+@keyframes mascot-enter {
+  from { opacity: 0; transform: translateY(12px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes mascot-shadow-pulse {
+  0%, 100% { transform: scaleX(1); opacity: 0.7; }
+  30% { transform: scaleX(0.88); opacity: 0.45; }
+  60% { transform: scaleX(0.97); opacity: 0.62; }
+}
+
+.mascot-enter {
+  animation: mascot-enter 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+.mascot-shadow {
+  width: 60%;
+  height: 12px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background: radial-gradient(ellipse at center, rgba(28, 46, 90, 0.22) 0%, transparent 70%);
+  animation: mascot-shadow-pulse 4.2s ease-in-out infinite;
+}
+
+html.dark .mascot-shadow {
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
 }
 
 .mascot-stage {
@@ -1764,11 +1792,28 @@ html.dark .mascot-speech-bubble {
 }
 
 .mascot-speech-tail {
+  position: absolute;
   width: 0.85rem;
   height: 0.85rem;
-  margin: -0.35rem auto 0;
-  transform: rotate(45deg);
   background: rgba(255, 255, 255, 0.82);
+}
+
+/* tail pointing left, toward a mascot standing beside the bubble */
+.mascot-speech-tail--left {
+  left: -0.44rem;
+  top: 50%;
+  margin-top: -0.425rem;
+  transform: rotate(45deg);
+  border-left: 1.5px solid rgba(28, 46, 90, 0.85);
+  border-bottom: 1.5px solid rgba(28, 46, 90, 0.85);
+}
+
+/* tail pointing down, toward a mascot below the bubble */
+.mascot-speech-tail--bottom {
+  left: 50%;
+  bottom: -0.44rem;
+  margin-left: -0.425rem;
+  transform: rotate(45deg);
   border-right: 1.5px solid rgba(28, 46, 90, 0.85);
   border-bottom: 1.5px solid rgba(28, 46, 90, 0.85);
 }
@@ -1789,6 +1834,8 @@ html.dark .mascot-speech-tail {
 
 @media (prefers-reduced-motion: reduce) {
   .mascot-alive,
+  .mascot-enter,
+  .mascot-shadow,
   .mascot-speech-enter,
   .mascot-bubble-a,
   .mascot-bubble-b,

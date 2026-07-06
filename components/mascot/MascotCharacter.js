@@ -1,143 +1,84 @@
+import { useEffect, useRef, useState } from 'react';
+import { getMascotCharacter } from '../../lib/mascotConstants';
+
 /**
- * Flip/Flo coach mascots — artwork cropped from variants-animation.png
- * with blink frames from the character sheet.
+ * Renders Flip or Flo as full-body artwork with a natural blink cycle
+ * (open/closed eye frames) and a gentle CSS idle animation.
+ *
+ * `size` is the rendered height in pixels.
  */
-
-import { useEffect, useState } from 'react';
-
-const COACH_IMAGE = {
-  coach: {
-    male: '/mascot/flip-coach.png',
-    female: '/mascot/flo-coach.png',
-  },
-  classic: {
-    male: '/mascot/flip-team.png',
-    female: '/mascot/flo-coach.png',
-  },
-};
-
-const BLINK_FRAMES = [
-  '/mascot/flip-blink-0.png',
-  '/mascot/flip-blink-1.png',
-  '/mascot/flip-blink-2.png',
-  '/mascot/flip-blink-3.png',
-];
-
-const ZOOM = 1.85;
-const ASPECT = 1.12;
-
-function resolveMascotAsset(sex, look = 'coach') {
-  const isFemale = sex === 'female';
-  const resolvedLook = look === 'classic' ? 'classic' : 'coach';
-
-  return {
-    src: COACH_IMAGE[resolvedLook][isFemale ? 'female' : 'male'],
-    zoom: ZOOM,
-    aspect: ASPECT,
-    blink: true,
-  };
-}
-
 export default function MascotCharacter({
   sex = 'male',
-  level = 'intermediate',
-  look = 'coach',
-  blink = false,
   animated = true,
   className = '',
   size = 220,
 }) {
-  const [blinkFrame, setBlinkFrame] = useState(-1);
-  const asset = resolveMascotAsset(sex, look);
+  const [blinking, setBlinking] = useState(false);
+  const timersRef = useRef([]);
+  const character = getMascotCharacter(sex);
 
-  const viewW = size;
-  const viewH = Math.round(size * ASPECT);
-  const artW = Math.round(viewW * asset.zoom);
+  const height = size;
+  const width = Math.round(size * character.aspect);
 
   useEffect(() => {
-    if (!animated || !asset.blink) {
-      setBlinkFrame(-1);
-      return undefined;
-    }
+    setBlinking(false);
+    if (!animated) return undefined;
 
-    let blinkTimeout;
-    let frameInterval;
-    let openTimeout;
-    let cycleInterval;
-
-    const runBlink = () => {
-      let frame = 0;
-      setBlinkFrame(0);
-      frameInterval = setInterval(() => {
-        frame += 1;
-        if (frame < BLINK_FRAMES.length) {
-          setBlinkFrame(frame);
-        } else {
-          clearInterval(frameInterval);
-          openTimeout = setTimeout(() => setBlinkFrame(-1), 40);
-        }
-      }, 45);
+    const timers = timersRef.current;
+    const clearAll = () => {
+      timers.forEach(clearTimeout);
+      timers.length = 0;
     };
 
     const scheduleBlink = () => {
-      const delay = 2200 + Math.random() * 2800;
-      blinkTimeout = setTimeout(runBlink, delay);
+      const delay = 2600 + Math.random() * 2600;
+      timers.push(setTimeout(() => {
+        setBlinking(true);
+        timers.push(setTimeout(() => {
+          setBlinking(false);
+          // occasional quick double blink for a lively feel
+          if (Math.random() < 0.25) {
+            timers.push(setTimeout(() => {
+              setBlinking(true);
+              timers.push(setTimeout(() => {
+                setBlinking(false);
+                scheduleBlink();
+              }, 130));
+            }, 140));
+          } else {
+            scheduleBlink();
+          }
+        }, 150));
+      }, delay));
     };
 
     scheduleBlink();
-    cycleInterval = setInterval(() => {
-      clearTimeout(blinkTimeout);
-      clearInterval(frameInterval);
-      clearTimeout(openTimeout);
-      setBlinkFrame(-1);
-      scheduleBlink();
-    }, 5200);
-
-    return () => {
-      clearTimeout(blinkTimeout);
-      clearInterval(frameInterval);
-      clearTimeout(openTimeout);
-      clearInterval(cycleInterval);
-    };
-  }, [animated, asset.blink]);
-
-  const isBlinking = blink || blinkFrame >= 0;
+    return clearAll;
+  }, [animated, sex]);
 
   return (
     <div
-      className={`relative overflow-hidden mx-auto ${className}`}
-      style={{ width: viewW, height: viewH }}
-      data-mascot-level={level}
+      className={`relative mx-auto ${animated ? 'mascot-alive' : ''} ${className}`}
+      style={{ width, height }}
+      data-mascot={character.id}
     >
-      <div
-        className="absolute left-1/2 bottom-0 -translate-x-1/2"
-        style={{ width: artW }}
-      >
-        <div className={`relative ${animated ? 'mascot-alive' : ''}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={asset.src}
-            alt=""
-            className="w-full h-auto block select-none pointer-events-none"
-            draggable={false}
-          />
-
-          {asset.blink && isBlinking && blinkFrame >= 0 && (
-            <div
-              className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
-              style={{ top: '2%', width: '72%' }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={BLINK_FRAMES[blinkFrame]}
-                alt=""
-                className="w-full h-auto block select-none"
-                draggable={false}
-              />
-            </div>
-          )}
-        </div>
-      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={character.images.open}
+        alt=""
+        className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+        style={{ opacity: blinking ? 0 : 1 }}
+        draggable={false}
+      />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={character.images.closed}
+        alt=""
+        className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+        style={{ opacity: blinking ? 1 : 0 }}
+        aria-hidden="true"
+        draggable={false}
+      />
     </div>
   );
 }

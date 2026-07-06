@@ -30,7 +30,7 @@ import {
 import DonutChart from '../components/DonutChart';
 import SessionFeedback from '../components/swim/SessionFeedback';
 import MascotCoach from '../components/mascot/MascotCoach';
-import { getMascotName, resolveMascotLevel, resolveMascotLook, resolveMascotSex } from '../lib/mascotConstants';
+import { getMascotName, resolveMascotLevel, resolveMascotSex } from '../lib/mascotConstants';
 import { resolveMascotBubbleTone } from '../lib/mascotPresentation';
 
 function pickProgressMascotMessage(feedback, t) {
@@ -72,7 +72,6 @@ export default function ProgressPage() {
               message={t('progress.mascotEmpty')}
               sex={resolveMascotSex(profile)}
               level="beginner"
-              look={resolveMascotLook(profile)}
               coachName={getMascotName(resolveMascotSex(profile), t)}
               bubbleTone="default"
               size={200}
@@ -111,7 +110,6 @@ export default function ProgressPage() {
   const feedback = buildPersonalFeedback(latest, sessions, t, profile);
   const mascotMessage = pickProgressMascotMessage(feedback, t);
   const mascotSex = resolveMascotSex(profile);
-  const mascotLook = resolveMascotLook(profile);
   const mascotLevel = resolveMascotLevel(feedback.benchmarkLevel);
   const bubbleTone = resolveMascotBubbleTone({
     coachMessage: feedback?.coachMessage,
@@ -132,10 +130,9 @@ export default function ProgressPage() {
             message={mascotMessage}
             sex={mascotSex}
             level={mascotLevel}
-            look={mascotLook}
             bubbleTone={bubbleTone}
             coachName={getMascotName(mascotSex, t)}
-            size={240}
+            size={220}
             animated
           />
         </div>
