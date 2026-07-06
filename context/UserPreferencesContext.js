@@ -4,7 +4,7 @@
  * Reduces provider nesting and centralizes user preference management
  */
 
-import { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { saveToCookie, loadFromCookie } from '../lib/cookieStorage';
 import translations from '../lib/i18n';
 import { CURRENCIES, DEFAULT_LANGUAGE, DEFAULT_THEME, THEMES } from '../lib/appConstants';
@@ -46,8 +46,6 @@ export function UserPreferencesProvider({ children }) {
   // Loading State
   const [isLoading, setIsLoading] = useState(true);
 
-  const anthemAudioRef = useRef(null);
-
   // Load all preferences from cookies on mount
   useEffect(() => {
     // Load dark mode preferences
@@ -69,8 +67,12 @@ export function UserPreferencesProvider({ children }) {
 
     // Load language preference
     const savedLanguage = loadFromCookie('AUDIT_LANGUAGE_PREFERENCE');
-    if (savedLanguage && savedLanguage.language) {
-      setLanguage(savedLanguage.language);
+    if (savedLanguage?.language) {
+      const lang = savedLanguage.language === 'mu' ? DEFAULT_LANGUAGE : savedLanguage.language;
+      setLanguage(lang);
+      if (savedLanguage.language === 'mu') {
+        saveToCookie('AUDIT_LANGUAGE_PREFERENCE', { language: DEFAULT_LANGUAGE }, 365);
+      }
     }
 
     // Load currency preference
@@ -139,31 +141,14 @@ export function UserPreferencesProvider({ children }) {
   };
 
   // Language Methods
-  const stopAnthem = () => {
-    const audio = anthemAudioRef.current;
-    if (!audio) return;
-    audio.pause();
-    audio.currentTime = 0;
-    anthemAudioRef.current = null;
-  };
-
   const changeLanguage = (lang) => {
-    stopAnthem();
-    setLanguage(lang);
-    saveToCookie('AUDIT_LANGUAGE_PREFERENCE', { language: lang }, 365);
-
-    if (lang === 'mu') {
-      const audio = new Audio('/usa-anthem.mp3');
-      anthemAudioRef.current = audio;
-      audio.play().catch((error) => {
-        console.error('Error playing audio:', error);
-      });
-    }
+    const next = lang === 'mu' ? DEFAULT_LANGUAGE : lang;
+    setLanguage(next);
+    saveToCookie('AUDIT_LANGUAGE_PREFERENCE', { language: next }, 365);
   };
 
   const t = (key) => {
-    const lang = language === 'mu' ? DEFAULT_LANGUAGE : language;
-    return resolveTranslation(lang, key)
+    return resolveTranslation(language, key)
       ?? resolveTranslation(DEFAULT_LANGUAGE, key)
       ?? key;
   };

@@ -23,60 +23,6 @@ body {
 /* Dark mode preserved — uses ink/base inverted */
 html.dark body { @apply bg-[#0A0A0B] text-[#FAFAFA]; background-image: none; }
 
-/* English (simplified) — patriotic red backdrop */
-html.lang-mu body {
-  background-color: #991B1B;
-  background-image: radial-gradient(120% 80% at 50% 0%, rgba(239, 68, 68, 0.45) 0%, rgba(185, 28, 28, 0.25) 40%, rgba(153, 27, 27, 0) 70%);
-}
-html.dark.lang-mu body {
-  background-color: #7F1D1D;
-  background-image: radial-gradient(120% 80% at 50% 0%, rgba(220, 38, 38, 0.35) 0%, rgba(127, 29, 29, 0) 60%);
-}
-
-/* English (simplified) — blue navigation bars (desktop sidebar + mobile tab bar) */
-html.lang-mu aside.glass-thick,
-html.lang-mu nav.glass-thick {
-  background: rgba(30, 58, 138, 0.90) !important;
-  border-color: rgba(96, 165, 250, 0.35) !important;
-  color: #EFF6FF !important;
-  box-shadow:
-    inset 0 1px 0 rgba(147, 197, 253, 0.30),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.20),
-    0 2px 6px rgba(0, 0, 0, 0.15),
-    0 24px 60px -28px rgba(30, 58, 138, 0.55) !important;
-}
-html.lang-mu aside.glass-thick .text-ink-soft,
-html.lang-mu aside.glass-thick .text-ink-faint,
-html.lang-mu nav.glass-thick .text-ink-soft {
-  color: rgba(219, 234, 254, 0.88) !important;
-}
-html.lang-mu aside.glass-thick .font-semibold {
-  color: #FFFFFF;
-}
-html.lang-mu aside.glass-thick .border-black\/\[0\.06\] {
-  border-color: rgba(147, 197, 253, 0.22) !important;
-}
-html.lang-mu aside.glass-thick .bg-tint-soft {
-  background-color: rgba(255, 255, 255, 0.20) !important;
-  color: #FFFFFF !important;
-}
-html.lang-mu aside.glass-thick .hover\:bg-black\/\[0\.04\]:hover {
-  background-color: rgba(255, 255, 255, 0.10) !important;
-}
-html.lang-mu nav.glass-thick button.bg-white {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  color: #1E3A8A !important;
-}
-html.dark.lang-mu aside.glass-thick,
-html.dark.lang-mu nav.glass-thick {
-  background: rgba(30, 58, 138, 0.94) !important;
-  border-color: rgba(96, 165, 250, 0.30) !important;
-}
-html.dark.lang-mu aside.glass-thick .bg-tint-soft {
-  background-color: rgba(255, 255, 255, 0.16) !important;
-  color: #FFFFFF !important;
-}
-
 /* ============================================================
    Typography helpers
    ============================================================ */
@@ -1721,30 +1667,222 @@ html.dark .mascot-shadow {
 }
 
 .mascot-stage {
-  background:
-    radial-gradient(120% 90% at 50% 0%, rgba(59, 91, 255, 0.16) 0%, rgba(48, 197, 165, 0.08) 42%, transparent 72%),
-    linear-gradient(165deg, rgba(219, 234, 254, 0.55) 0%, rgba(224, 242, 254, 0.35) 45%, rgba(237, 233, 254, 0.25) 100%);
   border: 1px solid rgba(59, 91, 255, 0.12);
 }
 
-html.dark .mascot-stage {
+/* Flip — beginner training pool photo */
+.mascot-stage--flip {
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.mascot-stage-overlay--flip {
   background:
-    radial-gradient(120% 90% at 50% 0%, rgba(59, 91, 255, 0.22) 0%, rgba(48, 197, 165, 0.1) 42%, transparent 72%),
-    linear-gradient(165deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.75) 50%, rgba(49, 46, 129, 0.35) 100%);
-  border-color: rgba(147, 197, 253, 0.12);
+    linear-gradient(105deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.7) 38%, rgba(255, 255, 255, 0.28) 68%, rgba(255, 255, 255, 0.1) 100%),
+    linear-gradient(180deg, transparent 55%, rgba(6, 78, 59, 0.1) 100%);
+}
+
+html.dark .mascot-stage-overlay--flip {
+  background:
+    linear-gradient(105deg, rgba(6, 44, 38, 0.9) 0%, rgba(6, 44, 38, 0.68) 38%, rgba(6, 44, 38, 0.32) 68%, rgba(20, 83, 45, 0.2) 100%),
+    linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.28) 100%);
+}
+
+.mascot-stage-glow--flip,
+.mascot-stage-decor--flip,
+.mascot-stage-bubbles--flip {
+  display: none;
+}
+
+.mascot-stage--flip .mascot-coach-name {
+  color: rgba(4, 120, 87, 0.95);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+html.dark .mascot-stage--flip .mascot-coach-name {
+  color: rgba(167, 243, 208, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.mascot-stage--flip .mascot-speech-bubble {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(52, 211, 153, 0.45);
+  box-shadow: 0 12px 32px -16px rgba(16, 185, 129, 0.25);
+}
+
+html.dark .mascot-stage--flip .mascot-speech-bubble {
+  background: rgba(6, 44, 38, 0.92);
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+.mascot-stage--flip .mascot-speech-tail {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(52, 211, 153, 0.45);
+}
+
+html.dark .mascot-stage--flip .mascot-speech-tail {
+  background: rgba(6, 44, 38, 0.92);
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+/* Flo — intermediate training pool photo */
+.mascot-stage--flo {
+  border-color: rgba(59, 91, 255, 0.28);
+}
+
+.mascot-stage-overlay--flo {
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.68) 38%, rgba(255, 255, 255, 0.25) 68%, rgba(255, 255, 255, 0.1) 100%),
+    linear-gradient(180deg, transparent 55%, rgba(30, 58, 138, 0.12) 100%);
+}
+
+html.dark .mascot-stage-overlay--flo {
+  background:
+    linear-gradient(105deg, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.68) 38%, rgba(15, 23, 42, 0.32) 68%, rgba(30, 58, 138, 0.22) 100%),
+    linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.mascot-stage-glow--flo,
+.mascot-stage-decor--flo,
+.mascot-stage-bubbles--flo {
+  display: none;
+}
+
+.mascot-stage--flo .mascot-coach-name {
+  color: rgba(42, 69, 204, 0.95);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+html.dark .mascot-stage--flo .mascot-coach-name {
+  color: rgba(200, 210, 255, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.mascot-stage--flo .mascot-speech-bubble {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(59, 91, 255, 0.4);
+  box-shadow: 0 12px 32px -16px rgba(59, 91, 255, 0.28);
+}
+
+html.dark .mascot-stage--flo .mascot-speech-bubble {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(147, 197, 253, 0.4);
+}
+
+.mascot-stage--flo .mascot-speech-tail {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(59, 91, 255, 0.4);
+}
+
+html.dark .mascot-stage--flo .mascot-speech-tail {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(147, 197, 253, 0.4);
+}
+
+/* Fins — competition pool photo (advanced) */
+.mascot-stage--fins {
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+.mascot-stage-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center 42%;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.mascot-stage-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.mascot-stage-overlay--fins {
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.72) 38%, rgba(255, 255, 255, 0.28) 68%, rgba(255, 255, 255, 0.12) 100%),
+    linear-gradient(180deg, transparent 55%, rgba(15, 23, 42, 0.15) 100%);
+}
+
+html.dark .mascot-stage-overlay--fins {
+  background:
+    linear-gradient(105deg, rgba(15, 18, 28, 0.92) 0%, rgba(15, 18, 28, 0.72) 38%, rgba(15, 18, 28, 0.35) 68%, rgba(69, 10, 10, 0.2) 100%),
+    linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+.mascot-stage-glow--fins,
+.mascot-stage-decor--fins,
+.mascot-stage-bubbles--fins {
+  display: none;
+}
+
+.mascot-stage--fins .mascot-coach-name {
+  color: rgba(127, 29, 29, 0.9);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+html.dark .mascot-stage--fins .mascot-coach-name {
+  color: rgba(254, 226, 226, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.mascot-stage--fins .mascot-speech-bubble {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(220, 38, 38, 0.45);
+  box-shadow: 0 12px 32px -16px rgba(127, 29, 29, 0.35);
+}
+
+html.dark .mascot-stage--fins .mascot-speech-bubble {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(248, 113, 113, 0.45);
+}
+
+.mascot-stage--fins .mascot-speech-tail {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(220, 38, 38, 0.45);
+}
+
+html.dark .mascot-stage--fins .mascot-speech-tail {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(248, 113, 113, 0.45);
 }
 
 .mascot-stage-glow {
   position: absolute;
   inset: auto 10% -30% 10%;
   height: 55%;
-  background: radial-gradient(ellipse at center, rgba(59, 91, 255, 0.18) 0%, transparent 70%);
+  z-index: 2;
   pointer-events: none;
+}
+
+.mascot-stage-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+html.dark .mascot-stage {
+  border-color: rgba(147, 197, 253, 0.12);
+}
+
+/* Legacy fallback when no mascot modifier is present */
+.mascot-stage:not([class*='mascot-stage--']) {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(59, 91, 255, 0.16) 0%, rgba(48, 197, 165, 0.08) 42%, transparent 72%),
+    linear-gradient(165deg, rgba(219, 234, 254, 0.55) 0%, rgba(224, 242, 254, 0.35) 45%, rgba(237, 233, 254, 0.25) 100%);
+}
+
+.mascot-stage-glow:not([class*='mascot-stage-glow--']) {
+  background: radial-gradient(ellipse at center, rgba(59, 91, 255, 0.18) 0%, transparent 70%);
 }
 
 .mascot-stage-bubbles {
   position: absolute;
   inset: 0;
+  z-index: 4;
   overflow: hidden;
   pointer-events: none;
 }
@@ -1791,6 +1929,20 @@ html.dark .mascot-speech-bubble {
   border-color: rgba(123, 91, 255, 0.55);
 }
 
+.mascot-speech-bubble--disappointed {
+  border-color: rgba(249, 115, 22, 0.55);
+  background: rgba(255, 251, 235, 0.9);
+}
+
+html.dark .mascot-speech-bubble--disappointed {
+  background: rgba(30, 27, 20, 0.9);
+  border-color: rgba(251, 146, 60, 0.45);
+}
+
+.mascot-stage--fins .mascot-speech-bubble--disappointed {
+  border-color: rgba(220, 38, 38, 0.55);
+}
+
 .mascot-speech-tail {
   position: absolute;
   width: 0.85rem;
@@ -1830,6 +1982,15 @@ html.dark .mascot-speech-tail {
 .mascot-alive {
   animation: mascot-alive 4.2s ease-in-out infinite;
   transform-origin: center bottom;
+}
+
+.mascot-alive--disappointed {
+  animation: mascot-alive-disappointed 5s ease-in-out infinite;
+}
+
+@keyframes mascot-alive-disappointed {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-2px) rotate(-0.5deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import { getMonthlyChallengeHistory } from '../../lib/swimMonthlyChallenges';
+import { getMascotGameplay, resolveMascotId } from '../../lib/mascotConstants';
 import MonthlyMedalTile from './MonthlyMedalTile';
 
 const earnedYearsFromHistory = (history) => {
@@ -11,12 +12,13 @@ const earnedYearsFromHistory = (history) => {
 
 export default function MonthlyChallengeHistory({ sessions }) {
   const { t } = useLanguage();
-  const { cheats, monthlyChallengeRerolls } = useSwim();
+  const { cheats, monthlyChallengeRerolls, profile } = useSwim();
   const previewMonthlyMedals = Boolean(cheats?.previewMonthlyMedals);
+  const intensity = getMascotGameplay(resolveMascotId(profile)).challengeIntensity;
 
   const earned = useMemo(
-    () => getMonthlyChallengeHistory(sessions, { previewMonthlyMedals, monthlyChallengeRerolls }),
-    [sessions, previewMonthlyMedals, monthlyChallengeRerolls]
+    () => getMonthlyChallengeHistory(sessions, { previewMonthlyMedals, monthlyChallengeRerolls, intensity }),
+    [sessions, previewMonthlyMedals, monthlyChallengeRerolls, intensity]
   );
   const years = useMemo(() => earnedYearsFromHistory(earned), [earned]);
   const [year, setYear] = useState(() => years[0] ?? new Date().getFullYear());

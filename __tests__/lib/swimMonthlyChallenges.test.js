@@ -95,7 +95,7 @@ describe('swimMonthlyChallenges', () => {
     assert.notEqual(override.type, base[0].type);
 
     const rerolls = {
-      [monthKey]: { overrides: { 0: override.type }, freeUsed: true },
+      [monthKey]: { overrides: { 0: override.type }, freeUses: 1 },
     };
     const after = generateMonthlyChallenges([], monthKey, rerolls);
     assert.equal(after[0].type, override.type);
@@ -105,6 +105,31 @@ describe('swimMonthlyChallenges', () => {
     assert.equal(canRerollMonthlyChallenge([], monthKey, 1, rerolls, 0), false);
     assert.equal(canRerollMonthlyChallenge([], monthKey, 1, rerolls, 1), true);
     assert.equal(hasRerollAvailability(monthKey, rerolls, 1), true);
+  });
+
+  it('allows a second free reroll when the coach grants two', () => {
+    const monthKey = '2025-06';
+    const rerolls = {
+      [monthKey]: { overrides: { 0: 'kcal' }, freeUses: 1 },
+    };
+    assert.equal(hasRerollAvailability(monthKey, rerolls, 0, 1), false);
+    assert.equal(hasRerollAvailability(monthKey, rerolls, 0, 2), true);
+    assert.equal(
+      canRerollMonthlyChallenge([], monthKey, 1, rerolls, 0, { freeLimit: 2 }),
+      true
+    );
+  });
+
+  it('scales challenge targets with coach intensity', () => {
+    const monthKey = '2025-06';
+    const easy = generateMonthlyChallenges([], monthKey, {}, 0.75);
+    const normal = generateMonthlyChallenges([], monthKey, {}, 1);
+    const hard = generateMonthlyChallenges([], monthKey, {}, 1.25);
+    for (let i = 0; i < 3; i += 1) {
+      assert.ok(easy[i].target <= normal[i].target);
+      assert.ok(hard[i].target >= normal[i].target);
+    }
+    assert.ok(hard.some((ch, i) => ch.target > easy[i].target));
   });
 
   it('blocks reroll on completed challenges', () => {
@@ -123,17 +148,22 @@ describe('swimMonthlyChallenges', () => {
     const normalized = normalizeMonthlyChallengeRerolls({
       '2025-06': { tierIndex: 0, type: 'kcal' },
       '2025-07': { overrides: { 1: 'distance' }, freeUsed: false },
+      '2025-08': { overrides: { 0: 'sessions' }, freeUsed: true },
       invalid: null,
     });
 
     assert.deepEqual(normalized['2025-06'], {
       overrides: { 0: 'kcal' },
-      freeUsed: true,
+      freeUses: 1,
     });
     assert.deepEqual(normalized['2025-07'], {
       overrides: { 1: 'distance' },
-      freeUsed: false,
+      freeUses: 0,
     });
-    assert.deepEqual(normalized.invalid, { overrides: {}, freeUsed: false });
+    assert.deepEqual(normalized['2025-08'], {
+      overrides: { 0: 'sessions' },
+      freeUses: 1,
+    });
+    assert.deepEqual(normalized.invalid, { overrides: {}, freeUses: 0 });
   });
 });

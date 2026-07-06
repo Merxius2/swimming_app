@@ -1,21 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
-import { getMascotCharacter } from '../../lib/mascotConstants';
+import { getMascot } from '../../lib/mascotConstants';
 
 /**
- * Renders Flip or Flo as full-body artwork with a natural blink cycle
- * (open/closed eye frames) and a gentle CSS idle animation.
+ * Renders Flip, Flo, or Fins as full-body artwork with a natural blink
+ * cycle (open/closed eye frames) and a gentle CSS idle animation.
  *
  * `size` is the rendered height in pixels.
+ * `mood` — `happy` (default) or `disappointed` for slower / critical sessions.
  */
 export default function MascotCharacter({
-  sex = 'male',
+  mascotId = 'flip',
+  mood = 'happy',
   animated = true,
   className = '',
   size = 220,
 }) {
   const [blinking, setBlinking] = useState(false);
   const timersRef = useRef([]);
-  const character = getMascotCharacter(sex);
+  const character = getMascot(mascotId);
+  const disappointed = mood === 'disappointed' && character.images.disappointedOpen;
+
+  const openSrc = disappointed ? character.images.disappointedOpen : character.images.open;
+  const closedSrc = disappointed && character.images.disappointedClosed
+    ? character.images.disappointedClosed
+    : character.images.closed;
 
   const height = size;
   const width = Math.round(size * character.aspect);
@@ -36,7 +44,6 @@ export default function MascotCharacter({
         setBlinking(true);
         timers.push(setTimeout(() => {
           setBlinking(false);
-          // occasional quick double blink for a lively feel
           if (Math.random() < 0.25) {
             timers.push(setTimeout(() => {
               setBlinking(true);
@@ -54,17 +61,18 @@ export default function MascotCharacter({
 
     scheduleBlink();
     return clearAll;
-  }, [animated, sex]);
+  }, [animated, mascotId, mood]);
 
   return (
     <div
-      className={`relative mx-auto ${animated ? 'mascot-alive' : ''} ${className}`}
+      className={`relative mx-auto ${animated ? 'mascot-alive' : ''} ${disappointed ? 'mascot-alive--disappointed' : ''} ${className}`}
       style={{ width, height }}
       data-mascot={character.id}
+      data-mascot-mood={mood}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={character.images.open}
+        src={openSrc}
         alt=""
         className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
         style={{ opacity: blinking ? 0 : 1 }}
@@ -72,7 +80,7 @@ export default function MascotCharacter({
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={character.images.closed}
+        src={closedSrc}
         alt=""
         className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
         style={{ opacity: blinking ? 1 : 0 }}

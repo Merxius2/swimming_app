@@ -20,7 +20,7 @@ describe('swimChallengeRerollStorage', () => {
 
     assert.equal(result.success, true);
     assert.equal(result.data.challengeRerollCredits, 0);
-    assert.equal(result.data.monthlyChallengeRerolls[monthKey].freeUsed, true);
+    assert.equal(result.data.monthlyChallengeRerolls[monthKey].freeUses, 1);
     assert.ok(result.data.monthlyChallengeRerolls[monthKey].overrides[0]);
   });
 
@@ -32,7 +32,7 @@ describe('swimChallengeRerollStorage', () => {
 
     assert.equal(result.success, true);
     assert.equal(result.data.challengeRerollCredits, 0);
-    assert.equal(result.data.monthlyChallengeRerolls[monthKey].freeUsed, true);
+    assert.equal(result.data.monthlyChallengeRerolls[monthKey].freeUses, 1);
     assert.ok(result.data.monthlyChallengeRerolls[monthKey].overrides[1]);
   });
 
@@ -43,6 +43,26 @@ describe('swimChallengeRerollStorage', () => {
 
     assert.equal(result.success, false);
     assert.deepEqual(result.data, afterFree);
+  });
+
+  it('gives Fins swimmers two free rerolls per month', () => {
+    const monthKey = '2025-06';
+    const finsData = () => ({
+      ...baseData(),
+      profile: { ...DEFAULT_SWIM_DATA.profile, mascotId: 'fins' },
+    });
+
+    const first = applyMonthlyChallengeReroll(finsData(), monthKey, 0);
+    assert.equal(first.success, true);
+    assert.equal(first.data.monthlyChallengeRerolls[monthKey].freeUses, 1);
+
+    const second = applyMonthlyChallengeReroll(first.data, monthKey, 1);
+    assert.equal(second.success, true);
+    assert.equal(second.data.challengeRerollCredits, 0);
+    assert.equal(second.data.monthlyChallengeRerolls[monthKey].freeUses, 2);
+
+    const third = applyMonthlyChallengeReroll(second.data, monthKey, 2);
+    assert.equal(third.success, false);
   });
 
   it('grants a reroll credit when purchasing the store consumable', () => {

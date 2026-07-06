@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { Shuffle } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
+import { useSwim } from '../../context/SwimContext';
 import {
   evaluateMonthlyChallenges,
   getMonthKey,
   canRerollMonthlyChallenge,
   hasRerollAvailability,
 } from '../../lib/swimMonthlyChallenges';
+import { getMascotGameplay, getMascotName, resolveMascotId } from '../../lib/mascotConstants';
 import {
   formatChallengeTarget,
   formatChallengeValue,
@@ -32,9 +34,22 @@ export default function MonthlyChallengesCard({
   onRerollChallenge,
 }) {
   const { t, language } = useLanguage();
-  const state = evaluateMonthlyChallenges(sessions, monthKey, monthlyChallengeRerolls);
+  const { profile } = useSwim();
+  const mascotId = resolveMascotId(profile);
+  const gameplay = getMascotGameplay(mascotId);
+  const state = evaluateMonthlyChallenges(
+    sessions,
+    monthKey,
+    monthlyChallengeRerolls,
+    gameplay.challengeIntensity
+  );
   const isCurrentMonth = monthKey === getMonthKey();
-  const rerollAvailable = hasRerollAvailability(monthKey, monthlyChallengeRerolls, challengeRerollCredits);
+  const rerollAvailable = hasRerollAvailability(
+    monthKey,
+    monthlyChallengeRerolls,
+    challengeRerollCredits,
+    gameplay.freeMonthlyRerolls
+  );
 
   const locale = language === 'nl' ? 'nl-NL' : language === 'ru' ? 'ru-RU' : language === 'tr' ? 'tr-TR' : 'en-US';
   const monthLabel = new Date(`${monthKey}-01`).toLocaleDateString(locale, { month: 'long', year: 'numeric' });
@@ -98,7 +113,8 @@ export default function MonthlyChallengesCard({
               monthKey,
               index,
               monthlyChallengeRerolls,
-              challengeRerollCredits
+              challengeRerollCredits,
+              { intensity: gameplay.challengeIntensity, freeLimit: gameplay.freeMonthlyRerolls }
             );
           return (
             <li
@@ -210,6 +226,15 @@ export default function MonthlyChallengesCard({
       <p className="text-[11px] text-ink-faint mt-4 leading-relaxed">
         {t('monthlyChallenges.tierHint')}
       </p>
+
+      {gameplay.requiredMonthlyTier && (
+        <p className="text-[11px] text-red-600/80 dark:text-red-400/80 mt-1.5 leading-relaxed">
+          {t('monthlyChallenges.coachRequirement')
+            .replace('{name}', getMascotName(mascotId, t))
+            .replace('{tier}', t(`monthlyChallenges.tiers.${gameplay.requiredMonthlyTier}`))
+            .replace('{amount}', String(gameplay.monthlyPenaltyCoins))}
+        </p>
+      )}
     </div>
   );
 }

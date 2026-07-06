@@ -46,6 +46,20 @@ function LineLabel({ line, t }) {
         pace: formatPace(line.paceSec),
         avgPace: formatPace(line.avgPaceSec),
       });
+    case 'finsBonus':
+      return tr(t, 'coins.lineFinsBonus', { amount: line.coins });
+    case 'finsPenalty':
+      return tr(t, 'coins.lineFinsPenalty', {
+        pace: formatPace(line.paceSec),
+        avgPace: formatPace(line.avgPaceSec),
+      });
+    case 'coachShare':
+      return t('coins.lineCoachShare');
+    case 'monthlyShortfall':
+      return tr(t, 'coins.lineMonthlyShortfall', {
+        tier: t(`monthlyChallenges.tiers.${line.requiredTier}`),
+        month: line.monthKey,
+      });
     case 'medal':
       return tr(t, 'coins.lineMedal', {
         amount: line.coins,
@@ -78,8 +92,14 @@ function BreakdownSection({ title, lines, t }) {
             <span className="text-ink-soft leading-snug min-w-0">
               <LineLabel line={line} t={t} />
             </span>
-            <span className="font-semibold tabular-nums text-amber-600 dark:text-amber-400 shrink-0">
-              +{line.coins}
+            <span
+              className={`font-semibold tabular-nums shrink-0 ${
+                line.coins < 0
+                  ? 'text-red-500 dark:text-red-400'
+                  : 'text-amber-600 dark:text-amber-400'
+              }`}
+            >
+              {line.coins < 0 ? line.coins : `+${line.coins}`}
             </span>
           </li>
         ))}
@@ -101,7 +121,7 @@ export default function CoinEarnedModal({ breakdown, onClose }) {
     return () => cancelAnimationFrame(frame);
   }, [mounted]);
 
-  if (!mounted || (!breakdown?.total && !breakdown?.alreadyClaimed)) return null;
+  if (!mounted || (!breakdown?.total && !breakdown?.alreadyClaimed && !breakdown?.penaltyLines?.length)) return null;
 
   const alreadyClaimed = Boolean(breakdown.alreadyClaimed);
 
@@ -164,6 +184,13 @@ export default function CoinEarnedModal({ breakdown, onClose }) {
                   <BreakdownSection
                     title={t('coins.bonusSection')}
                     lines={breakdown.bonusLines}
+                    t={t}
+                  />
+                )}
+                {breakdown.penaltyLines?.length > 0 && (
+                  <BreakdownSection
+                    title={t('coins.penaltySection')}
+                    lines={breakdown.penaltyLines}
                     t={t}
                   />
                 )}

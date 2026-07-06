@@ -4,6 +4,7 @@ import {
   calculateSessionCoins,
   calculateSessionCoinBreakdown,
   calculateUploadCoins,
+  getMonthlyShortfallPenalty,
   medalTierCoins,
   monthlyTierCoinDelta,
   migrateSessionCoins,
@@ -41,6 +42,98 @@ describe('swimCoins', () => {
     assert.equal(breakdown.total, breakdown.sessionCoins + breakdown.medalCoins + breakdown.monthlyCoins);
     assert.ok(breakdown.sessionLines.length > 0);
     assert.equal(breakdown.bonusLines.length, 2);
+  });
+
+  it('adds a Fins bonus on top of pace improvement when Fins is the coach', () => {
+    const prior = [session('2025-05-01', { paceSecPer100m: 140 })];
+    const improved = session('2025-06-01', { paceSecPer100m: 120, distanceM: 2000 });
+
+    const withFins = calculateSessionCoinBreakdown(improved, prior, { mascotId: 'fins' });
+    const withFlip = calculateSessionCoinBreakdown(improved, prior, { mascotId: 'flip' });
+
+    assert.ok(withFins.lines.some((line) => line.type === 'finsBonus'));
+    assert.ok(!withFlip.lines.some((line) => line.type === 'finsBonus'));
+    assert.ok(withFins.sessionCoins > withFlip.sessionCoins);
+
+    // no improvement → no Fins bonus
+    const slower = calculateSessionCoinBreakdown(
+      session('2025-06-02', { paceSecPer100m: 150, distanceM: 2000 }),
+      prior,
+      { mascotId: 'fins' }
+    );
+    assert.ok(!slower.lines.some((line) => line.type === 'finsBonus'));
+  });
+
+  it('halves session coins for Flip but never below the floor', () => {
+    const swim = session('2025-06-01', { distanceM: 3000, durationSec: 2400, activeKcal: 500 });
+    const withFlip = calculateSessionCoinBreakdown(swim, [], { mascotId: 'flip' });
+    const withFlo = calculateSessionCoinBreakdown(swim, [], { mascotId: 'flo' });
+
+    assert.ok(withFlip.sessionCoins < withFlo.sessionCoins);
+    assert.ok(withFlip.lines.some((line) => line.type === 'coachShare' && line.coins < 0));
+    assert.ok(withFlip.sessionCoins >= 3);
+    assert.ok(!withFlo.lines.some((line) => line.type === 'coachShare'));
+  });
+
+  it('docks coins with Fins when swimming below your average pace', () => {
+    const prior = [session('2025-05-01', { paceSecPer100m: 120 })];
+    const slowSwim = session('2025-06-01', { paceSecPer100m: 180, distanceM: 1000 });
+
+    const withFins = calculateSessionCoinBreakdown(slowSwim, prior, { mascotId: 'fins' });
+    const withFlo = calculateSessionCoinBreakdown(slowSwim, prior, { mascotId: 'flo' });
+    const withFlip = calculateSessionCoinBreakdown(slowSwim, prior, { mascotId: 'flip' });
+
+    assert.ok(withFins.lines.some((line) => line.type === 'finsPenalty' && line.coins < 0));
+    assert.ok(withFins.sessionCoins < withFlo.sessionCoins);
+    assert.ok(!withFlo.lines.some((line) => line.type === 'finsPenalty'));
+    assert.ok(withFlip.sessionCoins >= 3); // Flip never lets you lose
+  });
+
+  it('charges a monthly shortfall penalty per coach requirement', () => {
+    const sessions = [session('2025-05-15', { distanceM: 500 })];
+
+    // Flo requires silver, one tiny session in May won't reach it
+    const floPenalty = getMonthlyShortfallPenalty({
+      sessions,
+      uploadMonthKey: '2025-06',
+      mascotId: 'flo',
+    });
+    assert.ok(floPenalty);
+    assert.equal(floPenalty.monthKey, '2025-05');
+    assert.equal(floPenalty.requiredTier, 'silver');
+    assert.ok(floPenalty.coins > 0);
+
+    // Flip never charges
+    assert.equal(getMonthlyShortfallPenalty({
+      sessions,
+      uploadMonthKey: '2025-06',
+      mascotId: 'flip',
+    }), null);
+
+    // already settled months are skipped
+    assert.equal(getMonthlyShortfallPenalty({
+      sessions,
+      uploadMonthKey: '2025-06',
+      mascotId: 'flo',
+      settledMonths: { '2025-05': { coins: 40 } },
+    }), null);
+
+    // months without sessions are not punished
+    assert.equal(getMonthlyShortfallPenalty({
+      sessions: [],
+      uploadMonthKey: '2025-06',
+      mascotId: 'fins',
+    }), null);
+
+    // Fins demands gold and charges more than Flo
+    const finsPenalty = getMonthlyShortfallPenalty({
+      sessions,
+      uploadMonthKey: '2025-06',
+      mascotId: 'fins',
+    });
+    assert.ok(finsPenalty);
+    assert.equal(finsPenalty.requiredTier, 'gold');
+    assert.ok(finsPenalty.coins > floPenalty.coins);
   });
 
   it('returns session line items that explain the reward', () => {

@@ -1,4 +1,4 @@
-import { Coins, Lightbulb, Sparkles, TrendingUp, Waves } from 'lucide-react';
+import { Coins, Lightbulb, Sparkles, TrendingDown, TrendingUp, Waves } from 'lucide-react';
 
 const TONE_META = {
   default: { Icon: Waves, iconClass: 'text-brand' },
@@ -6,6 +6,7 @@ const TONE_META = {
   tip: { Icon: Lightbulb, iconClass: 'text-teal-500' },
   levelUp: { Icon: TrendingUp, iconClass: 'text-emerald-500' },
   thinking: { Icon: Sparkles, iconClass: 'text-brand animate-pulse' },
+  disappointed: { Icon: TrendingDown, iconClass: 'text-orange-500' },
 };
 
 /**

@@ -36,7 +36,7 @@ describe('swimStorage reroll persistence', () => {
     assert.equal(data.challengeRerollCredits, 2);
     assert.deepEqual(data.monthlyChallengeRerolls['2025-06'], {
       overrides: { 0: 'kcal' },
-      freeUsed: true,
+      freeUses: 1,
     });
   });
 
@@ -53,7 +53,7 @@ describe('swimStorage reroll persistence', () => {
     const data = loadSwimData();
     assert.deepEqual(data.monthlyChallengeRerolls['2025-06'], {
       overrides: { 1: 'distance' },
-      freeUsed: true,
+      freeUses: 1,
     });
   });
 
@@ -80,7 +80,7 @@ describe('swimStorage reroll persistence', () => {
       wheelSpins: null,
       storeUnlocks: [],
       monthlyChallengeRerolls: {
-        '2025-07': { overrides: { 2: 'streak' }, freeUsed: false },
+        '2025-07': { overrides: { 2: 'streak' }, freeUses: 0 },
       },
       challengeRerollCredits: 3,
       bonusWheelSpinCredits: 2,

@@ -38,7 +38,7 @@ describe('buildPersonalFeedback', () => {
       session('2', '2025-06-05', { distanceM: 2200, paceSecPer100m: 128 }),
       session('3', '2025-06-10', { distanceM: 2500, paceSecPer100m: 118, activeKcal: 500, avgHeartRate: 142 }),
     ];
-    const feedback = buildPersonalFeedback(sessions[2], sessions, t, { sex: 'male', age: 30 });
+    const feedback = buildPersonalFeedback(sessions[2], sessions, t, { sex: 'male', age: 30, mascotId: 'flo' });
 
     assert.equal(feedback.isFirst, false);
     assert.ok(feedback.insights.length >= 4);
@@ -58,6 +58,35 @@ describe('buildPersonalFeedback', () => {
 
     assert.ok(feedback.badges.length > 0);
     assert.equal(feedback.motivation, 'feedback.motivationPersonalBest');
+  });
+
+  it('returns disappointed mood for Fins on a slower swim', () => {
+    const sessions = [
+      session('1', '2025-06-01', { distanceM: 2000, paceSecPer100m: 110 }),
+      session('2', '2025-06-10', { distanceM: 1800, paceSecPer100m: 125 }),
+    ];
+    const feedback = buildPersonalFeedback(sessions[1], sessions, t, {
+      sex: 'male',
+      age: 30,
+      mascotId: 'fins',
+    });
+
+    assert.equal(feedback.mascotMood, 'disappointed');
+    assert.equal(feedback.motivation, 'feedback.motivationPaceDownCritical');
+  });
+
+  it('keeps Flip happy on a moderately slower swim', () => {
+    const sessions = [
+      session('1', '2025-06-01', { distanceM: 2000, paceSecPer100m: 110 }),
+      session('2', '2025-06-10', { distanceM: 2000, paceSecPer100m: 120 }),
+    ];
+    const feedback = buildPersonalFeedback(sessions[1], sessions, t, {
+      sex: 'male',
+      age: 30,
+      mascotId: 'flip',
+    });
+
+    assert.equal(feedback.mascotMood, 'happy');
   });
 });
 

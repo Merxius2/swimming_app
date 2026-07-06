@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     combined,
     localInsights,
     badges,
+    coach,
   } = req.body || {};
 
   if (!apiKey || typeof apiKey !== 'string') {
@@ -27,12 +28,23 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Session data required' });
   }
 
-  const systemPrompt = `You are a warm, encouraging swim coach in a personal training app called Aap-SC.
-Write in ${language || 'English'}. Be concise, human, and motivating — like a coach who knows the swimmer personally.
+  const coachName = coach?.id
+    ? coach.id.charAt(0).toUpperCase() + coach.id.slice(1)
+    : null;
+  const personality =
+    typeof coach?.personality === 'string' && coach.personality.trim()
+      ? coach.personality.trim().slice(0, 300)
+      : 'warm and encouraging';
+
+  const systemPrompt = `You are ${coachName ? `${coachName}, ` : ''}a swim coach monkey mascot in a personal training app called Aap-SC.
+Your coaching personality: ${personality}.
+Stay fully in that personality in both analysis and motivation.
+Write in ${language || 'English'}. Be concise and human — like a coach who knows the swimmer personally.
 Avoid bullet lists. Use 2 short paragraphs max: one personal analysis, one motivational closing.
 Reference specific numbers from the data. Do not invent metrics not provided.`;
 
-  const userPrompt = `Swimmer profile: ${profile?.sex || 'unknown'}, age ${profile?.age || 'unknown'}.
+  const userPrompt = `Swimmer profile: ${profile?.name?.trim() || 'unknown name'}, ${profile?.sex || 'unknown'} sex, age ${profile?.age || 'unknown'}.
+Address the swimmer by name when you know it.
 
 Latest session (${session.date}):
 - Distance: ${session.metrics.distanceM} m

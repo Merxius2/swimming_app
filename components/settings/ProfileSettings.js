@@ -9,7 +9,12 @@ import MascotSettings from './MascotSettings';
 export default function ProfileSettings() {
   const { t } = useLanguage();
   const { profile, updateProfile } = useSwim();
+  const [name, setName] = useState(profile.name ?? '');
   const [age, setAge] = useState(String(profile.age ?? 30));
+
+  const handleNameBlur = () => {
+    updateProfile({ name: name.trim() });
+  };
 
   const handleAgeBlur = () => {
     const parsed = parseInt(age, 10);
@@ -32,6 +37,22 @@ export default function ProfileSettings() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="profile-name" className="block text-sm font-medium text-ink-soft mb-2">
+              {t('settings.swimmerName')}
+            </label>
+            <input
+              id="profile-name"
+              type="text"
+              maxLength={40}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={handleNameBlur}
+              placeholder={t('settings.swimmerNamePlaceholder')}
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-ink-soft mb-2">{t('settings.sex')}</label>
             <div className="flex gap-2">
@@ -61,6 +82,7 @@ export default function ProfileSettings() {
               </button>
             </div>
           </div>
+
           <div>
             <label htmlFor="profile-age" className="block text-sm font-medium text-ink-soft mb-2">
               {t('settings.age')}

@@ -6,7 +6,7 @@
  */
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useLanguage, useTheme } from '../context/UserPreferencesContext';
+import { useTheme } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import { isStoreItemOwned } from '../lib/swimCoinStore';
 import { getAmbientPreset } from '../lib/storeAmbients';
@@ -16,13 +16,6 @@ const DEFAULT_BLOBS = [
   { width: '50vw', height: '50vw', right: '-10vw', top: '8vh', color: '#FFC6BC', opacity: 0.70 },
   { width: '70vw', height: '70vw', left: '5vw', bottom: '-25vh', color: '#C8F0DB', opacity: 0.80 },
   { width: '35vw', height: '35vw', right: '10vw', bottom: '5vh', color: '#E4D6FF', opacity: 0.70 },
-];
-
-const MURICA_BLOBS = [
-  { width: '60vw', height: '60vw', left: '-8vw', top: '-10vh', color: '#EF4444', opacity: 0.90 },
-  { width: '50vw', height: '50vw', right: '-10vw', top: '8vh', color: '#DC2626', opacity: 0.85 },
-  { width: '70vw', height: '70vw', left: '5vw', bottom: '-25vh', color: '#B91C1C', opacity: 0.90 },
-  { width: '35vw', height: '35vw', right: '10vw', bottom: '5vh', color: '#F87171', opacity: 0.80 },
 ];
 
 const BUBBLE_POSITIONS = [
@@ -40,15 +33,13 @@ const BUBBLE_POSITIONS = [
   { left: '48%', size: 24, delay: '6s', duration: '13s' },
 ];
 
-function AmbientLayer({ language, theme, ambientPreset }) {
+function AmbientLayer({ theme, ambientPreset }) {
   let blobs = DEFAULT_BLOBS;
   let gradientClass = null;
   let driftBlobs = false;
   let showBubbles = false;
 
-  if (language === 'mu') {
-    blobs = MURICA_BLOBS;
-  } else if (ambientPreset) {
+  if (ambientPreset) {
     blobs = ambientPreset.blobs;
     gradientClass = ambientPreset.gradientClass;
     driftBlobs = ambientPreset.driftBlobs;
@@ -60,12 +51,6 @@ function AmbientLayer({ language, theme, ambientPreset }) {
   return (
     <>
       <div aria-hidden className="ambient-layer pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        {language === 'mu' && (
-          <div
-            className="absolute inset-0"
-            style={{ background: 'linear-gradient(160deg, #991B1B 0%, #DC2626 45%, #7F1D1D 100%)' }}
-          />
-        )}
         {gradientClass && <div className={`ambient-gradient absolute inset-0 ${gradientClass}`} />}
         {blobs.map((blob, index) => (
           <div
@@ -113,7 +98,6 @@ function AmbientLayer({ language, theme, ambientPreset }) {
 }
 
 export default function AmbientBackground() {
-  const { language } = useLanguage();
   const { theme } = useTheme();
   const { profile, storeUnlocks } = useSwim();
   const [mounted, setMounted] = useState(false);
@@ -134,7 +118,7 @@ export default function AmbientBackground() {
   if (!mounted) return null;
 
   return createPortal(
-    <AmbientLayer language={language} theme={theme} ambientPreset={ambientPreset} />,
+    <AmbientLayer theme={theme} ambientPreset={ambientPreset} />,
     document.body
   );
 }

@@ -6,7 +6,7 @@ import '../styles/globals.css';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 
-import { UserPreferencesProvider, useLanguage, useTheme } from '../context/UserPreferencesContext';
+import { UserPreferencesProvider, useTheme } from '../context/UserPreferencesContext';
 import { SwimProvider, useSwim } from '../context/SwimContext';
 import { FeatureProvider } from '../context/FeatureContext';
 import { DEFAULT_THEME, THEMES } from '../lib/appConstants';
@@ -23,7 +23,6 @@ import SecretSettingsModal from '../components/SecretSettingsModal';
 
 function AppContent({ Component, pageProps }) {
   const router = useRouter();
-  const { language } = useLanguage();
   const { theme, changeTheme, isLoading: prefsLoading } = useTheme();
   const { storeUnlocks, isLoading: swimLoading, cheats, profile } = useSwim();
   const themeHydratedRef = useRef(false);
@@ -58,11 +57,6 @@ function AppContent({ Component, pageProps }) {
       changeTheme(DEFAULT_THEME);
     }
   }, [theme, storeUnlocks, swimLoading, prefsLoading, changeTheme, cheats?.allThemesUnlocked]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('lang-mu', language === 'mu');
-    return () => document.documentElement.classList.remove('lang-mu');
-  }, [language]);
 
   useEffect(() => {
     const root = document.documentElement;

@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import { hasConfettiCannon } from '../../lib/swimCoinStore';
 import { formatDateLong } from '../../lib/swimFormatters';
+import { getMascotGameplay, getMascotName, resolveMascotId } from '../../lib/mascotConstants';
 import MedalIcon from './MedalIcon';
 import MonthlyMedalIcon from './MonthlyMedalIcon';
 import Confetti from './Confetti';
@@ -26,8 +27,11 @@ const tierRank = (tier) => ({ bronze: 1, silver: 2, gold: 3 }[tier] || 0);
 
 export default function MedalCelebrationModal({ medals = [], monthlyChallenge, onClose }) {
   const { t, language } = useLanguage();
-  const { storeUnlocks } = useSwim();
+  const { storeUnlocks, profile } = useSwim();
   const megaConfetti = hasConfettiCannon(storeUnlocks);
+  const mascotId = resolveMascotId(profile);
+  // Flip is over the moon about any monthly medal — even bronze
+  const showCoachCheer = getMascotGameplay(mascotId).positiveOnly && Boolean(monthlyChallenge?.tier);
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -164,6 +168,13 @@ export default function MedalCelebrationModal({ medals = [], monthlyChallenge, o
                     <p className="text-xs text-brand mt-1.5 font-medium">
                       {t(`monthlyChallenges.tiers.${monthlyChallenge.tier}`)}
                     </p>
+                    {showCoachCheer && (
+                      <p className="text-xs text-ink-soft mt-1.5 italic leading-relaxed">
+                        {tr('monthlyChallenges.coachCheerFlip', {
+                          name: getMascotName(mascotId, t),
+                        })}
+                      </p>
+                    )}
                   </div>
                 </li>
               )}

@@ -16,7 +16,8 @@ import { fetchAiCoachFeedback } from '../../lib/aiCoach';
 import { findDuplicateSession } from '../../lib/swimDuplicates';
 import { getNewlyEarnedMedals } from '../../lib/swimMedals';
 import { getMonthlyTierUpgrade } from '../../lib/swimMonthlyChallenges';
-import { calculateUploadCoins } from '../../lib/swimCoins';
+import { calculateUploadCoins, getMonthlyShortfallPenalty } from '../../lib/swimCoins';
+import { getMascot, getMascotGameplay, resolveMascotId } from '../../lib/mascotConstants';
 import { formatDateShort } from '../../lib/swimFormatters';
 import SessionFeedback from '../swim/SessionFeedback';
 import MedalCelebrationModal from '../swim/MedalCelebrationModal';
@@ -87,7 +88,16 @@ const formToMetrics = (form) => ({
 
 export default function UploadFlow() {
   const { t, language } = useLanguage();
-  const { sessions, addSession, profile, cheats, spentCoinClaims, monthlyChallengeRerolls } = useSwim();
+  const {
+    sessions,
+    addSession,
+    profile,
+    cheats,
+    spentCoinClaims,
+    monthlyChallengeRerolls,
+    monthlySettlements,
+    applyMonthlySettlement,
+  } = useSwim();
   const fileRef = useRef(null);
 
   const [step, setStep] = useState('drop');
@@ -173,15 +183,46 @@ export default function UploadFlow() {
     const earnedNow = getNewlyEarnedMedals(sessions, allWithNew, {
       allMedalsUnlocked: cheats?.allMedalsUnlocked,
     });
+    const mascotId = resolveMascotId(profile);
+    const gameplay = getMascotGameplay(mascotId);
     const monthKey = form.date.slice(0, 7);
-    const monthUpgrade = getMonthlyTierUpgrade(sessions, allWithNew, monthKey, monthlyChallengeRerolls);
+    const monthUpgrade = getMonthlyTierUpgrade(
+      sessions,
+      allWithNew,
+      monthKey,
+      monthlyChallengeRerolls,
+      gameplay.challengeIntensity
+    );
     const coins = calculateUploadCoins({
       session: pendingSession,
       sessionsBefore: sessions,
       newMedals: earnedNow,
       monthlyUpgrade: monthUpgrade,
       spentCoinClaims,
+      mascotId,
     });
+
+    // Settle last month's coach requirement (Flo: silver, Fins: gold)
+    const shortfall = getMonthlyShortfallPenalty({
+      sessions,
+      uploadMonthKey: monthKey,
+      mascotId,
+      rerolls: monthlyChallengeRerolls,
+      settledMonths: monthlySettlements,
+    });
+    if (shortfall) {
+      applyMonthlySettlement(shortfall);
+      coins.penaltyLines = [{
+        type: 'monthlyShortfall',
+        coins: -shortfall.coins,
+        monthKey: shortfall.monthKey,
+        requiredTier: shortfall.requiredTier,
+        achievedTier: shortfall.achievedTier,
+        mascotId,
+      }];
+      coins.total -= shortfall.coins;
+    }
+
     const session = addSession({
       date: form.date,
       metrics,
@@ -193,7 +234,7 @@ export default function UploadFlow() {
     setNewMedals(earnedNow);
     setMonthlyUpgrade(monthUpgrade);
     setCoinBreakdown(coins);
-    setShowCoinCelebration(coins.total > 0 || coins.alreadyClaimed);
+    setShowCoinCelebration(coins.total !== 0 || coins.alreadyClaimed || Boolean(coins.penaltyLines?.length));
     setShowMedalCelebration(false);
     setStep('done');
     setSavedFeedback({ ...localFeedback, aiEnhanced: false });
@@ -208,6 +249,7 @@ export default function UploadFlow() {
           sessions: allWithNew,
           profile,
           localFeedback,
+          mascot: getMascot(resolveMascotId(profile)),
         });
         if (aiResult) {
           setSavedFeedback({
@@ -270,6 +312,7 @@ export default function UploadFlow() {
           />
         )}
         <SessionFeedback
+          mascotMood={savedFeedback?.mascotMood}
           insights={savedFeedback?.insights || []}
           badges={savedFeedback?.badges || []}
           coachMessage={savedFeedback?.coachMessage}

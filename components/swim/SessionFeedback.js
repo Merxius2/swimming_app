@@ -2,19 +2,32 @@ import { Sparkles, TrendingUp, TrendingDown, Bot, Lightbulb } from 'lucide-react
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import MascotCoach from '../mascot/MascotCoach';
-import { getMascotName, resolveMascotLevel, resolveMascotSex } from '../../lib/mascotConstants';
+import {
+  getMascot,
+  getMascotCoachedLevel,
+  getMascotGameplay,
+  getMascotName,
+  resolveMascotId,
+} from '../../lib/mascotConstants';
+import { applyMessagePlaceholders } from '../../lib/swimProfile';
 import { resolveMascotBubbleTone } from '../../lib/mascotPresentation';
 
-function pickMascotMessage({ coachMessage, motivation, tip, insights, loading, t }) {
+const isPositiveInsight = (insight) => (
+  /faster|sneller|lower|lager|over|boven|record|streak|reeks|быстрее|hızlı|daha hızlı|improv|trending|percentile|above|median/i.test(insight)
+);
+
+function pickMascotMessage({ coachMessage, motivation, tip, insights, loading, mascotId, profile, t }) {
   if (loading) return t('mascot.thinking');
   if (coachMessage) return coachMessage;
   if (motivation) return motivation;
   if (tip) return tip;
   if (insights?.length) return insights[0];
-  return t('mascot.defaultCheer');
+  return applyMessagePlaceholders(t(getMascot(mascotId).cheerKey), profile, t);
 }
 
 export default function SessionFeedback({
+  titleKey = 'feedback.title',
+  mascotMood = 'happy',
   insights = [],
   badges = [],
   coachMessage = '',
@@ -28,28 +41,36 @@ export default function SessionFeedback({
   const { t } = useLanguage();
   const { profile } = useSwim();
 
-  const mascotSex = resolveMascotSex(profile);
+  const mascotId = resolveMascotId(profile);
+  // Flip only ever shares the good news
+  const visibleInsights = getMascotGameplay(mascotId).positiveOnly
+    ? insights.filter(isPositiveInsight)
+    : insights;
 
   const mascotMessage = pickMascotMessage({
     coachMessage,
     motivation,
     tip,
-    insights,
+    insights: visibleInsights,
     loading,
+    mascotId,
+    profile,
     t,
   });
 
-  const mascotLevel = resolveMascotLevel(benchmarkLevel);
-  const bubbleTone = resolveMascotBubbleTone({
-    loading,
-    coachMessage,
-    motivation,
-    tip,
-    badges,
-    benchmarkLevel,
-    message: mascotMessage,
-  });
-  const coachName = getMascotName(mascotSex, t);
+  const mascotLevel = getMascotCoachedLevel(mascotId);
+  const bubbleTone = mascotMood === 'disappointed'
+    ? 'disappointed'
+    : resolveMascotBubbleTone({
+      loading,
+      coachMessage,
+      motivation,
+      tip,
+      badges,
+      benchmarkLevel,
+      message: mascotMessage,
+    });
+  const coachName = getMascotName(mascotId, t);
   const hasContent = loading
     || insights.length
     || badges.length
@@ -64,7 +85,8 @@ export default function SessionFeedback({
     <div className="card p-6 space-y-5 overflow-hidden">
       <MascotCoach
         message={mascotMessage}
-        sex={mascotSex}
+        mascotId={mascotId}
+        mood={mascotMood}
         level={mascotLevel}
         bubbleTone={bubbleTone}
         coachName={coachName}
@@ -76,7 +98,7 @@ export default function SessionFeedback({
       <div className="space-y-4">
         <div className="flex items-center gap-2 flex-wrap">
             <Sparkles size={20} className="text-brand" />
-            <h3 className="text-lg font-bold text-ink dark:text-gray-100">{t('feedback.title')}</h3>
+            <h3 className="text-lg font-bold text-ink dark:text-gray-100">{t(titleKey)}</h3>
             {benchmarkLevel && benchmarkLevel !== 'unknown' && (
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                 {t(`benchmark.levels.${benchmarkLevel}`)}
@@ -126,10 +148,10 @@ export default function SessionFeedback({
                 </div>
               )}
 
-              {insights.length > 0 && (
+              {visibleInsights.length > 0 && (
                 <ul className="space-y-2 pt-1 border-t border-gray-100 dark:border-gray-800">
-                  {insights.map((insight) => {
-                    const isPositive = /faster|sneller|lower|lager|over|boven|record|streak|reeks|быстрее|hızlı|daha hızlı|improv|trending|percentile|above|median/i.test(insight);
+                  {visibleInsights.map((insight) => {
+                    const isPositive = isPositiveInsight(insight);
                     const Icon = isPositive ? TrendingUp : TrendingDown;
                     return (
                       <li key={insight} className="flex items-start gap-2 text-sm text-ink-soft">

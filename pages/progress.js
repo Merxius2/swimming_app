@@ -13,6 +13,7 @@ import {
   getWeeklyVolumeData,
   getStrokeChartData,
   buildPersonalFeedback,
+  buildProgressOverviewMessage,
   getCombinedStats,
   getStatsSessions,
 } from '../lib/swimAnalysis';
@@ -30,16 +31,9 @@ import {
 import DonutChart from '../components/DonutChart';
 import SessionFeedback from '../components/swim/SessionFeedback';
 import MascotCoach from '../components/mascot/MascotCoach';
-import { getMascotName, resolveMascotLevel, resolveMascotSex } from '../lib/mascotConstants';
+import { getMascotName, getMascotCoachedLevel, resolveMascotId } from '../lib/mascotConstants';
+import { applyMessagePlaceholders } from '../lib/swimProfile';
 import { resolveMascotBubbleTone } from '../lib/mascotPresentation';
-
-function pickProgressMascotMessage(feedback, t) {
-  if (feedback?.coachMessage) return feedback.coachMessage;
-  if (feedback?.motivation) return feedback.motivation;
-  if (feedback?.tip) return feedback.tip;
-  if (feedback?.insights?.length) return feedback.insights[0];
-  return t('progress.mascotDefault');
-}
 
 export default function ProgressPage() {
   const { t } = useLanguage();
@@ -69,10 +63,10 @@ export default function ProgressPage() {
         <div className="max-w-7xl mx-auto px-4 py-8 md:px-8 space-y-6">
           <div className="card p-4 md:p-6">
             <MascotCoach
-              message={t('progress.mascotEmpty')}
-              sex={resolveMascotSex(profile)}
-              level="beginner"
-              coachName={getMascotName(resolveMascotSex(profile), t)}
+              message={applyMessagePlaceholders(t('progress.mascotEmpty'), profile, t)}
+              mascotId={resolveMascotId(profile)}
+              level={getMascotCoachedLevel(resolveMascotId(profile))}
+              coachName={getMascotName(resolveMascotId(profile), t)}
               bubbleTone="default"
               size={200}
               animated
@@ -108,16 +102,14 @@ export default function ProgressPage() {
   const excludedCount = sessions.length - statsSessionCount;
   const records = getPersonalRecords(sessions);
   const feedback = buildPersonalFeedback(latest, sessions, t, profile);
-  const mascotMessage = pickProgressMascotMessage(feedback, t);
-  const mascotSex = resolveMascotSex(profile);
-  const mascotLevel = resolveMascotLevel(feedback.benchmarkLevel);
-  const bubbleTone = resolveMascotBubbleTone({
-    coachMessage: feedback?.coachMessage,
-    motivation: feedback?.motivation,
-    tip: feedback?.tip,
-    badges: feedback?.badges,
-    benchmarkLevel: feedback?.benchmarkLevel,
-    message: mascotMessage,
+  const overviewMessage = buildProgressOverviewMessage(sessions, profile, t, {
+    monthlyChallengeRerolls,
+  });
+  const mascotId = resolveMascotId(profile);
+  const mascotLevel = getMascotCoachedLevel(mascotId);
+  const overviewTone = resolveMascotBubbleTone({
+    message: overviewMessage,
+    badges: [],
   });
   const m = latest.metrics || {};
 
@@ -126,12 +118,15 @@ export default function ProgressPage() {
       <PageHeader icon={BarChart3} titleKey="progress.title" />
       <div className="max-w-7xl mx-auto space-y-6 px-4 py-8 md:px-8">
         <div className="card p-4 md:p-6">
+          <p className="text-xs font-bold uppercase tracking-wider text-ink-faint mb-3">
+            {t('progress.overviewTitle')}
+          </p>
           <MascotCoach
-            message={mascotMessage}
-            sex={mascotSex}
+            message={overviewMessage}
+            mascotId={mascotId}
             level={mascotLevel}
-            bubbleTone={bubbleTone}
-            coachName={getMascotName(mascotSex, t)}
+            bubbleTone={overviewTone}
+            coachName={getMascotName(mascotId, t)}
             size={220}
             animated
           />
@@ -221,6 +216,8 @@ export default function ProgressPage() {
         <RecordsSection records={records} />
 
         <SessionFeedback
+          titleKey="progress.sessionFeedbackTitle"
+          mascotMood={feedback.mascotMood}
           insights={feedback.insights}
           badges={feedback.badges}
           coachMessage={feedback.coachMessage}

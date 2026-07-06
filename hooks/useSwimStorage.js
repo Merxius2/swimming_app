@@ -64,12 +64,39 @@ export function useSwimStorage(debounceDelay = 500) {
     };
     setData((prev) => ({
       ...prev,
-      totalCoins: (prev.totalCoins || 0) + coinsEarned + coinBonus,
+      // coinsEarned can be negative when a demanding coach docks coins
+      totalCoins: Math.max(0, (prev.totalCoins || 0) + coinsEarned + coinBonus),
       sessions: [...prev.sessions, entry].sort(
         (a, b) => new Date(a.date) - new Date(b.date)
       ),
     }));
     return entry;
+  }, []);
+
+  /**
+   * Deduct a coach's monthly shortfall penalty once per month.
+   * Goes through coinsSpent so the deduction survives wallet reconciliation.
+   */
+  const applyMonthlySettlement = useCallback(({ monthKey, coins, mascotId }) => {
+    setData((prev) => {
+      if (!monthKey || prev.monthlySettlements?.[monthKey]) return prev;
+      const deduction = Math.min(Math.max(0, coins), prev.totalCoins || 0);
+      const next = {
+        ...prev,
+        totalCoins: Math.max(0, (prev.totalCoins || 0) - deduction),
+        coinsSpent: (prev.coinsSpent || 0) + deduction,
+        monthlySettlements: {
+          ...(prev.monthlySettlements || {}),
+          [monthKey]: {
+            coins: deduction,
+            mascotId: mascotId || null,
+            appliedAt: new Date().toISOString(),
+          },
+        },
+      };
+      saveSwimData(next);
+      return next;
+    });
   }, []);
 
   const removeSession = useCallback((id) => {
@@ -131,6 +158,9 @@ export function useSwimStorage(debounceDelay = 500) {
       monthlyChallengeRerolls: normalizeMonthlyChallengeRerolls(nextData.monthlyChallengeRerolls),
       challengeRerollCredits: Math.max(0, Number(nextData.challengeRerollCredits) || 0),
       bonusWheelSpinCredits,
+      monthlySettlements: nextData.monthlySettlements && typeof nextData.monthlySettlements === 'object'
+        ? nextData.monthlySettlements
+        : {},
     });
   }, []);
 
@@ -147,7 +177,7 @@ export function useSwimStorage(debounceDelay = 500) {
   }, []);
 
   const clearAll = useCallback(() => {
-    setData({ ...DEFAULT_SWIM_DATA, sessions: [], spentCoinClaims: [], coinsSpent: 0 });
+    setData({ ...DEFAULT_SWIM_DATA, sessions: [], spentCoinClaims: [], coinsSpent: 0, monthlySettlements: {} });
   }, []);
 
   const adjustCoins = useCallback((delta) => {
@@ -216,8 +246,10 @@ export function useSwimStorage(debounceDelay = 500) {
     monthlyChallengeRerolls: data.monthlyChallengeRerolls || {},
     challengeRerollCredits: data.challengeRerollCredits || 0,
     bonusWheelSpinCredits: data.bonusWheelSpinCredits || 0,
+    monthlySettlements: data.monthlySettlements || {},
     updateProfile,
     addSession,
+    applyMonthlySettlement,
     removeSession,
     updateSession,
     replaceData,
