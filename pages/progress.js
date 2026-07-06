@@ -72,7 +72,7 @@ export default function ProgressPage() {
               sex={resolveMascotSex(profile)}
               level="beginner"
               equipped={profile?.mascotEquipped || []}
-              size={110}
+              size={200}
               animated
             />
           </div>
@@ -119,7 +119,7 @@ export default function ProgressPage() {
             sex={resolveMascotSex(profile)}
             level={resolveMascotLevel(feedback.benchmarkLevel)}
             equipped={profile?.mascotEquipped || []}
-            size={110}
+            size={240}
             animated
           />
         </div>

@@ -1,41 +1,18 @@
-import { useEffect, useState } from 'react';
 import MascotCharacter from './MascotCharacter';
 
 /**
- * Animated swim-coach mascot with speech bubble.
+ * Swim-coach mascot with speech bubble.
  */
 export default function MascotCoach({
   message = '',
   sex = 'male',
   level = 'intermediate',
   equipped = [],
-  size = 140,
+  size = 220,
   animated = true,
   className = '',
   bubbleClassName = '',
 }) {
-  const [blink, setBlink] = useState(false);
-
-  useEffect(() => {
-    if (!animated) return undefined;
-    const scheduleBlink = () => {
-      const delay = 2500 + Math.random() * 2000;
-      return setTimeout(() => {
-        setBlink(true);
-        setTimeout(() => setBlink(false), 140);
-      }, delay);
-    };
-    let timer = scheduleBlink();
-    const interval = setInterval(() => {
-      clearTimeout(timer);
-      timer = scheduleBlink();
-    }, 4000);
-    return () => {
-      clearTimeout(timer);
-      clearInterval(interval);
-    };
-  }, [animated]);
-
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
       {message && (
@@ -50,15 +27,13 @@ export default function MascotCoach({
         </div>
       )}
 
-      <div className={animated ? 'mascot-idle-bounce' : ''}>
-        <MascotCharacter
-          sex={sex}
-          level={level}
-          blink={blink}
-          equipped={equipped}
-          size={size}
-        />
-      </div>
+      <MascotCharacter
+        sex={sex}
+        level={level}
+        equipped={equipped}
+        size={size}
+        animated={animated}
+      />
     </div>
   );
 }

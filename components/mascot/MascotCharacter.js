@@ -1,8 +1,8 @@
 /**
- * Raster Flip/Flo coach characters from the approved character sheet artwork,
- * with SVG overlays for blink, level accessories, and shop gear.
+ * Raster Flip/Flo coach characters with zoom crop, transparency, and idle animation.
  */
 
+import { useEffect, useState } from 'react';
 import MascotOverlays from './MascotOverlays';
 
 const MASCOT_IMAGE = {
@@ -10,41 +10,81 @@ const MASCOT_IMAGE = {
   female: '/mascot/flo-coach.png',
 };
 
-/** PNG aspect ratio (1536×1024). */
-const ASPECT = 1024 / 1536;
+/** How much to scale the artwork inside the viewport (zoom on character). */
+const ZOOM = 1.85;
 
 export default function MascotCharacter({
   sex = 'male',
   level = 'intermediate',
   blink = false,
   equipped = [],
+  animated = true,
   className = '',
-  size = 160,
+  size = 220,
 }) {
+  const [blinkPhase, setBlinkPhase] = useState(false);
   const src = MASCOT_IMAGE[sex === 'female' ? 'female' : 'male'];
-  const width = size;
-  const height = Math.round(size * ASPECT);
+
+  const viewW = size;
+  const viewH = Math.round(size * 1.12);
+  const artW = Math.round(viewW * ZOOM);
+
+  useEffect(() => {
+    if (!animated) return undefined;
+
+    let blinkTimeout;
+    let openTimeout;
+    let interval;
+
+    const scheduleBlink = () => {
+      const delay = 2200 + Math.random() * 2800;
+      blinkTimeout = setTimeout(() => {
+        setBlinkPhase(true);
+        openTimeout = setTimeout(() => setBlinkPhase(false), 120);
+      }, delay);
+    };
+
+    scheduleBlink();
+    interval = setInterval(() => {
+      clearTimeout(blinkTimeout);
+      clearTimeout(openTimeout);
+      scheduleBlink();
+    }, 5000);
+
+    return () => {
+      clearTimeout(blinkTimeout);
+      clearTimeout(openTimeout);
+      clearInterval(interval);
+    };
+  }, [animated]);
+
+  const isBlinking = blink || blinkPhase;
 
   return (
     <div
-      className={`relative inline-block ${className}`}
-      style={{ width, height }}
+      className={`relative overflow-hidden mx-auto ${className}`}
+      style={{ width: viewW, height: viewH }}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src}
-        alt=""
-        width={width}
-        height={height}
-        className="w-full h-full object-contain select-none"
-        draggable={false}
-      />
-      <MascotOverlays
-        sex={sex}
-        level={level}
-        equipped={equipped}
-        blink={blink}
-      />
+      <div
+        className="absolute left-1/2 bottom-0 -translate-x-1/2"
+        style={{ width: artW }}
+      >
+        <div className={`relative ${animated ? 'mascot-alive' : ''}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt=""
+            className="w-full h-auto block select-none pointer-events-none"
+            draggable={false}
+          />
+          <MascotOverlays
+            sex={sex}
+            level={level}
+            equipped={equipped}
+            blink={isBlinking}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -216,8 +216,8 @@ export default function MascotOverlays({
 
       {blink && !hasHead && (
         <>
-          <ellipse cx="38" cy="30" rx="8" ry="1.2" fill="#8B5A2B" />
-          <ellipse cx="62" cy="30" rx="8" ry="1.2" fill="#8B5A2B" />
+          <ellipse cx="38" cy="30" rx="8.5" ry="1" fill="#6B4423" className="mascot-eyelid" />
+          <ellipse cx="62" cy="30" rx="8.5" ry="1" fill="#6B4423" className="mascot-eyelid" />
         </>
       )}
     </svg>

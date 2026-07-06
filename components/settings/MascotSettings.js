@@ -18,7 +18,7 @@ function MascotChoiceCard({ sex, active, name, description, onSelect }) {
           : 'border-gray-200 dark:border-gray-700 hover:bg-black/5'
       }`}
     >
-      <MascotCharacter sex={sex} level="intermediate" size={72} className="mb-3" />
+      <MascotCharacter sex={sex} level="intermediate" size={100} animated className="mb-3" />
       <span className="text-lg font-bold text-ink dark:text-gray-100">{name}</span>
       <span className="text-xs text-ink-soft mt-1 leading-relaxed text-center">{description}</span>
     </button>
@@ -79,7 +79,7 @@ export default function MascotSettings() {
             sex={mascotSex}
             level={mascotLevel}
             equipped={profile.mascotEquipped || []}
-            size={120}
+            size={220}
             animated
           />
         </div>

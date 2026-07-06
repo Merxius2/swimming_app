@@ -87,7 +87,8 @@ export default function StoreCosmeticsPanel() {
                     sex={mascotSex}
                     level="intermediate"
                     equipped={active ? [id] : []}
-                    size={48}
+                    size={64}
+                    animated={false}
                   />
                   <span className="text-[11px] font-medium leading-tight text-center">
                     {item ? t(item.nameKey) : id}

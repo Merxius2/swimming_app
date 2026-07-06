@@ -58,7 +58,7 @@ export default function SessionFeedback({
             sex={mascotSex}
             level={mascotLevel}
             equipped={profile?.mascotEquipped || []}
-            size={130}
+            size={200}
             animated
           />
         </div>
