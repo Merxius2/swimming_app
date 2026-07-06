@@ -27,10 +27,9 @@ function getUnlockHint(mascotId, unlockStatus, t) {
   if (unlockStatus.unlocked) return null;
 
   const paceLabel = t(`benchmark.levels.${requirements.minPaceLevel}`);
-  return t('settings.mascotUnlockHint', {
-    pace: paceLabel,
-    medals: requirements.minMonthlyMedals,
-  });
+  return t('settings.mascotUnlockHint')
+    .replace('{pace}', paceLabel)
+    .replace('{medals}', String(requirements.minMonthlyMedals));
 }
 
 function MascotChoiceCard({
