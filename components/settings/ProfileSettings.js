@@ -4,11 +4,23 @@ import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import ThemedIcon from '../ThemedIcon';
 import StoreCosmeticsPanel from './StoreCosmeticsPanel';
+import MascotCoach from '../mascot/MascotCoach';
+import { resolveMascotLevel } from '../../lib/mascotConstants';
+import { getSwimLevel, getBenchmarkForProfile } from '../../lib/swimBenchmarks';
+import { getStatsSessions } from '../../lib/swimAnalysis';
 
 export default function ProfileSettings() {
   const { t } = useLanguage();
-  const { profile, updateProfile } = useSwim();
+  const { profile, updateProfile, sessions } = useSwim();
   const [age, setAge] = useState(String(profile.age ?? 30));
+
+  const statsSessions = getStatsSessions(sessions);
+  const latestPace = statsSessions.length
+    ? statsSessions[statsSessions.length - 1]?.metrics?.paceSecPer100m
+    : null;
+  const benchmark = getBenchmarkForProfile(profile.sex, profile.age);
+  const swimLevel = getSwimLevel(latestPace, benchmark);
+  const mascotLevel = resolveMascotLevel(swimLevel);
 
   const handleAgeBlur = () => {
     const parsed = parseInt(age, 10);
@@ -26,6 +38,7 @@ export default function ProfileSettings() {
         <div>
           <h2 className="text-xl font-bold text-ink dark:text-gray-100">{t('settings.profileTitle')}</h2>
           <p className="text-sm text-ink-soft">{t('settings.profileDesc')}</p>
+          <p className="text-xs text-ink-faint mt-1">{t('settings.mascotSexHint')}</p>
         </div>
       </div>
 
@@ -75,6 +88,21 @@ export default function ProfileSettings() {
           />
         </div>
       </div>
+
+      <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
+        <p className="text-sm font-medium text-ink-soft mb-3">{t('settings.mascotPreview')}</p>
+        <div className="flex justify-center py-2 rounded-xl bg-gradient-to-br from-tint/5 to-brand-accent/5">
+          <MascotCoach
+            message={t('settings.mascotPreviewMessage')}
+            sex={profile.sex || 'male'}
+            level={mascotLevel}
+            equipped={profile.mascotEquipped || []}
+            size={120}
+            animated
+          />
+        </div>
+      </div>
+
       <StoreCosmeticsPanel />
     </div>
   );

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import {
-  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper, AppWindow, Shuffle,
+  ShoppingBag, Sparkles, Palette, Zap, Award, Coins, PartyPopper, AppWindow, Shuffle, Smile,
 } from 'lucide-react';
 import { useLanguage, useTheme } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
@@ -17,6 +17,8 @@ import {
   CHALLENGE_REROLL_STORE_ITEM_ID,
   BONUS_WHEEL_SPIN_STORE_ITEM_ID,
 } from '../../lib/swimCoinStore';
+import { equipMascotItem } from '../../lib/mascotConstants';
+import MascotSvg from '../mascot/MascotSvg';
 
 const CATEGORY_META = {
   themes: { icon: Palette, labelKey: 'coins.store.categories.themes' },
@@ -25,6 +27,7 @@ const CATEGORY_META = {
   flair: { icon: PartyPopper, labelKey: 'coins.store.categories.flair' },
   boosts: { icon: Zap, labelKey: 'coins.store.categories.boosts' },
   titles: { icon: Award, labelKey: 'coins.store.categories.titles' },
+  mascot: { icon: Smile, labelKey: 'coins.store.categories.mascot' },
 };
 
 function tf(t, key, params = {}) {
@@ -174,6 +177,17 @@ function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits }) {
         </div>
       );
     }
+    case 'mascot-neon-cap':
+    case 'mascot-gold-goggles':
+    case 'mascot-medal-chain':
+    case 'mascot-party-hat':
+    case 'mascot-snorkel':
+    case 'mascot-champion-cape':
+      return (
+        <div className="h-20 rounded-lg flex items-center justify-center bg-gradient-to-br from-tint/10 to-brand-accent/10 border border-brand-primary/15">
+          <MascotSvg sex="male" level="intermediate" equipped={[item.id]} size={72} />
+        </div>
+      );
     default:
       return (
         <div className="h-20 rounded-lg flex items-center justify-center bg-gray-100 dark:bg-gray-800">
@@ -186,7 +200,7 @@ function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits }) {
 export default function SwimCoinStore() {
   const { t } = useLanguage();
   const { changeTheme, THEMES } = useTheme();
-  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats, challengeRerollCredits, bonusWheelSpinCredits } = useSwim();
+  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, profile, isLoading, cheats, challengeRerollCredits, bonusWheelSpinCredits } = useSwim();
   const allThemesUnlocked = Boolean(cheats?.allThemesUnlocked);
 
   useEffect(() => {
@@ -206,6 +220,14 @@ export default function SwimCoinStore() {
     if (item.id.startsWith('ambient:')) updateProfile({ activeAmbient: item.id });
     if (item.id.startsWith('title:')) updateProfile({ swimmerTitle: item.id });
     if (item.id.startsWith('icon:')) updateProfile({ activeAppIcon: item.id });
+    if (item.id.startsWith('mascot:')) {
+      updateProfile({
+        mascotEquipped: equipMascotItem(profile.mascotEquipped || [], item.id, [
+          ...storeUnlocks,
+          item.id,
+        ]),
+      });
+    }
   };
 
   return (

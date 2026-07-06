@@ -3,6 +3,8 @@ import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import { getStoreItem } from '../../lib/swimCoinStore';
 import { getAppIconPreset, DEFAULT_APP_ICON_PATH } from '../../lib/storeAppIcons';
+import { equipMascotItem, unequipMascotItem } from '../../lib/mascotConstants';
+import MascotSvg from '../mascot/MascotSvg';
 
 function IconChoiceButton({ active, onClick, src, label }) {
   return (
@@ -29,8 +31,24 @@ export default function StoreCosmeticsPanel() {
   const ownedAmbients = storeUnlocks.filter((id) => id.startsWith('ambient:'));
   const ownedTitles = storeUnlocks.filter((id) => id.startsWith('title:'));
   const ownedIcons = storeUnlocks.filter((id) => id.startsWith('icon:'));
+  const ownedMascot = storeUnlocks.filter((id) => id.startsWith('mascot:'));
 
-  if (ownedAmbients.length === 0 && ownedTitles.length === 0 && ownedIcons.length === 0) return null;
+  const equippedMascot = profile.mascotEquipped || [];
+
+  const toggleMascotItem = (id) => {
+    const isEquipped = equippedMascot.includes(id);
+    const next = isEquipped
+      ? unequipMascotItem(equippedMascot, id, storeUnlocks)
+      : equipMascotItem(equippedMascot, id, storeUnlocks);
+    updateProfile({ mascotEquipped: next });
+  };
+
+  if (
+    ownedAmbients.length === 0
+    && ownedTitles.length === 0
+    && ownedIcons.length === 0
+    && ownedMascot.length === 0
+  ) return null;
 
   return (
     <div className="card p-6 mt-4 border border-brand-primary/15 bg-gradient-to-br from-brand-primary/[0.04] to-transparent">
@@ -41,6 +59,42 @@ export default function StoreCosmeticsPanel() {
         </h3>
       </div>
       <p className="text-sm text-ink-soft mb-5">{t('settings.storeCosmeticsDesc')}</p>
+
+      {ownedMascot.length > 0 && (
+        <div className="mb-5">
+          <label className="block text-sm font-medium text-ink-soft mb-2">
+            {t('settings.mascotItems')}
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {ownedMascot.map((id) => {
+              const item = getStoreItem(id);
+              const active = equippedMascot.includes(id);
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => toggleMascotItem(id)}
+                  className={`inline-flex flex-col items-center gap-1.5 px-3 py-2 rounded-lg border transition min-w-[5rem] ${
+                    active
+                      ? 'border-brand bg-tint-soft text-[#2A45CC] dark:bg-tint/15'
+                      : 'border-gray-200 dark:border-gray-700 hover:bg-black/5'
+                  }`}
+                >
+                  <MascotSvg
+                    sex={profile.sex || 'male'}
+                    level="intermediate"
+                    equipped={active ? [id] : []}
+                    size={40}
+                  />
+                  <span className="text-[11px] font-medium leading-tight text-center">
+                    {item ? t(item.nameKey) : id}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {ownedIcons.length > 0 && (
         <div className="mb-5">

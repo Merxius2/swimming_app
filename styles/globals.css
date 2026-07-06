@@ -1679,3 +1679,29 @@ html.ambient-active.theme-gold-luxe .min-h-screen.bg-white,
 html.ambient-active.theme-platinum-elite .min-h-screen.bg-white {
   background-color: transparent !important;
 }
+
+/* Mascot coach animations */
+@keyframes mascot-idle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes mascot-speech-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mascot-idle-bounce {
+  animation: mascot-idle-bounce 2.8s ease-in-out infinite;
+}
+
+.mascot-speech-enter {
+  animation: mascot-speech-enter 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot-idle-bounce,
+  .mascot-speech-enter {
+    animation: none;
+  }
+}
