@@ -4,7 +4,7 @@ import { useSwim } from '../../context/SwimContext';
 import { getStoreItem } from '../../lib/swimCoinStore';
 import { getAppIconPreset, DEFAULT_APP_ICON_PATH } from '../../lib/storeAppIcons';
 import { equipMascotItem, unequipMascotItem, resolveMascotSex, isMascotItemForSex } from '../../lib/mascotConstants';
-import MascotSvg from '../mascot/MascotSvg';
+import MascotCharacter from '../mascot/MascotCharacter';
 
 function IconChoiceButton({ active, onClick, src, label }) {
   return (
@@ -83,11 +83,11 @@ export default function StoreCosmeticsPanel() {
                       : 'border-gray-200 dark:border-gray-700 hover:bg-black/5'
                   }`}
                 >
-                  <MascotSvg
+                  <MascotCharacter
                     sex={mascotSex}
                     level="intermediate"
                     equipped={active ? [id] : []}
-                    size={40}
+                    size={48}
                   />
                   <span className="text-[11px] font-medium leading-tight text-center">
                     {item ? t(item.nameKey) : id}

@@ -2,7 +2,7 @@ import { Sparkles } from 'lucide-react';
 import { useLanguage } from '../../context/UserPreferencesContext';
 import { useSwim } from '../../context/SwimContext';
 import MascotCoach from '../mascot/MascotCoach';
-import MascotSvg from '../mascot/MascotSvg';
+import MascotCharacter from '../mascot/MascotCharacter';
 import { getMascotName, resolveMascotLevel, resolveMascotSex } from '../../lib/mascotConstants';
 import { getSwimLevel, getBenchmarkForProfile } from '../../lib/swimBenchmarks';
 import { getStatsSessions } from '../../lib/swimAnalysis';
@@ -18,7 +18,7 @@ function MascotChoiceCard({ sex, active, name, description, onSelect }) {
           : 'border-gray-200 dark:border-gray-700 hover:bg-black/5'
       }`}
     >
-      <MascotSvg sex={sex} level="intermediate" size={72} className="mb-3" />
+      <MascotCharacter sex={sex} level="intermediate" size={72} className="mb-3" />
       <span className="text-lg font-bold text-ink dark:text-gray-100">{name}</span>
       <span className="text-xs text-ink-soft mt-1 leading-relaxed text-center">{description}</span>
     </button>

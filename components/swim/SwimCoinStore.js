@@ -18,7 +18,7 @@ import {
   BONUS_WHEEL_SPIN_STORE_ITEM_ID,
 } from '../../lib/swimCoinStore';
 import { equipMascotItem, getMascotPreviewSex, resolveMascotSex } from '../../lib/mascotConstants';
-import MascotSvg from '../mascot/MascotSvg';
+import MascotCharacter from '../mascot/MascotCharacter';
 
 const CATEGORY_META = {
   themes: { icon: Palette, labelKey: 'coins.store.categories.themes' },
@@ -192,7 +192,7 @@ function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits, mascotSex })
       const previewSex = getMascotPreviewSex(item.id, mascotSex);
       return (
         <div className="h-20 rounded-lg flex items-center justify-center bg-gradient-to-br from-tint/10 to-brand-accent/10 border border-brand-primary/15">
-          <MascotSvg sex={previewSex} level="intermediate" equipped={[item.id]} size={72} />
+          <MascotCharacter sex={previewSex} level="intermediate" equipped={[item.id]} size={72} />
         </div>
       );
     }

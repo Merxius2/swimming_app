@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import MascotSvg from './MascotSvg';
+import MascotCharacter from './MascotCharacter';
 
 /**
  * Animated swim-coach mascot with speech bubble.
@@ -50,11 +50,8 @@ export default function MascotCoach({
         </div>
       )}
 
-      <div
-        className={animated ? 'mascot-idle-bounce' : ''}
-        style={{ width: size, height: size }}
-      >
-        <MascotSvg
+      <div className={animated ? 'mascot-idle-bounce' : ''}>
+        <MascotCharacter
           sex={sex}
           level={level}
           blink={blink}
