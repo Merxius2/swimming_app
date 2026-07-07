@@ -3,7 +3,6 @@ import SwiftUI
 struct MascotCoachView: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     let mascotId: String
     let message: String
@@ -24,55 +23,62 @@ struct MascotCoachView: View {
         coachName ?? MascotConstants.displayName(mascotId, t: preferences.translations)
     }
 
-    private var stackedLayout: Bool {
-        horizontalSizeClass == .compact
-    }
-
     var body: some View {
-        let content = coachContent
-
-        if showStage {
-            MascotStageView(mascotId: mascotId) {
-                content
+        Group {
+            if showStage {
+                MascotStageView(mascotId: mascotId) {
+                    coachContent
+                }
+            } else {
+                coachContent
             }
-        } else {
-            content
         }
+        .frame(maxWidth: .infinity)
     }
 
     private var coachContent: some View {
-        Group {
-            if stackedLayout {
-                VStack(spacing: 16) {
-                    headerRow
-                    MascotSpeechBubbleView(
-                        message: message,
-                        tone: bubbleTone,
-                        mascotId: mascotId,
-                        tail: .bottom
-                    )
-                    mascotColumn
-                }
-            } else {
-                HStack(alignment: .bottom, spacing: 20) {
-                    mascotColumn
-                    VStack(alignment: .leading, spacing: 10) {
-                        headerRow
-                        MascotSpeechBubbleView(
-                            message: message,
-                            tone: bubbleTone,
-                            mascotId: mascotId,
-                            tail: .left
-                        )
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 24)
-                }
-            }
+        ViewThatFits(in: .horizontal) {
+            sideBySideLayout
+            stackedLayout
         }
+        .frame(maxWidth: .infinity)
     }
 
-    private var headerRow: some View {
+    private var stackedLayout: some View {
+        VStack(spacing: 16) {
+            headerRow(alignCenter: true)
+            MascotSpeechBubbleView(
+                message: message,
+                tone: bubbleTone,
+                mascotId: mascotId,
+                tail: .bottom
+            )
+            .frame(maxWidth: .infinity)
+            mascotColumn
+                .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private var sideBySideLayout: some View {
+        HStack(alignment: .bottom, spacing: 20) {
+            mascotColumn
+            VStack(alignment: .leading, spacing: 10) {
+                headerRow(alignCenter: false)
+                MascotSpeechBubbleView(
+                    message: message,
+                    tone: bubbleTone,
+                    mascotId: mascotId,
+                    tail: .left
+                )
+            }
+            .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 24)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func headerRow(alignCenter: Bool) -> some View {
         HStack(spacing: 10) {
             Text(resolvedCoachName.uppercased())
                 .font(.caption.weight(.bold))
@@ -83,7 +89,7 @@ struct MascotCoachView: View {
                 MascotLevelBadgeView(level: resolvedLevel)
             }
         }
-        .frame(maxWidth: .infinity, alignment: stackedLayout ? .center : .leading)
+        .frame(maxWidth: .infinity, alignment: alignCenter ? .center : .leading)
     }
 
     private var mascotColumn: some View {

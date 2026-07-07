@@ -39,10 +39,12 @@ struct MascotSpeechBubbleView: View {
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.primary)
                         .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 2)
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(style.fill)
@@ -55,6 +57,7 @@ struct MascotSpeechBubbleView: View {
 
                 SpeechBubbleTail(style: style, direction: tail)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

@@ -14,6 +14,7 @@ struct MascotStageView<Content: View>: View {
             stagePhoto
             stageOverlay
             content()
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(compact ? 12 : 16)
         }
         .clipShape(RoundedRectangle(cornerRadius: compact ? 14 : 18, style: .continuous))
