@@ -8,25 +8,148 @@ struct AppThemeDefinition: Identifiable, Equatable {
     let primary: Color
     let secondary: Color
     let accent: Color
+    let previewStyle: String
+    let previewFrom: Color
+    let previewVia: Color
+    let previewTo: Color
+    let previewQuaternary: Color?
 }
 
 enum AppThemes {
     static let defaultCode = "liquid-os"
 
     static let all: [AppThemeDefinition] = [
-        AppThemeDefinition(code: "liquid-os", nameKey: "settings.themes.liquidOs.name", primary: Color(red: 0.231, green: 0.357, blue: 1.0), secondary: Color(red: 0.482, green: 0.357, blue: 1.0), accent: Color(red: 0.910, green: 0.353, blue: 0.549)),
-        AppThemeDefinition(code: "gen-z", nameKey: "settings.themes.genZ.name", primary: Color(red: 0.384, green: 0.0, blue: 0.933), secondary: Color(red: 0.831, green: 1.0, blue: 0.0), accent: Color(red: 1.0, green: 0.412, blue: 0.706)),
-        AppThemeDefinition(code: "classic", nameKey: "settings.themes.classic.name", primary: Color(red: 0.875, green: 0.0, blue: 0.141), secondary: Color(red: 0.953, green: 0.686, blue: 0.0), accent: Color(red: 0.0, green: 0.561, blue: 0.839)),
-        AppThemeDefinition(code: "olympic-pool", nameKey: "settings.themes.olympicPool.name", primary: Color(red: 0.973, green: 0.980, blue: 0.988), secondary: Color(red: 0.0, green: 0.4, blue: 0.8), accent: Color(red: 0.961, green: 0.773, blue: 0.094)),
-        AppThemeDefinition(code: "midnight-lane", nameKey: "settings.themes.midnightLane.name", primary: Color(red: 0.027, green: 0.043, blue: 0.078), secondary: Color(red: 0.133, green: 0.827, blue: 0.933), accent: Color(red: 0.031, green: 0.569, blue: 0.698)),
-        AppThemeDefinition(code: "retro-wave", nameKey: "settings.themes.retroWave.name", primary: Color(red: 1.0, green: 0.431, blue: 0.780), secondary: Color(red: 0.616, green: 0.306, blue: 0.867), accent: Color(red: 0.361, green: 0.882, blue: 0.902)),
-        AppThemeDefinition(code: "tropical-open", nameKey: "settings.themes.tropicalOpen.name", primary: Color(red: 0.220, green: 0.741, blue: 0.973), secondary: Color(red: 0.051, green: 0.580, blue: 0.533), accent: Color(red: 0.984, green: 0.443, blue: 0.522)),
-        AppThemeDefinition(code: "gold-luxe", nameKey: "settings.themes.goldLuxe.name", primary: Color(red: 1.0, green: 0.973, blue: 0.906), secondary: Color(red: 0.961, green: 0.835, blue: 0.396), accent: Color(red: 0.706, green: 0.325, blue: 0.035)),
-        AppThemeDefinition(code: "platinum-elite", nameKey: "settings.themes.platinumElite.name", primary: Color(red: 0.973, green: 0.980, blue: 0.988), secondary: Color(red: 0.796, green: 0.835, blue: 0.882), accent: Color(red: 0.392, green: 0.455, blue: 0.545)),
+        theme(
+            code: "liquid-os",
+            nameKey: "settings.themes.liquidOs.name",
+            primary: "#3B5BFF",
+            secondary: "#7B5BFF",
+            accent: "#E85A8C",
+            previewStyle: "gradient",
+            previewFrom: "#3B5BFF",
+            previewVia: "#7B5BFF",
+            previewTo: "#E85A8C"
+        ),
+        theme(
+            code: "gen-z",
+            nameKey: "settings.themes.genZ.name",
+            primary: "#6200EE",
+            secondary: "#D4FF00",
+            accent: "#FF69B4",
+            previewStyle: "flat",
+            previewFrom: "#6200EE",
+            previewVia: "#D4FF00",
+            previewTo: "#FF69B4"
+        ),
+        theme(
+            code: "classic",
+            nameKey: "settings.themes.classic.name",
+            primary: "#DF0024",
+            secondary: "#F3AF00",
+            accent: "#008FD6",
+            previewStyle: "flat",
+            previewFrom: "#DF0024",
+            previewVia: "#F3AF00",
+            previewTo: "#008FD6",
+            previewQuaternary: "#00AB9F"
+        ),
+        theme(
+            code: "olympic-pool",
+            nameKey: "settings.themes.olympicPool.name",
+            primary: "#F8FAFC",
+            secondary: "#0066CC",
+            accent: "#F5C518",
+            previewStyle: "flat",
+            previewFrom: "#F8FAFC",
+            previewVia: "#0066CC",
+            previewTo: "#F5C518"
+        ),
+        theme(
+            code: "midnight-lane",
+            nameKey: "settings.themes.midnightLane.name",
+            primary: "#070B14",
+            secondary: "#22D3EE",
+            accent: "#0891B2",
+            previewStyle: "flat",
+            previewFrom: "#070B14",
+            previewVia: "#22D3EE",
+            previewTo: "#0891B2"
+        ),
+        theme(
+            code: "retro-wave",
+            nameKey: "settings.themes.retroWave.name",
+            primary: "#FF6EC7",
+            secondary: "#9D4EDD",
+            accent: "#5CE1E6",
+            previewStyle: "flat",
+            previewFrom: "#FF6EC7",
+            previewVia: "#9D4EDD",
+            previewTo: "#5CE1E6"
+        ),
+        theme(
+            code: "tropical-open",
+            nameKey: "settings.themes.tropicalOpen.name",
+            primary: "#38BDF8",
+            secondary: "#0D9488",
+            accent: "#FB7185",
+            previewStyle: "gradient",
+            previewFrom: "#38BDF8",
+            previewVia: "#0D9488",
+            previewTo: "#FB7185"
+        ),
+        theme(
+            code: "gold-luxe",
+            nameKey: "settings.themes.goldLuxe.name",
+            primary: "#FFF8E7",
+            secondary: "#F5D565",
+            accent: "#B45309",
+            previewStyle: "flat",
+            previewFrom: "#FFF8E7",
+            previewVia: "#F5D565",
+            previewTo: "#B45309"
+        ),
+        theme(
+            code: "platinum-elite",
+            nameKey: "settings.themes.platinumElite.name",
+            primary: "#F8FAFC",
+            secondary: "#CBD5E1",
+            accent: "#64748B",
+            previewStyle: "flat",
+            previewFrom: "#F8FAFC",
+            previewVia: "#CBD5E1",
+            previewTo: "#64748B",
+            previewQuaternary: "#A5B4FC"
+        ),
     ]
 
     static func theme(for code: String) -> AppThemeDefinition {
         all.first { $0.code == code } ?? all[0]
+    }
+
+    private static func theme(
+        code: String,
+        nameKey: String,
+        primary: String,
+        secondary: String,
+        accent: String,
+        previewStyle: String,
+        previewFrom: String,
+        previewVia: String,
+        previewTo: String,
+        previewQuaternary: String? = nil
+    ) -> AppThemeDefinition {
+        AppThemeDefinition(
+            code: code,
+            nameKey: nameKey,
+            primary: Color(hex: primary),
+            secondary: Color(hex: secondary),
+            accent: Color(hex: accent),
+            previewStyle: previewStyle,
+            previewFrom: Color(hex: previewFrom),
+            previewVia: Color(hex: previewVia),
+            previewTo: Color(hex: previewTo),
+            previewQuaternary: previewQuaternary.map(Color.init(hex:))
+        )
     }
 }
 
@@ -38,5 +161,25 @@ extension EnvironmentValues {
     var themeColors: AppThemeDefinition {
         get { self[ThemeColorsKey.self] }
         set { self[ThemeColorsKey.self] = newValue }
+    }
+}
+
+private extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r, g, b: Double
+        switch hex.count {
+        case 6:
+            r = Double((int >> 16) & 0xFF) / 255
+            g = Double((int >> 8) & 0xFF) / 255
+            b = Double(int & 0xFF) / 255
+        default:
+            r = 0
+            g = 0
+            b = 0
+        }
+        self.init(red: r, green: g, blue: b)
     }
 }

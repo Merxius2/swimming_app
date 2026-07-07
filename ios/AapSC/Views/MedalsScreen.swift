@@ -3,7 +3,6 @@ import SwiftUI
 struct MedalsScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.openCoins) private var openCoins
 
     private var shimmerPlus: Bool {
         SwimCoinStore.hasMedalShimmerPlus(viewModel.storeUnlocks)
@@ -36,17 +35,8 @@ struct MedalsScreen: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle(preferences.t("medals.title"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: openCoins) {
-                        CoinBadge(
-                            count: viewModel.totalCoins,
-                            golden: SwimCoinStore.hasGoldenCoinBadge(viewModel.storeUnlocks)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
+            .swimTopBarActions()
+            .themedNavigationBar()
         }
     }
 

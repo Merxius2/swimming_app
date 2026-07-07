@@ -4,8 +4,7 @@ import Charts
 struct ProgressScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.openSettings) private var openSettings
-    @Environment(\.openCoins) private var openCoins
+    @Environment(\.themeColors) private var themeColors
 
     var body: some View {
         NavigationStack {
@@ -50,22 +49,8 @@ struct ProgressScreen: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle(preferences.t("progress.title"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 12) {
-                        Button(action: openCoins) {
-                            CoinBadge(
-                                count: viewModel.totalCoins,
-                                golden: SwimCoinStore.hasGoldenCoinBadge(viewModel.storeUnlocks)
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        Button(action: openSettings) {
-                            Image(systemName: "gearshape")
-                        }
-                    }
-                }
-            }
+            .swimTopBarActions()
+            .themedNavigationBar()
         }
     }
 
@@ -74,7 +59,7 @@ struct ProgressScreen: View {
             VStack(spacing: 12) {
                 Image(systemName: "figure.pool.swim")
                     .font(.system(size: 44))
-                    .foregroundStyle(Color("BrandBlue"))
+                    .foregroundStyle(themeColors.primary)
                 Text(preferences.t("progress.emptyTitle"))
                     .font(.title3.bold())
                 Text(SwimAnalysis.buildProgressOverviewMessage(
@@ -299,28 +284,5 @@ struct ProgressScreen: View {
                 .font(.subheadline.bold())
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-struct CoinBadge: View {
-    let count: Int
-    var golden: Bool = false
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "bitcoinsign.circle.fill")
-            Text("\(count)")
-                .fontWeight(.semibold)
-        }
-        .font(.caption)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 6)
-        .background(
-            golden
-                ? AnyShapeStyle(LinearGradient(colors: [.yellow, .orange], startPoint: .topLeading, endPoint: .bottomTrailing))
-                : AnyShapeStyle(Color("BrandBlue").opacity(0.12)),
-            in: Capsule()
-        )
-        .foregroundStyle(golden ? Color(red: 0.45, green: 0.25, blue: 0.0) : Color("BrandBlue"))
     }
 }

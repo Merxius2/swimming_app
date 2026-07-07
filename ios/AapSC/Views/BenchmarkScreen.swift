@@ -68,6 +68,8 @@ struct BenchmarkScreen: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle(preferences.t("benchmark.title"))
             .navigationBarTitleDisplayMode(.inline)
+            .swimTopBarActions()
+            .themedNavigationBar()
         }
     }
 

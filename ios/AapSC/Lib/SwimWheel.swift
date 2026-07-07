@@ -206,6 +206,38 @@ enum SwimWheel {
         return segment.sweepDeg >= 10
     }
 
+    static func segmentDisplayLabel(_ segment: LayoutSegment, bet: Int, t: TranslationService) -> String {
+        switch segment.type {
+        case "coins":
+            return t.t("coins.wheel.segmentCoinMult", params: [
+                "mult": String(segment.multiplier ?? 1)
+            ])
+        case "free_spin":
+            if (segment.multiplier ?? 1) > 1 {
+                return t.t("coins.wheel.segmentFreeSpinMulti", params: [
+                    "count": String(segment.multiplier ?? 1)
+                ])
+            }
+            return t.t("coins.wheel.segmentFreeSpin")
+        default:
+            return ""
+        }
+    }
+
+    static func segmentTextPosition(diameter: CGFloat, segment: LayoutSegment) -> (x: CGFloat, y: CGFloat, rotate: Double, fontSize: CGFloat) {
+        let cx = diameter / 2
+        let cy = diameter / 2
+        let radius = diameter * 0.395
+        let centerDeg = segment.startDeg + segment.sweepDeg / 2
+        let mid = (centerDeg - 90) * .pi / 180
+        return (
+            x: cx + radius * cos(mid),
+            y: cy + radius * sin(mid),
+            rotate: centerDeg,
+            fontSize: segmentFontSize(segment)
+        )
+    }
+
     static func segmentLabel(_ segment: LayoutSegment) -> String {
         switch segment.type {
         case "coins":

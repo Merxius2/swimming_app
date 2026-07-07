@@ -137,6 +137,14 @@ enum MascotConstants {
         }
     }
 
+    static func previewKey(_ id: String?) -> String {
+        switch id {
+        case "flo": return "settings.mascotPreviewFlo"
+        case "fins": return "settings.mascotPreviewFins"
+        default: return "settings.mascotPreviewFlip"
+        }
+    }
+
     static func gameplay(_ id: String?) -> MascotGameplay {
         mascot(id).gameplay
     }

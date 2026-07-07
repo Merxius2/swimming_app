@@ -3,6 +3,7 @@ import SwiftUI
 struct CoinsScreen: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.themeColors) private var themeColors
 
     var body: some View {
         NavigationStack {
@@ -22,6 +23,7 @@ struct CoinsScreen: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle(preferences.t("coins.label"))
             .navigationBarTitleDisplayMode(.inline)
+            .themedNavigationBar()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(preferences.t("coins.close")) { dismiss() }
@@ -34,6 +36,7 @@ struct CoinsScreen: View {
 struct WheelOfFortuneView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.themeColors) private var themeColors
 
     @State private var bet = 1
     @State private var rotation: Double = 0
@@ -114,12 +117,12 @@ struct WheelOfFortuneView: View {
                     .frame(width: 280, height: 280)
                     .shadow(color: .black.opacity(0.15), radius: 12, y: 6)
 
-                WheelDiscView(layout: displayLayout, rotation: rotation)
+                WheelDiscView(layout: displayLayout, rotation: rotation, bet: bet)
                     .frame(width: 260, height: 260)
 
                 Image(systemName: "arrowtriangle.down.fill")
                     .font(.title3)
-                    .foregroundStyle(Color("BrandBlue"))
+                    .foregroundStyle(themeColors.primary)
                     .offset(y: -150)
             }
             .padding(.vertical, 8)
@@ -140,7 +143,7 @@ struct WheelOfFortuneView: View {
                             .frame(minWidth: 56)
                             .padding(.vertical, 10)
                             .background(
-                                active ? Color("BrandBlue") : Color(.secondarySystemBackground),
+                                active ? themeColors.primary : Color(.secondarySystemBackground),
                                 in: RoundedRectangle(cornerRadius: 10)
                             )
                             .foregroundStyle(active ? .white : .primary)
@@ -155,7 +158,7 @@ struct WheelOfFortuneView: View {
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
-                    .background(Color("BrandBlue"), in: RoundedRectangle(cornerRadius: 14))
+                    .background(themeColors.primary, in: RoundedRectangle(cornerRadius: 14))
                     .foregroundStyle(.white)
             }
             .disabled(spinning || !canSpin)
@@ -288,6 +291,9 @@ struct WheelOfFortuneView: View {
 private struct WheelDiscView: View {
     let layout: SwimWheel.WheelLayout
     let rotation: Double
+    let bet: Int
+
+    private let diameter: CGFloat = 260
 
     var body: some View {
         ZStack {
@@ -299,7 +305,7 @@ private struct WheelDiscView: View {
             }
 
             ForEach(layout.segments.filter(SwimWheel.segmentShouldShowLabel)) { segment in
-                WheelSegmentLabel(segment: segment)
+                WheelSegmentLabel(segment: segment, bet: bet, diameter: diameter)
             }
 
             Circle()
@@ -369,20 +375,24 @@ private struct WheelSegmentWedgeShape: Shape {
 }
 
 private struct WheelSegmentLabel: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let segment: SwimWheel.LayoutSegment
+    let bet: Int
+    let diameter: CGFloat
 
     var body: some View {
-        let centerDeg = segment.startDeg + segment.sweepDeg / 2
-        let radians = (centerDeg - 90) * .pi / 180
-        let radius = 95.0
-        let x = 130 + radius * cos(radians)
-        let y = 130 + radius * sin(radians)
+        let position = SwimWheel.segmentTextPosition(diameter: diameter, segment: segment)
+        let useRadial = SwimWheel.segmentUsesRadialLabel(segment)
+        let rotation = useRadial ? position.rotate : position.rotate + 90
 
-        Text(SwimWheel.segmentLabel(segment))
-            .font(.system(size: SwimWheel.segmentFontSize(segment), weight: .bold))
+        Text(SwimWheel.segmentDisplayLabel(segment, bet: bet, t: preferences.translations))
+            .font(.system(size: position.fontSize, weight: .bold))
             .foregroundStyle(segment.shiny ? Color(red: 0.471, green: 0.208, blue: 0.059) : .white)
-            .position(x: x, y: y)
-            .rotationEffect(.degrees(centerDeg))
+            .shadow(color: segment.shiny ? .white.opacity(0.8) : .black.opacity(0.45), radius: segment.shiny ? 3 : 1, y: 1)
+            .multilineTextAlignment(.center)
+            .frame(width: 44)
+            .position(x: position.x, y: position.y)
+            .rotationEffect(.degrees(rotation))
     }
 }
 
@@ -540,11 +550,10 @@ private struct StoreItemPreviewView: View {
     private var previewContent: some View {
         switch item.preview {
         case "theme":
-            HStack(spacing: 0) {
-                themeSwatch(Color(red: 0.2, green: 0.6, blue: 0.95))
-                themeSwatch(Color(red: 0.95, green: 0.4, blue: 0.5))
-                themeSwatch(Color(red: 0.3, green: 0.85, blue: 0.7))
-                themeSwatch(Color(red: 0.95, green: 0.75, blue: 0.2))
+            if let themeCode = item.themeCode {
+                ThemePreviewBar(theme: AppThemes.theme(for: themeCode), height: 80)
+            } else {
+                ThemePreviewBar(theme: AppThemes.theme(for: AppThemes.defaultCode), height: 80)
             }
         case "ambient-neon":
             LinearGradient(
@@ -622,13 +631,11 @@ private struct StoreItemPreviewView: View {
             return AnyShapeStyle(LinearGradient(colors: [.orange.opacity(0.2), .yellow.opacity(0.15)], startPoint: .topLeading, endPoint: .bottomTrailing))
         case "bonus-spin", "challenge-reroll":
             return AnyShapeStyle(Color("BrandBlue").opacity(0.1))
+        case "theme":
+            return AnyShapeStyle(Color.clear)
         default:
             return AnyShapeStyle(Color(.secondarySystemBackground))
         }
-    }
-
-    private func themeSwatch(_ color: Color) -> some View {
-        Rectangle().fill(color)
     }
 
     private func iconPreview(colors: [Color]) -> some View {
