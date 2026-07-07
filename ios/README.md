@@ -126,8 +126,10 @@ Ensure deployment target is iOS 17+ (Swift Charts requirement).
 **Import fails**  
 Paste the full export string including the `:checksum` suffix. Web exports may be gzip-compressed; the iOS importer decodes both plain and compressed payloads.
 
-## Optional follow-ups
+## Regenerating translations
 
-1. Add mascot PNG assets from `public/mascot/` to `Assets.xcassets`
-2. Localize remaining hardcoded English strings on Progress/History/Benchmark screens
-3. Wire medal copy to `medals.items.*` translation keys instead of `SwimMedalCopy.swift`
+After editing `lib/i18n/*.js`, regenerate the iOS JSON bundles:
+
+```bash
+node scripts/export-ios-i18n.mjs
+```
