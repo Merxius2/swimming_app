@@ -103,11 +103,10 @@ struct MedalsScreen: View {
     @ViewBuilder
     private func categorySection(_ category: String) -> some View {
         let categoryMedals = viewModel.evaluatedMedals.filter { $0.category == category }
-        guard !categoryMedals.isEmpty else { return }
+        if !categoryMedals.isEmpty {
+            let earnedInCategory = categoryMedals.filter(\.earned).count
 
-        let earnedInCategory = categoryMedals.filter(\.earned).count
-
-        VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(SwimMedalCopy.categoryLabel(category, t: preferences.translations))
                     .font(.caption.bold())
@@ -124,6 +123,7 @@ struct MedalsScreen: View {
                     MedalCardView(medal: medal, shimmerPlus: shimmerPlus)
                 }
             }
+        }
         }
     }
 }

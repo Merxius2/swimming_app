@@ -188,7 +188,8 @@ struct SettingsScreen: View {
     }
 
     private var importExportSection: some View {
-        Section(preferences.t("settings.exportTitle")) {
+        Group {
+            Section(preferences.t("settings.exportTitle")) {
             Button {
                 Task { await performExport() }
             } label: {
@@ -229,6 +230,7 @@ struct SettingsScreen: View {
                     .font(.caption)
                     .foregroundStyle(.red)
             }
+        }
         }
     }
 
@@ -312,11 +314,13 @@ struct SettingsScreen: View {
     }
 
     private func ambientLabel(_ id: String) -> String {
-        SwimCoinStore.getStoreItem(id)?.name ?? id
+        guard let item = SwimCoinStore.getStoreItem(id) else { return id }
+        return SwimCoinStore.localizedName(item, t: preferences.translations)
     }
 
     private func iconLabel(_ id: String) -> String {
-        SwimCoinStore.getStoreItem(id)?.name ?? id
+        guard let item = SwimCoinStore.getStoreItem(id) else { return id }
+        return SwimCoinStore.localizedName(item, t: preferences.translations)
     }
 
     private func performExport() async {
