@@ -24,6 +24,7 @@
 		B10000000000000000000015 /* SwimAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000015 /* SwimAnalysis.swift */; };
 		B10000000000000000000016 /* SwimCoins.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* SwimCoins.swift */; };
 		B10000000000000000000017 /* ScreenshotParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* ScreenshotParser.swift */; };
+		B10000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Assets.xcassets */; };
 		B10000000000000000000019 /* SwimCoinClaims.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* SwimCoinClaims.swift */; };
 		B10000000000000000000020 /* SwimDuplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000021 /* SwimDuplicates.swift */; };
 		B10000000000000000000021 /* MascotConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000022 /* MascotConstants.swift */; };
@@ -31,9 +32,9 @@
 		B10000000000000000000023 /* SwimRecords.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000024 /* SwimRecords.swift */; };
 		B10000000000000000000024 /* SwimMonthlyChallenges.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000025 /* SwimMonthlyChallenges.swift */; };
 		B10000000000000000000025 /* SwimMedals.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000026 /* SwimMedals.swift */; };
+		B10000000000000000000026 /* SwimCheatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000027 /* SwimCheatsService.swift */; };
 		B10000000000000000000028 /* UploadSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000028 /* UploadSheets.swift */; };
 		B10000000000000000000029 /* SharedSwimViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000029 /* SharedSwimViews.swift */; };
-		B10000000000000000000026 /* SwimCheatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000027 /* SwimCheatsService.swift */; };
 		B10000000000000000000030 /* SwimWheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000030 /* SwimWheel.swift */; };
 		B10000000000000000000031 /* SwimWheelSpins.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000031 /* SwimWheelSpins.swift */; };
 		B10000000000000000000032 /* SwimCoinStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000032 /* SwimCoinStore.swift */; };
@@ -48,12 +49,11 @@
 		B10000000000000000000041 /* AiCoachService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000041 /* AiCoachService.swift */; };
 		B10000000000000000000042 /* AmbientBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000042 /* AmbientBackgroundView.swift */; };
 		B10000000000000000000043 /* SecretSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000043 /* SecretSettingsSheet.swift */; };
-		B10000000000000000000048 /* MascotCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* MascotCharacterView.swift */; };
 		B10000000000000000000044 /* en.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* en.json */; };
 		B10000000000000000000045 /* nl.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* nl.json */; };
 		B10000000000000000000046 /* ru.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ru.json */; };
 		B10000000000000000000047 /* tr.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000047 /* tr.json */; };
-		B10000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Assets.xcassets */; };
+		B10000000000000000000048 /* MascotCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* MascotCharacterView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,8 +69,6 @@
 		F10000000000000000000010 /* BenchmarkScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkScreen.swift; sourceTree = "<group>"; };
 		F10000000000000000000011 /* MedalsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalsScreen.swift; sourceTree = "<group>"; };
 		F10000000000000000000012 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
-		F10000000000000000000028 /* UploadSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadSheets.swift; sourceTree = "<group>"; };
-		F10000000000000000000029 /* SharedSwimViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedSwimViews.swift; sourceTree = "<group>"; };
 		F10000000000000000000013 /* SwimFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimFormatters.swift; sourceTree = "<group>"; };
 		F10000000000000000000014 /* SwimBenchmarks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimBenchmarks.swift; sourceTree = "<group>"; };
 		F10000000000000000000015 /* SwimAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimAnalysis.swift; sourceTree = "<group>"; };
@@ -86,6 +84,8 @@
 		F10000000000000000000025 /* SwimMonthlyChallenges.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimMonthlyChallenges.swift; sourceTree = "<group>"; };
 		F10000000000000000000026 /* SwimMedals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimMedals.swift; sourceTree = "<group>"; };
 		F10000000000000000000027 /* SwimCheatsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimCheatsService.swift; sourceTree = "<group>"; };
+		F10000000000000000000028 /* UploadSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadSheets.swift; sourceTree = "<group>"; };
+		F10000000000000000000029 /* SharedSwimViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedSwimViews.swift; sourceTree = "<group>"; };
 		F10000000000000000000030 /* SwimWheel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheel.swift; sourceTree = "<group>"; };
 		F10000000000000000000031 /* SwimWheelSpins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelSpins.swift; sourceTree = "<group>"; };
 		F10000000000000000000032 /* SwimCoinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimCoinStore.swift; sourceTree = "<group>"; };
@@ -100,11 +100,11 @@
 		F10000000000000000000041 /* AiCoachService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiCoachService.swift; sourceTree = "<group>"; };
 		F10000000000000000000042 /* AmbientBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientBackgroundView.swift; sourceTree = "<group>"; };
 		F10000000000000000000043 /* SecretSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretSettingsSheet.swift; sourceTree = "<group>"; };
-		F10000000000000000000048 /* MascotCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotCharacterView.swift; sourceTree = "<group>"; };
 		F10000000000000000000044 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
 		F10000000000000000000045 /* nl.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nl.json; sourceTree = "<group>"; };
 		F10000000000000000000046 /* ru.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ru.json; sourceTree = "<group>"; };
 		F10000000000000000000047 /* tr.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tr.json; sourceTree = "<group>"; };
+		F10000000000000000000048 /* MascotCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotCharacterView.swift; sourceTree = "<group>"; };
 		P10000000000000000000001 /* AapSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AapSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -422,7 +422,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9K9HVVH7AL;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = AapSC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -449,7 +449,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9K9HVVH7AL;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = AapSC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
