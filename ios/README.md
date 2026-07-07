@@ -33,11 +33,11 @@ open ios/AapSC.xcodeproj
 
 | Phase | Scope | Status |
 |-------|--------|--------|
-| 1 | Data models, storage, ViewModel API | ✅ In progress |
-| 2 | Core lib (coins, medals, challenges, mascot, duplicates, records) | ✅ In progress |
-| 3 | Upload flow (duplicate check, settlement, coin/medal modals) | 🔜 Next |
-| 4 | Progress, History, Benchmark UI parity | 🔜 |
-| 5 | Coins page (wheel + store) | 🔜 |
+| 1 | Data models, storage, ViewModel API | ✅ |
+| 2 | Core lib (coins, medals, challenges, mascot, duplicates, records) | ✅ |
+| 3 | Upload flow (duplicate check, settlement, coin/medal modals) | ✅ |
+| 4 | Progress, History, Benchmark UI parity | ✅ |
+| 5 | Coins page (wheel + store) | 🔜 Next |
 | 6 | Medals page + monthly challenges UI | 🔜 |
 | 7 | i18n, themes, dark mode, import/export, AI coach, polish | 🔜 |
 

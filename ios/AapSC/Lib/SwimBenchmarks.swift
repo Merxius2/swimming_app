@@ -70,13 +70,41 @@ enum SwimBenchmarks {
         }
     }
 
-    static func computePacePercentile(paceSecPer100m: Int?, benchmark: BenchmarkTier) -> Int? {
-        guard let paceSecPer100m else { return nil }
-        let slow = benchmark.beginner + 40
-        let fast = benchmark.advanced
-        if paceSecPer100m >= slow { return 5 }
-        if paceSecPer100m <= fast { return 95 }
-        let ratio = Double(slow - paceSecPer100m) / Double(slow - fast)
-        return max(5, min(95, Int(ratio * 90 + 5)))
+    static func computePacePercentile(paceSecPer100m: Int?, benchmark: BenchmarkTier) -> Int {
+        guard let paceSecPer100m else { return 50 }
+        if paceSecPer100m <= benchmark.advanced {
+            return min(99, 85 + (benchmark.advanced - paceSecPer100m) / 2)
+        }
+        if paceSecPer100m <= benchmark.intermediate {
+            let range = benchmark.intermediate - benchmark.advanced
+            let pos = benchmark.intermediate - paceSecPer100m
+            return 60 + Int((Double(pos) / Double(max(range, 1))) * 25)
+        }
+        if paceSecPer100m <= benchmark.beginner {
+            let range = benchmark.beginner - benchmark.intermediate
+            let pos = benchmark.beginner - paceSecPer100m
+            return 35 + Int((Double(pos) / Double(max(range, 1))) * 25)
+        }
+        let slower = paceSecPer100m - benchmark.beginner
+        return max(5, 35 - slower / 3)
+    }
+
+    static func paceVsMedian(paceSecPer100m: Int?, benchmark: BenchmarkTier) -> String {
+        guard let paceSecPer100m else { return "below" }
+        return paceSecPer100m <= benchmark.median ? "above" : "below"
+    }
+
+    static func benchmarkChartData(paceSecPer100m: Int?, sex: String, age: Int) -> [BenchmarkBarItem] {
+        let benchmark = benchmark(for: sex, age: age)
+        var items = [
+            BenchmarkBarItem(id: "advanced", name: "Advanced", value: benchmark.advanced, colorName: "green"),
+            BenchmarkBarItem(id: "intermediate", name: "Intermediate", value: benchmark.intermediate, colorName: "blue"),
+            BenchmarkBarItem(id: "median", name: "Median", value: benchmark.median, colorName: "purple"),
+            BenchmarkBarItem(id: "beginner", name: "Beginner", value: benchmark.beginner, colorName: "orange")
+        ]
+        if let paceSecPer100m {
+            items.append(BenchmarkBarItem(id: "you", name: "Your pace", value: paceSecPer100m, colorName: "red"))
+        }
+        return items
     }
 }

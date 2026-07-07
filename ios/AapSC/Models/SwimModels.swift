@@ -254,14 +254,44 @@ struct ChartSessionPoint: Identifiable, Equatable {
     var dateLabel: String
     var paceSecPer100m: Int?
     var distanceM: Int?
+    var activeKcal: Int?
+    var totalKcal: Int?
+    var avgHeartRate: Int?
 }
 
 struct CombinedStats: Equatable {
     var sessionCount: Int
     var totalDistanceM: Int
     var totalDurationSec: Int
+    var totalActiveKcal: Int
+    var totalLaps: Int
     var avgPaceSecPer100m: Int?
+    var avgHeartRate: Int?
     var bestPaceSecPer100m: Int?
+    var longestDistanceM: Int?
+    var firstDate: String?
+    var lastDate: String?
+}
+
+struct StrokeChartSlice: Identifiable, Equatable {
+    var id: String
+    var label: String
+    var value: Int
+}
+
+struct SessionFeedbackSummary: Equatable {
+    var insights: [String]
+    var badges: [String]
+    var coachMessage: String
+    var motivation: String
+    var benchmarkLevel: SwimLevel
+}
+
+struct BenchmarkBarItem: Identifiable, Equatable {
+    var id: String
+    var name: String
+    var value: Int
+    var colorName: String
 }
 
 struct BenchmarkTier: Equatable {

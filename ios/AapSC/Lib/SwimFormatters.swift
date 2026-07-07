@@ -96,4 +96,16 @@ enum SwimFormatters {
         formatter.dateStyle = .full
         return formatter.string(from: date)
     }
+
+    static func getPaceChartDomain(_ paceValues: [Int?]) -> ClosedRange<Double>? {
+        let paces = paceValues.compactMap { $0 }.filter { $0 > 0 }.map(Double.init)
+        guard !paces.isEmpty else { return nil }
+        let minPace = paces.min()!
+        let maxPace = paces.max()!
+        let spread = maxPace - minPace
+        let padding = spread == 0 ? 10.0 : max(6.0, ceil(spread * 0.25))
+        let lower = max(30.0, floor(minPace - padding))
+        let upper = ceil(maxPace + padding)
+        return lower...upper
+    }
 }
