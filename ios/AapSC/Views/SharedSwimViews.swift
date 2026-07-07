@@ -55,10 +55,10 @@ struct RecordsSectionView: View {
             entries.append(RecordEntry(title: preferences.t("records.fastestPace"), value: SwimFormatters.formatPace(Int(record.value)), date: record.date, color: .teal))
         }
         if let record = records.mostActiveCalories {
-            entries.append(RecordEntry(title: preferences.t("records.mostCalories"), value: "\(Int(record.value)) \(preferences.t("common.kcal"))", date: record.date, color: .red))
+            entries.append(RecordEntry(title: preferences.t("records.mostCalories"), value: "\(Int(record.value)) " + preferences.t("common.kcal"), date: record.date, color: .red))
         }
         if let record = records.mostTotalCalories {
-            entries.append(RecordEntry(title: preferences.t("records.mostTotalCalories"), value: "\(Int(record.value)) \(preferences.t("common.kcal"))", date: record.date, color: .orange))
+            entries.append(RecordEntry(title: preferences.t("records.mostTotalCalories"), value: "\(Int(record.value)) " + preferences.t("common.kcal"), date: record.date, color: .orange))
         }
         if let record = records.mostLaps {
             entries.append(RecordEntry(title: preferences.t("records.mostLaps"), value: "\(Int(record.value))", date: record.date, color: .purple))
@@ -67,7 +67,7 @@ struct RecordsSectionView: View {
             entries.append(RecordEntry(title: preferences.t("records.longestDuration"), value: SwimFormatters.formatDuration(Int(record.value)), date: record.date, color: .yellow))
         }
         if let record = records.highestHeartRate {
-            entries.append(RecordEntry(title: preferences.t("records.highestHeartRate"), value: "\(Int(record.value)) \(preferences.t("common.bpm"))", date: record.date, color: .pink))
+            entries.append(RecordEntry(title: preferences.t("records.highestHeartRate"), value: "\(Int(record.value)) " + preferences.t("common.bpm"), date: record.date, color: .pink))
         }
         return entries
     }

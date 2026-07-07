@@ -78,7 +78,7 @@ struct SettingsScreen: View {
                 Text(preferences.t("settings.sexFemale")).tag("female")
             }
             Stepper(value: ageBinding, in: 10...99) {
-                Text("\(preferences.t("settings.age")): \(viewModel.profile.age)")
+                Text(preferences.t("settings.age") + ": \(viewModel.profile.age)")
             }
         }
     }

@@ -126,7 +126,7 @@ private struct HistorySessionCard: View {
                             Text("+\(coins)")
                                 .font(.caption.bold())
                                 .foregroundStyle(Color("BrandBlue"))
-                                .accessibilityLabel("\(preferences.t("history.coinsEarned)): +\(coins)")
+                                .accessibilityLabel(preferences.t("history.coinsEarned") + ": +\(coins)")
                         }
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                             .foregroundStyle(.secondary)
@@ -159,9 +159,9 @@ private struct HistorySessionCard: View {
     private var detailGrid: some View {
         let m = session.metrics
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-            detailItem(preferences.t("progress.activeKcal"), value: m.activeKcal.map { "\($0) \(preferences.t("common.kcal"))" } ?? "—")
-            detailItem(preferences.t("progress.totalKcal"), value: m.totalKcal.map { "\($0) \(preferences.t("common.kcal"))" } ?? "—")
-            detailItem(preferences.t("upload.fields.heartRate"), value: m.avgHeartRate.map { "\($0) \(preferences.t("common.bpm"))" } ?? "—")
+            detailItem(preferences.t("progress.activeKcal"), value: m.activeKcal.map { "\($0) " + preferences.t("common.kcal") } ?? "—")
+            detailItem(preferences.t("progress.totalKcal"), value: m.totalKcal.map { "\($0) " + preferences.t("common.kcal") } ?? "—")
+            detailItem(preferences.t("upload.fields.heartRate"), value: m.avgHeartRate.map { "\($0) " + preferences.t("common.bpm") } ?? "—")
             detailItem(preferences.t("upload.fields.laps"), value: m.laps.map(String.init) ?? "—")
             detailItem(preferences.t("upload.fields.location"), value: m.location.isEmpty ? "—" : m.location)
             detailItem(preferences.t("upload.fields.timeRange"), value: m.timeRange.isEmpty ? "—" : m.timeRange)

@@ -34,7 +34,7 @@ struct BenchmarkScreen: View {
                             }
                         } else {
                             BenchmarkBadgeRankingView(
-                                label: "\(preferences.t("benchmark.yourPace")) (\(ageGroup))",
+                                label: preferences.t("benchmark.yourPace") + " (\(ageGroup))",
                                 percentile: SwimBenchmarks.computePacePercentile(paceSecPer100m: pace, benchmark: benchmark),
                                 vsMedian: SwimBenchmarks.paceVsMedian(paceSecPer100m: pace, benchmark: benchmark)
                             )
@@ -91,11 +91,11 @@ struct BenchmarkScreen: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(preferences.t("settings.profileTitle"))
                     .font(.headline)
-                Text("\(preferences.t("settings.age")): \(ageGroup)")
-                Text("\(preferences.t("settings.sex")): \(sexLabel)")
+                Text(preferences.t("settings.age") + ": \(ageGroup)")
+                Text(preferences.t("settings.sex") + ": \(sexLabel)")
                 Divider()
                 benchmarkRow(preferences.t("benchmark.levels.advanced"), pace: benchmark.advanced)
-                benchmarkRow("\(preferences.t("benchmark.levels.intermediate")) / \(preferences.t("benchmark.median"))", pace: benchmark.intermediate)
+                benchmarkRow(preferences.t("benchmark.levels.intermediate") + " / " + preferences.t("benchmark.median"), pace: benchmark.intermediate)
                 benchmarkRow(preferences.t("benchmark.levels.beginner"), pace: benchmark.beginner)
             }
         }

@@ -120,7 +120,7 @@ struct ProgressScreen: View {
                     metricBlock(preferences.t("upload.fields.distance"), value: SwimFormatters.formatDistance(m.distanceM), color: .blue)
                     metricBlock(preferences.t("upload.fields.duration"), value: SwimFormatters.formatDuration(m.durationSec), color: .orange)
                     metricBlock(preferences.t("upload.fields.pace"), value: SwimFormatters.formatPace(m.paceSecPer100m), color: .teal)
-                    metricBlock(preferences.t("upload.fields.heartRate"), value: m.avgHeartRate.map { "\($0) \(preferences.t("common.bpm"))" } ?? "—", color: .pink)
+                    metricBlock(preferences.t("upload.fields.heartRate"), value: m.avgHeartRate.map { "\($0) " + preferences.t("common.bpm") } ?? "—", color: .pink)
                 }
             }
         }
@@ -150,9 +150,9 @@ struct ProgressScreen: View {
                         statTile(preferences.t("progress.totalTime"), value: SwimFormatters.formatDuration(combined.totalDurationSec))
                         statTile(preferences.t("progress.avgPace"), value: SwimFormatters.formatPace(combined.avgPaceSecPer100m))
                         statTile(preferences.t("progress.bestPace"), value: SwimFormatters.formatPace(combined.bestPaceSecPer100m))
-                        statTile(preferences.t("progress.totalCalories"), value: "\(combined.totalActiveKcal) \(preferences.t("common.kcal"))")
+                        statTile(preferences.t("progress.totalCalories"), value: "\(combined.totalActiveKcal) " + preferences.t("common.kcal"))
                         statTile(preferences.t("progress.totalLaps"), value: "\(combined.totalLaps)")
-                        statTile(preferences.t("progress.avgHeartRate"), value: combined.avgHeartRate.map { "\($0) \(preferences.t("common.bpm"))" } ?? "—")
+                        statTile(preferences.t("progress.avgHeartRate"), value: combined.avgHeartRate.map { "\($0) " + preferences.t("common.bpm") } ?? "—")
                     }
                 }
             }

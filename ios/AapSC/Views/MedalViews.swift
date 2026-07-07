@@ -103,7 +103,7 @@ struct MedalCardView: View {
         case "duration":
             return SwimFormatters.formatDuration(value)
         case "kcal":
-            return "\(value) \(preferences.t("common.kcal"))"
+            return "\(value) " + preferences.t("common.kcal")
         case "pace":
             return SwimFormatters.formatPace(value)
         default:
