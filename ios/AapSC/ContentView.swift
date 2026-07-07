@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     @State private var selectedTab = 0
     @State private var showUpload = false
     @State private var showSettings = false
@@ -10,31 +12,31 @@ struct ContentView: View {
         TabView(selection: $selectedTab) {
             ProgressScreen()
                 .tabItem {
-                    Label("Progress", systemImage: "chart.line.uptrend.xyaxis")
+                    Label(preferences.t("navigation.progress"), systemImage: "chart.line.uptrend.xyaxis")
                 }
                 .tag(0)
 
             MedalsScreen()
                 .tabItem {
-                    Label("Medals", systemImage: "medal")
+                    Label(preferences.t("navigation.medals"), systemImage: "medal")
                 }
                 .tag(1)
 
             Color.clear
                 .tabItem {
-                    Label("Upload", systemImage: "plus.circle.fill")
+                    Label(preferences.t("navigation.upload"), systemImage: "plus.circle.fill")
                 }
                 .tag(2)
 
             BenchmarkScreen()
                 .tabItem {
-                    Label("Benchmark", systemImage: "gauge.with.dots.needle.67percent")
+                    Label(preferences.t("navigation.benchmark"), systemImage: "gauge.with.dots.needle.67percent")
                 }
                 .tag(3)
 
             HistoryScreen()
                 .tabItem {
-                    Label("History", systemImage: "clock.arrow.circlepath")
+                    Label(preferences.t("navigation.history"), systemImage: "clock.arrow.circlepath")
                 }
                 .tag(4)
         }
@@ -55,6 +57,9 @@ struct ContentView: View {
         }
         .environment(\.openSettings, { showSettings = true })
         .environment(\.openCoins, { showCoins = true })
+        .onAppear {
+            viewModel.validateThemeSelection(preferences: preferences)
+        }
     }
 }
 

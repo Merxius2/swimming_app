@@ -73,16 +73,33 @@ struct RecordsSectionView: View {
 }
 
 struct SessionFeedbackCard: View {
+    @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     let feedback: SessionFeedbackSummary
+    var isLoading: Bool = false
 
     var body: some View {
         Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Session feedback")
-                    .font(.headline)
+                if isLoading {
+                    HStack(spacing: 8) {
+                        ProgressView()
+                        Text(preferences.t("feedback.aiLoading"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
 
-                Text(feedback.coachMessage)
-                    .font(.subheadline)
+                MascotCoachView(
+                    mascotId: viewModel.mascotId,
+                    message: feedback.coachMessage
+                )
+
+                if feedback.aiEnhanced {
+                    Label("AI", systemImage: "sparkles")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.purple)
+                }
 
                 if !feedback.insights.isEmpty {
                     ForEach(feedback.insights, id: \.self) { insight in

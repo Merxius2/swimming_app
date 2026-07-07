@@ -39,7 +39,7 @@ open ios/AapSC.xcodeproj
 | 4 | Progress, History, Benchmark UI parity | ✅ |
 | 5 | Coins page (wheel + store) | ✅ |
 | 6 | Medals page + monthly challenges UI | ✅ |
-| 7 | i18n, themes, dark mode, import/export, AI coach, polish | 🔜 Next |
+| 7 | i18n, themes, dark mode, import/export, AI coach, polish | ✅ |
 
 ## What's included
 
@@ -47,6 +47,7 @@ open ios/AapSC.xcodeproj
 |---------|--------|
 | Progress dashboard with Swift Charts | ✅ |
 | Upload Apple Fitness screenshots (Vision OCR) | ✅ |
+| Post-upload coach feedback + optional AI enhancement | ✅ |
 | Screenshot parsing (Dutch/Apple Fitness text) | ✅ |
 | Session history | ✅ |
 | Age-group benchmarks | ✅ |
@@ -54,9 +55,12 @@ open ios/AapSC.xcodeproj
 | Wheel of Fortune + coin store | ✅ |
 | Medals gallery + monthly challenge history | ✅ |
 | Profile & settings | ✅ |
-| Mascot UI assets | Partial |
-| AI coach feedback | 🔜 Planned follow-up |
-| Import/export web app data | 🔜 Planned follow-up |
+| i18n (en, nl, ru, tr) | ✅ |
+| Theme picker + ambient backgrounds | ✅ |
+| Dark mode (auto + manual) | ✅ |
+| JSON import/export (web-compatible v9) | ✅ |
+| AI coach (device-side OpenAI key) | ✅ |
+| Mascot UI | Partial (emoji placeholders; PNG assets optional) |
 
 ## Architecture
 
@@ -64,14 +68,22 @@ open ios/AapSC.xcodeproj
 ios/
 ├── AapSC.xcodeproj/     # Xcode project — open this
 └── AapSC/
-    ├── AapSCApp.swift           # App entry point
+    ├── AapSCApp.swift           # App entry, theme + dark mode
     ├── ContentView.swift        # Tab navigation
     ├── Models/                  # Codable data models (matches web JSON shape)
-    ├── Services/                # UserDefaults storage + Vision OCR
+    ├── Services/                # Storage, OCR, i18n, preferences, AI coach
     ├── ViewModels/              # SwimViewModel (@MainActor)
     ├── Views/                   # SwiftUI screens
     ├── Lib/                     # Ported business logic from lib/*.js
-    └── Resources/               # Assets & colors
+    └── Resources/
+        ├── Assets.xcassets
+        └── Localizations/       # en, nl, ru, tr JSON bundles
+```
+
+Regenerate localization bundles after editing web locale files:
+
+```bash
+node scripts/export-ios-i18n.mjs
 ```
 
 ## Data storage
@@ -82,11 +94,17 @@ Swim data is stored locally in **UserDefaults** under the same key as the web ap
 AUDIT_SWIM_DATA
 ```
 
-The JSON schema mirrors the web app's `SwimData` structure so future import/export between platforms is straightforward.
+Language, theme, and dark-mode preferences use the same UserDefaults keys as the web app's cookies (`AUDIT_LANGUAGE_PREFERENCE`, `AUDIT_THEME_PREFERENCE`, etc.).
+
+The JSON schema mirrors the web app's `SwimData` structure. Use **Settings → Import/Export** to copy data between the web app and iOS app (export format v9 with CRC32 checksum).
 
 ## OCR
 
 Screenshot import uses Apple's **Vision** framework (`VNRecognizeTextRequest`) instead of Tesseract.js. The parsing rules in `Lib/ScreenshotParser.swift` are ported from `lib/screenshotParser.js`.
+
+## AI coach
+
+If you add an OpenAI API key in Settings, the app calls `gpt-4o-mini` directly from the device after each upload (same flow as the web app). Local coach feedback is shown immediately; AI enhancement updates the message when the request completes.
 
 ## Relationship to the web app
 
@@ -105,9 +123,11 @@ Grant photo library access when prompted; check `NSPhotoLibraryUsageDescription`
 **Build fails on Charts**  
 Ensure deployment target is iOS 17+ (Swift Charts requirement).
 
-## Next steps (suggested)
+**Import fails**  
+Paste the full export string including the `:checksum` suffix. Web exports may be gzip-compressed; the iOS importer decodes both plain and compressed payloads.
 
-1. Port `lib/swimMedals.js` and monthly challenges
-2. Add mascot UI assets from the web app
-3. Implement JSON import/export for cross-platform sync
-4. Call OpenAI directly from the device for AI coach feedback (same as web client-side key flow)
+## Optional follow-ups
+
+1. Add mascot PNG assets from `public/mascot/` to `Assets.xcassets`
+2. Localize remaining hardcoded English strings on Progress/History/Benchmark screens
+3. Wire medal copy to `medals.items.*` translation keys instead of `SwimMedalCopy.swift`

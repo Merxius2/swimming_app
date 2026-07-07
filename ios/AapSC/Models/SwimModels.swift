@@ -310,6 +310,7 @@ struct SessionFeedbackSummary: Equatable {
     var coachMessage: String
     var motivation: String
     var benchmarkLevel: SwimLevel
+    var aiEnhanced: Bool = false
 }
 
 struct BenchmarkBarItem: Identifiable, Equatable {

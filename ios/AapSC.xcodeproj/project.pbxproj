@@ -41,6 +41,17 @@
 		B10000000000000000000034 /* SwimMedalCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000034 /* SwimMedalCopy.swift */; };
 		B10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift */; };
 		B10000000000000000000036 /* MedalViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000036 /* MedalViews.swift */; };
+		B10000000000000000000037 /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000037 /* TranslationService.swift */; };
+		B10000000000000000000038 /* UserPreferencesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000038 /* UserPreferencesService.swift */; };
+		B10000000000000000000039 /* AppThemes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000039 /* AppThemes.swift */; };
+		B10000000000000000000040 /* SwimImportExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000040 /* SwimImportExport.swift */; };
+		B10000000000000000000041 /* AiCoachService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000041 /* AiCoachService.swift */; };
+		B10000000000000000000042 /* AmbientBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000042 /* AmbientBackgroundView.swift */; };
+		B10000000000000000000043 /* SecretSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000043 /* SecretSettingsSheet.swift */; };
+		B10000000000000000000044 /* en.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* en.json */; };
+		B10000000000000000000045 /* nl.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* nl.json */; };
+		B10000000000000000000046 /* ru.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ru.json */; };
+		B10000000000000000000047 /* tr.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000047 /* tr.json */; };
 		B10000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -81,6 +92,17 @@
 		F10000000000000000000034 /* SwimMedalCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimMedalCopy.swift; sourceTree = "<group>"; };
 		F10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimMonthlyChallengeFormatters.swift; sourceTree = "<group>"; };
 		F10000000000000000000036 /* MedalViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalViews.swift; sourceTree = "<group>"; };
+		F10000000000000000000037 /* TranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationService.swift; sourceTree = "<group>"; };
+		F10000000000000000000038 /* UserPreferencesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesService.swift; sourceTree = "<group>"; };
+		F10000000000000000000039 /* AppThemes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppThemes.swift; sourceTree = "<group>"; };
+		F10000000000000000000040 /* SwimImportExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimImportExport.swift; sourceTree = "<group>"; };
+		F10000000000000000000041 /* AiCoachService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiCoachService.swift; sourceTree = "<group>"; };
+		F10000000000000000000042 /* AmbientBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientBackgroundView.swift; sourceTree = "<group>"; };
+		F10000000000000000000043 /* SecretSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretSettingsSheet.swift; sourceTree = "<group>"; };
+		F10000000000000000000044 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
+		F10000000000000000000045 /* nl.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nl.json; sourceTree = "<group>"; };
+		F10000000000000000000046 /* ru.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ru.json; sourceTree = "<group>"; };
+		F10000000000000000000047 /* tr.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tr.json; sourceTree = "<group>"; };
 		P10000000000000000000001 /* AapSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AapSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -141,6 +163,9 @@
 				F10000000000000000000004 /* SwimStorageService.swift */,
 				F10000000000000000000005 /* OCRService.swift */,
 				F10000000000000000000027 /* SwimCheatsService.swift */,
+				F10000000000000000000037 /* TranslationService.swift */,
+				F10000000000000000000038 /* UserPreferencesService.swift */,
+				F10000000000000000000041 /* AiCoachService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -166,6 +191,8 @@
 				F10000000000000000000029 /* SharedSwimViews.swift */,
 				F10000000000000000000033 /* CoinsScreen.swift */,
 				F10000000000000000000036 /* MedalViews.swift */,
+				F10000000000000000000042 /* AmbientBackgroundView.swift */,
+				F10000000000000000000043 /* SecretSettingsSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -190,6 +217,8 @@
 				F10000000000000000000032 /* SwimCoinStore.swift */,
 				F10000000000000000000034 /* SwimMedalCopy.swift */,
 				F10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift */,
+				F10000000000000000000039 /* AppThemes.swift */,
+				F10000000000000000000040 /* SwimImportExport.swift */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -198,8 +227,20 @@
 			isa = PBXGroup;
 			children = (
 				F10000000000000000000018 /* Assets.xcassets */,
+				G10000000000000000000010 /* Localizations */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000010 /* Localizations */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000044 /* en.json */,
+				F10000000000000000000045 /* nl.json */,
+				F10000000000000000000046 /* ru.json */,
+				F10000000000000000000047 /* tr.json */,
+			);
+			path = Localizations;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -261,6 +302,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				B10000000000000000000018 /* Assets.xcassets in Resources */,
+				B10000000000000000000044 /* en.json in Resources */,
+				B10000000000000000000045 /* nl.json in Resources */,
+				B10000000000000000000046 /* ru.json in Resources */,
+				B10000000000000000000047 /* tr.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,6 +350,13 @@
 				B10000000000000000000034 /* SwimMedalCopy.swift in Sources */,
 				B10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift in Sources */,
 				B10000000000000000000036 /* MedalViews.swift in Sources */,
+				B10000000000000000000037 /* TranslationService.swift in Sources */,
+				B10000000000000000000038 /* UserPreferencesService.swift in Sources */,
+				B10000000000000000000039 /* AppThemes.swift in Sources */,
+				B10000000000000000000040 /* SwimImportExport.swift in Sources */,
+				B10000000000000000000041 /* AiCoachService.swift in Sources */,
+				B10000000000000000000042 /* AmbientBackgroundView.swift in Sources */,
+				B10000000000000000000043 /* SecretSettingsSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

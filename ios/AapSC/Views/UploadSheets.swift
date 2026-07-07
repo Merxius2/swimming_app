@@ -1,24 +1,21 @@
 import SwiftUI
 
 struct CoinEarnedSheet: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let result: UploadCoinResult
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             List {
-                Section("Session rewards") {
+                Section(preferences.t("coins.sessionSection")) {
                     ForEach(result.sessionLines, id: \.type) { line in
                         coinRow(line)
-                    }
-                    if result.sessionLines.isEmpty {
-                        Text("No session coins this time.")
-                            .foregroundStyle(.secondary)
                     }
                 }
 
                 if !result.bonusLines.isEmpty {
-                    Section("Medal & challenge bonuses") {
+                    Section(preferences.t("coins.bonusSection")) {
                         ForEach(result.bonusLines, id: \.type) { line in
                             coinRow(line)
                         }
@@ -27,7 +24,7 @@ struct CoinEarnedSheet: View {
 
                 Section {
                     HStack {
-                        Text("Total earned")
+                        Text(preferences.t("coins.earnedTitle"))
                             .font(.headline)
                         Spacer()
                         Text("+\(result.total)")
@@ -36,11 +33,11 @@ struct CoinEarnedSheet: View {
                     }
                 }
             }
-            .navigationTitle("Coins earned!")
+            .navigationTitle(preferences.t("coins.popupTitle"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Continue") { dismiss() }
+                    Button(preferences.t("coins.continue")) { dismiss() }
                 }
             }
         }
@@ -59,22 +56,26 @@ struct CoinEarnedSheet: View {
 
     private func label(for line: CoinLineItem) -> String {
         switch line.type {
-        case "base": return "Session logged"
-        case "distance": return "Distance bonus"
-        case "duration": return "Duration bonus"
-        case "kcal": return "Calorie bonus"
-        case "paceImprovement": return "Pace improvement"
-        case "finsBonus": return "Fins improvement bonus"
-        case "finsPenalty": return "Fins penalty"
-        case "coachShare": return "Coach share adjustment"
-        case "medal": return "Medal: \(line.medalId?.replacingOccurrences(of: "_", with: " ") ?? "earned")"
-        case "monthly": return "Monthly challenge upgrade"
+        case "base": return preferences.t("coins.lineBase")
+        case "distance": return preferences.t("coins.lineDistance")
+        case "duration": return preferences.t("coins.lineDuration")
+        case "kcal": return preferences.t("coins.lineKcal")
+        case "paceImprovement": return preferences.t("coins.linePaceImprovement")
+        case "finsBonus": return preferences.t("coins.lineFinsBonus")
+        case "finsPenalty": return preferences.t("coins.lineFinsPenalty")
+        case "coachShare": return preferences.t("coins.lineCoachShare")
+        case "medal": return preferences.t("coins.lineMedal", params: [
+            "tier": line.medalId ?? "",
+            "title": line.medalId?.replacingOccurrences(of: "_", with: " ") ?? "earned"
+        ])
+        case "monthly": return preferences.t("coins.lineMonthly")
         default: return line.type.capitalized
         }
     }
 }
 
 struct MedalCelebrationSheet: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let medals: [EvaluatedMedal]
     @Environment(\.dismiss) private var dismiss
 
@@ -85,7 +86,7 @@ struct MedalCelebrationSheet: View {
                     .font(.system(size: 56))
                     .foregroundStyle(.yellow)
 
-                Text("New medals!")
+                Text(preferences.t("medals.celebration.titleMultiple"))
                     .font(.title.bold())
 
                 ForEach(medals) { medal in
@@ -107,7 +108,7 @@ struct MedalCelebrationSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Continue") { dismiss() }
+                    Button(preferences.t("coins.continue")) { dismiss() }
                 }
             }
         }

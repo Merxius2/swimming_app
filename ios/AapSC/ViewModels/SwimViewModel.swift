@@ -15,6 +15,8 @@ final class SwimViewModel: ObservableObject {
     @Published var lastUploadCoinResult: UploadCoinResult?
     @Published var lastNewMedals: [EvaluatedMedal] = []
     @Published var duplicateSession: SwimSession?
+    @Published var lastUploadFeedback: SessionFeedbackSummary?
+    @Published var isEnhancingUploadFeedback = false
 
     private var saveTask: Task<Void, Never>?
 
@@ -151,6 +153,15 @@ final class SwimViewModel: ObservableObject {
         clearAll()
     }
 
+    func exportDataString() async throws -> String {
+        try await SwimImportExport.generateExportString(from: data)
+    }
+
+    func importDataString(_ exportString: String) async throws {
+        let imported = try await SwimImportExport.parseImportString(exportString)
+        replaceData(imported)
+    }
+
     func adjustCoins(delta: Int) {
         data.totalCoins = max(0, data.totalCoins + delta)
         if delta < 0 {
@@ -264,12 +275,20 @@ final class SwimViewModel: ObservableObject {
             sessionLines: [], bonusLines: [], alreadyClaimed: false
         )
 
-        _ = addSession(
+        let saved = addSession(
             date: date,
             metrics: metrics,
             coinsEarned: coinResult.sessionCoins,
             coinBonus: coinResult.medalCoins + coinResult.monthlyCoins
         )
+
+        lastUploadFeedback = SwimAnalysis.buildPersonalFeedback(
+            session: saved,
+            allSessions: sessions,
+            profile: profile
+        )
+        isEnhancingUploadFeedback = !profile.aiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        Task { await enhanceUploadFeedback(for: saved) }
 
         lastUploadCoinResult = coinResult
         // Keep lastNewMedals for celebration sheet; clear draft state separately via clearUploadDraft()
@@ -281,8 +300,61 @@ final class SwimViewModel: ObservableObject {
 
     func clearUploadDraft() {
         uploadDraft = .empty
+        parsedResult = nil
+        selectedPhotoItem = nil
+        ocrErrorMessage = nil
+        duplicateSession = nil
+    }
+
+    func clearUploadCelebrationState() {
         lastUploadCoinResult = nil
         lastNewMedals = []
+        lastUploadFeedback = nil
+        isEnhancingUploadFeedback = false
+    }
+
+    func validateThemeSelection(preferences: UserPreferencesService) {
+        let unlocked = SwimCoinStore.isThemeUnlocked(
+            preferences.themeCode,
+            storeUnlocks: storeUnlocks,
+            allThemesUnlocked: cheats.allThemesUnlocked
+        ) || preferences.themeCode == AppThemes.defaultCode
+        if !unlocked {
+            preferences.setTheme(AppThemes.defaultCode)
+        }
+    }
+
+    private func enhanceUploadFeedback(for session: SwimSession) async {
+        defer { isEnhancingUploadFeedback = false }
+        guard !profile.aiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              var feedback = lastUploadFeedback else { return }
+        let language = currentLanguageCode()
+        do {
+            let ai = try await AiCoachService.fetchFeedback(
+                apiKey: profile.aiApiKey,
+                language: language,
+                profile: profile,
+                session: session,
+                sessions: sessions,
+                localFeedback: feedback,
+                mascotId: mascotId
+            )
+            feedback.coachMessage = ai.coachMessage
+            feedback.motivation = ai.motivation
+            feedback.aiEnhanced = ai.aiEnhanced
+            lastUploadFeedback = feedback
+        } catch {
+            // Keep local feedback when AI is unavailable.
+        }
+    }
+
+    private func currentLanguageCode() -> String {
+        if let data = UserDefaults.standard.data(forKey: UserPreferencesService.languageKey),
+           let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let language = json["language"] as? String {
+            return language
+        }
+        return TranslationService.defaultLanguage
     }
 
     private func prepareUploadSave() -> Bool {

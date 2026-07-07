@@ -3,83 +3,63 @@ import PhotosUI
 
 struct UploadScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
 
     @State private var showCoinSheet = false
     @State private var showMedalSheet = false
     @State private var showDuplicateConfirm = false
+    @State private var uploadSaved = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    ScreenHeader(
-                        "Upload",
-                        subtitle: "Import a screenshot from Apple Fitness",
-                        systemImage: "square.and.arrow.up"
-                    )
-
-                    Card {
-                        VStack(spacing: 16) {
-                            PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
-                                Label("Choose screenshot", systemImage: "photo.on.rectangle.angled")
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(Color("BrandBlue"))
-
-                            if viewModel.isProcessingOCR {
-                                ProgressView("Reading screenshot…")
-                            }
-
-                            if let error = viewModel.ocrErrorMessage {
-                                Text(error)
-                                    .foregroundStyle(.red)
-                                    .font(.footnote)
-                            }
-
-                            if let parsed = viewModel.parsedResult {
-                                parseSummary(parsed)
-                            }
-                        }
-                    }
-
-                    if viewModel.parsedResult != nil {
-                        manualEntryForm
+                    if uploadSaved {
+                        savedFeedbackView
+                    } else {
+                        editingView
                     }
                 }
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Upload")
+            .navigationTitle(preferences.t("upload.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close") { dismiss() }
+                    Button(preferences.t("coins.close")) { closeUpload() }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") { handleSave() }
-                        .disabled(!canSave)
+                if !uploadSaved {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(preferences.t("upload.saveSession")) { handleSave() }
+                            .disabled(!canSave)
+                    }
                 }
             }
             .onChange(of: viewModel.selectedPhotoItem) { _, _ in
                 Task { await viewModel.processSelectedPhoto() }
             }
             .confirmationDialog(
-                "Duplicate workout?",
+                preferences.t("upload.duplicateTitle"),
                 isPresented: $showDuplicateConfirm,
                 titleVisibility: .visible
             ) {
-                Button("Save anyway") { handleSave(ignoreDuplicate: true) }
-                Button("Cancel", role: .cancel) {
+                Button(preferences.t("upload.saveSession")) { handleSave(ignoreDuplicate: true) }
+                Button(preferences.t("common.cancel"), role: .cancel) {
                     viewModel.duplicateSession = nil
                 }
             } message: {
                 if let duplicate = viewModel.duplicateSession {
-                    Text("A session on \(SwimFormatters.formatDateLong(duplicate.date)) with the same metrics already exists.")
+                    Text(
+                        preferences.t(
+                            "upload.duplicateMessage",
+                            params: ["date": SwimFormatters.formatDateLong(duplicate.date)]
+                        )
+                    )
                 }
             }
-            .sheet(isPresented: $showCoinSheet, onDismiss: finishUploadFlow) {
+            .sheet(isPresented: $showCoinSheet, onDismiss: finishCelebrations) {
                 if let result = viewModel.lastUploadCoinResult {
                     CoinEarnedSheet(result: result)
                 }
@@ -92,6 +72,65 @@ struct UploadScreen: View {
 
     private var canSave: Bool {
         !viewModel.uploadDraft.distance.isEmpty || !viewModel.uploadDraft.duration.isEmpty
+    }
+
+    private var editingView: some View {
+        Group {
+            ScreenHeader(
+                preferences.t("upload.title"),
+                subtitle: preferences.t("upload.subtitle"),
+                systemImage: "square.and.arrow.up"
+            )
+
+            Card {
+                VStack(spacing: 16) {
+                    PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
+                        Label(preferences.t("upload.dropzone"), systemImage: "photo.on.rectangle.angled")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color("BrandBlue"))
+
+                    if viewModel.isProcessingOCR {
+                        ProgressView(preferences.t("upload.analyzing"))
+                    }
+
+                    if let error = viewModel.ocrErrorMessage {
+                        Text(error)
+                            .foregroundStyle(.red)
+                            .font(.footnote)
+                    }
+
+                    if let parsed = viewModel.parsedResult {
+                        parseSummary(parsed)
+                    }
+                }
+            }
+
+            if viewModel.parsedResult != nil {
+                manualEntryForm
+            }
+        }
+    }
+
+    private var savedFeedbackView: some View {
+        Group {
+            if let feedback = viewModel.lastUploadFeedback {
+                SessionFeedbackCard(
+                    feedback: feedback,
+                    isLoading: viewModel.isEnhancingUploadFeedback
+                )
+            }
+
+            Button {
+                resetForAnotherUpload()
+            } label: {
+                Text(preferences.t("upload.uploadAnother"))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color("BrandBlue"))
+        }
     }
 
     private func handleSave(ignoreDuplicate: Bool = false) {
@@ -117,6 +156,9 @@ struct UploadScreen: View {
             return
         }
 
+        uploadSaved = true
+        viewModel.clearUploadDraft()
+
         if !viewModel.lastNewMedals.isEmpty {
             showMedalSheet = true
         } else {
@@ -127,12 +169,20 @@ struct UploadScreen: View {
     private func presentCoinSheetIfNeeded() {
         if let result = viewModel.lastUploadCoinResult, result.total != 0 || !result.alreadyClaimed {
             showCoinSheet = true
-        } else {
-            finishUploadFlow()
         }
     }
 
-    private func finishUploadFlow() {
+    private func finishCelebrations() {
+        // Feedback view is already visible behind the sheets.
+    }
+
+    private func resetForAnotherUpload() {
+        viewModel.clearUploadCelebrationState()
+        uploadSaved = false
+    }
+
+    private func closeUpload() {
+        viewModel.clearUploadCelebrationState()
         viewModel.clearUploadDraft()
         dismiss()
     }
@@ -140,7 +190,7 @@ struct UploadScreen: View {
     private func parseSummary(_ parsed: ParsedScreenshotResult) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("OCR confidence")
+                Text(preferences.t("upload.confidence"))
                     .font(.subheadline.weight(.semibold))
                 Spacer()
                 Text("\(parsed.confidence)%")
@@ -148,7 +198,7 @@ struct UploadScreen: View {
             }
 
             if !parsed.isSwimWorkout {
-                Label("This may not be a swim workout.", systemImage: "exclamationmark.triangle.fill")
+                Label(preferences.t("upload.notSwim.unknown"), systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
                     .font(.footnote)
             }
@@ -164,18 +214,23 @@ struct UploadScreen: View {
     private var manualEntryForm: some View {
         Card {
             VStack(spacing: 12) {
-                Text("Review & edit")
+                Text(preferences.t("upload.reviewTitle"))
                     .font(.headline)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                formField("Date (YYYY-MM-DD)", text: $viewModel.uploadDraft.date)
-                formField("Duration", text: $viewModel.uploadDraft.duration)
-                formField("Distance (m)", text: $viewModel.uploadDraft.distance)
-                formField("Pace", text: $viewModel.uploadDraft.pace)
-                formField("Active kcal", text: $viewModel.uploadDraft.activeKcal)
-                formField("Avg heart rate", text: $viewModel.uploadDraft.avgHeartRate)
-                formField("Laps", text: $viewModel.uploadDraft.laps)
-                formField("Pool length (m)", text: $viewModel.uploadDraft.poolLength)
+                Text(preferences.t("upload.reviewDesc"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                formField(preferences.t("upload.fields.date"), text: $viewModel.uploadDraft.date)
+                formField(preferences.t("upload.fields.duration"), text: $viewModel.uploadDraft.duration)
+                formField(preferences.t("upload.fields.distance"), text: $viewModel.uploadDraft.distance)
+                formField(preferences.t("upload.fields.pace"), text: $viewModel.uploadDraft.pace)
+                formField(preferences.t("upload.fields.activeKcal"), text: $viewModel.uploadDraft.activeKcal)
+                formField(preferences.t("upload.fields.heartRate"), text: $viewModel.uploadDraft.avgHeartRate)
+                formField(preferences.t("upload.fields.laps"), text: $viewModel.uploadDraft.laps)
+                formField(preferences.t("upload.fields.poolLength"), text: $viewModel.uploadDraft.poolLength)
             }
         }
     }
