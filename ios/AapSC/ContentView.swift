@@ -4,6 +4,7 @@ struct ContentView: View {
     @State private var selectedTab = 0
     @State private var showUpload = false
     @State private var showSettings = false
+    @State private var showCoins = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -49,7 +50,11 @@ struct ContentView: View {
         .sheet(isPresented: $showSettings) {
             SettingsScreen()
         }
+        .sheet(isPresented: $showCoins) {
+            CoinsScreen()
+        }
         .environment(\.openSettings, { showSettings = true })
+        .environment(\.openCoins, { showCoins = true })
     }
 }
 
@@ -57,10 +62,19 @@ private struct OpenSettingsKey: EnvironmentKey {
     static let defaultValue: () -> Void = {}
 }
 
+private struct OpenCoinsKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+
 extension EnvironmentValues {
     var openSettings: () -> Void {
         get { self[OpenSettingsKey.self] }
         set { self[OpenSettingsKey.self] = newValue }
+    }
+
+    var openCoins: () -> Void {
+        get { self[OpenCoinsKey.self] }
+        set { self[OpenCoinsKey.self] = newValue }
     }
 }
 

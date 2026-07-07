@@ -4,6 +4,7 @@ import Charts
 struct ProgressScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.openCoins) private var openCoins
 
     var body: some View {
         NavigationStack {
@@ -44,7 +45,13 @@ struct ProgressScreen: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 12) {
-                        CoinBadge(count: viewModel.totalCoins)
+                        Button(action: openCoins) {
+                            CoinBadge(
+                                count: viewModel.totalCoins,
+                                golden: SwimCoinStore.hasGoldenCoinBadge(viewModel.storeUnlocks)
+                            )
+                        }
+                        .buttonStyle(.plain)
                         Button(action: openSettings) {
                             Image(systemName: "gearshape")
                         }
@@ -281,6 +288,7 @@ struct ProgressScreen: View {
 
 struct CoinBadge: View {
     let count: Int
+    var golden: Bool = false
 
     var body: some View {
         HStack(spacing: 4) {
@@ -291,6 +299,12 @@ struct CoinBadge: View {
         .font(.caption)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(Color("BrandBlue").opacity(0.12), in: Capsule())
+        .background(
+            golden
+                ? AnyShapeStyle(LinearGradient(colors: [.yellow, .orange], startPoint: .topLeading, endPoint: .bottomTrailing))
+                : AnyShapeStyle(Color("BrandBlue").opacity(0.12)),
+            in: Capsule()
+        )
+        .foregroundStyle(golden ? Color(red: 0.45, green: 0.25, blue: 0.0) : Color("BrandBlue"))
     }
 }

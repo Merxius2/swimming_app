@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MedalsScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @Environment(\.openCoins) private var openCoins
 
     var body: some View {
         NavigationStack {
@@ -46,7 +47,13 @@ struct MedalsScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    CoinBadge(count: viewModel.totalCoins)
+                    Button(action: openCoins) {
+                        CoinBadge(
+                            count: viewModel.totalCoins,
+                            golden: SwimCoinStore.hasGoldenCoinBadge(viewModel.storeUnlocks)
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }

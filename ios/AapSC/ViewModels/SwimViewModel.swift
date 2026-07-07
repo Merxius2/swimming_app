@@ -58,7 +58,10 @@ final class SwimViewModel: ObservableObject {
     func updateProfile(_ updates: (inout SwimProfile) -> Void) {
         var profile = data.profile
         updates(&profile)
-        data.profile = profile
+        data.profile = SwimCoinStore.sanitizeProfileCosmetics(
+            profile,
+            storeUnlocks: data.storeUnlocks
+        )
         persist(immediate: true)
     }
 
@@ -133,14 +136,7 @@ final class SwimViewModel: ObservableObject {
     }
 
     func replaceData(_ nextData: SwimData) {
-        var migrated = nextData
-        migrated.sessions = SwimCoins.migrateSessionCoins(migrated.sessions)
-        migrated.totalCoins = SwimCoins.reconcileTotalCoins(
-            sessions: migrated.sessions,
-            storedTotal: migrated.totalCoins,
-            coinsSpent: migrated.coinsSpent
-        )
-        data = migrated
+        data = SwimStorageService.normalize(nextData)
         persist(immediate: true)
     }
 
@@ -163,6 +159,50 @@ final class SwimViewModel: ObservableObject {
         } else {
             persist()
         }
+    }
+
+    func recordWheelPaidSpin() {
+        let today = SwimWheelSpins.getWheelSpinDayKey()
+        data.wheelSpins = SwimWheelSpins.recordPaidSpin(data.wheelSpins, today: today)
+        persist(immediate: true)
+    }
+
+    @discardableResult
+    func purchaseStoreItem(_ itemId: String) -> Bool {
+        if SwimCoinStore.isConsumableStoreItem(itemId) {
+            guard let next = SwimCoinStore.applyConsumableStorePurchase(data: data, itemId: itemId) else {
+                return false
+            }
+            data = next
+            persist(immediate: true)
+            return true
+        }
+
+        guard let update = SwimCoinStore.purchaseStoreItemUpdate(
+            id: itemId,
+            storeUnlocks: data.storeUnlocks,
+            totalCoins: data.totalCoins,
+            coinsSpent: data.coinsSpent
+        ) else {
+            return false
+        }
+
+        data.storeUnlocks = update.storeUnlocks
+        data.totalCoins = update.totalCoins
+        data.coinsSpent = update.coinsSpent
+
+        if itemId.hasPrefix("ambient:") {
+            data.profile.activeAmbient = itemId
+        } else if itemId.hasPrefix("icon:") {
+            data.profile.activeAppIcon = itemId
+        }
+
+        data.profile = SwimCoinStore.sanitizeProfileCosmetics(
+            data.profile,
+            storeUnlocks: data.storeUnlocks
+        )
+        persist(immediate: true)
+        return true
     }
 
     func updateCheats(_ updates: (inout SwimCheats) -> Void) {

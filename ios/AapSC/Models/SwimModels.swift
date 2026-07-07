@@ -173,8 +173,33 @@ struct SwimProfile: Codable, Equatable {
 }
 
 struct WheelSpins: Codable, Equatable {
-    var dayKey: String
-    var count: Int
+    var date: String
+    var paidCount: Int
+
+    enum CodingKeys: String, CodingKey {
+        case date, paidCount, dayKey, count
+    }
+
+    init(date: String, paidCount: Int) {
+        self.date = date
+        self.paidCount = paidCount
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        date = try container.decodeIfPresent(String.self, forKey: .date)
+            ?? container.decodeIfPresent(String.self, forKey: .dayKey)
+            ?? ""
+        paidCount = try container.decodeIfPresent(Int.self, forKey: .paidCount)
+            ?? container.decodeIfPresent(Int.self, forKey: .count)
+            ?? 0
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(date, forKey: .date)
+        try container.encode(paidCount, forKey: .paidCount)
+    }
 }
 
 struct SwimData: Codable, Equatable {
