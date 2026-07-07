@@ -116,8 +116,8 @@ enum SwimAnalysis {
             rerolls: monthlyChallengeRerolls,
             intensity: gameplay.challengeIntensity
         )
-        let monthDistance = monthDistance(includedSessions, monthKey: monthKey)
-        let prevMonthDistance = monthDistance(includedSessions, monthKey: shiftMonthKey(monthKey, by: -1))
+        let monthDistance = Self.monthDistance(includedSessions, monthKey: monthKey)
+        let prevMonthDistance = Self.monthDistance(includedSessions, monthKey: shiftMonthKey(monthKey, by: -1))
         var parts: [String] = []
 
         if combined.sessionCount == 1 {
