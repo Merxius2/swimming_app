@@ -70,6 +70,8 @@ struct HistoryScreen: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle(preferences.t("history.title"))
             .navigationBarTitleDisplayMode(.inline)
+            .swimTopBarActions()
+            .themedNavigationBar()
             .confirmationDialog(
                 preferences.t("history.deleteConfirm"),
                 isPresented: Binding(

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MedalCardView: View {
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.themeColors) private var themeColors
     let medal: EvaluatedMedal
     var shimmerPlus: Bool = false
 
@@ -11,18 +12,18 @@ struct MedalCardView: View {
                 MedalIconView(tier: medal.tier, earned: medal.earned, size: 48)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    HStack(alignment: .top) {
-                        Text(SwimMedalCopy.title(for: medal.id, t: preferences.translations))
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(medal.earned ? .primary : .secondary)
-                        Spacer(minLength: 8)
-                        if SwimCoins.medalTierCoins(medal.tier) > 0 {
-                            CoinBadge(
-                                count: SwimCoins.medalTierCoins(medal.tier),
-                                golden: false
-                            )
-                            .opacity(medal.earned ? 1 : 0.6)
-                        }
+                    Text(SwimMedalCopy.title(for: medal.id, t: preferences.translations))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(medal.earned ? .primary : .secondary)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if SwimCoins.medalTierCoins(medal.tier) > 0 {
+                        CoinBadge(
+                            count: SwimCoins.medalTierCoins(medal.tier),
+                            size: .sm
+                        )
+                        .opacity(medal.earned ? 1 : 0.6)
                     }
 
                     Text(SwimMedalCopy.description(for: medal.id, t: preferences.translations))
@@ -40,10 +41,10 @@ struct MedalCardView: View {
                                 Spacer()
                                 Text("\(progress.percent)%")
                                     .font(.caption2.weight(.semibold))
-                                    .foregroundStyle(Color("BrandBlue"))
+                                    .foregroundStyle(themeColors.primary)
                             }
                             ProgressView(value: Double(progress.percent), total: 100)
-                                .tint(Color("BrandBlue"))
+                                .tint(themeColors.primary)
                         }
                     }
 
@@ -52,7 +53,7 @@ struct MedalCardView: View {
                             "date": SwimFormatters.formatDateLong(earnedAt)
                         ]))
                             .font(.caption2.weight(.medium))
-                            .foregroundStyle(Color("BrandBlue"))
+                            .foregroundStyle(themeColors.primary)
                     }
 
                     if medal.earned, !medal.periods.isEmpty {
@@ -66,6 +67,7 @@ struct MedalCardView: View {
                     }
                 }
             }
+            .padding(.top, medal.earned ? 18 : 0)
             .overlay(alignment: .topLeading) {
                 if medal.earned {
                     Text(preferences.t("medals.earned"))

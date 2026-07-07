@@ -106,6 +106,7 @@ struct ScreenHeader: View {
     let title: String
     let subtitle: String?
     let systemImage: String
+    @Environment(\.themeColors) private var themeColors
 
     init(_ title: String, subtitle: String? = nil, systemImage: String) {
         self.title = title
@@ -117,7 +118,7 @@ struct ScreenHeader: View {
         HStack(spacing: 12) {
             Image(systemName: systemImage)
                 .font(.title2.weight(.semibold))
-                .foregroundStyle(Color("BrandBlue"))
+                .foregroundStyle(themeColors.primary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.title2.bold())

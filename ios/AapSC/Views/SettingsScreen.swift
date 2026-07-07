@@ -67,6 +67,7 @@ struct SettingsScreen: View {
             .sheet(isPresented: $showSecretSettings) {
                 SecretSettingsSheet()
             }
+            .themedNavigationBar()
         }
     }
 
@@ -84,10 +85,10 @@ struct SettingsScreen: View {
     }
 
     private var mascotSection: some View {
-        Section(preferences.t("settings.mascotTitle")) {
-            MascotCharacterView(mascotId: viewModel.mascotId, size: 120)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+        Section {
+            Text(preferences.t("settings.mascotDesc"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
             ForEach(MascotConstants.ids, id: \.self) { mascotId in
                 Button {
@@ -103,6 +104,34 @@ struct SettingsScreen: View {
                     }
                 }
             }
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text(
+                    preferences.t(
+                        "settings.mascotActiveCoach",
+                        params: ["name": mascotDisplayName(viewModel.mascotId)]
+                    )
+                )
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+
+                MascotStageView(mascotId: viewModel.mascotId) {
+                    HStack(alignment: .top, spacing: 12) {
+                        MascotCharacterView(mascotId: viewModel.mascotId, size: 110, animated: true)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(mascotDisplayName(viewModel.mascotId))
+                                .font(.caption.weight(.bold))
+                            Text(mascotPreviewMessage)
+                                .font(.subheadline)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                }
+            }
+            .padding(.vertical, 4)
+        } header: {
+            Text(preferences.t("settings.mascotTitle"))
         }
     }
 
@@ -137,12 +166,9 @@ struct SettingsScreen: View {
                     guard unlocked else { return }
                     preferences.setTheme(theme.code)
                 } label: {
-                    HStack {
-                        HStack(spacing: 0) {
-                            Circle().fill(theme.primary).frame(width: 14, height: 14)
-                            Circle().fill(theme.secondary).frame(width: 14, height: 14)
-                            Circle().fill(theme.accent).frame(width: 14, height: 14)
-                        }
+                    HStack(spacing: 12) {
+                        ThemePreviewBar(theme: theme, height: 28)
+                            .frame(width: 72)
                         Text(preferences.t(theme.nameKey))
                         Spacer()
                         if preferences.themeCode == theme.code {
@@ -250,6 +276,13 @@ struct SettingsScreen: View {
             LabeledContent("Platform", value: "Native iOS")
             LabeledContent("Storage", value: SwimStorageService.storageKey)
         }
+    }
+
+    private var mascotPreviewMessage: String {
+        let template = preferences.t(MascotConstants.previewKey(viewModel.mascotId))
+        let name = viewModel.profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let displayName = name.isEmpty ? preferences.t("settings.defaultSwimmerName") : name
+        return template.replacingOccurrences(of: "{name}", with: displayName)
     }
 
     private func mascotDisplayName(_ id: String) -> String {
