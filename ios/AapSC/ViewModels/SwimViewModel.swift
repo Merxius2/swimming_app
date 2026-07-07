@@ -190,16 +190,50 @@ final class SwimViewModel: ObservableObject {
         }
     }
 
-    func prepareUploadSave() -> Bool {
+    func saveUploadDraft(ignoreDuplicate: Bool = false) -> Bool {
+        if !ignoreDuplicate {
+            let metrics = uploadDraft.toMetrics()
+            let candidate = SwimSession(date: uploadDraft.resolvedDate, metrics: metrics)
+            if let duplicate = SwimDuplicates.findDuplicateSession(sessions, candidate: candidate) {
+                duplicateSession = duplicate
+                return false
+            }
+        }
+
+        guard prepareUploadSave() else { return false }
+
+        let metrics = uploadDraft.toMetrics()
+        let date = uploadDraft.resolvedDate
+        let coinResult = lastUploadCoinResult ?? UploadCoinResult(
+            sessionCoins: 0, medalCoins: 0, monthlyCoins: 0, total: 0,
+            sessionLines: [], bonusLines: [], alreadyClaimed: false
+        )
+
+        _ = addSession(
+            date: date,
+            metrics: metrics,
+            coinsEarned: coinResult.sessionCoins,
+            coinBonus: coinResult.medalCoins + coinResult.monthlyCoins
+        )
+
+        lastUploadCoinResult = coinResult
+        // Keep lastNewMedals for celebration sheet; clear draft state separately via clearUploadDraft()
+        parsedResult = nil
+        selectedPhotoItem = nil
+        duplicateSession = nil
+        return true
+    }
+
+    func clearUploadDraft() {
+        uploadDraft = .empty
+        lastUploadCoinResult = nil
+        lastNewMedals = []
+    }
+
+    private func prepareUploadSave() -> Bool {
         let metrics = uploadDraft.toMetrics()
         let date = uploadDraft.resolvedDate
         let candidate = SwimSession(date: date, metrics: metrics)
-
-        if let duplicate = SwimDuplicates.findDuplicateSession(sessions, candidate: candidate) {
-            duplicateSession = duplicate
-            return false
-        }
-
         let sessionsBefore = sessions
         let mascot = mascotId
         let intensity = MascotConstants.gameplay(mascot).challengeIntensity
@@ -236,30 +270,6 @@ final class SwimViewModel: ObservableObject {
         lastUploadCoinResult = coinResult
         lastNewMedals = newMedals
         return true
-    }
-
-    func saveUploadDraft() {
-        guard prepareUploadSave() else { return }
-        let metrics = uploadDraft.toMetrics()
-        let date = uploadDraft.resolvedDate
-        let coinResult = lastUploadCoinResult ?? UploadCoinResult(
-            sessionCoins: 0, medalCoins: 0, monthlyCoins: 0, total: 0,
-            sessionLines: [], bonusLines: [], alreadyClaimed: false
-        )
-
-        _ = addSession(
-            date: date,
-            metrics: metrics,
-            coinsEarned: coinResult.sessionCoins,
-            coinBonus: coinResult.medalCoins + coinResult.monthlyCoins
-        )
-
-        uploadDraft = .empty
-        parsedResult = nil
-        selectedPhotoItem = nil
-        lastUploadCoinResult = nil
-        lastNewMedals = []
-        duplicateSession = nil
     }
 
     private func persist(immediate: Bool = false) {

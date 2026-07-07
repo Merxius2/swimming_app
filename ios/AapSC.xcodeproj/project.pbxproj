@@ -31,6 +31,7 @@
 		B10000000000000000000023 /* SwimRecords.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000024 /* SwimRecords.swift */; };
 		B10000000000000000000024 /* SwimMonthlyChallenges.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000025 /* SwimMonthlyChallenges.swift */; };
 		B10000000000000000000025 /* SwimMedals.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000026 /* SwimMedals.swift */; };
+		B10000000000000000000027 /* UploadSheets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000028 /* UploadSheets.swift */; };
 		B10000000000000000000026 /* SwimCheatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000027 /* SwimCheatsService.swift */; };
 		B10000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -48,6 +49,7 @@
 		F10000000000000000000010 /* BenchmarkScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkScreen.swift; sourceTree = "<group>"; };
 		F10000000000000000000011 /* MedalsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalsScreen.swift; sourceTree = "<group>"; };
 		F10000000000000000000012 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		F10000000000000000000028 /* UploadSheets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadSheets.swift; sourceTree = "<group>"; };
 		F10000000000000000000013 /* SwimFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimFormatters.swift; sourceTree = "<group>"; };
 		F10000000000000000000014 /* SwimBenchmarks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimBenchmarks.swift; sourceTree = "<group>"; };
 		F10000000000000000000015 /* SwimAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimAnalysis.swift; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 				F10000000000000000000010 /* BenchmarkScreen.swift */,
 				F10000000000000000000011 /* MedalsScreen.swift */,
 				F10000000000000000000012 /* SettingsScreen.swift */,
+				F10000000000000000000028 /* UploadSheets.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -269,6 +272,7 @@
 				B10000000000000000000024 /* SwimMonthlyChallenges.swift in Sources */,
 				B10000000000000000000025 /* SwimMedals.swift in Sources */,
 				B10000000000000000000026 /* SwimCheatsService.swift in Sources */,
+				B10000000000000000000027 /* UploadSheets.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

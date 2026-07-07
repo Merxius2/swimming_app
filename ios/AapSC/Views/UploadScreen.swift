@@ -5,6 +5,10 @@ struct UploadScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @Environment(\.dismiss) private var dismiss
 
+    @State private var showCoinSheet = false
+    @State private var showMedalSheet = false
+    @State private var showDuplicateConfirm = false
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -54,21 +58,83 @@ struct UploadScreen: View {
                     Button("Close") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        viewModel.saveUploadDraft()
-                        dismiss()
-                    }
-                    .disabled(!canSave)
+                    Button("Save") { handleSave() }
+                        .disabled(!canSave)
                 }
             }
             .onChange(of: viewModel.selectedPhotoItem) { _, _ in
                 Task { await viewModel.processSelectedPhoto() }
+            }
+            .confirmationDialog(
+                "Duplicate workout?",
+                isPresented: $showDuplicateConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("Save anyway") { handleSave(ignoreDuplicate: true) }
+                Button("Cancel", role: .cancel) {
+                    viewModel.duplicateSession = nil
+                }
+            } message: {
+                if let duplicate = viewModel.duplicateSession {
+                    Text("A session on \(SwimFormatters.formatDateLong(duplicate.date)) with the same metrics already exists.")
+                }
+            }
+            .sheet(isPresented: $showCoinSheet, onDismiss: finishUploadFlow) {
+                if let result = viewModel.lastUploadCoinResult {
+                    CoinEarnedSheet(result: result)
+                }
+            }
+            .sheet(isPresented: $showMedalSheet, onDismiss: presentCoinSheetIfNeeded) {
+                MedalCelebrationSheet(medals: viewModel.lastNewMedals)
             }
         }
     }
 
     private var canSave: Bool {
         !viewModel.uploadDraft.distance.isEmpty || !viewModel.uploadDraft.duration.isEmpty
+    }
+
+    private func handleSave(ignoreDuplicate: Bool = false) {
+        if !ignoreDuplicate, viewModel.duplicateSession != nil {
+            showDuplicateConfirm = true
+            return
+        }
+
+        if !ignoreDuplicate {
+            let metrics = viewModel.uploadDraft.toMetrics()
+            let candidate = SwimSession(date: viewModel.uploadDraft.resolvedDate, metrics: metrics)
+            if SwimDuplicates.findDuplicateSession(viewModel.sessions, candidate: candidate) != nil {
+                viewModel.duplicateSession = candidate
+                showDuplicateConfirm = true
+                return
+            }
+        }
+
+        guard viewModel.saveUploadDraft(ignoreDuplicate: ignoreDuplicate) else {
+            if viewModel.duplicateSession != nil {
+                showDuplicateConfirm = true
+            }
+            return
+        }
+
+        if !viewModel.lastNewMedals.isEmpty {
+            showMedalSheet = true
+        } else {
+            presentCoinSheetIfNeeded()
+        }
+    }
+
+    private func presentCoinSheetIfNeeded() {
+        if let result = viewModel.lastUploadCoinResult, result.total != 0 || !result.alreadyClaimed {
+            showCoinSheet = true
+        } else {
+            finishUploadFlow()
+        }
+    }
+
+    private func finishUploadFlow() {
+        viewModel.clearUploadDraft()
+        dismiss()
     }
 
     private func parseSummary(_ parsed: ParsedScreenshotResult) -> some View {
