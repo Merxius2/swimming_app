@@ -14,9 +14,10 @@ struct CustomTabBar: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if let stripe = profile.tabBar.accentStripe {
+            if let stripe = profile.tabBar.accentStripe,
+               profile.tabBar.accentStripePosition == .top {
                 stripe
-                    .frame(height: 4)
+                    .frame(height: stripeHeight)
                     .frame(maxWidth: .infinity)
             }
 
@@ -74,7 +75,18 @@ struct CustomTabBar: View {
             .padding(.bottom, 25)
             .frame(height: Self.barHeight)
             .background(barBackground)
+
+            if let stripe = profile.tabBar.accentStripe,
+               profile.tabBar.accentStripePosition == .bottom {
+                stripe
+                    .frame(height: stripeHeight)
+                    .frame(maxWidth: .infinity)
+            }
         }
+    }
+
+    private var stripeHeight: CGFloat {
+        profile.tabBar.accentStripePosition == .bottom ? 3 : 4
     }
 
     @ViewBuilder
@@ -125,16 +137,25 @@ struct CustomUploadFAB: View {
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: "square.and.arrow.up")
-                .font(.system(size: 26, weight: .bold))
-                .foregroundStyle(style.iconColor)
-                .frame(width: 65, height: 65)
-                .background(fabBackground, in: Circle())
-                .overlay(
-                    Circle()
-                        .strokeBorder(style.borderColor, lineWidth: 2)
-                )
-                .shadow(color: style.shadowColor, radius: 10, x: 0, y: 4)
+            ZStack(alignment: .bottom) {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 26, weight: .bold))
+                    .foregroundStyle(style.iconColor)
+                    .frame(width: 65, height: 65)
+                    .background(fabBackground, in: Circle())
+                    .overlay(
+                        Circle()
+                            .strokeBorder(style.borderColor, lineWidth: 2)
+                    )
+                    .shadow(color: style.shadowColor, radius: 10, x: 0, y: 4)
+
+                if let bottomAccent = style.bottomAccent {
+                    bottomAccent
+                        .frame(width: 34, height: 3)
+                        .clipShape(Capsule())
+                        .offset(y: -2)
+                }
+            }
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Upload")

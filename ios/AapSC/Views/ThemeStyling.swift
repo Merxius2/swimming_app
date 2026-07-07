@@ -33,6 +33,16 @@ enum ThemeCardStyle {
         shadowY: CGFloat = 2,
         glow: Color? = nil
     )
+    case inset(
+        fill: Color,
+        border: Color,
+        cornerRadius: CGFloat = 14
+    )
+}
+
+enum ThemeTabBarAccentStripePosition {
+    case top
+    case bottom
 }
 
 struct ThemeTabBarStyle {
@@ -42,6 +52,7 @@ struct ThemeTabBarStyle {
     let selectedColor: Color
     let unselectedColor: Color
     let accentStripe: Color?
+    let accentStripePosition: ThemeTabBarAccentStripePosition
 }
 
 struct ThemeNavBarStyle {
@@ -59,6 +70,7 @@ struct ThemeUploadFABStyle {
     let iconColor: Color
     let borderColor: Color
     let shadowColor: Color
+    let bottomAccent: Color?
 }
 
 enum ThemeVisualProfiles {
@@ -104,7 +116,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: brandBlueDeep,
                 unselectedColor: Color(red: 0.44, green: 0.44, blue: 0.48),
-                accentStripe: nil
+                accentStripe: nil,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -119,7 +132,8 @@ enum ThemeVisualProfiles {
                 solid: nil,
                 iconColor: .white,
                 borderColor: .white,
-                shadowColor: brandBlue.opacity(0.45)
+                shadowColor: brandBlue.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -147,7 +161,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: lime,
                 unselectedColor: Color.white.opacity(0.88),
-                accentStripe: nil
+                accentStripe: nil,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -162,7 +177,8 @@ enum ThemeVisualProfiles {
                 solid: lime,
                 iconColor: Color(red: 0.1, green: 0.1, blue: 0.1),
                 borderColor: Color.white.opacity(0.35),
-                shadowColor: .black.opacity(0.18)
+                shadowColor: .black.opacity(0.18),
+                bottomAccent: nil
             )
         )
     }
@@ -170,20 +186,24 @@ enum ThemeVisualProfiles {
     // MARK: classic
 
     private static func classic(_ dark: Bool) -> ThemeVisualProfile {
-        let lightBar = Color(red: 0.0, green: 0.44, blue: 1.0)
-        let navGray = dark ? Color(red: 0.145, green: 0.145, blue: 0.145) : Color(red: 0.557, green: 0.557, blue: 0.557)
-        let panel = dark ? Color(red: 0.271, green: 0.271, blue: 0.271) : Color(red: 0.831, green: 0.831, blue: 0.831)
+        let lightBar = Color(red: 0.0, green: 0.44, blue: 1.0) // #0070FF
+        let pageGray = dark
+            ? Color(red: 0.227, green: 0.227, blue: 0.227)   // #3A3A3A
+            : Color(red: 0.741, green: 0.741, blue: 0.741)   // #BDBDBD
+        let navGray = dark
+            ? Color(red: 0.145, green: 0.145, blue: 0.145)   // #252525
+            : Color(red: 0.557, green: 0.557, blue: 0.557)   // #8E8E8E
+        let panel = dark
+            ? Color(red: 0.271, green: 0.271, blue: 0.271)   // #454545
+            : Color(red: 0.831, green: 0.831, blue: 0.831)   // #D4D4D4
         return ThemeVisualProfile(
-            displayPrimary: Color(red: 0.0, green: 0.56, blue: 0.84),
+            displayPrimary: Color(red: 0.0, green: 0.56, blue: 0.84), // #008FD6
             displayAccent: lightBar,
-            pageBackground: .solid(dark ? Color(red: 0.227, green: 0.227, blue: 0.227) : Color(red: 0.741, green: 0.741, blue: 0.741)),
-            card: .flat(
+            pageBackground: .solid(pageGray),
+            card: .inset(
                 fill: panel,
                 border: dark ? Color.white.opacity(0.08) : Color.black.opacity(0.14),
-                borderWidth: 1,
-                cornerRadius: 14,
-                shadow: Color.black.opacity(dark ? 0.25 : 0.18),
-                shadowY: 2
+                cornerRadius: 14
             ),
             tabBar: ThemeTabBarStyle(
                 usesSystemDefault: false,
@@ -191,7 +211,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: lightBar,
                 unselectedColor: dark ? Color.white.opacity(0.88) : Color(red: 0.1, green: 0.1, blue: 0.1),
-                accentStripe: lightBar
+                accentStripe: lightBar,
+                accentStripePosition: .bottom
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -206,7 +227,8 @@ enum ThemeVisualProfiles {
                 solid: panel,
                 iconColor: dark ? .white : Color(red: 0.1, green: 0.1, blue: 0.1),
                 borderColor: .white.opacity(0.9),
-                shadowColor: .black.opacity(0.14)
+                shadowColor: .black.opacity(0.14),
+                bottomAccent: lightBar
             )
         )
     }
@@ -239,7 +261,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: gold,
                 unselectedColor: Color.white.opacity(0.88),
-                accentStripe: gold
+                accentStripe: gold,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -254,7 +277,8 @@ enum ThemeVisualProfiles {
                 solid: gold,
                 iconColor: laneDeep,
                 borderColor: .white.opacity(0.9),
-                shadowColor: gold.opacity(0.45)
+                shadowColor: gold.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -283,7 +307,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: brandBlueDeep,
                 unselectedColor: Color(red: 0.44, green: 0.44, blue: 0.48),
-                accentStripe: nil
+                accentStripe: nil,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -298,7 +323,8 @@ enum ThemeVisualProfiles {
                 solid: nil,
                 iconColor: .white,
                 borderColor: .white,
-                shadowColor: brandBlue.opacity(0.45)
+                shadowColor: brandBlue.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -332,7 +358,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: [Color(red: 0.176, green: 0.106, blue: 0.412), Color(red: 0.102, green: 0.039, blue: 0.18)],
                 selectedColor: brandBlueDeep,
                 unselectedColor: Color(red: 0.44, green: 0.44, blue: 0.48),
-                accentStripe: cyan
+                accentStripe: cyan,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -347,7 +374,8 @@ enum ThemeVisualProfiles {
                 solid: nil,
                 iconColor: .white,
                 borderColor: .white,
-                shadowColor: brandBlue.opacity(0.45)
+                shadowColor: brandBlue.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -382,7 +410,8 @@ enum ThemeVisualProfiles {
                     : [sea, Color(red: 0.059, green: 0.467, blue: 0.431)],
                 selectedColor: mint,
                 unselectedColor: Color.white.opacity(0.9),
-                accentStripe: nil
+                accentStripe: nil,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -399,7 +428,8 @@ enum ThemeVisualProfiles {
                 solid: nil,
                 iconColor: .white,
                 borderColor: .white.opacity(0.9),
-                shadowColor: coral.opacity(0.45)
+                shadowColor: coral.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -434,7 +464,8 @@ enum ThemeVisualProfiles {
                     : [goldDeep, Color(red: 0.471, green: 0.208, blue: 0.059)],
                 selectedColor: goldLight,
                 unselectedColor: Color(red: 1.0, green: 0.984, blue: 0.922, opacity: 0.88),
-                accentStripe: goldLight
+                accentStripe: goldLight,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -451,7 +482,8 @@ enum ThemeVisualProfiles {
                 solid: goldLight,
                 iconColor: goldDeep,
                 borderColor: .white.opacity(0.9),
-                shadowColor: goldLight.opacity(0.45)
+                shadowColor: goldLight.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -485,7 +517,8 @@ enum ThemeVisualProfiles {
                     : [Color(red: 0.2, green: 0.255, blue: 0.333), Color(red: 0.118, green: 0.161, blue: 0.231)],
                 selectedColor: ice,
                 unselectedColor: Color(red: 0.973, green: 0.98, blue: 0.988, opacity: 0.88),
-                accentStripe: ice
+                accentStripe: ice,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -502,7 +535,8 @@ enum ThemeVisualProfiles {
                 solid: nil,
                 iconColor: Color(red: 0.118, green: 0.161, blue: 0.231),
                 borderColor: .white.opacity(0.9),
-                shadowColor: Color(red: 0.58, green: 0.639, blue: 0.722, opacity: 0.45)
+                shadowColor: Color(red: 0.58, green: 0.639, blue: 0.722, opacity: 0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -625,6 +659,19 @@ struct ThemedCardModifier: ViewModifier {
                 .shadow(color: shadow ?? .clear, radius: glow == nil ? 0 : 12, y: shadowY)
                 .shadow(color: glow ?? .clear, radius: glow == nil ? 0 : 18, y: 0)
                 .shadow(color: shadow ?? .clear, radius: 12, y: shadowY + 6)
+        case .inset(let fill, let border, let cornerRadius):
+            content
+                .background(fill, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(border, lineWidth: 1)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius - 1, style: .continuous)
+                        .strokeBorder(Color.black.opacity(0.1), lineWidth: 2)
+                        .padding(1)
+                        .blendMode(.multiply)
+                )
         }
     }
 }
