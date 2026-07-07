@@ -42,7 +42,7 @@ final class SwimViewModel: ObservableObject {
 
     var evaluatedMedals: [EvaluatedMedal] {
         SwimMedals.evaluateAllMedals(
-            sessions: sessions,
+            sessions,
             allMedalsUnlocked: cheats.allMedalsUnlocked
         )
     }
