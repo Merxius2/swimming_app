@@ -1,7 +1,6 @@
 import Foundation
 import SwiftUI
 
-@MainActor
 final class TranslationService: ObservableObject {
     static let supportedLanguages = ["en", "nl", "ru", "tr"]
     static let defaultLanguage = "en"
