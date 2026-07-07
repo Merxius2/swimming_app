@@ -65,7 +65,7 @@ struct BenchmarkScreen: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .themedPageBackground()
             .navigationTitle(preferences.t("benchmark.title"))
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()

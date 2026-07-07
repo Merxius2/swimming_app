@@ -32,7 +32,7 @@ struct MedalsScreen: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .themedPageBackground()
             .navigationTitle(preferences.t("medals.title"))
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()

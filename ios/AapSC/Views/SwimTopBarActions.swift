@@ -25,23 +25,36 @@ struct SwimTopBarActionsModifier: ViewModifier {
 
 struct ThemedNavigationModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.colorScheme) private var colorScheme
 
     func body(content: Content) -> some View {
         let theme = preferences.themeColors
-        content
-            .toolbarBackground(
-                LinearGradient(
-                    colors: [
-                        theme.primary.opacity(0.14),
-                        theme.secondary.opacity(0.08),
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                ),
-                for: .navigationBar
-            )
-            .toolbarBackground(.visible, for: .navigationBar)
-            .tint(theme.primary)
+
+        if preferences.themeCode == "olympic-pool" {
+            content
+                .toolbarBackground(
+                    colorScheme == .dark ? OlympicPoolColors.laneDeep : OlympicPoolColors.lane,
+                    for: .navigationBar
+                )
+                .toolbarBackground(.visible, for: .navigationBar)
+                .toolbarColorScheme(.dark, for: .navigationBar)
+                .tint(OlympicPoolColors.gold)
+        } else {
+            content
+                .toolbarBackground(
+                    LinearGradient(
+                        colors: [
+                            theme.primary.opacity(0.14),
+                            theme.secondary.opacity(0.08),
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    for: .navigationBar
+                )
+                .toolbarBackground(.visible, for: .navigationBar)
+                .tint(theme.displayPrimary)
+        }
     }
 }
 

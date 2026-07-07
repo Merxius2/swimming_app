@@ -53,6 +53,11 @@
 		B10000000000000000000050 /* SwimTopBarActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000050 /* SwimTopBarActions.swift */; };
 		B10000000000000000000051 /* MascotStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000051 /* MascotStageView.swift */; };
 		B10000000000000000000052 /* ThemePreviewBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000052 /* ThemePreviewBar.swift */; };
+		B10000000000000000000053 /* MascotPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000053 /* MascotPresentation.swift */; };
+		B10000000000000000000054 /* MascotSpeechBubbleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000054 /* MascotSpeechBubbleView.swift */; };
+		B10000000000000000000055 /* MascotLevelBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000055 /* MascotLevelBadgeView.swift */; };
+		B10000000000000000000056 /* MascotCoachView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000056 /* MascotCoachView.swift */; };
+		B10000000000000000000057 /* ThemeStyling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000057 /* ThemeStyling.swift */; };
 		B10000000000000000000044 /* en.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* en.json */; };
 		B10000000000000000000045 /* nl.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* nl.json */; };
 		B10000000000000000000046 /* ru.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ru.json */; };
@@ -108,6 +113,11 @@
 		F10000000000000000000050 /* SwimTopBarActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimTopBarActions.swift; sourceTree = "<group>"; };
 		F10000000000000000000051 /* MascotStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotStageView.swift; sourceTree = "<group>"; };
 		F10000000000000000000052 /* ThemePreviewBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemePreviewBar.swift; sourceTree = "<group>"; };
+		F10000000000000000000053 /* MascotPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotPresentation.swift; sourceTree = "<group>"; };
+		F10000000000000000000054 /* MascotSpeechBubbleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotSpeechBubbleView.swift; sourceTree = "<group>"; };
+		F10000000000000000000055 /* MascotLevelBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotLevelBadgeView.swift; sourceTree = "<group>"; };
+		F10000000000000000000056 /* MascotCoachView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotCoachView.swift; sourceTree = "<group>"; };
+		F10000000000000000000057 /* ThemeStyling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeStyling.swift; sourceTree = "<group>"; };
 		F10000000000000000000044 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
 		F10000000000000000000045 /* nl.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nl.json; sourceTree = "<group>"; };
 		F10000000000000000000046 /* ru.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ru.json; sourceTree = "<group>"; };
@@ -208,6 +218,10 @@
 				F10000000000000000000050 /* SwimTopBarActions.swift */,
 				F10000000000000000000051 /* MascotStageView.swift */,
 				F10000000000000000000052 /* ThemePreviewBar.swift */,
+				F10000000000000000000054 /* MascotSpeechBubbleView.swift */,
+				F10000000000000000000055 /* MascotLevelBadgeView.swift */,
+				F10000000000000000000056 /* MascotCoachView.swift */,
+				F10000000000000000000057 /* ThemeStyling.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -234,6 +248,7 @@
 				F10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift */,
 				F10000000000000000000039 /* AppThemes.swift */,
 				F10000000000000000000040 /* SwimImportExport.swift */,
+				F10000000000000000000053 /* MascotPresentation.swift */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -377,6 +392,11 @@
 				B10000000000000000000050 /* SwimTopBarActions.swift in Sources */,
 				B10000000000000000000051 /* MascotStageView.swift in Sources */,
 				B10000000000000000000052 /* ThemePreviewBar.swift in Sources */,
+				B10000000000000000000053 /* MascotPresentation.swift in Sources */,
+				B10000000000000000000054 /* MascotSpeechBubbleView.swift in Sources */,
+				B10000000000000000000055 /* MascotLevelBadgeView.swift in Sources */,
+				B10000000000000000000056 /* MascotCoachView.swift in Sources */,
+				B10000000000000000000057 /* ThemeStyling.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

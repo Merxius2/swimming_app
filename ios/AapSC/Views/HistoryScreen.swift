@@ -67,7 +67,7 @@ struct HistoryScreen: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .themedPageBackground()
             .navigationTitle(preferences.t("history.title"))
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()

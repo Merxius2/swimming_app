@@ -152,4 +152,12 @@ enum MascotConstants {
     static func coachedLevel(_ id: String?) -> String {
         mascot(id).coachedLevel
     }
+
+    static func stageBackgroundImageName(_ id: String?) -> String? {
+        switch id {
+        case "flo": return "MascotFloStageBg"
+        case "fins": return "MascotFinsStageBg"
+        default: return "MascotFlipStageBg"
+        }
+    }
 }

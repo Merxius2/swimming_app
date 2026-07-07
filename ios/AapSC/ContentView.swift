@@ -3,47 +3,75 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedTab = 0
     @State private var showUpload = false
     @State private var showSettings = false
     @State private var showCoins = false
 
+    private var isOlympicPool: Bool {
+        preferences.themeCode == "olympic-pool"
+    }
+
     var body: some View {
-        TabView(selection: $selectedTab) {
-            ProgressScreen()
-                .tabItem {
-                    Label(preferences.t("navigation.progress"), systemImage: "chart.line.uptrend.xyaxis")
-                }
-                .tag(0)
+        ZStack(alignment: .bottom) {
+            TabView(selection: $selectedTab) {
+                ProgressScreen()
+                    .tabItem {
+                        Label(preferences.t("navigation.progress"), systemImage: "chart.line.uptrend.xyaxis")
+                    }
+                    .tag(0)
 
-            MedalsScreen()
-                .tabItem {
-                    Label(preferences.t("navigation.medals"), systemImage: "medal")
-                }
-                .tag(1)
+                MedalsScreen()
+                    .tabItem {
+                        Label(preferences.t("navigation.medals"), systemImage: "medal")
+                    }
+                    .tag(1)
 
-            Color.clear
-                .tabItem {
-                    Label(preferences.t("navigation.upload"), systemImage: "plus.circle.fill")
-                }
-                .tag(2)
+                Color.clear
+                    .tabItem {
+                        Label(preferences.t("navigation.upload"), systemImage: isOlympicPool ? "circle.fill" : "plus.circle.fill")
+                    }
+                    .tag(2)
 
-            BenchmarkScreen()
-                .tabItem {
-                    Label(preferences.t("navigation.benchmark"), systemImage: "gauge.with.dots.needle.67percent")
-                }
-                .tag(3)
+                BenchmarkScreen()
+                    .tabItem {
+                        Label(preferences.t("navigation.benchmark"), systemImage: "gauge.with.dots.needle.67percent")
+                    }
+                    .tag(3)
 
-            HistoryScreen()
-                .tabItem {
-                    Label(preferences.t("navigation.history"), systemImage: "clock.arrow.circlepath")
+                HistoryScreen()
+                    .tabItem {
+                        Label(preferences.t("navigation.history"), systemImage: "clock.arrow.circlepath")
+                    }
+                    .tag(4)
+            }
+            .background {
+                if isOlympicPool {
+                    OlympicPoolTabBarConfigurator(isDark: colorScheme == .dark)
+                } else {
+                    DefaultTabBarConfigurator()
                 }
-                .tag(4)
-        }
-        .onChange(of: selectedTab) { _, newValue in
-            if newValue == 2 {
-                showUpload = true
-                selectedTab = 0
+            }
+            .onChange(of: selectedTab) { _, newValue in
+                if newValue == 2 {
+                    showUpload = true
+                    selectedTab = 0
+                }
+            }
+
+            if isOlympicPool {
+                OlympicPoolUploadFAB {
+                    showUpload = true
+                }
+                .offset(y: -18)
+
+                Rectangle()
+                    .fill(OlympicPoolColors.gold)
+                    .frame(height: 4)
+                    .frame(maxWidth: .infinity)
+                    .offset(y: 28)
+                    .allowsHitTesting(false)
             }
         }
         .sheet(isPresented: $showUpload) {
@@ -94,11 +122,7 @@ struct Card<Content: View>: View {
         content
             .padding()
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
-            )
+            .themedCard()
     }
 }
 
@@ -118,7 +142,7 @@ struct ScreenHeader: View {
         HStack(spacing: 12) {
             Image(systemName: systemImage)
                 .font(.title2.weight(.semibold))
-                .foregroundStyle(themeColors.primary)
+                .foregroundStyle(themeColors.displayPrimary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.title2.bold())

@@ -4,7 +4,6 @@ import Charts
 struct ProgressScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.themeColors) private var themeColors
 
     var body: some View {
         NavigationStack {
@@ -46,7 +45,7 @@ struct ProgressScreen: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .themedPageBackground()
             .navigationTitle(preferences.t("progress.title"))
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()
@@ -56,37 +55,51 @@ struct ProgressScreen: View {
 
     private var emptyState: some View {
         Card {
-            VStack(spacing: 12) {
-                Image(systemName: "figure.pool.swim")
-                    .font(.system(size: 44))
-                    .foregroundStyle(themeColors.primary)
-                Text(preferences.t("progress.emptyTitle"))
-                    .font(.title3.bold())
-                Text(SwimAnalysis.buildProgressOverviewMessage(
-                    profile: viewModel.profile,
-                    sessions: [],
-                    t: preferences.translations
-                ))
-                    .multilineTextAlignment(.center)
+            VStack(alignment: .leading, spacing: 12) {
+                Text(preferences.t("progress.overviewTitle"))
+                    .font(.caption.bold())
                     .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+                    .tracking(1.1)
+
+                MascotCoachView(
+                    mascotId: viewModel.mascotId,
+                    message: preferences.t("progress.mascotEmpty"),
+                    level: MascotConstants.coachedLevel(viewModel.mascotId),
+                    coachName: MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
+                    size: 200,
+                    animated: true
+                )
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
         }
     }
 
     private var overviewCard: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 8) {
+        let overviewMessage = SwimAnalysis.buildProgressOverviewMessage(
+            profile: viewModel.profile,
+            sessions: viewModel.sessions,
+            t: preferences.translations,
+            monthlyChallengeRerolls: viewModel.monthlyChallengeRerolls
+        )
+        let overviewTone = MascotPresentation.resolveBubbleTone(message: overviewMessage)
+
+        return Card {
+            VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.overviewTitle"))
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
-                Text(SwimAnalysis.buildProgressOverviewMessage(
-                    profile: viewModel.profile,
-                    sessions: viewModel.sessions,
-                    t: preferences.translations,
-                    monthlyChallengeRerolls: viewModel.monthlyChallengeRerolls
-                ))
+                    .textCase(.uppercase)
+                    .tracking(1.1)
+
+                MascotCoachView(
+                    mascotId: viewModel.mascotId,
+                    message: overviewMessage,
+                    level: MascotConstants.coachedLevel(viewModel.mascotId),
+                    bubbleTone: overviewTone,
+                    coachName: MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
+                    size: 220,
+                    animated: true
+                )
             }
         }
     }

@@ -115,19 +115,14 @@ struct SettingsScreen: View {
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
 
-                MascotStageView(mascotId: viewModel.mascotId) {
-                    HStack(alignment: .top, spacing: 12) {
-                        MascotCharacterView(mascotId: viewModel.mascotId, size: 110, animated: true)
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(mascotDisplayName(viewModel.mascotId))
-                                .font(.caption.weight(.bold))
-                            Text(mascotPreviewMessage)
-                                .font(.subheadline)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        Spacer(minLength: 0)
-                    }
-                }
+                MascotCoachView(
+                    mascotId: viewModel.mascotId,
+                    message: mascotPreviewMessage,
+                    level: MascotConstants.coachedLevel(viewModel.mascotId),
+                    coachName: mascotDisplayName(viewModel.mascotId),
+                    size: 110,
+                    animated: true
+                )
             }
             .padding(.vertical, 4)
         } header: {

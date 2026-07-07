@@ -15,7 +15,7 @@ struct AapSCApp: App {
             .environmentObject(preferences)
             .environment(\.t, preferences.translations)
             .environment(\.themeColors, preferences.themeColors)
-            .tint(preferences.themeColors.primary)
+            .tint(preferences.themeColors.displayPrimary)
             .preferredColorScheme(preferences.colorScheme)
         }
     }

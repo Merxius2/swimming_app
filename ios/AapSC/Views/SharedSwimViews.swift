@@ -93,7 +93,16 @@ struct SessionFeedbackCard: View {
 
                 MascotCoachView(
                     mascotId: viewModel.mascotId,
-                    message: feedback.coachMessage
+                    message: feedback.coachMessage,
+                    bubbleTone: MascotPresentation.resolveBubbleTone(
+                        coachMessage: feedback.coachMessage,
+                        motivation: feedback.motivation,
+                        badges: feedback.badges,
+                        benchmarkLevel: feedback.benchmarkLevel
+                    ),
+                    showStage: true,
+                    size: 170,
+                    animated: true
                 )
 
                 if feedback.aiEnhanced {
