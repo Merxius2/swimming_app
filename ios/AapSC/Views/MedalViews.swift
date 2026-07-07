@@ -6,24 +6,32 @@ struct MedalCardView: View {
     let medal: EvaluatedMedal
     var shimmerPlus: Bool = false
 
+    @State private var showTooltip = false
+
+    private var showProgress: Bool {
+        !medal.earned && medal.progress?.percent != nil
+    }
+
     var body: some View {
         Card {
             HStack(alignment: .top, spacing: 12) {
-                MedalIconView(tier: medal.tier, earned: medal.earned, size: 48)
+                MedalIconView(id: medal.id, tier: medal.tier, earned: medal.earned, size: 52)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(SwimMedalCopy.title(for: medal.id, t: preferences.translations))
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(medal.earned ? .primary : .secondary)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-
-                    if SwimCoins.medalTierCoins(medal.tier) > 0 {
-                        CoinBadge(
-                            count: SwimCoins.medalTierCoins(medal.tier),
-                            size: .sm
-                        )
-                        .opacity(medal.earned ? 1 : 0.6)
+                    HStack(alignment: .top) {
+                        Text(SwimMedalCopy.title(for: medal.id, t: preferences.translations))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(medal.earned ? .primary : .secondary)
+                            .lineLimit(2)
+                            .fixedSize(horizontal: false, vertical: true)
+                        Spacer(minLength: 8)
+                        if SwimCoins.medalTierCoins(medal.tier) > 0 {
+                            CoinBadge(
+                                count: SwimCoins.medalTierCoins(medal.tier),
+                                size: .sm
+                            )
+                            .opacity(medal.earned ? 1 : 0.6)
+                        }
                     }
 
                     Text(SwimMedalCopy.description(for: medal.id, t: preferences.translations))
@@ -31,7 +39,7 @@ struct MedalCardView: View {
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    if let progress = medal.progress, !medal.earned {
+                    if showProgress, let progress = medal.progress {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 Text(progressSummary(progress))
@@ -43,8 +51,13 @@ struct MedalCardView: View {
                                     .font(.caption2.weight(.semibold))
                                     .foregroundStyle(themeColors.primary)
                             }
-                            ProgressView(value: Double(progress.percent), total: 100)
-                                .tint(themeColors.primary)
+                            MedalProgressBar(percent: progress.percent, tint: themeColors.primary)
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { showTooltip.toggle() }
+                        .popover(isPresented: $showTooltip, arrowEdge: .top) {
+                            MedalProgressTooltip(progress: progress)
+                                .presentationCompactAdaptation(.popover)
                         }
                     }
 
@@ -80,12 +93,27 @@ struct MedalCardView: View {
             }
         }
         .overlay {
-            if medal.earned && shimmerPlus {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(cardBorderColor, lineWidth: medal.earned ? 2 : 1)
+                .opacity(medal.earned ? 1 : 0.7)
+        }
+        .background {
+            if medal.earned {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(tierColor(medal.tier).opacity(0.35), lineWidth: 1)
+                    .fill(tierColor(medal.tier).opacity(0.06))
             }
         }
-        .opacity(medal.earned ? 1 : 0.92)
+        .overlay {
+            if medal.earned && shimmerPlus {
+                MedalShineOverlay(tier: medal.tier)
+            }
+        }
+        .opacity(medal.earned ? 1 : 0.88)
+        .saturation(medal.earned ? 1 : 0.75)
+    }
+
+    private var cardBorderColor: Color {
+        medal.earned ? tierColor(medal.tier).opacity(0.45) : Color(.separator).opacity(0.5)
     }
 
     private func progressSummary(_ progress: MedalProgress) -> String {
@@ -123,31 +151,169 @@ struct MedalCardView: View {
 }
 
 struct MedalIconView: View {
+    let id: String
     let tier: String
     let earned: Bool
     var size: CGFloat = 40
 
+    private var palette: MedalTierPalette { MedalTierPalette.palette(for: tier) }
+
     var body: some View {
         ZStack {
+            MedalRibbonView(color: palette.ribbon, earned: earned)
+                .frame(width: size * 0.55, height: size * 0.35)
+                .offset(y: size * 0.42)
+
             Circle()
                 .fill(
                     earned
-                        ? LinearGradient(colors: tierGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+                        ? LinearGradient(colors: [palette.from, palette.to], startPoint: .topLeading, endPoint: .bottomTrailing)
                         : LinearGradient(colors: [Color(.systemGray4), Color(.systemGray5)], startPoint: .top, endPoint: .bottom)
                 )
                 .frame(width: size, height: size)
-            Image(systemName: "medal.fill")
-                .font(.system(size: size * 0.45))
-                .foregroundStyle(earned ? .white : Color(.systemGray))
+                .overlay(
+                    Circle()
+                        .strokeBorder(earned ? palette.rim.opacity(0.8) : Color(.systemGray3), lineWidth: 2)
+                )
+
+            MedalGlyphView(id: id, earned: earned, size: size * 0.55)
+
+            if !earned {
+                Image(systemName: "lock.fill")
+                    .font(.system(size: size * 0.22, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.9))
+                    .padding(5)
+                    .background(Color.black.opacity(0.35), in: Circle())
+                    .offset(x: size * 0.28, y: size * 0.28)
+            }
+        }
+        .frame(width: size, height: size * 1.1)
+    }
+}
+
+private struct MedalRibbonView: View {
+    let color: Color
+    let earned: Bool
+
+    var body: some View {
+        HStack(spacing: 2) {
+            RibbonTail()
+                .fill(earned ? color : Color(.systemGray3))
+                .frame(width: 12, height: 16)
+            RibbonTail()
+                .fill(earned ? color : Color(.systemGray3))
+                .frame(width: 12, height: 16)
+                .scaleEffect(x: -1, y: 1)
+        }
+    }
+}
+
+private struct RibbonTail: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+private struct MedalProgressBar: View {
+    let percent: Int
+    let tint: Color
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color(.systemGray5))
+                Capsule()
+                    .fill(LinearGradient(colors: [tint, Color(red: 0.48, green: 0.36, blue: 1.0)], startPoint: .leading, endPoint: .trailing))
+                    .frame(width: proxy.size.width * CGFloat(percent) / 100)
+            }
+        }
+        .frame(height: 6)
+    }
+}
+
+private struct MedalProgressTooltip: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
+    let progress: MedalProgress
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(lines, id: \.self) { line in
+                Text(line)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: 240, alignment: .leading)
+    }
+
+    private var lines: [String] {
+        var result: [String] = []
+        result.append(SwimMedalCopy.progressScopeLabel(progress.scope, t: preferences.translations))
+        result.append(progressSummary)
+        if progress.percent > 0 {
+            result.append(preferences.t("medals.progress.percentComplete", params: ["percent": String(progress.percent)]))
+        }
+        if let best = progress.best, best > 0, best > (progress.current ?? 0) {
+            let detail = formatValue(progress.kind, best)
+                + (progress.bestPeriod.map { " (\(formatPeriod($0)))" } ?? "")
+            result.append(preferences.t("medals.progress.alsoBest", params: ["detail": detail]))
+        }
+        if progress.kind == "pace" && progress.current == nil {
+            result.append(preferences.t("medals.progress.noPaceYet"))
+        }
+        return result
+    }
+
+    private var progressSummary: String {
+        preferences.t("medals.progress.summary", params: [
+            "current": formatValue(progress.kind, progress.current),
+            "target": formatValue(progress.kind, progress.target)
+        ])
+    }
+
+    private func formatValue(_ kind: String, _ value: Int?) -> String {
+        guard let value else { return "—" }
+        switch kind {
+        case "distance": return SwimFormatters.formatDistance(value)
+        case "duration": return SwimFormatters.formatDuration(value)
+        case "kcal": return "\(value) " + preferences.t("common.kcal")
+        case "pace": return SwimFormatters.formatPace(value)
+        default: return String(value)
         }
     }
 
-    private var tierGradient: [Color] {
-        switch tier {
-        case "gold": return [.yellow, .orange]
-        case "silver": return [.gray, Color(white: 0.85)]
-        default: return [Color(red: 0.75, green: 0.45, blue: 0.15), .orange]
+    private func formatPeriod(_ period: String) -> String {
+        SwimMedalCopy.formatPeriods([period], t: preferences.translations, locale: preferences.locale)
+    }
+}
+
+private struct MedalShineOverlay: View {
+    let tier: String
+    @State private var phase: CGFloat = -1
+
+    var body: some View {
+        GeometryReader { proxy in
+            LinearGradient(
+                colors: [.clear, Color.white.opacity(0.35), .clear],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(width: proxy.size.width * 0.35)
+            .offset(x: proxy.size.width * phase)
+            .onAppear {
+                withAnimation(.linear(duration: 2.8).repeatForever(autoreverses: false)) {
+                    phase = 1.4
+                }
+            }
         }
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .allowsHitTesting(false)
     }
 }
 

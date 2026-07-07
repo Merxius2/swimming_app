@@ -10,6 +10,7 @@ struct ThemeVisualProfile {
     let card: ThemeCardStyle
     let tabBar: ThemeTabBarStyle
     let navBar: ThemeNavBarStyle
+    let topBar: ThemeTopBarStyle
     let uploadFAB: ThemeUploadFABStyle
 }
 
@@ -63,6 +64,17 @@ struct ThemeNavBarStyle {
     let lightContent: Bool
 }
 
+struct ThemeTopBarStyle {
+    let background: Color
+    let backgroundGradient: [Color]?
+    let borderColor: Color
+    let borderWidth: CGFloat
+    let shadowColor: Color
+    let dividerColor: Color
+    let coinsColor: Color
+    let settingsColor: Color
+}
+
 struct ThemeUploadFABStyle {
     let usesOverlay: Bool
     let gradient: [Color]?
@@ -77,6 +89,25 @@ enum ThemeVisualProfiles {
     static let brandBlue = Color(red: 0.23, green: 0.27, blue: 1.0)
     static let brandBlueDeep = Color(red: 0.16, green: 0.27, blue: 0.8)
     static let brandViolet = Color(red: 0.48, green: 0.36, blue: 1.0)
+
+    private static func glassTopBar(
+        background: Color = Color.white.opacity(0.72),
+        backgroundGradient: [Color]? = nil,
+        borderColor: Color = Color.black.opacity(0.06),
+        coinsColor: Color = Color(red: 0.851, green: 0.467, blue: 0.024),
+        settingsColor: Color = Color(red: 0.44, green: 0.44, blue: 0.48)
+    ) -> ThemeTopBarStyle {
+        ThemeTopBarStyle(
+            background: background,
+            backgroundGradient: backgroundGradient,
+            borderColor: borderColor,
+            borderWidth: 1,
+            shadowColor: Color.black.opacity(0.06),
+            dividerColor: Color.black.opacity(0.08),
+            coinsColor: coinsColor,
+            settingsColor: settingsColor
+        )
+    }
 
     static func isAlwaysDark(_ code: String) -> Bool {
         code == "midnight-lane" || code == "retro-wave"
@@ -126,6 +157,7 @@ enum ThemeVisualProfiles {
                 tint: brandBlue,
                 lightContent: false
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: [brandBlue, brandViolet],
@@ -170,6 +202,12 @@ enum ThemeVisualProfiles {
                 gradient: nil,
                 tint: lime,
                 lightContent: true
+            ),
+            topBar: glassTopBar(
+                background: dark ? Color(red: 0.24, green: 0.0, blue: 0.47) : purple,
+                coinsColor: lime,
+                settingsColor: .white,
+                borderColor: Color.black.opacity(0.18)
             ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
@@ -221,6 +259,7 @@ enum ThemeVisualProfiles {
                 tint: lightBar,
                 lightContent: dark
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
@@ -271,6 +310,7 @@ enum ThemeVisualProfiles {
                 tint: gold,
                 lightContent: true
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
@@ -316,6 +356,12 @@ enum ThemeVisualProfiles {
                 gradient: nil,
                 tint: glow,
                 lightContent: true
+            ),
+            topBar: glassTopBar(
+                background: Color(red: 0.031, green: 0.055, blue: 0.11),
+                coinsColor: glow,
+                settingsColor: glow,
+                borderColor: glow.opacity(0.35)
             ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
@@ -367,6 +413,13 @@ enum ThemeVisualProfiles {
                 gradient: [Color(red: 0.176, green: 0.106, blue: 0.412), Color(red: 0.102, green: 0.039, blue: 0.18)],
                 tint: pink,
                 lightContent: true
+            ),
+            topBar: glassTopBar(
+                background: Color(red: 0.102, green: 0.039, blue: 0.18),
+                backgroundGradient: [Color(red: 0.176, green: 0.106, blue: 0.412), Color(red: 0.102, green: 0.039, blue: 0.18)],
+                coinsColor: pink,
+                settingsColor: pink,
+                borderColor: pink.opacity(0.45)
             ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
@@ -422,6 +475,7 @@ enum ThemeVisualProfiles {
                 tint: mint,
                 lightContent: true
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: [coral, Color(red: 0.984, green: 0.573, blue: 0.235)],
@@ -476,6 +530,7 @@ enum ThemeVisualProfiles {
                 tint: goldLight,
                 lightContent: true
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
@@ -529,6 +584,7 @@ enum ThemeVisualProfiles {
                 tint: ice,
                 lightContent: true
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: [Color(red: 0.796, green: 0.835, blue: 0.882), Color(red: 0.58, green: 0.639, blue: 0.722)],

@@ -221,6 +221,7 @@ final class SwimViewModel: ObservableObject {
             data.profile.activeAmbient = itemId
         } else if itemId.hasPrefix("icon:") {
             data.profile.activeAppIcon = itemId
+            AppIconService.apply(activeAppIcon: itemId, storeUnlocks: data.storeUnlocks)
         }
 
         data.profile = SwimCoinStore.sanitizeProfileCosmetics(

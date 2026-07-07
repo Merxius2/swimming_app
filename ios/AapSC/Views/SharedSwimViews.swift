@@ -636,7 +636,7 @@ struct SessionCalendarView: View {
                 }
 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 6) {
-                    ForEach(["M", "T", "W", "T", "F", "S", "S"], id: \.self) { day in
+                    ForEach(weekdaySymbols, id: \.self) { day in
                         Text(day)
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(.secondary)
@@ -648,18 +648,34 @@ struct SessionCalendarView: View {
                                 selectedDate = selectedDate == cell.dateKey ? nil : cell.dateKey
                             } label: {
                                 Text("\(cell.day)")
-                                    .font(.caption.weight(.semibold))
+                                    .font(.caption.weight(cell.isToday ? .bold : .semibold))
                                     .frame(maxWidth: .infinity, minHeight: 32)
-                                    .background(heatColor(cell.count), in: RoundedRectangle(cornerRadius: 6))
+                                    .background(heatBackground(cell.count), in: RoundedRectangle(cornerRadius: 6))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(selectedDate == cell.dateKey ? Color("BrandBlue") : .clear, lineWidth: 2)
                                     )
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(cellAccessibilityLabel(cell))
                         } else {
                             Color.clear.frame(minHeight: 32)
                         }
+                    }
+                }
+
+                Divider().padding(.top, 4)
+
+                HStack {
+                    Text(preferences.t("history.calendarLegend"))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    HStack(spacing: 6) {
+                        legendSwatch(count: 0)
+                        legendSwatch(count: 1)
+                        legendSwatch(count: 2)
+                        legendSwatch(count: 3)
                     }
                 }
             }
@@ -691,7 +707,7 @@ struct SessionCalendarView: View {
 
         for day in range {
             let dateKey = String(format: "%04d-%02d-%02d", viewYear, viewMonth, day)
-            result.append(CalendarCell(day: day, dateKey: dateKey, count: sessionsByDate[dateKey] ?? 0))
+            result.append(CalendarCell(day: day, dateKey: dateKey, count: sessionsByDate[dateKey] ?? 0, isToday: dateKey == todayKey))
         }
         while result.count % 7 != 0 { result.append(nil) }
         return result
@@ -704,18 +720,56 @@ struct SessionCalendarView: View {
         viewMonth = Calendar.current.component(.month, from: date)
     }
 
-    private func heatColor(_ count: Int) -> Color {
-        switch count {
-        case 0: return Color(.systemGray5)
-        case 1: return Color("BrandBlue").opacity(0.25)
-        case 2: return Color("BrandBlue").opacity(0.45)
-        default: return Color("BrandBlue").opacity(0.7)
+    private var weekdaySymbols: [String] {
+        var calendar = Calendar.current
+        calendar.locale = preferences.locale
+        return calendar.veryShortWeekdaySymbols
+    }
+
+    private func cellAccessibilityLabel(_ cell: CalendarCell) -> String {
+        if cell.count == 0 {
+            return "\(cell.day)"
         }
+        return "\(cell.day), \(cell.count) sessions"
+    }
+
+    private func heatBackground(_ count: Int) -> AnyShapeStyle {
+        switch count {
+        case 0:
+            return AnyShapeStyle(Color(.systemGray5))
+        case 1:
+            return AnyShapeStyle(Color("BrandBlue").opacity(0.28))
+        case 2:
+            return AnyShapeStyle(Color("BrandBlue").opacity(0.55))
+        default:
+            return AnyShapeStyle(
+                LinearGradient(
+                    colors: [Color("BrandBlue"), Color(red: 0.48, green: 0.36, blue: 1.0)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+        }
+    }
+
+    private func legendSwatch(count: Int) -> some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(heatBackground(count))
+            .frame(width: 16, height: 16)
+    }
+
+    private var todayKey: String {
+        let today = Date()
+        let year = Calendar.current.component(.year, from: today)
+        let month = Calendar.current.component(.month, from: today)
+        let day = Calendar.current.component(.day, from: today)
+        return String(format: "%04d-%02d-%02d", year, month, day)
     }
 
     private struct CalendarCell {
         let day: Int
         let dateKey: String
         let count: Int
+        let isToday: Bool
     }
 }

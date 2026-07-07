@@ -499,7 +499,10 @@ struct SwimCoinStoreView: View {
 
                     if !owned {
                         Button {
-                            viewModel.purchaseStoreItem(item.id)
+                            guard viewModel.purchaseStoreItem(item.id) else { return }
+                            if let themeCode = item.themeCode {
+                                preferences.setTheme(themeCode)
+                            }
                         } label: {
                             Text(
                                 canBuy
@@ -607,13 +610,13 @@ private struct StoreItemPreviewView: View {
                     .textCase(.uppercase)
             }
         case "icon-gold-medal":
-            iconPreview(colors: [.yellow, .orange])
+            StoreIconPreview(id: "icon:gold-medal", size: 56)
         case "icon-neon-lane":
-            iconPreview(colors: [.purple, .cyan])
+            StoreIconPreview(id: "icon:neon-lane", size: 56)
         case "icon-trophy-splash":
-            iconPreview(colors: [.blue, .teal])
+            StoreIconPreview(id: "icon:trophy-splash", size: 56)
         case "icon-platinum-star":
-            iconPreview(colors: [.gray, .white])
+            StoreIconPreview(id: "icon:platinum-star", size: 56)
         default:
             Image(systemName: "bitcoinsign.circle.fill")
                 .font(.title)

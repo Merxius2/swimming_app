@@ -7,6 +7,7 @@ struct SettingsScreen: View {
     @Environment(\.themeColors) private var themeColors
 
     @State private var showResetConfirm = false
+    @State private var resetMessage: String?
     @State private var showImportConfirm = false
     @State private var showSecretSettings = false
     @State private var exportString = ""
@@ -52,17 +53,11 @@ struct SettingsScreen: View {
             } message: {
                 Text(preferences.t("settings.importConfirmDesc"))
             }
-            .confirmationDialog(
-                preferences.t("settings.confirm"),
-                isPresented: $showResetConfirm,
-                titleVisibility: .visible
-            ) {
-                Button(preferences.t("settings.clearButton"), role: .destructive) {
+            .sheet(isPresented: $showResetConfirm) {
+                ResetDataModal(sessionCount: viewModel.sessions.count) {
                     viewModel.resetAllData()
+                    resetMessage = preferences.t("settings.success")
                 }
-                Button(preferences.t("common.cancel"), role: .cancel) {}
-            } message: {
-                Text(preferences.t("settings.confirmDesc"))
             }
             .sheet(isPresented: $showSecretSettings) {
                 SecretSettingsSheet()
@@ -164,7 +159,12 @@ struct SettingsScreen: View {
             Picker(preferences.t("settings.activeAppIcon"), selection: iconBinding) {
                 Text(preferences.t("settings.iconDefault")).tag(Optional<String>.none)
                 ForEach(ownedIcons, id: \.self) { id in
-                    Text(iconLabel(id)).tag(Optional(id))
+                    Label {
+                        Text(iconLabel(id))
+                    } icon: {
+                        StoreIconPreview(id: id, size: 20)
+                    }
+                    .tag(Optional(id))
                 }
             }
         }
@@ -219,10 +219,21 @@ struct SettingsScreen: View {
 
     private var dataSection: some View {
         Section(preferences.t("settings.resetData")) {
+            Text(preferences.t("settings.resetDesc"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(preferences.t("settings.warning"))
+                .font(.caption)
+                .foregroundStyle(.orange)
             LabeledContent(preferences.t("navigation.history"), value: "\(viewModel.sessions.count)")
             LabeledContent(preferences.t("coins.label"), value: "\(viewModel.totalCoins)")
             Button(preferences.t("settings.clearButton"), role: .destructive) {
                 showResetConfirm = true
+            }
+            if let resetMessage {
+                Text(resetMessage)
+                    .font(.caption)
+                    .foregroundStyle(.green)
             }
         }
     }
@@ -270,6 +281,10 @@ struct SettingsScreen: View {
             get: { viewModel.profile.activeAppIcon },
             set: { newValue in
                 viewModel.updateProfile { $0.activeAppIcon = newValue }
+                AppIconService.apply(
+                    activeAppIcon: newValue,
+                    storeUnlocks: viewModel.storeUnlocks
+                )
             }
         )
     }

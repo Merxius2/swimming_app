@@ -61,6 +61,15 @@
 		B10000000000000000000058 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000058 /* CustomTabBar.swift */; };
 		B10000000000000000000059 /* MascotChoiceCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000059 /* MascotChoiceCardView.swift */; };
 		B10000000000000000000060 /* SwimFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000060 /* SwimFeedback.swift */; };
+		B10000000000000000000061 /* MedalIconGlyphs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000061 /* MedalIconGlyphs.swift */; };
+		B10000000000000000000062 /* ResetDataModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000062 /* ResetDataModal.swift */; };
+		B10000000000000000000063 /* AppIconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000063 /* AppIconService.swift */; };
+		B10000000000000000000064 /* ThemeTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000064 /* ThemeTypography.swift */; };
+		B10000000000000000000065 /* StoreIconPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000065 /* StoreIconPreview.swift */; };
+		B10000000000000000000066 /* Oxanium-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000066 /* Oxanium-Regular.ttf */; };
+		B10000000000000000000067 /* Oxanium-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000067 /* Oxanium-Medium.ttf */; };
+		B10000000000000000000068 /* Oxanium-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000068 /* Oxanium-SemiBold.ttf */; };
+		B10000000000000000000069 /* Oxanium-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000069 /* Oxanium-Bold.ttf */; };
 		B10000000000000000000044 /* en.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* en.json */; };
 		B10000000000000000000045 /* nl.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* nl.json */; };
 		B10000000000000000000046 /* ru.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ru.json */; };
@@ -124,6 +133,15 @@
 		F10000000000000000000058 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 		F10000000000000000000059 /* MascotChoiceCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotChoiceCardView.swift; sourceTree = "<group>"; };
 		F10000000000000000000060 /* SwimFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimFeedback.swift; sourceTree = "<group>"; };
+		F10000000000000000000061 /* MedalIconGlyphs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalIconGlyphs.swift; sourceTree = "<group>"; };
+		F10000000000000000000062 /* ResetDataModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetDataModal.swift; sourceTree = "<group>"; };
+		F10000000000000000000063 /* AppIconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconService.swift; sourceTree = "<group>"; };
+		F10000000000000000000064 /* ThemeTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTypography.swift; sourceTree = "<group>"; };
+		F10000000000000000000065 /* StoreIconPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreIconPreview.swift; sourceTree = "<group>"; };
+		F10000000000000000000066 /* Oxanium-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Regular.ttf"; sourceTree = "<group>"; };
+		F10000000000000000000067 /* Oxanium-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Medium.ttf"; sourceTree = "<group>"; };
+		F10000000000000000000068 /* Oxanium-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-SemiBold.ttf"; sourceTree = "<group>"; };
+		F10000000000000000000069 /* Oxanium-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Bold.ttf"; sourceTree = "<group>"; };
 		F10000000000000000000044 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
 		F10000000000000000000045 /* nl.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nl.json; sourceTree = "<group>"; };
 		F10000000000000000000046 /* ru.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ru.json; sourceTree = "<group>"; };
@@ -192,6 +210,7 @@
 				F10000000000000000000037 /* TranslationService.swift */,
 				F10000000000000000000038 /* UserPreferencesService.swift */,
 				F10000000000000000000041 /* AiCoachService.swift */,
+				F10000000000000000000063 /* AppIconService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -230,6 +249,9 @@
 				F10000000000000000000057 /* ThemeStyling.swift */,
 				F10000000000000000000058 /* CustomTabBar.swift */,
 				F10000000000000000000059 /* MascotChoiceCardView.swift */,
+				F10000000000000000000061 /* MedalIconGlyphs.swift */,
+				F10000000000000000000062 /* ResetDataModal.swift */,
+				F10000000000000000000065 /* StoreIconPreview.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -258,6 +280,7 @@
 				F10000000000000000000039 /* AppThemes.swift */,
 				F10000000000000000000040 /* SwimImportExport.swift */,
 				F10000000000000000000053 /* MascotPresentation.swift */,
+				F10000000000000000000064 /* ThemeTypography.swift */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -266,9 +289,21 @@
 			isa = PBXGroup;
 			children = (
 				F10000000000000000000018 /* Assets.xcassets */,
+				G10000000000000000000011 /* Fonts */,
 				G10000000000000000000010 /* Localizations */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000011 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000066 /* Oxanium-Regular.ttf */,
+				F10000000000000000000067 /* Oxanium-Medium.ttf */,
+				F10000000000000000000068 /* Oxanium-SemiBold.ttf */,
+				F10000000000000000000069 /* Oxanium-Bold.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		G10000000000000000000010 /* Localizations */ = {
@@ -345,6 +380,10 @@
 				B10000000000000000000045 /* nl.json in Resources */,
 				B10000000000000000000046 /* ru.json in Resources */,
 				B10000000000000000000047 /* tr.json in Resources */,
+				B10000000000000000000066 /* Oxanium-Regular.ttf in Resources */,
+				B10000000000000000000067 /* Oxanium-Medium.ttf in Resources */,
+				B10000000000000000000068 /* Oxanium-SemiBold.ttf in Resources */,
+				B10000000000000000000069 /* Oxanium-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,6 +448,11 @@
 				B10000000000000000000057 /* ThemeStyling.swift in Sources */,
 				B10000000000000000000058 /* CustomTabBar.swift in Sources */,
 				B10000000000000000000059 /* MascotChoiceCardView.swift in Sources */,
+				B10000000000000000000061 /* MedalIconGlyphs.swift in Sources */,
+				B10000000000000000000062 /* ResetDataModal.swift in Sources */,
+				B10000000000000000000063 /* AppIconService.swift in Sources */,
+				B10000000000000000000064 /* ThemeTypography.swift in Sources */,
+				B10000000000000000000065 /* StoreIconPreview.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,6 +511,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -494,6 +539,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

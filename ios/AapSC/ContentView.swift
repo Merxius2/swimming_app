@@ -144,7 +144,9 @@ struct ScreenHeader: View {
                 .foregroundStyle(profile.displayPrimary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.title2.bold())
+                    .font(ThemeTypography.font(for: preferences.themeCode, textStyle: .title2, weight: .bold))
+                    .tracking(ThemeTypography.headingTracking(for: preferences.themeCode))
+                    .textCase(ThemeTypography.usesUppercaseHeadings(for: preferences.themeCode) ? .uppercase : nil)
                 if let subtitle {
                     Text(subtitle)
                         .font(.subheadline)
