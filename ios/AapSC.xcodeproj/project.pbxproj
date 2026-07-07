@@ -1,0 +1,372 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B10000000000000000000001 /* AapSCApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000001 /* AapSCApp.swift */; };
+		B10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000002 /* ContentView.swift */; };
+		B10000000000000000000003 /* SwimModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000003 /* SwimModels.swift */; };
+		B10000000000000000000004 /* SwimStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000004 /* SwimStorageService.swift */; };
+		B10000000000000000000005 /* OCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000005 /* OCRService.swift */; };
+		B10000000000000000000006 /* SwimViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000006 /* SwimViewModel.swift */; };
+		B10000000000000000000007 /* ProgressScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000007 /* ProgressScreen.swift */; };
+		B10000000000000000000008 /* UploadScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000008 /* UploadScreen.swift */; };
+		B10000000000000000000009 /* HistoryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000009 /* HistoryScreen.swift */; };
+		B10000000000000000000010 /* BenchmarkScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000010 /* BenchmarkScreen.swift */; };
+		B10000000000000000000011 /* MedalsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000011 /* MedalsScreen.swift */; };
+		B10000000000000000000012 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000012 /* SettingsScreen.swift */; };
+		B10000000000000000000013 /* SwimFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000013 /* SwimFormatters.swift */; };
+		B10000000000000000000014 /* SwimBenchmarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000014 /* SwimBenchmarks.swift */; };
+		B10000000000000000000015 /* SwimAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000015 /* SwimAnalysis.swift */; };
+		B10000000000000000000016 /* SwimCoins.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* SwimCoins.swift */; };
+		B10000000000000000000017 /* ScreenshotParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* ScreenshotParser.swift */; };
+		B10000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		F10000000000000000000001 /* AapSCApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AapSCApp.swift; sourceTree = "<group>"; };
+		F10000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F10000000000000000000003 /* SwimModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimModels.swift; sourceTree = "<group>"; };
+		F10000000000000000000004 /* SwimStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimStorageService.swift; sourceTree = "<group>"; };
+		F10000000000000000000005 /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
+		F10000000000000000000006 /* SwimViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimViewModel.swift; sourceTree = "<group>"; };
+		F10000000000000000000007 /* ProgressScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressScreen.swift; sourceTree = "<group>"; };
+		F10000000000000000000008 /* UploadScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadScreen.swift; sourceTree = "<group>"; };
+		F10000000000000000000009 /* HistoryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryScreen.swift; sourceTree = "<group>"; };
+		F10000000000000000000010 /* BenchmarkScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BenchmarkScreen.swift; sourceTree = "<group>"; };
+		F10000000000000000000011 /* MedalsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalsScreen.swift; sourceTree = "<group>"; };
+		F10000000000000000000012 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		F10000000000000000000013 /* SwimFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimFormatters.swift; sourceTree = "<group>"; };
+		F10000000000000000000014 /* SwimBenchmarks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimBenchmarks.swift; sourceTree = "<group>"; };
+		F10000000000000000000015 /* SwimAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimAnalysis.swift; sourceTree = "<group>"; };
+		F10000000000000000000016 /* SwimCoins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimCoins.swift; sourceTree = "<group>"; };
+		F10000000000000000000017 /* ScreenshotParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotParser.swift; sourceTree = "<group>"; };
+		F10000000000000000000018 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F10000000000000000000019 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		P10000000000000000000001 /* AapSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AapSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C10000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		G10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				G10000000000000000000002 /* AapSC */,
+				G10000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		G10000000000000000000002 /* AapSC */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000001 /* AapSCApp.swift */,
+				F10000000000000000000002 /* ContentView.swift */,
+				G10000000000000000000004 /* Models */,
+				G10000000000000000000005 /* Services */,
+				G10000000000000000000006 /* ViewModels */,
+				G10000000000000000000007 /* Views */,
+				G10000000000000000000008 /* Lib */,
+				G10000000000000000000009 /* Resources */,
+				F10000000000000000000019 /* Info.plist */,
+			);
+			path = AapSC;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				P10000000000000000000001 /* AapSC.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000003 /* SwimModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000005 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000004 /* SwimStorageService.swift */,
+				F10000000000000000000005 /* OCRService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000006 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000006 /* SwimViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000007 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000007 /* ProgressScreen.swift */,
+				F10000000000000000000008 /* UploadScreen.swift */,
+				F10000000000000000000009 /* HistoryScreen.swift */,
+				F10000000000000000000010 /* BenchmarkScreen.swift */,
+				F10000000000000000000011 /* MedalsScreen.swift */,
+				F10000000000000000000012 /* SettingsScreen.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000008 /* Lib */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000013 /* SwimFormatters.swift */,
+				F10000000000000000000014 /* SwimBenchmarks.swift */,
+				F10000000000000000000015 /* SwimAnalysis.swift */,
+				F10000000000000000000016 /* SwimCoins.swift */,
+				F10000000000000000000017 /* ScreenshotParser.swift */,
+			);
+			path = Lib;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000009 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000018 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		T10000000000000000000001 /* AapSC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = L10000000000000000000003 /* Build configuration list for PBXNativeTarget "AapSC" */;
+			buildPhases = (
+				S10000000000000000000001 /* Sources */,
+				C10000000000000000000001 /* Frameworks */,
+				R10000000000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AapSC;
+			productName = AapSC;
+			productReference = P10000000000000000000001 /* AapSC.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		PR1000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					T10000000000000000000001 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = L10000000000000000000001 /* Build configuration list for PBXProject "AapSC" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = G10000000000000000000001;
+			productRefGroup = G10000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				T10000000000000000000001 /* AapSC */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		R10000000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000018 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		S10000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000001 /* AapSCApp.swift in Sources */,
+				B10000000000000000000002 /* ContentView.swift in Sources */,
+				B10000000000000000000003 /* SwimModels.swift in Sources */,
+				B10000000000000000000004 /* SwimStorageService.swift in Sources */,
+				B10000000000000000000005 /* OCRService.swift in Sources */,
+				B10000000000000000000006 /* SwimViewModel.swift in Sources */,
+				B10000000000000000000007 /* ProgressScreen.swift in Sources */,
+				B10000000000000000000008 /* UploadScreen.swift in Sources */,
+				B10000000000000000000009 /* HistoryScreen.swift in Sources */,
+				B10000000000000000000010 /* BenchmarkScreen.swift in Sources */,
+				B10000000000000000000011 /* MedalsScreen.swift in Sources */,
+				B10000000000000000000012 /* SettingsScreen.swift in Sources */,
+				B10000000000000000000013 /* SwimFormatters.swift in Sources */,
+				B10000000000000000000014 /* SwimBenchmarks.swift in Sources */,
+				B10000000000000000000015 /* SwimAnalysis.swift in Sources */,
+				B10000000000000000000016 /* SwimCoins.swift in Sources */,
+				B10000000000000000000017 /* ScreenshotParser.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		X10000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		X10000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		X10000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AapSC/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aapft.aapsc;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		X10000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = AapSC/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.aapft.aapsc;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		L10000000000000000000001 /* Build configuration list for PBXProject "AapSC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				X10000000000000000000001 /* Debug */,
+				X10000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		L10000000000000000000003 /* Build configuration list for PBXNativeTarget "AapSC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				X10000000000000000000003 /* Debug */,
+				X10000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = PR1000000000000000000001 /* Project object */;
+}
