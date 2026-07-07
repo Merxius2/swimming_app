@@ -333,20 +333,21 @@ private struct WheelSegmentWedgeView: View {
             )
     }
 
-    @ViewBuilder
-    private var segmentFill: some ShapeStyle {
+    private var segmentFill: AnyShapeStyle {
         if segment.shiny {
-            LinearGradient(
-                colors: [
-                    Color(red: 1.0, green: 0.957, blue: 0.722),
-                    Color(red: 1.0, green: 0.843, blue: 0.0),
-                    Color(red: 0.722, green: 0.525, blue: 0.043),
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+            AnyShapeStyle(
+                LinearGradient(
+                    colors: [
+                        Color(red: 1.0, green: 0.957, blue: 0.722),
+                        Color(red: 1.0, green: 0.843, blue: 0.0),
+                        Color(red: 0.722, green: 0.525, blue: 0.043),
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
             )
         } else {
-            segment.color
+            AnyShapeStyle(segment.color)
         }
     }
 }

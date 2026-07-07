@@ -22,7 +22,7 @@ enum AiCoachService {
         let coachName = mascotId.prefix(1).uppercased() + mascotId.dropFirst()
         let personality = MascotConstants.mascot(mascotId).aiPersonality
         let langName = languageName(language)
-        let combined = SwimAnalysis.getCombinedStats(sessions)
+        let combined = SwimAnalysis.combinedStats(sessions)
         let recent = sessions.suffix(6).dropLast().map { session in
             [
                 "date": session.date,
@@ -55,7 +55,7 @@ enum AiCoachService {
         - Laps: \(session.metrics.laps ?? 0)
 
         Recent sessions: \(jsonString(recent))
-        All-time combined: \(jsonString(combinedPayload(combined)))
+        All-time combined: \(jsonString(combined.map(combinedPayload) ?? [:]))
         On-device insights already shown: \(jsonString(localFeedback.insights))
         Badges earned: \(jsonString(localFeedback.badges))
 
