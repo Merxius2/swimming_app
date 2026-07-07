@@ -4,6 +4,7 @@ struct MascotCoachView: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
 
     let mascotId: String
     let message: String
@@ -25,25 +26,28 @@ struct MascotCoachView: View {
     }
 
     private var stackedLayout: Bool {
-        horizontalSizeClass == .compact
+        horizontalSizeClass == .compact || verticalSizeClass == .compact
     }
 
     var body: some View {
         let content = coachContent
 
-        if showStage {
-            MascotStageView(mascotId: mascotId) {
+        Group {
+            if showStage {
+                MascotStageView(mascotId: mascotId) {
+                    content
+                }
+            } else {
                 content
             }
-        } else {
-            content
         }
+        .frame(maxWidth: .infinity)
     }
 
     private var coachContent: some View {
         Group {
             if stackedLayout {
-                VStack(spacing: 16) {
+                VStack(alignment: .center, spacing: 16) {
                     headerRow
                     MascotSpeechBubbleView(
                         message: message,
@@ -51,8 +55,10 @@ struct MascotCoachView: View {
                         mascotId: mascotId,
                         tail: .bottom
                     )
+                    .frame(maxWidth: .infinity)
                     mascotColumn
                 }
+                .frame(maxWidth: .infinity)
             } else {
                 HStack(alignment: .bottom, spacing: 20) {
                     mascotColumn
@@ -68,6 +74,7 @@ struct MascotCoachView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 24)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
