@@ -58,6 +58,7 @@
 		B10000000000000000000055 /* MascotLevelBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000055 /* MascotLevelBadgeView.swift */; };
 		B10000000000000000000056 /* MascotCoachView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000056 /* MascotCoachView.swift */; };
 		B10000000000000000000057 /* ThemeStyling.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000057 /* ThemeStyling.swift */; };
+		B10000000000000000000058 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000058 /* CustomTabBar.swift */; };
 		B10000000000000000000044 /* en.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* en.json */; };
 		B10000000000000000000045 /* nl.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* nl.json */; };
 		B10000000000000000000046 /* ru.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ru.json */; };
@@ -118,6 +119,7 @@
 		F10000000000000000000055 /* MascotLevelBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotLevelBadgeView.swift; sourceTree = "<group>"; };
 		F10000000000000000000056 /* MascotCoachView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotCoachView.swift; sourceTree = "<group>"; };
 		F10000000000000000000057 /* ThemeStyling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeStyling.swift; sourceTree = "<group>"; };
+		F10000000000000000000058 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 		F10000000000000000000044 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
 		F10000000000000000000045 /* nl.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nl.json; sourceTree = "<group>"; };
 		F10000000000000000000046 /* ru.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ru.json; sourceTree = "<group>"; };
@@ -222,6 +224,7 @@
 				F10000000000000000000055 /* MascotLevelBadgeView.swift */,
 				F10000000000000000000056 /* MascotCoachView.swift */,
 				F10000000000000000000057 /* ThemeStyling.swift */,
+				F10000000000000000000058 /* CustomTabBar.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -397,6 +400,7 @@
 				B10000000000000000000055 /* MascotLevelBadgeView.swift in Sources */,
 				B10000000000000000000056 /* MascotCoachView.swift in Sources */,
 				B10000000000000000000057 /* ThemeStyling.swift in Sources */,
+				B10000000000000000000058 /* CustomTabBar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
