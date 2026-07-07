@@ -28,7 +28,7 @@ enum ScreenshotParser {
         let parts = token.split(separator: " ")
         guard parts.count >= 3,
               let day = Int(parts[1]),
-              let month = dutchMonths[String(parts[2]).lowercased().prefix(3)] else {
+              let month = dutchMonths[String(String(parts[2]).lowercased().prefix(3))] else {
             return nil
         }
 
@@ -118,7 +118,7 @@ enum ScreenshotParser {
         let timeRange: String
         if let range = text.range(of: #"\b(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\b"#, options: .regularExpression) {
             let token = String(text[range])
-            let parts = token.split(separator: "-").map { $0.trimmingCharacters(in: .whitespaces) }
+            let parts = token.split(separator: "-").map { String($0).trimmingCharacters(in: .whitespaces) }
             timeRange = parts.count == 2 ? "\(parts[0])–\(parts[1])" : ""
         } else {
             timeRange = ""

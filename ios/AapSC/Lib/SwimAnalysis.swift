@@ -28,8 +28,8 @@ enum SwimAnalysis {
             totalDurationSec: totalDuration,
             totalActiveKcal: totalActiveKcal,
             totalLaps: totalLaps,
-            avgPaceSecPer100m: average(paces.map(Double.init)).map { Int($0.rounded()) },
-            avgHeartRate: average(heartRates.map(Double.init)).map { Int($0.rounded()) },
+            avgPaceSecPer100m: roundedAverage(paces),
+            avgHeartRate: roundedAverage(heartRates),
             bestPaceSecPer100m: paces.min(),
             longestDistanceM: metrics.compactMap(\.distanceM).max(),
             firstDate: sorted.first?.date,
@@ -214,9 +214,9 @@ enum SwimAnalysis {
            let pace = metrics.paceSecPer100m {
             let delta = prevPace - pace
             if delta > 0 {
-                insights.append("You swam \(Int(delta.rounded())) seconds faster per 100m than your previous session.")
+                insights.append("You swam \(delta) seconds faster per 100m than your previous session.")
             } else if delta < 0 {
-                insights.append("Pace was \(Int(abs(delta).rounded())) seconds slower per 100m than last time.")
+                insights.append("Pace was \(abs(delta)) seconds slower per 100m than last time.")
             }
         }
 
@@ -262,6 +262,11 @@ enum SwimAnalysis {
             motivation: motivation,
             benchmarkLevel: level
         )
+    }
+
+    private static func roundedAverage(_ values: [Int]) -> Int? {
+        guard let avg = average(values.map(Double.init)) else { return nil }
+        return Int(avg.rounded())
     }
 
     private static func average(_ values: [Double]) -> Double? {
