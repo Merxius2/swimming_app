@@ -27,19 +27,38 @@ struct ThemedNavigationModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.colorScheme) private var colorScheme
 
+    private var profile: ThemeVisualProfile {
+        ThemeVisualProfiles.profile(
+            code: preferences.themeCode,
+            isDark: colorScheme == .dark
+        )
+    }
+
+    @ViewBuilder
     func body(content: Content) -> some View {
+        let nav = profile.navBar
         let theme = preferences.themeColors
 
-        if preferences.themeCode == "olympic-pool" {
+        if let gradient = nav.gradient {
             content
                 .toolbarBackground(
-                    colorScheme == .dark ? OlympicPoolColors.laneDeep : OlympicPoolColors.lane,
+                    LinearGradient(
+                        colors: gradient,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
                     for: .navigationBar
                 )
                 .toolbarBackground(.visible, for: .navigationBar)
-                .toolbarColorScheme(.dark, for: .navigationBar)
-                .tint(OlympicPoolColors.gold)
-        } else {
+                .toolbarColorScheme(nav.lightContent ? .dark : nil, for: .navigationBar)
+                .tint(nav.tint)
+        } else if let solid = nav.solidColor {
+            content
+                .toolbarBackground(solid, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+                .toolbarColorScheme(nav.lightContent ? .dark : nil, for: .navigationBar)
+                .tint(nav.tint)
+        } else if nav.usesThemeGradient {
             content
                 .toolbarBackground(
                     LinearGradient(
@@ -53,7 +72,11 @@ struct ThemedNavigationModifier: ViewModifier {
                     for: .navigationBar
                 )
                 .toolbarBackground(.visible, for: .navigationBar)
-                .tint(theme.displayPrimary)
+                .tint(profile.displayPrimary)
+        } else {
+            content
+                .toolbarBackground(.visible, for: .navigationBar)
+                .tint(profile.displayPrimary)
         }
     }
 }

@@ -23,7 +23,7 @@ struct UploadScreen: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .themedPageBackground()
             .navigationTitle(preferences.t("upload.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

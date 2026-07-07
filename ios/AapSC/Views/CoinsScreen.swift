@@ -20,7 +20,7 @@ struct CoinsScreen: View {
                 }
                 .padding()
             }
-            .background(Color(.systemGroupedBackground))
+            .themedPageBackground()
             .navigationTitle(preferences.t("coins.label"))
             .navigationBarTitleDisplayMode(.inline)
             .themedNavigationBar()

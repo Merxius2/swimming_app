@@ -9,8 +9,11 @@ struct ContentView: View {
     @State private var showSettings = false
     @State private var showCoins = false
 
-    private var isOlympicPool: Bool {
-        preferences.themeCode == "olympic-pool"
+    private var themeProfile: ThemeVisualProfile {
+        ThemeVisualProfiles.profile(
+            code: preferences.themeCode,
+            isDark: colorScheme == .dark
+        )
     }
 
     var body: some View {
@@ -30,7 +33,10 @@ struct ContentView: View {
 
                 Color.clear
                     .tabItem {
-                        Label(preferences.t("navigation.upload"), systemImage: isOlympicPool ? "circle.fill" : "plus.circle.fill")
+                        Label(
+                            preferences.t("navigation.upload"),
+                            systemImage: themeProfile.uploadFAB.usesOverlay ? "circle.fill" : "plus.circle.fill"
+                        )
                     }
                     .tag(2)
 
@@ -47,11 +53,7 @@ struct ContentView: View {
                     .tag(4)
             }
             .background {
-                if isOlympicPool {
-                    OlympicPoolTabBarConfigurator(isDark: colorScheme == .dark)
-                } else {
-                    DefaultTabBarConfigurator()
-                }
+                ThemedTabBarConfigurator(profile: themeProfile)
             }
             .onChange(of: selectedTab) { _, newValue in
                 if newValue == 2 {
@@ -59,20 +61,21 @@ struct ContentView: View {
                     selectedTab = 0
                 }
             }
+            .onChange(of: preferences.themeCode) { _, _ in
+                refreshTabBar()
+            }
+            .onChange(of: colorScheme) { _, _ in
+                refreshTabBar()
+            }
 
-            if isOlympicPool {
-                OlympicPoolUploadFAB {
+            if themeProfile.uploadFAB.usesOverlay {
+                ThemedUploadFAB(style: themeProfile.uploadFAB) {
                     showUpload = true
                 }
                 .offset(y: -18)
-
-                Rectangle()
-                    .fill(OlympicPoolColors.gold)
-                    .frame(height: 4)
-                    .frame(maxWidth: .infinity)
-                    .offset(y: 28)
-                    .allowsHitTesting(false)
             }
+
+            ThemeTabBarChrome(accentStripe: themeProfile.tabBar.accentStripe)
         }
         .sheet(isPresented: $showUpload) {
             UploadScreen()
@@ -87,7 +90,12 @@ struct ContentView: View {
         .environment(\.openCoins, { showCoins = true })
         .onAppear {
             viewModel.validateThemeSelection(preferences: preferences)
+            refreshTabBar()
         }
+    }
+
+    private func refreshTabBar() {
+        _ = ThemedTabBarConfigurator(profile: themeProfile)
     }
 }
 
@@ -130,7 +138,8 @@ struct ScreenHeader: View {
     let title: String
     let subtitle: String?
     let systemImage: String
-    @Environment(\.themeColors) private var themeColors
+    @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.colorScheme) private var colorScheme
 
     init(_ title: String, subtitle: String? = nil, systemImage: String) {
         self.title = title
@@ -138,11 +147,18 @@ struct ScreenHeader: View {
         self.systemImage = systemImage
     }
 
+    private var profile: ThemeVisualProfile {
+        ThemeVisualProfiles.profile(
+            code: preferences.themeCode,
+            isDark: colorScheme == .dark
+        )
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: systemImage)
                 .font(.title2.weight(.semibold))
-                .foregroundStyle(themeColors.displayPrimary)
+                .foregroundStyle(profile.displayPrimary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.title2.bold())
