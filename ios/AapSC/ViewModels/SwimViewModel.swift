@@ -5,16 +5,45 @@ import PhotosUI
 @MainActor
 final class SwimViewModel: ObservableObject {
     @Published private(set) var data: SwimData = .empty
+    @Published private(set) var cheats: SwimCheats = .empty
     @Published private(set) var isLoading = true
     @Published var selectedPhotoItem: PhotosPickerItem?
     @Published var isProcessingOCR = false
     @Published var ocrErrorMessage: String?
     @Published var parsedResult: ParsedScreenshotResult?
     @Published var uploadDraft = UploadDraft.empty
+    @Published var lastUploadCoinResult: UploadCoinResult?
+    @Published var lastNewMedals: [EvaluatedMedal] = []
+    @Published var duplicateSession: SwimSession?
+
+    private var saveTask: Task<Void, Never>?
 
     var sessions: [SwimSession] { data.sessions }
     var profile: SwimProfile { data.profile }
     var totalCoins: Int { data.totalCoins }
+    var coinsSpent: Int { data.coinsSpent }
+    var spentCoinClaims: [SpentCoinClaim] { data.spentCoinClaims }
+    var storeUnlocks: [String] { data.storeUnlocks }
+    var monthlyChallengeRerolls: [String: MonthRerollEntry] { data.monthlyChallengeRerolls }
+    var challengeRerollCredits: Int { data.challengeRerollCredits }
+    var bonusWheelSpinCredits: Int { data.bonusWheelSpinCredits }
+    var monthlySettlements: [String: MonthlySettlement] { data.monthlySettlements }
+    var wheelSpins: WheelSpins? { data.wheelSpins }
+
+    var mascotId: String {
+        MascotUnlock.resolveMascotId(
+            profile: profile,
+            sessions: sessions,
+            monthlyChallengeRerolls: monthlyChallengeRerolls
+        )
+    }
+
+    var evaluatedMedals: [EvaluatedMedal] {
+        SwimMedals.evaluateAllMedals(
+            sessions: sessions,
+            allMedalsUnlocked: cheats.allMedalsUnlocked
+        )
+    }
 
     init() {
         load()
@@ -22,6 +51,7 @@ final class SwimViewModel: ObservableObject {
 
     func load() {
         data = SwimStorageService.load()
+        cheats = SwimCheatsService.load()
         isLoading = false
     }
 
@@ -29,33 +59,115 @@ final class SwimViewModel: ObservableObject {
         var profile = data.profile
         updates(&profile)
         data.profile = profile
-        persist()
+        persist(immediate: true)
     }
 
-    func addSession(from metrics: SwimMetrics, date: String) {
-        let prior = data.sessions
-        let session = SwimSession(date: date, metrics: metrics)
-        let coins = SwimCoins.calculateSessionCoins(session, priorSessions: prior)
-        var saved = session
-        saved.sessionCoins = coins
-
-        data.sessions.append(saved)
-        data.totalCoins += coins
-        persist()
-    }
-
-    func deleteSession(id: String) {
-        guard let index = data.sessions.firstIndex(where: { $0.id == id }) else { return }
-        let removed = data.sessions.remove(at: index)
-        if let coins = removed.sessionCoins {
-            data.totalCoins = max(0, data.totalCoins - coins)
+    func switchMascot(_ nextMascotId: String) -> Bool {
+        let current = mascotId
+        let result = MascotUnlock.canSwitchMascot(
+            profile: profile,
+            sessions: sessions,
+            nextMascotId: nextMascotId,
+            currentMascotId: current
+        )
+        guard result.allowed else { return false }
+        let monthKey = SwimMonthlyChallenges.getMonthKey()
+        updateProfile { profile in
+            profile.mascotId = nextMascotId
+            if nextMascotId != current {
+                profile.mascotSwitchMonthKey = monthKey
+            }
         }
+        return true
+    }
+
+    func addSession(
+        date: String,
+        metrics: SwimMetrics,
+        coinsEarned: Int,
+        coinBonus: Int = 0
+    ) -> SwimSession {
+        let entry = SwimSession(
+            id: SwimStorageService.createSessionId(),
+            createdAt: ISO8601DateFormatter().string(from: Date()),
+            date: date,
+            metrics: metrics,
+            coinsEarned: coinsEarned,
+            coinBonus: coinBonus
+        )
+        data.sessions.append(entry)
+        data.sessions.sort { $0.date < $1.date }
+        data.totalCoins = max(0, data.totalCoins + coinsEarned + coinBonus)
         persist()
+        return entry
+    }
+
+    func applyMonthlySettlement(monthKey: String, coins: Int, mascotId: String?) {
+        guard !monthKey.isEmpty, data.monthlySettlements[monthKey] == nil else { return }
+        let deduction = min(max(0, coins), data.totalCoins)
+        data.totalCoins = max(0, data.totalCoins - deduction)
+        data.coinsSpent += deduction
+        data.monthlySettlements[monthKey] = MonthlySettlement(
+            coins: deduction,
+            mascotId: mascotId,
+            appliedAt: ISO8601DateFormatter().string(from: Date())
+        )
+        persist(immediate: true)
+    }
+
+    func removeSession(id: String) {
+        guard let session = data.sessions.first(where: { $0.id == id }) else { return }
+        let coinsRemoved = SwimCoinClaims.sessionTotalCoins(session)
+        if coinsRemoved > 0 {
+            data.spentCoinClaims.append(SwimCoinClaims.createCoinClaim(session))
+        }
+        data.totalCoins = max(0, data.totalCoins - coinsRemoved)
+        data.sessions.removeAll { $0.id == id }
+        persist()
+    }
+
+    func updateSession(id: String, updates: (inout SwimSession) -> Void) {
+        guard let index = data.sessions.firstIndex(where: { $0.id == id }) else { return }
+        updates(&data.sessions[index])
+        persist()
+    }
+
+    func replaceData(_ nextData: SwimData) {
+        var migrated = nextData
+        migrated.sessions = SwimCoins.migrateSessionCoins(migrated.sessions)
+        migrated.totalCoins = SwimCoins.reconcileTotalCoins(
+            sessions: migrated.sessions,
+            storedTotal: migrated.totalCoins,
+            coinsSpent: migrated.coinsSpent
+        )
+        data = migrated
+        persist(immediate: true)
+    }
+
+    func clearAll() {
+        data = .empty
+        cheats = .empty
+        SwimStorageService.clear()
+        SwimCheatsService.clear()
     }
 
     func resetAllData() {
-        SwimStorageService.clear()
-        data = .empty
+        clearAll()
+    }
+
+    func adjustCoins(delta: Int) {
+        data.totalCoins = max(0, data.totalCoins + delta)
+        if delta < 0 {
+            data.coinsSpent += abs(delta)
+            persist(immediate: true)
+        } else {
+            persist()
+        }
+    }
+
+    func updateCheats(_ updates: (inout SwimCheats) -> Void) {
+        updates(&cheats)
+        SwimCheatsService.save(cheats)
     }
 
     func processSelectedPhoto() async {
@@ -65,12 +177,11 @@ final class SwimViewModel: ObservableObject {
         defer { isProcessingOCR = false }
 
         do {
-            guard let data = try await selectedPhotoItem.loadTransferable(type: Data.self),
-                  let image = UIImage(data: data) else {
+            guard let photoData = try await selectedPhotoItem.loadTransferable(type: Data.self),
+                  let image = UIImage(data: photoData) else {
                 ocrErrorMessage = "Could not load the selected photo."
                 return
             }
-
             let result = try await OCRService.parseSwimScreenshot(from: image)
             parsedResult = result
             uploadDraft = UploadDraft.from(parsed: result.fields)
@@ -79,19 +190,89 @@ final class SwimViewModel: ObservableObject {
         }
     }
 
-    func saveUploadDraft() {
+    func prepareUploadSave() -> Bool {
         let metrics = uploadDraft.toMetrics()
-        let date = uploadDraft.date.isEmpty
-            ? ISO8601DateFormatter().string(from: Date()).prefix(10).description
-            : uploadDraft.date
-        addSession(from: metrics, date: date)
+        let date = uploadDraft.resolvedDate
+        let candidate = SwimSession(date: date, metrics: metrics)
+
+        if let duplicate = SwimDuplicates.findDuplicateSession(sessions, candidate: candidate) {
+            duplicateSession = duplicate
+            return false
+        }
+
+        let sessionsBefore = sessions
+        let mascot = mascotId
+        let intensity = MascotConstants.gameplay(mascot).challengeIntensity
+        let monthKey = String(date.prefix(7))
+
+        if let penalty = SwimMonthlyChallenges.getMonthlyShortfallPenalty(
+            sessions: sessionsBefore,
+            uploadMonthKey: monthKey,
+            mascotId: mascot,
+            rerolls: monthlyChallengeRerolls,
+            settledMonths: monthlySettlements
+        ) {
+            applyMonthlySettlement(monthKey: penalty.monthKey, coins: penalty.coins, mascotId: penalty.mascotId)
+        }
+
+        let sessionsAfter = sessionsBefore + [candidate]
+        let newMedals = SwimMedals.getNewlyEarnedMedals(
+            sessionsBefore: sessionsBefore,
+            sessionsAfter: sessionsAfter,
+            allMedalsUnlocked: cheats.allMedalsUnlocked
+        )
+        let coinResult = SwimCoins.calculateUploadCoins(
+            session: candidate,
+            sessionsBefore: sessionsBefore,
+            sessionsAfter: sessionsAfter,
+            newMedals: newMedals,
+            spentCoinClaims: spentCoinClaims,
+            mascotId: mascot,
+            monthKey: monthKey,
+            rerolls: monthlyChallengeRerolls,
+            intensity: intensity
+        )
+
+        lastUploadCoinResult = coinResult
+        lastNewMedals = newMedals
+        return true
+    }
+
+    func saveUploadDraft() {
+        guard prepareUploadSave() else { return }
+        let metrics = uploadDraft.toMetrics()
+        let date = uploadDraft.resolvedDate
+        let coinResult = lastUploadCoinResult ?? UploadCoinResult(
+            sessionCoins: 0, medalCoins: 0, monthlyCoins: 0, total: 0,
+            sessionLines: [], bonusLines: [], alreadyClaimed: false
+        )
+
+        _ = addSession(
+            date: date,
+            metrics: metrics,
+            coinsEarned: coinResult.sessionCoins,
+            coinBonus: coinResult.medalCoins + coinResult.monthlyCoins
+        )
+
         uploadDraft = .empty
         parsedResult = nil
         selectedPhotoItem = nil
+        lastUploadCoinResult = nil
+        lastNewMedals = []
+        duplicateSession = nil
     }
 
-    private func persist() {
-        SwimStorageService.save(data)
+    private func persist(immediate: Bool = false) {
+        if immediate {
+            SwimStorageService.save(data)
+            return
+        }
+        saveTask?.cancel()
+        saveTask = Task {
+            try? await Task.sleep(nanoseconds: 500_000_000)
+            guard !Task.isCancelled else { return }
+            SwimStorageService.save(data)
+        }
     }
 }
 
@@ -110,19 +291,17 @@ struct UploadDraft: Equatable {
     var timeRange: String
 
     static let empty = UploadDraft(
-        date: "",
-        duration: "",
-        distance: "",
-        pace: "",
-        activeKcal: "",
-        totalKcal: "",
-        avgHeartRate: "",
-        laps: "",
-        poolLength: "25",
-        goal: "",
-        location: "",
-        timeRange: ""
+        date: "", duration: "", distance: "", pace: "",
+        activeKcal: "", totalKcal: "", avgHeartRate: "",
+        laps: "", poolLength: "25", goal: "", location: "", timeRange: ""
     )
+
+    var resolvedDate: String {
+        if !date.isEmpty { return date }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
+    }
 
     static func from(parsed fields: ParsedScreenshotFields) -> UploadDraft {
         UploadDraft(

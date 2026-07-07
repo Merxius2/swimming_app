@@ -45,8 +45,8 @@ private struct HistoryRow: View {
                 Text(SwimFormatters.formatDateLong(session.date))
                     .font(.headline)
                 Spacer()
-                if let coins = session.sessionCoins {
-                    Text("+\(coins)")
+                if let coins = session.coinsEarned {
+                    Text("+\(coins + (session.coinBonus ?? 0))")
                         .font(.caption.bold())
                         .foregroundStyle(Color("BrandBlue"))
                 }

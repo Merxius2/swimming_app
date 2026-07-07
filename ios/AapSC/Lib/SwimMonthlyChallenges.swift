@@ -1,0 +1,325 @@
+import Foundation
+
+enum SwimMonthlyChallenges {
+    private static let challengeTypes = ["sessions", "distance", "kcal", "streak", "active_weeks"]
+
+    static func getMonthKey(_ date: Date = Date()) -> String {
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: date)
+        let month = calendar.component(.month, from: date)
+        return String(format: "%04d-%02d", year, month)
+    }
+
+    static func tierRank(_ tier: String?) -> Int {
+        switch tier {
+        case "bronze": return 1
+        case "silver": return 2
+        case "gold": return 3
+        default: return 0
+        }
+    }
+
+    static func normalizeMonthRerollEntry(_ entry: MonthRerollEntry?) -> MonthRerollEntry {
+        entry ?? .empty
+    }
+
+    static func normalizeMonthlyChallengeRerolls(_ raw: [String: MonthRerollEntry]) -> [String: MonthRerollEntry] {
+        raw.mapValues { normalizeMonthRerollEntry($0) }
+    }
+
+    static func evaluateMonthlyChallenges(
+        sessions: [SwimSession],
+        monthKey: String = getMonthKey(),
+        rerolls: [String: MonthRerollEntry] = [:],
+        intensity: Double = 1
+    ) -> MonthlyChallengeState {
+        let definitions = generateMonthlyChallenges(
+            sessions: sessions,
+            monthKey: monthKey,
+            rerolls: rerolls,
+            intensity: intensity
+        )
+        let monthSessions = sessions.filter { $0.date.hasPrefix(monthKey) }
+
+        let challenges = definitions.map { def -> MonthlyChallenge in
+            let current = measureChallenge(type: def.type, monthSessions: monthSessions, monthKey: monthKey)
+            return MonthlyChallenge(
+                id: def.id,
+                type: def.type,
+                monthKey: def.monthKey,
+                target: def.target,
+                tierIndex: def.tierIndex,
+                current: current,
+                completed: current >= def.target
+            )
+        }
+
+        let completedCount = challenges.filter(\.completed).count
+        let tier: String?
+        switch completedCount {
+        case 3...: tier = "gold"
+        case 2: tier = "silver"
+        case 1: tier = "bronze"
+        default: tier = nil
+        }
+
+        let earnedAt = tier != nil && !monthSessions.isEmpty ? monthSessions.last?.date : nil
+        return MonthlyChallengeState(
+            monthKey: monthKey,
+            challenges: challenges,
+            completedCount: completedCount,
+            tier: tier,
+            earnedAt: earnedAt
+        )
+    }
+
+    static func getMonthlyTierUpgrade(
+        sessionsBefore: [SwimSession],
+        sessionsAfter: [SwimSession],
+        monthKey: String = getMonthKey(),
+        rerolls: [String: MonthRerollEntry] = [:],
+        intensity: Double = 1
+    ) -> (monthKey: String, tier: String, fromTier: String?, completedCount: Int, earnedAt: String?)? {
+        let before = evaluateMonthlyChallenges(
+            sessions: sessionsBefore,
+            monthKey: monthKey,
+            rerolls: rerolls,
+            intensity: intensity
+        )
+        let after = evaluateMonthlyChallenges(
+            sessions: sessionsAfter,
+            monthKey: monthKey,
+            rerolls: rerolls,
+            intensity: intensity
+        )
+        if tierRank(after.tier) > tierRank(before.tier), let tier = after.tier {
+            return (monthKey, tier, before.tier, after.completedCount, after.earnedAt)
+        }
+        return nil
+    }
+
+    static func getMonthlyChallengeHistory(
+        sessions: [SwimSession],
+        previewMonthlyMedals: Bool = false,
+        monthlyChallengeRerolls: [String: MonthRerollEntry] = [:],
+        intensity: Double = 1
+    ) -> [MonthlyChallengeState] {
+        let months = Array(Set(sessions.map { String($0.date.prefix(7)) })).sorted(by: >)
+        return months.compactMap { monthKey in
+            let state = evaluateMonthlyChallenges(
+                sessions: sessions,
+                monthKey: monthKey,
+                rerolls: monthlyChallengeRerolls,
+                intensity: intensity
+            )
+            return state.tier == nil ? nil : state
+        }
+    }
+
+    static func getMonthlyShortfallPenalty(
+        sessions: [SwimSession],
+        uploadMonthKey: String,
+        mascotId: String?,
+        rerolls: [String: MonthRerollEntry],
+        settledMonths: [String: MonthlySettlement]
+    ) -> MonthlyShortfallPenalty? {
+        guard let mascotId, !uploadMonthKey.isEmpty else { return nil }
+        let gameplay = MascotConstants.gameplay(mascotId)
+        guard let requiredTier = gameplay.requiredMonthlyTier, gameplay.monthlyPenaltyCoins > 0 else { return nil }
+
+        let parts = uploadMonthKey.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 2 else { return nil }
+        var components = DateComponents(year: parts[0], month: parts[1], day: 1)
+        components.month = (components.month ?? 1) - 1
+        guard let prevDate = Calendar.current.date(from: components) else { return nil }
+        let prevMonthKey = getMonthKey(prevDate)
+
+        if settledMonths[prevMonthKey] != nil { return nil }
+        if !sessions.contains(where: { $0.date.hasPrefix(prevMonthKey) }) { return nil }
+
+        let state = evaluateMonthlyChallenges(
+            sessions: sessions,
+            monthKey: prevMonthKey,
+            rerolls: rerolls,
+            intensity: gameplay.challengeIntensity
+        )
+        if tierRank(state.tier) >= tierRank(requiredTier) { return nil }
+
+        return MonthlyShortfallPenalty(
+            monthKey: prevMonthKey,
+            coins: gameplay.monthlyPenaltyCoins,
+            achievedTier: state.tier,
+            requiredTier: requiredTier,
+            mascotId: mascotId
+        )
+    }
+
+    private struct ChallengeDefinition {
+        var id: String
+        var type: String
+        var monthKey: String
+        var target: Int
+        var tierIndex: Int
+    }
+
+    private static func generateMonthlyChallenges(
+        sessions: [SwimSession],
+        monthKey: String,
+        rerolls: [String: MonthRerollEntry],
+        intensity: Double
+    ) -> [ChallengeDefinition] {
+        let stats = computeRecentMonthlyStats(sessions: sessions, beforeMonthKey: monthKey)
+        let types = pickChallengeTypes(monthKey: monthKey)
+        let challenges = types.enumerated().map { index, type in
+            ChallengeDefinition(
+                id: "\(monthKey)_\(type)",
+                type: type,
+                monthKey: monthKey,
+                target: buildTarget(type: type, stats: stats, tierIndex: index, intensity: intensity),
+                tierIndex: index
+            )
+        }
+        return applyRerollOverrides(challenges: challenges, monthEntry: rerolls[monthKey], stats: stats, intensity: intensity)
+    }
+
+    private static func computeRecentMonthlyStats(sessions: [SwimSession], beforeMonthKey: String) -> (
+        avgSessions: Int, avgDistance: Int, avgKcal: Int, avgStreak: Int, avgWeeks: Int
+    ) {
+        var byMonth: [String: (sessions: Int, distanceM: Int, activeKcal: Int)] = [:]
+        for session in sessions {
+            let monthKey = String(session.date.prefix(7))
+            guard monthKey < beforeMonthKey else { continue }
+            var bucket = byMonth[monthKey] ?? (0, 0, 0)
+            bucket.sessions += 1
+            bucket.distanceM += session.metrics.distanceM ?? 0
+            bucket.activeKcal += session.metrics.activeKcal ?? 0
+            byMonth[monthKey] = bucket
+        }
+
+        let months = byMonth.keys.sorted().suffix(3)
+        guard !months.isEmpty else {
+            return (4, 6000, 2500, 2, 2)
+        }
+
+        var totals = (sessions: 0, distanceM: 0, activeKcal: 0)
+        for month in months {
+            let bucket = byMonth[month]!
+            totals.sessions += bucket.sessions
+            totals.distanceM += bucket.distanceM
+            totals.activeKcal += bucket.activeKcal
+        }
+        let count = months.count
+        return (
+            max(1, Int(round(Double(totals.sessions) / Double(count)))),
+            max(1000, Int(round(Double(totals.distanceM) / Double(count)))),
+            max(500, Int(round(Double(totals.activeKcal) / Double(count)))),
+            2,
+            2
+        )
+    }
+
+    private static func buildTarget(type: String, stats: (avgSessions: Int, avgDistance: Int, avgKcal: Int, avgStreak: Int, avgWeeks: Int), tierIndex: Int, intensity: Double) -> Int {
+        let stretch = (1 + Double(tierIndex) * 0.12) * intensity
+        switch type {
+        case "sessions":
+            return max(2, Int(ceil(Double(stats.avgSessions) * stretch)))
+        case "distance":
+            return max(Int(ceil(4000 * intensity / 500) * 500), Int(ceil(Double(stats.avgDistance) * stretch / 500) * 500))
+        case "kcal":
+            return max(Int(ceil(1500 * intensity / 250) * 250), Int(ceil(Double(stats.avgKcal) * stretch / 250) * 250))
+        case "streak":
+            return max(2, min(7, stats.avgStreak + tierIndex))
+        case "active_weeks":
+            return max(2, min(4, stats.avgWeeks + tierIndex - 1))
+        default:
+            return 1
+        }
+    }
+
+    private static func pickChallengeTypes(monthKey: String) -> [String] {
+        var pool = challengeTypes
+        var picked: [String] = []
+        var seed = hashMonth(monthKey)
+        for _ in 0..<3 {
+            seed = (seed &* 1_103_515_245 &+ 12_345) & 0x7fff_ffff
+            let index = seed % pool.count
+            picked.append(pool.remove(at: index))
+        }
+        return picked
+    }
+
+    private static func hashMonth(_ monthKey: String) -> Int {
+        monthKey.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) | 0 }
+    }
+
+    private static func applyRerollOverrides(
+        challenges: [ChallengeDefinition],
+        monthEntry: MonthRerollEntry?,
+        stats: (avgSessions: Int, avgDistance: Int, avgKcal: Int, avgStreak: Int, avgWeeks: Int),
+        intensity: Double
+    ) -> [ChallengeDefinition] {
+        let overrides = normalizeMonthRerollEntry(monthEntry).overrides
+        return challenges.enumerated().map { index, challenge in
+            guard let type = overrides[String(index)] else { return challenge }
+            return ChallengeDefinition(
+                id: "\(challenge.monthKey)_\(type)",
+                type: type,
+                monthKey: challenge.monthKey,
+                target: buildTarget(type: type, stats: stats, tierIndex: index, intensity: intensity),
+                tierIndex: index
+            )
+        }
+    }
+
+    private static func measureChallenge(type: String, monthSessions: [SwimSession], monthKey: String) -> Int {
+        switch type {
+        case "sessions":
+            return monthSessions.count
+        case "distance":
+            return monthSessions.compactMap(\.metrics.distanceM).reduce(0, +)
+        case "kcal":
+            return monthSessions.compactMap(\.metrics.activeKcal).reduce(0, +)
+        case "streak":
+            return maxConsecutiveDaysInMonth(sessions: monthSessions, monthKey: monthKey)
+        case "active_weeks":
+            return activeWeeksInMonth(monthSessions: monthSessions, monthKey: monthKey)
+        default:
+            return 0
+        }
+    }
+
+    private static func maxConsecutiveDaysInMonth(sessions: [SwimSession], monthKey: String) -> Int {
+        let dates = Array(Set(sessions.filter { $0.date.hasPrefix(monthKey) }.map(\.date))).sorted()
+        guard !dates.isEmpty else { return 0 }
+        var maxStreak = 1
+        var streak = 1
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        for index in 1..<dates.count {
+            guard let prev = formatter.date(from: dates[index - 1]),
+                  let curr = formatter.date(from: dates[index]) else { continue }
+            let diff = Calendar.current.dateComponents([.day], from: prev, to: curr).day ?? 0
+            streak = diff == 1 ? streak + 1 : 1
+            maxStreak = max(maxStreak, streak)
+        }
+        return maxStreak
+    }
+
+    private static func activeWeeksInMonth(monthSessions: [SwimSession], monthKey: String) -> Int {
+        Set(monthSessions.filter { $0.date.hasPrefix(monthKey) }.map { weekKey(for: $0.date) }).count
+    }
+
+    private static func weekKey(for dateStr: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        guard let date = formatter.date(from: dateStr) else { return dateStr }
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        let diff = calendar.component(.day, from: date) - weekday + (weekday == 1 ? -6 : 1)
+        guard let monday = calendar.date(byAdding: .day, value: diff - calendar.component(.day, from: date), to: date) else {
+            return dateStr
+        }
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: monday)
+    }
+}

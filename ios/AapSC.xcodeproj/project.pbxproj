@@ -24,6 +24,14 @@
 		B10000000000000000000015 /* SwimAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000015 /* SwimAnalysis.swift */; };
 		B10000000000000000000016 /* SwimCoins.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000016 /* SwimCoins.swift */; };
 		B10000000000000000000017 /* ScreenshotParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000017 /* ScreenshotParser.swift */; };
+		B10000000000000000000019 /* SwimCoinClaims.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000020 /* SwimCoinClaims.swift */; };
+		B10000000000000000000020 /* SwimDuplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000021 /* SwimDuplicates.swift */; };
+		B10000000000000000000021 /* MascotConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000022 /* MascotConstants.swift */; };
+		B10000000000000000000022 /* MascotUnlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000023 /* MascotUnlock.swift */; };
+		B10000000000000000000023 /* SwimRecords.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000024 /* SwimRecords.swift */; };
+		B10000000000000000000024 /* SwimMonthlyChallenges.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000025 /* SwimMonthlyChallenges.swift */; };
+		B10000000000000000000025 /* SwimMedals.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000026 /* SwimMedals.swift */; };
+		B10000000000000000000026 /* SwimCheatsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000027 /* SwimCheatsService.swift */; };
 		B10000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +55,14 @@
 		F10000000000000000000017 /* ScreenshotParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotParser.swift; sourceTree = "<group>"; };
 		F10000000000000000000018 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F10000000000000000000019 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F10000000000000000000020 /* SwimCoinClaims.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimCoinClaims.swift; sourceTree = "<group>"; };
+		F10000000000000000000021 /* SwimDuplicates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimDuplicates.swift; sourceTree = "<group>"; };
+		F10000000000000000000022 /* MascotConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotConstants.swift; sourceTree = "<group>"; };
+		F10000000000000000000023 /* MascotUnlock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotUnlock.swift; sourceTree = "<group>"; };
+		F10000000000000000000024 /* SwimRecords.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimRecords.swift; sourceTree = "<group>"; };
+		F10000000000000000000025 /* SwimMonthlyChallenges.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimMonthlyChallenges.swift; sourceTree = "<group>"; };
+		F10000000000000000000026 /* SwimMedals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimMedals.swift; sourceTree = "<group>"; };
+		F10000000000000000000027 /* SwimCheatsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimCheatsService.swift; sourceTree = "<group>"; };
 		P10000000000000000000001 /* AapSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AapSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -106,6 +122,7 @@
 			children = (
 				F10000000000000000000004 /* SwimStorageService.swift */,
 				F10000000000000000000005 /* OCRService.swift */,
+				F10000000000000000000027 /* SwimCheatsService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -139,6 +156,13 @@
 				F10000000000000000000015 /* SwimAnalysis.swift */,
 				F10000000000000000000016 /* SwimCoins.swift */,
 				F10000000000000000000017 /* ScreenshotParser.swift */,
+				F10000000000000000000020 /* SwimCoinClaims.swift */,
+				F10000000000000000000021 /* SwimDuplicates.swift */,
+				F10000000000000000000022 /* MascotConstants.swift */,
+				F10000000000000000000023 /* MascotUnlock.swift */,
+				F10000000000000000000024 /* SwimRecords.swift */,
+				F10000000000000000000025 /* SwimMonthlyChallenges.swift */,
+				F10000000000000000000026 /* SwimMedals.swift */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -237,6 +261,14 @@
 				B10000000000000000000015 /* SwimAnalysis.swift in Sources */,
 				B10000000000000000000016 /* SwimCoins.swift in Sources */,
 				B10000000000000000000017 /* ScreenshotParser.swift in Sources */,
+				B10000000000000000000019 /* SwimCoinClaims.swift in Sources */,
+				B10000000000000000000020 /* SwimDuplicates.swift in Sources */,
+				B10000000000000000000021 /* MascotConstants.swift in Sources */,
+				B10000000000000000000022 /* MascotUnlock.swift in Sources */,
+				B10000000000000000000023 /* SwimRecords.swift in Sources */,
+				B10000000000000000000024 /* SwimMonthlyChallenges.swift in Sources */,
+				B10000000000000000000025 /* SwimMedals.swift in Sources */,
+				B10000000000000000000026 /* SwimCheatsService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

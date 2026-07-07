@@ -14,21 +14,28 @@ struct MedalsScreen: View {
                     )
 
                     Card {
+                        let stats = SwimMedals.getMedalStats(viewModel.evaluatedMedals)
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Coming soon on iOS")
+                            Text("\(stats.earned) / \(stats.total) medals earned")
                                 .font(.headline)
-                            Text("The full medal system from the web app — distance milestones, streaks, seasonal badges, and monthly challenges — will be added in a follow-up release.")
-                                .foregroundStyle(.secondary)
 
-                            Divider()
+                            ForEach(viewModel.evaluatedMedals.filter(\.earned).prefix(12)) { medal in
+                                HStack {
+                                    Image(systemName: "medal.fill")
+                                        .foregroundStyle(medalColor(medal.tier))
+                                    Text(medal.id.replacingOccurrences(of: "_", with: " ").capitalized)
+                                    Spacer()
+                                    Text(medal.tier.capitalized)
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
 
-                            Text("Current stats")
-                                .font(.subheadline.weight(.semibold))
-                            let combined = SwimAnalysis.combinedStats(viewModel.sessions)
-                            statRow("Total swims", value: "\(combined.sessionCount)")
-                            statRow("Total distance", value: SwimFormatters.formatDistance(combined.totalDistanceM))
-                            statRow("Best pace", value: SwimFormatters.formatPace(combined.bestPaceSecPer100m))
-                            statRow("Swim coins", value: "\(viewModel.totalCoins)")
+                            if stats.earned > 12 {
+                                Text("+ \(stats.earned - 12) more")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                     }
                 }
@@ -45,13 +52,11 @@ struct MedalsScreen: View {
         }
     }
 
-    private func statRow(_ title: String, value: String) -> some View {
-        HStack {
-            Text(title)
-            Spacer()
-            Text(value)
-                .fontWeight(.semibold)
+    private func medalColor(_ tier: String) -> Color {
+        switch tier {
+        case "gold": return .yellow
+        case "silver": return .gray
+        default: return .orange
         }
-        .font(.subheadline)
     }
 }

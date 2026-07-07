@@ -29,6 +29,18 @@ open ios/AapSC.xcodeproj
 3. Optionally change **Bundle Identifier** from `com.aapft.aapsc` to your own reverse-DNS id
 4. Add an app icon in `AapSC/Resources/Assets.xcassets/AppIcon.appiconset` (1024×1024 PNG)
 
+## 1:1 port plan
+
+| Phase | Scope | Status |
+|-------|--------|--------|
+| 1 | Data models, storage, ViewModel API | ✅ In progress |
+| 2 | Core lib (coins, medals, challenges, mascot, duplicates, records) | ✅ In progress |
+| 3 | Upload flow (duplicate check, settlement, coin/medal modals) | 🔜 Next |
+| 4 | Progress, History, Benchmark UI parity | 🔜 |
+| 5 | Coins page (wheel + store) | 🔜 |
+| 6 | Medals page + monthly challenges UI | 🔜 |
+| 7 | i18n, themes, dark mode, import/export, AI coach, polish | 🔜 |
+
 ## What's included
 
 | Feature | Status |
