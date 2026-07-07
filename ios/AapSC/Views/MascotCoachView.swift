@@ -91,8 +91,8 @@ struct MascotCoachView: View {
             MascotCharacterView(
                 mascotId: mascotId,
                 mood: mood,
-                size: size,
-                animated: animated
+                animated: animated,
+                size: size
             )
             mascotShadow
         }
