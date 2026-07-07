@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CoinsScreen: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -8,8 +9,8 @@ struct CoinsScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     ScreenHeader(
-                        "Wheel of Fortune",
-                        subtitle: "Spend coins for a spin — win swim coins, free spins, or nothing.",
+                        preferences.t("coins.wheel.title"),
+                        subtitle: preferences.t("coins.wheel.subtitle"),
                         systemImage: "bitcoinsign.circle.fill"
                     )
 
@@ -19,11 +20,11 @@ struct CoinsScreen: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Coins")
+            .navigationTitle(preferences.t("coins.label"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
+                    Button(preferences.t("coins.close")) { dismiss() }
                 }
             }
         }
@@ -32,6 +33,7 @@ struct CoinsScreen: View {
 
 struct WheelOfFortuneView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
 
     @State private var bet = 1
     @State private var rotation: Double = 0
@@ -90,11 +92,17 @@ struct WheelOfFortuneView: View {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 6) {
                     if freeSpins > 0 {
-                        Label("\(freeSpins) free spin(s) ready", systemImage: "sparkles")
+                        Label(
+                            preferences.t("coins.wheel.freeSpinReady", params: ["count": String(freeSpins)]),
+                            systemImage: "sparkles"
+                        )
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Color(red: 0.482, green: 0.357, blue: 1.0))
                     }
-                    Text("\(paidSpinsRemaining)/\(dailySpinLimit) paid spins left today")
+                    Text(preferences.t("coins.wheel.paidSpinsRemaining", params: [
+                        "remaining": String(paidSpinsRemaining),
+                        "limit": String(dailySpinLimit)
+                    ]))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -116,7 +124,7 @@ struct WheelOfFortuneView: View {
             }
             .padding(.vertical, 8)
 
-            Text("Choose your bet")
+            Text(preferences.t("coins.wheel.pickBet"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
@@ -153,12 +161,12 @@ struct WheelOfFortuneView: View {
             .disabled(spinning || !canSpin)
 
             if !canSpin && !spinning && atDailyLimit {
-                Text("No paid spins left today — free spins still work. Come back tomorrow!")
+                Text(preferences.t("coins.wheel.dailyLimitReached"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             } else if !canSpin && !spinning && viewModel.totalCoins < bet {
-                Text("Not enough coins for this bet.")
+                Text(preferences.t("coins.wheel.notEnough"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -166,7 +174,7 @@ struct WheelOfFortuneView: View {
             if let result {
                 Card {
                     VStack(spacing: 6) {
-                        Text("You landed on")
+                        Text(preferences.t("coins.wheel.resultTitle"))
                             .font(.subheadline.weight(.semibold))
                         Text(resultMessage(result))
                             .font(.body)
@@ -179,9 +187,11 @@ struct WheelOfFortuneView: View {
     }
 
     private var spinButtonTitle: String {
-        if spinning { return "Spinning…" }
-        if freeSpins > 0 { return "Free spin (\(freeSpins) left)" }
-        return "Spin for \(bet) coins"
+        if spinning { return preferences.t("coins.wheel.spinning") }
+        if freeSpins > 0 {
+            return preferences.t("coins.wheel.spinFree", params: ["count": String(freeSpins)])
+        }
+        return preferences.t("coins.wheel.spin", params: ["bet": String(bet)])
     }
 
     private func spin() {
@@ -244,14 +254,21 @@ struct WheelOfFortuneView: View {
     private func resultMessage(_ result: SpinResult) -> String {
         switch result.resolved.type {
         case "coins":
-            return "+\(result.resolved.coinsDelta) coins!"
+            return preferences.t("coins.wheel.wonCoins", params: [
+                "amount": String(result.resolved.coinsDelta)
+            ])
         case "free_spin":
-            if (result.resolved.freeSpinsGranted ?? 1) > 1 {
-                return "\(result.resolved.freeSpinsGranted ?? 1) free spins — spin again without paying!"
+            let granted = result.resolved.freeSpinsGranted ?? 1
+            if granted > 1 {
+                return preferences.t("coins.wheel.wonFreeSpinMulti", params: [
+                    "count": String(granted)
+                ])
             }
-            return "Free spin — spin again without paying!"
+            return preferences.t("coins.wheel.wonFreeSpin")
         case "nothing":
-            return "Lost \(result.resolved.amountLost ?? bet) coins — better luck next spin!"
+            return preferences.t("coins.wheel.wonNothing", params: [
+                "amount": String(result.resolved.amountLost ?? bet)
+            ])
         default:
             return "Try again!"
         }
@@ -370,6 +387,7 @@ private struct WheelSegmentLabel: View {
 
 struct SwimCoinStoreView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
 
     private var allThemesUnlocked: Bool {
         viewModel.cheats.allThemesUnlocked
@@ -381,10 +399,10 @@ struct SwimCoinStoreView: View {
                 .padding(.top, 8)
 
             VStack(spacing: 8) {
-                Label("Swim Coin Store", systemImage: "bag.fill")
+                Label(preferences.t("coins.store.title"), systemImage: "bag.fill")
                     .font(.title3.bold())
                     .foregroundStyle(Color("BrandBlue"))
-                Text("Spend swim coins on themes, app icons, background vibes, flair, and boosts.")
+                Text(preferences.t("coins.store.subtitle"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -401,13 +419,16 @@ struct SwimCoinStoreView: View {
         let items = SwimCoinStore.getStoreItemsByCategory(category)
 
         VStack(alignment: .leading, spacing: 12) {
-            Label(SwimCoinStore.categoryLabel(category), systemImage: SwimCoinStore.categoryIcon(category))
+            Label(
+                SwimCoinStore.categoryLabel(category, t: preferences.translations),
+                systemImage: SwimCoinStore.categoryIcon(category)
+            )
                 .font(.caption.bold())
                 .foregroundStyle(.secondary)
                 .textCase(.uppercase)
 
             if category == "vibes" {
-                Text("On iPhone and iPad, vibe animations may not play when Reduce Motion is enabled in Settings → Accessibility → Motion.")
+                Text(preferences.t("coins.store.vibesIosNote"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -437,9 +458,9 @@ struct SwimCoinStoreView: View {
             VStack(alignment: .leading, spacing: 12) {
                 StoreItemPreviewView(item: item, bonusWheelSpinCredits: viewModel.bonusWheelSpinCredits)
 
-                Text(item.name)
+                Text(SwimCoinStore.localizedName(item, t: preferences.translations))
                     .font(.subheadline.weight(.semibold))
-                Text(item.description)
+                Text(SwimCoinStore.localizedDescription(item, t: preferences.translations))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -447,8 +468,8 @@ struct SwimCoinStoreView: View {
                 if isConsumable && ownedCount > 0 {
                     Text(
                         item.id == SwimCoinStore.bonusWheelSpinStoreItemId
-                            ? "+\(ownedCount) extra paid spin(s) per day"
-                            : "You have \(ownedCount) ready to use"
+                            ? preferences.t("coins.store.bonusSpinOwned", params: ["count": String(ownedCount)])
+                            : preferences.t("coins.store.ownedCount", params: ["count": String(ownedCount)])
                     )
                     .font(.caption2.weight(.medium))
                     .foregroundStyle(Color("BrandBlue"))
@@ -456,7 +477,7 @@ struct SwimCoinStoreView: View {
 
                 HStack {
                     if owned {
-                        Text("Owned")
+                        Text(preferences.t("coins.store.owned"))
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.green)
                     } else {
@@ -469,7 +490,13 @@ struct SwimCoinStoreView: View {
                         Button {
                             viewModel.purchaseStoreItem(item.id)
                         } label: {
-                            Text(canBuy ? (isConsumable ? "Buy" : "Unlock") : "Need \(shortfall) more")
+                            Text(
+                                canBuy
+                                    ? (isConsumable
+                                        ? preferences.t("coins.store.buyConsumable")
+                                        : preferences.t("coins.store.buy"))
+                                    : preferences.t("coins.store.notEnough", params: ["amount": String(shortfall)])
+                            )
                                 .font(.caption.weight(.semibold))
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)

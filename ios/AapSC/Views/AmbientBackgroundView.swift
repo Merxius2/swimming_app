@@ -98,22 +98,17 @@ struct AmbientBackgroundView: View {
 }
 
 struct MascotCoachView: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let mascotId: String
     let message: String
     var mood: String = "happy"
 
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            ZStack {
-                Circle()
-                    .fill(mascotColor.opacity(0.18))
-                    .frame(width: 56, height: 56)
-                Text(mascotEmoji)
-                    .font(.system(size: 30))
-            }
+            MascotCharacterView(mascotId: mascotId, mood: mood, size: 56)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text(MascotConstants.displayName(mascotId))
+                Text(MascotConstants.displayName(mascotId, t: preferences.translations))
                     .font(.caption.weight(.bold))
                     .foregroundStyle(mascotColor)
                 Text(message)
@@ -121,14 +116,6 @@ struct MascotCoachView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 0)
-        }
-    }
-
-    private var mascotEmoji: String {
-        switch mascotId {
-        case "flo": return "🐵"
-        case "fins": return "🦈"
-        default: return "🐒"
         }
     }
 

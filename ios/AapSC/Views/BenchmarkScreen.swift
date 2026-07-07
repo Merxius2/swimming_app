@@ -3,14 +3,15 @@ import Charts
 
 struct BenchmarkScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     ScreenHeader(
-                        "Benchmark",
-                        subtitle: "Compare pace with your age group",
+                        preferences.t("benchmark.title"),
+                        subtitle: preferences.t("benchmark.subtitle"),
                         systemImage: "gauge.with.dots.needle.67percent"
                     )
 
@@ -21,8 +22,9 @@ struct BenchmarkScreen: View {
                         let latest = statsSessions.last
                         let pace = latest?.metrics.paceSecPer100m
                         let benchmark = SwimBenchmarks.benchmark(for: viewModel.profile.sex, age: viewModel.profile.age)
+                        let ageGroup = SwimBenchmarks.ageGroup(for: viewModel.profile.age)
 
-                        profileCard(benchmark: benchmark)
+                        profileCard(benchmark: benchmark, ageGroup: ageGroup)
 
                         if pace == nil {
                             Card {
@@ -32,18 +34,19 @@ struct BenchmarkScreen: View {
                             }
                         } else {
                             BenchmarkBadgeRankingView(
-                                label: "Your pace (\(SwimBenchmarks.ageGroup(for: viewModel.profile.age)))",
+                                label: "\(preferences.t("benchmark.yourPace")) (\(ageGroup))",
                                 percentile: SwimBenchmarks.computePacePercentile(paceSecPer100m: pace, benchmark: benchmark),
                                 vsMedian: SwimBenchmarks.paceVsMedian(paceSecPer100m: pace, benchmark: benchmark)
                             )
 
                             Card {
                                 VStack(alignment: .leading, spacing: 8) {
-                                    Text("Swim level")
+                                    Text(preferences.t("benchmark.level"))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                     Text(SwimBenchmarks.levelLabel(
-                                        SwimBenchmarks.swimLevel(paceSecPer100m: pace, benchmark: benchmark)
+                                        SwimBenchmarks.swimLevel(paceSecPer100m: pace, benchmark: benchmark),
+                                        t: preferences.translations
                                     ))
                                     .font(.title.bold())
                                     Text(SwimFormatters.formatPace(pace))
@@ -55,7 +58,7 @@ struct BenchmarkScreen: View {
                             benchmarkChart(pace: pace!)
                         }
 
-                        Text("Benchmarks reflect recreational 25m pool swimmers, not competitive long-course standards.")
+                        Text(preferences.t("benchmark.methodology"))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -63,7 +66,7 @@ struct BenchmarkScreen: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Benchmark")
+            .navigationTitle(preferences.t("benchmark.title"))
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -71,7 +74,7 @@ struct BenchmarkScreen: View {
     private var profileRequiredCard: some View {
         Card {
             VStack(spacing: 12) {
-                Text("Set your sex and age in Settings to compare against benchmarks.")
+                Text(preferences.t("benchmark.profileRequired"))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
             }
@@ -80,17 +83,20 @@ struct BenchmarkScreen: View {
         }
     }
 
-    private func profileCard(benchmark: BenchmarkTier) -> some View {
-        Card {
+    private func profileCard(benchmark: BenchmarkTier, ageGroup: String) -> some View {
+        let sexLabel = viewModel.profile.sex == "female"
+            ? preferences.t("settings.sexFemale")
+            : preferences.t("settings.sexMale")
+        return Card {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Your profile")
+                Text(preferences.t("settings.profileTitle"))
                     .font(.headline)
-                Text("Age group: \(SwimBenchmarks.ageGroup(for: viewModel.profile.age))")
-                Text("Sex: \(viewModel.profile.sex.capitalized)")
+                Text("\(preferences.t("settings.age")): \(ageGroup)")
+                Text("\(preferences.t("settings.sex")): \(sexLabel)")
                 Divider()
-                benchmarkRow("Advanced", pace: benchmark.advanced)
-                benchmarkRow("Intermediate / median", pace: benchmark.intermediate)
-                benchmarkRow("Beginner", pace: benchmark.beginner)
+                benchmarkRow(preferences.t("benchmark.levels.advanced"), pace: benchmark.advanced)
+                benchmarkRow("\(preferences.t("benchmark.levels.intermediate")) / \(preferences.t("benchmark.median"))", pace: benchmark.intermediate)
+                benchmarkRow(preferences.t("benchmark.levels.beginner"), pace: benchmark.beginner)
             }
         }
     }
@@ -103,7 +109,7 @@ struct BenchmarkScreen: View {
         )
         return Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Pace comparison")
+                Text(preferences.t("benchmark.chartTitle"))
                     .font(.headline)
                 Chart(data) { item in
                     BarMark(

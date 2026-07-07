@@ -55,12 +55,12 @@ open ios/AapSC.xcodeproj
 | Wheel of Fortune + coin store | ✅ |
 | Medals gallery + monthly challenge history | ✅ |
 | Profile & settings | ✅ |
-| i18n (en, nl, ru, tr) | ✅ |
+| Full i18n across main screens | ✅ |
 | Theme picker + ambient backgrounds | ✅ |
 | Dark mode (auto + manual) | ✅ |
 | JSON import/export (web-compatible v9) | ✅ |
 | AI coach (device-side OpenAI key) | ✅ |
-| Mascot UI | Partial (emoji placeholders; PNG assets optional) |
+| Mascot UI (PNG assets + blink animation) | ✅ |
 
 ## Architecture
 

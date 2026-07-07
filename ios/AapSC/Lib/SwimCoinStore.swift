@@ -13,8 +13,8 @@ enum SwimCoinStore {
         let preview: String
         let themeCode: String?
         let consumable: Bool
-        let name: String
-        let description: String
+        let nameKey: String
+        let descKey: String
     }
 
     struct PurchaseUpdate {
@@ -24,28 +24,28 @@ enum SwimCoinStore {
     }
 
     static let catalog: [StoreItem] = [
-        StoreItem(id: "theme:gen-z", category: "themes", price: 500, preview: "theme", themeCode: "gen-z", consumable: false, name: "Gen-Z", description: "Bold flat colors and sharp contrast."),
-        StoreItem(id: "theme:classic", category: "themes", price: 500, preview: "theme", themeCode: "classic", consumable: false, name: "Classic Playstation", description: "Retro flat panels inspired by console UIs."),
-        StoreItem(id: "theme:olympic-pool", category: "themes", price: 500, preview: "theme", themeCode: "olympic-pool", consumable: false, name: "Olympic Pool", description: "Competition tiles, lane blue, and touchpad gold."),
-        StoreItem(id: "theme:midnight-lane", category: "themes", price: 500, preview: "theme", themeCode: "midnight-lane", consumable: false, name: "Midnight Lane", description: "Late-night laps under bioluminescent pool lights."),
-        StoreItem(id: "theme:retro-wave", category: "themes", price: 450, preview: "theme", themeCode: "retro-wave", consumable: false, name: "Retro Wave", description: "Synthwave neon on a midnight pool deck."),
-        StoreItem(id: "theme:tropical-open", category: "themes", price: 400, preview: "theme", themeCode: "tropical-open", consumable: false, name: "Tropical Open Water", description: "Turquoise lagoon warmth with coral sunset accents."),
-        StoreItem(id: "theme:gold-luxe", category: "themes", price: 1000, preview: "theme", themeCode: "gold-luxe", consumable: false, name: "Gold Luxe", description: "Champagne canvas with trophy-gold accents — the podium tier."),
-        StoreItem(id: "theme:platinum-elite", category: "themes", price: 2000, preview: "theme", themeCode: "platinum-elite", consumable: false, name: "Platinum Elite", description: "Cool silver panels with icy prestige — the ultimate lap."),
-        StoreItem(id: "icon:gold-medal", category: "icons", price: 400, preview: "icon-gold-medal", themeCode: nil, consumable: false, name: "Gold Medalist", description: "Full app icon set — home screen, favicon, and in-app badge."),
-        StoreItem(id: "icon:neon-lane", category: "icons", price: 350, preview: "icon-neon-lane", themeCode: nil, consumable: false, name: "Neon Lane", description: "Synth lane lines across every app icon size."),
-        StoreItem(id: "icon:trophy-splash", category: "icons", price: 450, preview: "icon-trophy-splash", themeCode: nil, consumable: false, name: "Trophy Splash", description: "Victory splash icon set for the whole app."),
-        StoreItem(id: "icon:platinum-star", category: "icons", price: 550, preview: "icon-platinum-star", themeCode: nil, consumable: false, name: "Platinum Star", description: "Silver star crest icon set for home screen and tabs."),
-        StoreItem(id: "ambient:neon-lagoon", category: "vibes", price: 250, preview: "ambient-neon", themeCode: nil, consumable: false, name: "Neon Lagoon", description: "Electric cyan and magenta lights with a slowly shifting gradient."),
-        StoreItem(id: "ambient:sunset-lap", category: "vibes", price: 250, preview: "ambient-sunset", themeCode: nil, consumable: false, name: "Sunset Lap", description: "Golden-hour warmth that drifts like a late-evening lap."),
-        StoreItem(id: "ambient:bubble-trail", category: "vibes", price: 175, preview: "ambient-bubbles", themeCode: nil, consumable: false, name: "Bubble Trail", description: "Rising lane bubbles float over your swim screens."),
-        StoreItem(id: "ambient:aurora-lap", category: "vibes", price: 275, preview: "ambient-aurora", themeCode: nil, consumable: false, name: "Aurora Lap", description: "Northern-lights greens and violets sweep across the pool."),
-        StoreItem(id: "ambient:deep-current", category: "vibes", price: 300, preview: "ambient-deep", themeCode: nil, consumable: false, name: "Deep Current", description: "Dark ocean blues flow like an underwater lane."),
-        StoreItem(id: "badge:golden-coins", category: "flair", price: 150, preview: "golden-coins", themeCode: nil, consumable: false, name: "Golden Coins", description: "Your coin balance gleams like a trophy case."),
-        StoreItem(id: "celebration:confetti-cannon", category: "flair", price: 200, preview: "confetti", themeCode: nil, consumable: false, name: "Confetti Cannon", description: "Epic confetti bursts when you earn medals."),
-        StoreItem(id: "flair:medal-shimmer", category: "flair", price: 225, preview: "medal-shimmer", themeCode: nil, consumable: false, name: "Medal Shimmer+", description: "Earned medals pulse with extra shine on the shelf."),
-        StoreItem(id: challengeRerollStoreItemId, category: "boosts", price: 500, preview: "challenge-reroll", themeCode: nil, consumable: true, name: "Challenge Reroll", description: "Swap one monthly challenge for another type. Use it on the Progress page."),
-        StoreItem(id: bonusWheelSpinStoreItemId, category: "boosts", price: 350, preview: "bonus-spin", themeCode: nil, consumable: true, name: "Bonus Wheel Spin", description: "Permanently add one extra paid wheel spin every day. Buy again to stack more."),
+        StoreItem(id: "theme:gen-z", category: "themes", price: 500, preview: "theme", themeCode: "gen-z", consumable: false, nameKey: "coins.store.items.genZ.name", descKey: "coins.store.items.genZ.desc"),
+        StoreItem(id: "theme:classic", category: "themes", price: 500, preview: "theme", themeCode: "classic", consumable: false, nameKey: "coins.store.items.classic.name", descKey: "coins.store.items.classic.desc"),
+        StoreItem(id: "theme:olympic-pool", category: "themes", price: 500, preview: "theme", themeCode: "olympic-pool", consumable: false, nameKey: "coins.store.items.olympicPool.name", descKey: "coins.store.items.olympicPool.desc"),
+        StoreItem(id: "theme:midnight-lane", category: "themes", price: 500, preview: "theme", themeCode: "midnight-lane", consumable: false, nameKey: "coins.store.items.midnightLane.name", descKey: "coins.store.items.midnightLane.desc"),
+        StoreItem(id: "theme:retro-wave", category: "themes", price: 450, preview: "theme", themeCode: "retro-wave", consumable: false, nameKey: "coins.store.items.retroWave.name", descKey: "coins.store.items.retroWave.desc"),
+        StoreItem(id: "theme:tropical-open", category: "themes", price: 400, preview: "theme", themeCode: "tropical-open", consumable: false, nameKey: "coins.store.items.tropicalOpen.name", descKey: "coins.store.items.tropicalOpen.desc"),
+        StoreItem(id: "theme:gold-luxe", category: "themes", price: 1000, preview: "theme", themeCode: "gold-luxe", consumable: false, nameKey: "coins.store.items.goldLuxe.name", descKey: "coins.store.items.goldLuxe.desc"),
+        StoreItem(id: "theme:platinum-elite", category: "themes", price: 2000, preview: "theme", themeCode: "platinum-elite", consumable: false, nameKey: "coins.store.items.platinumElite.name", descKey: "coins.store.items.platinumElite.desc"),
+        StoreItem(id: "icon:gold-medal", category: "icons", price: 400, preview: "icon-gold-medal", themeCode: nil, consumable: false, nameKey: "coins.store.items.goldMedalIcon.name", descKey: "coins.store.items.goldMedalIcon.desc"),
+        StoreItem(id: "icon:neon-lane", category: "icons", price: 350, preview: "icon-neon-lane", themeCode: nil, consumable: false, nameKey: "coins.store.items.neonLaneIcon.name", descKey: "coins.store.items.neonLaneIcon.desc"),
+        StoreItem(id: "icon:trophy-splash", category: "icons", price: 450, preview: "icon-trophy-splash", themeCode: nil, consumable: false, nameKey: "coins.store.items.trophySplashIcon.name", descKey: "coins.store.items.trophySplashIcon.desc"),
+        StoreItem(id: "icon:platinum-star", category: "icons", price: 550, preview: "icon-platinum-star", themeCode: nil, consumable: false, nameKey: "coins.store.items.platinumStarIcon.name", descKey: "coins.store.items.platinumStarIcon.desc"),
+        StoreItem(id: "ambient:neon-lagoon", category: "vibes", price: 250, preview: "ambient-neon", themeCode: nil, consumable: false, nameKey: "coins.store.items.neonLagoon.name", descKey: "coins.store.items.neonLagoon.desc"),
+        StoreItem(id: "ambient:sunset-lap", category: "vibes", price: 250, preview: "ambient-sunset", themeCode: nil, consumable: false, nameKey: "coins.store.items.sunsetLap.name", descKey: "coins.store.items.sunsetLap.desc"),
+        StoreItem(id: "ambient:bubble-trail", category: "vibes", price: 175, preview: "ambient-bubbles", themeCode: nil, consumable: false, nameKey: "coins.store.items.bubbleTrail.name", descKey: "coins.store.items.bubbleTrail.desc"),
+        StoreItem(id: "ambient:aurora-lap", category: "vibes", price: 275, preview: "ambient-aurora", themeCode: nil, consumable: false, nameKey: "coins.store.items.auroraLap.name", descKey: "coins.store.items.auroraLap.desc"),
+        StoreItem(id: "ambient:deep-current", category: "vibes", price: 300, preview: "ambient-deep", themeCode: nil, consumable: false, nameKey: "coins.store.items.deepCurrent.name", descKey: "coins.store.items.deepCurrent.desc"),
+        StoreItem(id: "badge:golden-coins", category: "flair", price: 150, preview: "golden-coins", themeCode: nil, consumable: false, nameKey: "coins.store.items.goldenCoins.name", descKey: "coins.store.items.goldenCoins.desc"),
+        StoreItem(id: "celebration:confetti-cannon", category: "flair", price: 200, preview: "confetti", themeCode: nil, consumable: false, nameKey: "coins.store.items.confettiCannon.name", descKey: "coins.store.items.confettiCannon.desc"),
+        StoreItem(id: "flair:medal-shimmer", category: "flair", price: 225, preview: "medal-shimmer", themeCode: nil, consumable: false, nameKey: "coins.store.items.medalShimmer.name", descKey: "coins.store.items.medalShimmer.desc"),
+        StoreItem(id: challengeRerollStoreItemId, category: "boosts", price: 500, preview: "challenge-reroll", themeCode: nil, consumable: true, nameKey: "coins.store.items.challengeReroll.name", descKey: "coins.store.items.challengeReroll.desc"),
+        StoreItem(id: bonusWheelSpinStoreItemId, category: "boosts", price: 350, preview: "bonus-spin", themeCode: nil, consumable: true, nameKey: "coins.store.items.bonusSpin.name", descKey: "coins.store.items.bonusSpin.desc"),
     ]
 
     private static let catalogIds = Set(catalog.map(\.id))
@@ -230,6 +230,18 @@ enum SwimCoinStore {
             next.bonusWheelSpinCredits += 1
         }
         return next
+    }
+
+    static func categoryLabel(_ category: String, t: TranslationService) -> String {
+        t.t("coins.store.categories.\(category)")
+    }
+
+    static func localizedName(_ item: StoreItem, t: TranslationService) -> String {
+        t.t(item.nameKey)
+    }
+
+    static func localizedDescription(_ item: StoreItem, t: TranslationService) -> String {
+        t.t(item.descKey)
     }
 
     static func categoryLabel(_ category: String) -> String {

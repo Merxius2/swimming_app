@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HistoryScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     @State private var expandedId: String?
     @State private var deleteId: String?
     @State private var selectedDate: String?
@@ -24,11 +25,13 @@ struct HistoryScreen: View {
 
                         if let selectedDate {
                             HStack {
-                                Text("Showing \(SwimFormatters.formatDateLong(selectedDate))")
+                                Text(preferences.t("history.filterDate", params: [
+                                    "date": SwimFormatters.formatDateLong(selectedDate)
+                                ]))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                 Spacer()
-                                Button("Clear filter") { self.selectedDate = nil }
+                                Button(preferences.t("history.clearFilter")) { self.selectedDate = nil }
                                     .font(.caption.weight(.semibold))
                             }
                             .padding(.horizontal, 4)
@@ -37,13 +40,13 @@ struct HistoryScreen: View {
 
                     if sorted.isEmpty {
                         ContentUnavailableView(
-                            "No history yet",
+                            preferences.t("history.empty"),
                             systemImage: "clock.arrow.circlepath",
-                            description: Text("Saved swims will appear here.")
+                            description: Text(preferences.t("history.subtitle"))
                         )
                         .padding(.top, 40)
                     } else if filtered.isEmpty {
-                        Text("No sessions on this date.")
+                        Text(preferences.t("history.noSessionsOnDate"))
                             .foregroundStyle(.secondary)
                             .padding()
                     } else {
@@ -65,30 +68,31 @@ struct HistoryScreen: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("History")
+            .navigationTitle(preferences.t("history.title"))
             .navigationBarTitleDisplayMode(.inline)
             .confirmationDialog(
-                "Delete this session?",
+                preferences.t("history.deleteConfirm"),
                 isPresented: Binding(
                     get: { deleteId != nil },
                     set: { if !$0 { deleteId = nil } }
                 ),
                 titleVisibility: .visible
             ) {
-                Button("Delete", role: .destructive) {
+                Button(preferences.t("history.delete"), role: .destructive) {
                     if let deleteId {
                         viewModel.removeSession(id: deleteId)
                         if expandedId == deleteId { expandedId = nil }
                     }
                     deleteId = nil
                 }
-                Button("Cancel", role: .cancel) { deleteId = nil }
+                Button(preferences.t("common.cancel"), role: .cancel) { deleteId = nil }
             }
         }
     }
 }
 
 private struct HistorySessionCard: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let session: SwimSession
     let isExpanded: Bool
     let onToggle: () -> Void
@@ -105,7 +109,7 @@ private struct HistorySessionCard: View {
                                 Text(SwimFormatters.formatDateLong(session.date))
                                     .font(.headline)
                                 if session.excludeFromStats {
-                                    Text("Excluded")
+                                    Text(preferences.t("history.excludedBadge"))
                                         .font(.caption2.bold())
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -122,6 +126,7 @@ private struct HistorySessionCard: View {
                             Text("+\(coins)")
                                 .font(.caption.bold())
                                 .foregroundStyle(Color("BrandBlue"))
+                                .accessibilityLabel("\(preferences.t("history.coinsEarned)): +\(coins)")
                         }
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                             .foregroundStyle(.secondary)
@@ -132,12 +137,12 @@ private struct HistorySessionCard: View {
                 if isExpanded {
                     Divider()
                     detailGrid
-                    Toggle("Include in stats", isOn: Binding(
+                    Toggle(preferences.t("history.includeInStats"), isOn: Binding(
                         get: { !session.excludeFromStats },
                         set: onToggleStats
                     ))
                     Button(role: .destructive, action: onDelete) {
-                        Label("Delete session", systemImage: "trash")
+                        Label(preferences.t("history.delete"), systemImage: "trash")
                     }
                     .font(.subheadline)
                 }
@@ -154,12 +159,12 @@ private struct HistorySessionCard: View {
     private var detailGrid: some View {
         let m = session.metrics
         return LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-            detailItem("Active kcal", value: m.activeKcal.map(String.init) ?? "—")
-            detailItem("Total kcal", value: m.totalKcal.map(String.init) ?? "—")
-            detailItem("Heart rate", value: m.avgHeartRate.map { "\($0) bpm" } ?? "—")
-            detailItem("Laps", value: m.laps.map(String.init) ?? "—")
-            detailItem("Location", value: m.location.isEmpty ? "—" : m.location)
-            detailItem("Time", value: m.timeRange.isEmpty ? "—" : m.timeRange)
+            detailItem(preferences.t("progress.activeKcal"), value: m.activeKcal.map { "\($0) \(preferences.t("common.kcal"))" } ?? "—")
+            detailItem(preferences.t("progress.totalKcal"), value: m.totalKcal.map { "\($0) \(preferences.t("common.kcal"))" } ?? "—")
+            detailItem(preferences.t("upload.fields.heartRate"), value: m.avgHeartRate.map { "\($0) \(preferences.t("common.bpm"))" } ?? "—")
+            detailItem(preferences.t("upload.fields.laps"), value: m.laps.map(String.init) ?? "—")
+            detailItem(preferences.t("upload.fields.location"), value: m.location.isEmpty ? "—" : m.location)
+            detailItem(preferences.t("upload.fields.timeRange"), value: m.timeRange.isEmpty ? "—" : m.timeRange)
         }
         .font(.caption)
     }

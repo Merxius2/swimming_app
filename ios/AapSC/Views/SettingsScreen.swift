@@ -85,6 +85,10 @@ struct SettingsScreen: View {
 
     private var mascotSection: some View {
         Section(preferences.t("settings.mascotTitle")) {
+            MascotCharacterView(mascotId: viewModel.mascotId, size: 120)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+
             ForEach(MascotConstants.ids, id: \.self) { mascotId in
                 Button {
                     _ = viewModel.switchMascot(mascotId)

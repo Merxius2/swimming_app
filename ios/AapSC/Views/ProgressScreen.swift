@@ -3,6 +3,7 @@ import Charts
 
 struct ProgressScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.openSettings) private var openSettings
     @Environment(\.openCoins) private var openCoins
 
@@ -10,7 +11,11 @@ struct ProgressScreen: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    ScreenHeader("Progress", subtitle: "Charts and trends over time", systemImage: "chart.line.uptrend.xyaxis")
+                    ScreenHeader(
+                        preferences.t("progress.title"),
+                        subtitle: preferences.t("progress.subtitle"),
+                        systemImage: "chart.line.uptrend.xyaxis"
+                    )
 
                     if viewModel.sessions.isEmpty {
                         emptyState
@@ -34,13 +39,16 @@ struct ProgressScreen: View {
                         caloriesChart
                         heartRateChart
                         volumeChart
-                        StrokeDonutChart(slices: SwimAnalysis.strokeChartData(viewModel.sessions.last))
+                        StrokeDonutChart(slices: SwimAnalysis.strokeChartData(
+                            viewModel.sessions.last,
+                            t: preferences.translations
+                        ))
                     }
                 }
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Progress")
+            .navigationTitle(preferences.t("progress.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -67,9 +75,13 @@ struct ProgressScreen: View {
                 Image(systemName: "figure.pool.swim")
                     .font(.system(size: 44))
                     .foregroundStyle(Color("BrandBlue"))
-                Text("No swims yet")
+                Text(preferences.t("progress.emptyTitle"))
                     .font(.title3.bold())
-                Text(SwimAnalysis.buildProgressOverviewMessage(profile: viewModel.profile, sessions: []))
+                Text(SwimAnalysis.buildProgressOverviewMessage(
+                    profile: viewModel.profile,
+                    sessions: [],
+                    t: preferences.translations
+                ))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
             }
@@ -81,12 +93,13 @@ struct ProgressScreen: View {
     private var overviewCard: some View {
         Card {
             VStack(alignment: .leading, spacing: 8) {
-                Text("OVERVIEW")
+                Text(preferences.t("progress.overviewTitle"))
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
                 Text(SwimAnalysis.buildProgressOverviewMessage(
                     profile: viewModel.profile,
                     sessions: viewModel.sessions,
+                    t: preferences.translations,
                     monthlyChallengeRerolls: viewModel.monthlyChallengeRerolls
                 ))
             }
@@ -98,16 +111,16 @@ struct ProgressScreen: View {
         let m = latest.metrics
         return Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Latest session")
+                Text(preferences.t("progress.latestSession"))
                     .font(.headline)
                 Text(SwimFormatters.formatDateShort(latest.date))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 HStack {
-                    metricBlock("Distance", value: SwimFormatters.formatDistance(m.distanceM), color: .blue)
-                    metricBlock("Duration", value: SwimFormatters.formatDuration(m.durationSec), color: .orange)
-                    metricBlock("Pace", value: SwimFormatters.formatPace(m.paceSecPer100m), color: .teal)
-                    metricBlock("HR", value: m.avgHeartRate.map { "\($0) bpm" } ?? "—", color: .pink)
+                    metricBlock(preferences.t("upload.fields.distance"), value: SwimFormatters.formatDistance(m.distanceM), color: .blue)
+                    metricBlock(preferences.t("upload.fields.duration"), value: SwimFormatters.formatDuration(m.durationSec), color: .orange)
+                    metricBlock(preferences.t("upload.fields.pace"), value: SwimFormatters.formatPace(m.paceSecPer100m), color: .teal)
+                    metricBlock(preferences.t("upload.fields.heartRate"), value: m.avgHeartRate.map { "\($0) \(preferences.t("common.bpm"))" } ?? "—", color: .pink)
                 }
             }
         }
@@ -121,22 +134,25 @@ struct ProgressScreen: View {
         return AnyView(
             Card {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("All-time stats")
+                    Text(preferences.t("progress.allTimeStats"))
                         .font(.headline)
                     if excluded > 0 {
-                        Text("Based on \(combined.sessionCount) of \(viewModel.sessions.count) sessions")
+                        Text(preferences.t("progress.statsBasedOn", params: [
+                            "count": String(combined.sessionCount),
+                            "total": String(viewModel.sessions.count)
+                        ]))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        statTile("Sessions", value: "\(combined.sessionCount)")
-                        statTile("Distance", value: SwimFormatters.formatDistance(combined.totalDistanceM))
-                        statTile("Time", value: SwimFormatters.formatDuration(combined.totalDurationSec))
-                        statTile("Avg pace", value: SwimFormatters.formatPace(combined.avgPaceSecPer100m))
-                        statTile("Best pace", value: SwimFormatters.formatPace(combined.bestPaceSecPer100m))
-                        statTile("Calories", value: "\(combined.totalActiveKcal) kcal")
-                        statTile("Laps", value: "\(combined.totalLaps)")
-                        statTile("Avg HR", value: combined.avgHeartRate.map { "\($0) bpm" } ?? "—")
+                        statTile(preferences.t("progress.totalSessions"), value: "\(combined.sessionCount)")
+                        statTile(preferences.t("progress.totalDistance"), value: SwimFormatters.formatDistance(combined.totalDistanceM))
+                        statTile(preferences.t("progress.totalTime"), value: SwimFormatters.formatDuration(combined.totalDurationSec))
+                        statTile(preferences.t("progress.avgPace"), value: SwimFormatters.formatPace(combined.avgPaceSecPer100m))
+                        statTile(preferences.t("progress.bestPace"), value: SwimFormatters.formatPace(combined.bestPaceSecPer100m))
+                        statTile(preferences.t("progress.totalCalories"), value: "\(combined.totalActiveKcal) \(preferences.t("common.kcal"))")
+                        statTile(preferences.t("progress.totalLaps"), value: "\(combined.totalLaps)")
+                        statTile(preferences.t("progress.avgHeartRate"), value: combined.avgHeartRate.map { "\($0) \(preferences.t("common.bpm"))" } ?? "—")
                     }
                 }
             }
@@ -152,7 +168,7 @@ struct ProgressScreen: View {
         let domain = SwimFormatters.getPaceChartDomain(points.map(\.paceSecPer100m))
         return Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Pace trend")
+                Text(preferences.t("progress.paceChart"))
                     .font(.headline)
                 if points.isEmpty {
                     Text("Add swims with pace data to see this chart.").foregroundStyle(.secondary)
@@ -177,13 +193,13 @@ struct ProgressScreen: View {
     }
 
     private var distanceChart: some View {
-        chartBar(title: "Distance per session", keyPath: \.distanceM, color: .blue)
+        chartBar(title: preferences.t("progress.distanceChart"), keyPath: \.distanceM, color: .blue)
     }
 
     private var caloriesChart: some View {
         Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Calories")
+                Text(preferences.t("progress.caloriesChart"))
                     .font(.headline)
                 Chart(chartPoints) { point in
                     AreaMark(
@@ -205,7 +221,7 @@ struct ProgressScreen: View {
     private var heartRateChart: some View {
         Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Heart rate")
+                Text(preferences.t("progress.heartRateChart"))
                     .font(.headline)
                 Chart(chartPoints.filter { $0.avgHeartRate != nil }) { point in
                     LineMark(
@@ -227,7 +243,7 @@ struct ProgressScreen: View {
         let weekly = SwimAnalysis.weeklyVolumeData(viewModel.sessions)
         return Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Weekly volume")
+                Text(preferences.t("progress.weeklyVolume"))
                     .font(.headline)
                 if weekly.isEmpty {
                     Text("No distance data yet.").foregroundStyle(.secondary)

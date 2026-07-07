@@ -60,6 +60,10 @@ enum SwimBenchmarks {
         return .developing
     }
 
+    static func levelLabel(_ level: SwimLevel, t: TranslationService) -> String {
+        t.t("benchmark.levels.\(level.rawValue)")
+    }
+
     static func levelLabel(_ level: SwimLevel) -> String {
         switch level {
         case .advanced: return "Advanced"

@@ -2,28 +2,29 @@ import SwiftUI
 
 struct SecretSettingsSheet: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    Text("Tap the app icon 3× in Settings to unlock this menu.")
+                    Text(preferences.t("settings.secretUnlockHint"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Cheats") {
-                    Toggle("Unlock all medals", isOn: cheatBinding(\.allMedalsUnlocked))
-                    Toggle("Preview monthly medals", isOn: cheatBinding(\.previewMonthlyMedals))
-                    Toggle("Unlock all themes", isOn: cheatBinding(\.allThemesUnlocked))
+                Section(preferences.t("settings.secretCheatsSection")) {
+                    Toggle(preferences.t("settings.secretUnlockAllMedals"), isOn: cheatBinding(\.allMedalsUnlocked))
+                    Toggle(preferences.t("settings.secretPreviewMonthlyMedals"), isOn: cheatBinding(\.previewMonthlyMedals))
+                    Toggle(preferences.t("settings.secretUnlockAllThemes"), isOn: cheatBinding(\.allThemesUnlocked))
                 }
             }
-            .navigationTitle("Secret Settings")
+            .navigationTitle(preferences.t("settings.secretTitle"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { dismiss() }
+                    Button(preferences.t("coins.close")) { dismiss() }
                 }
             }
         }

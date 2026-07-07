@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MedalCardView: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let medal: EvaluatedMedal
     var shimmerPlus: Bool = false
 
@@ -11,7 +12,7 @@ struct MedalCardView: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(alignment: .top) {
-                        Text(SwimMedalCopy.title(for: medal.id))
+                        Text(SwimMedalCopy.title(for: medal.id, t: preferences.translations))
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(medal.earned ? .primary : .secondary)
                         Spacer(minLength: 8)
@@ -24,7 +25,7 @@ struct MedalCardView: View {
                         }
                     }
 
-                    Text(SwimMedalCopy.description(for: medal.id))
+                    Text(SwimMedalCopy.description(for: medal.id, t: preferences.translations))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -47,13 +48,19 @@ struct MedalCardView: View {
                     }
 
                     if medal.earned, let earnedAt = medal.earnedAt {
-                        Text("Earned on \(SwimFormatters.formatDateLong(earnedAt))")
+                        Text(preferences.t("medals.earnedOn", params: [
+                            "date": SwimFormatters.formatDateLong(earnedAt)
+                        ]))
                             .font(.caption2.weight(.medium))
                             .foregroundStyle(Color("BrandBlue"))
                     }
 
                     if medal.earned, !medal.periods.isEmpty {
-                        Text(SwimMedalCopy.formatPeriods(medal.periods))
+                        Text(SwimMedalCopy.formatPeriods(
+                            medal.periods,
+                            t: preferences.translations,
+                            locale: preferences.locale
+                        ))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -61,7 +68,7 @@ struct MedalCardView: View {
             }
             .overlay(alignment: .topLeading) {
                 if medal.earned {
-                    Text("Earned")
+                    Text(preferences.t("medals.earned"))
                         .font(.caption2.weight(.bold))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
@@ -82,7 +89,10 @@ struct MedalCardView: View {
     private func progressSummary(_ progress: MedalProgress) -> String {
         let current = formatProgressValue(progress.kind, progress.current)
         let target = formatProgressValue(progress.kind, progress.target)
-        return "\(current) / \(target)"
+        return preferences.t("medals.progress.summary", params: [
+            "current": current,
+            "target": target
+        ])
     }
 
     private func formatProgressValue(_ kind: String, _ value: Int?) -> String {
@@ -93,7 +103,7 @@ struct MedalCardView: View {
         case "duration":
             return SwimFormatters.formatDuration(value)
         case "kcal":
-            return "\(value) kcal"
+            return "\(value) \(preferences.t("common.kcal"))"
         case "pace":
             return SwimFormatters.formatPace(value)
         default:
@@ -140,6 +150,7 @@ struct MedalIconView: View {
 }
 
 struct MonthlyMedalTileView: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let state: MonthlyChallengeState
     var compact: Bool = false
     var size: CGFloat = 40
@@ -149,22 +160,22 @@ struct MonthlyMedalTileView: View {
             MonthlyMedalIconView(tier: state.tier, size: size, muted: state.tier == nil)
 
             if compact {
-                Text(SwimMonthlyChallengeFormatters.monthShortLabel(state.monthKey))
+                Text(SwimMonthlyChallengeFormatters.monthShortLabel(state.monthKey, locale: preferences.locale))
                     .font(.caption2.weight(.medium))
 
                 if state.isPreview {
-                    Text("Preview")
+                    Text(preferences.t("monthlyChallenges.previewLabel"))
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(.orange)
                 }
 
                 if let tier = state.tier {
-                    Text(SwimMonthlyChallengeFormatters.tierLabel(tier))
+                    Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
                         .font(.caption2.weight(.semibold))
                         .foregroundStyle(Color("BrandBlue"))
                     CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
                 } else if state.challenges.contains(where: { $0.current > 0 }) {
-                    Text("In progress")
+                    Text(preferences.t("monthlyChallenges.inProgress"))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 } else {
@@ -221,6 +232,7 @@ struct MonthlyMedalIconView: View {
 
 struct MonthlyChallengeHistoryView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
 
     var body: some View {
@@ -236,22 +248,22 @@ struct MonthlyChallengeHistoryView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Monthly medals")
+                        Text(preferences.t("monthlyChallenges.historyTitle"))
                             .font(.caption.bold())
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)
-                        Text("Months where you earned a monthly medal.")
+                        Text(preferences.t("monthlyChallenges.historySubtitle"))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                         if viewModel.cheats.previewMonthlyMedals {
-                            Text("Preview cheat active — sample medals shown.")
+                            Text(preferences.t("monthlyChallenges.previewActive"))
                                 .font(.caption2.weight(.medium))
                                 .foregroundStyle(.orange)
                         }
                     }
                     Spacer()
                     if years(from: history).count > 1 {
-                        Picker("Year", selection: $selectedYear) {
+                        Picker(preferences.t("monthlyChallenges.yearLabel"), selection: $selectedYear) {
                             ForEach(years(from: history), id: \.self) { year in
                                 Text(String(year)).tag(year)
                             }

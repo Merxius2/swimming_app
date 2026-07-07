@@ -2,6 +2,7 @@ import SwiftUI
 import Charts
 
 struct RecordsSectionView: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let records: PersonalRecords?
 
     var body: some View {
@@ -10,7 +11,7 @@ struct RecordsSectionView: View {
             if !entries.isEmpty {
                 Card {
                     VStack(alignment: .leading, spacing: 12) {
-                        Label("Personal records", systemImage: "trophy.fill")
+                        Label(preferences.t("records.title"), systemImage: "trophy.fill")
                             .font(.headline)
                             .foregroundStyle(.orange)
 
@@ -48,25 +49,25 @@ struct RecordsSectionView: View {
     private func buildEntries(_ records: PersonalRecords) -> [RecordEntry] {
         var entries: [RecordEntry] = []
         if let record = records.longestDistance {
-            entries.append(RecordEntry(title: "Longest distance", value: SwimFormatters.formatDistance(Int(record.value)), date: record.date, color: .blue))
+            entries.append(RecordEntry(title: preferences.t("records.longestDistance"), value: SwimFormatters.formatDistance(Int(record.value)), date: record.date, color: .blue))
         }
         if let record = records.fastestPace {
-            entries.append(RecordEntry(title: "Fastest pace", value: SwimFormatters.formatPace(Int(record.value)), date: record.date, color: .teal))
+            entries.append(RecordEntry(title: preferences.t("records.fastestPace"), value: SwimFormatters.formatPace(Int(record.value)), date: record.date, color: .teal))
         }
         if let record = records.mostActiveCalories {
-            entries.append(RecordEntry(title: "Most active kcal", value: "\(Int(record.value)) kcal", date: record.date, color: .red))
+            entries.append(RecordEntry(title: preferences.t("records.mostCalories"), value: "\(Int(record.value)) \(preferences.t("common.kcal"))", date: record.date, color: .red))
         }
         if let record = records.mostTotalCalories {
-            entries.append(RecordEntry(title: "Most total kcal", value: "\(Int(record.value)) kcal", date: record.date, color: .orange))
+            entries.append(RecordEntry(title: preferences.t("records.mostTotalCalories"), value: "\(Int(record.value)) \(preferences.t("common.kcal"))", date: record.date, color: .orange))
         }
         if let record = records.mostLaps {
-            entries.append(RecordEntry(title: "Most laps", value: "\(Int(record.value))", date: record.date, color: .purple))
+            entries.append(RecordEntry(title: preferences.t("records.mostLaps"), value: "\(Int(record.value))", date: record.date, color: .purple))
         }
         if let record = records.longestDuration {
-            entries.append(RecordEntry(title: "Longest duration", value: SwimFormatters.formatDuration(Int(record.value)), date: record.date, color: .yellow))
+            entries.append(RecordEntry(title: preferences.t("records.longestDuration"), value: SwimFormatters.formatDuration(Int(record.value)), date: record.date, color: .yellow))
         }
         if let record = records.highestHeartRate {
-            entries.append(RecordEntry(title: "Highest heart rate", value: "\(Int(record.value)) bpm", date: record.date, color: .pink))
+            entries.append(RecordEntry(title: preferences.t("records.highestHeartRate"), value: "\(Int(record.value)) \(preferences.t("common.bpm"))", date: record.date, color: .pink))
         }
         return entries
     }
@@ -127,7 +128,9 @@ struct SessionFeedbackCard: View {
                     .font(.subheadline.italic())
                     .foregroundStyle(Color("BrandBlue"))
 
-                Text("Level: \(SwimBenchmarks.levelLabel(feedback.benchmarkLevel))")
+                Text(preferences.t("feedback.benchmarkLevel", params: [
+                    "level": SwimBenchmarks.levelLabel(feedback.benchmarkLevel, t: preferences.translations)
+                ]))
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
@@ -137,6 +140,7 @@ struct SessionFeedbackCard: View {
 
 struct MonthlyChallengesCardView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.openCoins) private var openCoins
 
     private let tierSteps = ["bronze", "silver", "gold"]
@@ -170,7 +174,7 @@ struct MonthlyChallengesCardView: View {
                     VStack(spacing: 8) {
                         MonthlyMedalIconView(tier: state.tier, size: 64, muted: state.tier == nil)
                         if let tier = state.tier {
-                            Text(SwimMonthlyChallengeFormatters.tierLabel(tier))
+                            Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
                                 .font(.caption2.weight(.semibold))
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
@@ -187,12 +191,12 @@ struct MonthlyChallengesCardView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Monthly challenges")
+                        Text(preferences.t("monthlyChallenges.title"))
                             .font(.headline)
-                        Text(SwimMonthlyChallengeFormatters.monthLabel(monthKey))
+                        Text(SwimMonthlyChallengeFormatters.monthLabel(monthKey, locale: preferences.locale))
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text("One medal per month — complete challenges to upgrade it from bronze to silver to gold.")
+                        Text(preferences.t("monthlyChallenges.subtitle"))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -208,17 +212,19 @@ struct MonthlyChallengesCardView: View {
                 }
 
                 if viewModel.challengeRerollCredits > 0 {
-                    Text("\(viewModel.challengeRerollCredits) reroll credit(s) ready to use")
+                    Text(preferences.t("monthlyChallenges.rerollCredits", params: [
+                        "count": String(viewModel.challengeRerollCredits)
+                    ]))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
                 if !rerollAvailable {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("You used your free monthly reroll.")
+                        Text(preferences.t("monthlyChallenges.rerollUsed"))
                             .font(.caption2)
                             .foregroundStyle(.secondary)
-                        Button("Buy more rerolls in the Swim Coin Store for 500 swim coins.") {
+                        Button(preferences.t("monthlyChallenges.rerollBuyHint")) {
                             openCoins()
                         }
                         .font(.caption2)
@@ -228,7 +234,7 @@ struct MonthlyChallengesCardView: View {
 
                 Divider()
 
-                Text("Monthly medal coin rewards")
+                Text(preferences.t("coins.monthlyRewards"))
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
@@ -238,7 +244,7 @@ struct MonthlyChallengesCardView: View {
                         let earned = currentTierIndex >= index
                         let isCurrent = state.tier == tier
                         VStack(spacing: 4) {
-                            Text(SwimMonthlyChallengeFormatters.tierLabel(tier))
+                            Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
                                 .font(.caption2.weight(.medium))
                             CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
                         }
@@ -256,17 +262,24 @@ struct MonthlyChallengesCardView: View {
                 }
 
                 if let nextTier, nextUpgradeCoins > 0 {
-                    Text("Reach \(SwimMonthlyChallengeFormatters.tierLabel(nextTier)) for +\(nextUpgradeCoins) bonus coins on upgrade")
+                    Text(preferences.t("coins.monthlyNextUpgrade", params: [
+                        "tier": SwimMonthlyChallengeFormatters.tierLabel(nextTier, t: preferences.translations),
+                        "amount": String(nextUpgradeCoins)
+                    ]))
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
-                Text("Your monthly medal upgrades as you finish challenges: 1 → bronze · 2 → silver · 3 → gold.")
+                Text(preferences.t("monthlyChallenges.tierHint"))
                     .font(.caption2)
                     .foregroundStyle(.secondary)
 
                 if let requiredTier = gameplay.requiredMonthlyTier, gameplay.monthlyPenaltyCoins > 0 {
-                    Text("\(MascotConstants.displayName(viewModel.mascotId)) expects at least \(SwimMonthlyChallengeFormatters.tierLabel(requiredTier)) this month — falling short costs \(gameplay.monthlyPenaltyCoins) coins.")
+                    Text(preferences.t("monthlyChallenges.coachRequirement", params: [
+                        "name": MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
+                        "tier": SwimMonthlyChallengeFormatters.tierLabel(requiredTier, t: preferences.translations),
+                        "amount": String(gameplay.monthlyPenaltyCoins)
+                    ]))
                         .font(.caption2)
                         .foregroundStyle(.red.opacity(0.85))
                 }
@@ -296,33 +309,33 @@ struct MonthlyChallengesCardView: View {
 
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(SwimMonthlyChallengeFormatters.challengeTypeLabel(challenge.type))
+                Text(SwimMonthlyChallengeFormatters.challengeTypeLabel(challenge.type, t: preferences.translations))
                     .font(.subheadline.weight(.medium))
                 Spacer()
                 if showReroll {
                     Button {
                         viewModel.rerollMonthlyChallenge(monthKey: monthKey, tierIndex: index)
                     } label: {
-                        Label("Reroll", systemImage: "shuffle")
+                        Label(preferences.t("monthlyChallenges.reroll"), systemImage: "shuffle")
                             .font(.caption2.weight(.medium))
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.mini)
                 }
                 if challenge.completed {
-                    Text("Done")
+                    Text(preferences.t("monthlyChallenges.done"))
                         .font(.caption2.weight(.bold))
                         .foregroundStyle(.green)
                         .textCase(.uppercase)
                 }
             }
 
-            Text(SwimMonthlyChallengeFormatters.formatChallengeTarget(challenge.type, challenge.target))
+            Text(SwimMonthlyChallengeFormatters.formatChallengeTarget(challenge.type, challenge.target, t: preferences.translations))
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
             HStack {
-                Text("\(SwimMonthlyChallengeFormatters.formatChallengeValue(challenge.type, challenge.current)) / \(SwimMonthlyChallengeFormatters.formatChallengeValue(challenge.type, challenge.target))")
+                Text("\(SwimMonthlyChallengeFormatters.formatChallengeValue(challenge.type, challenge.current, t: preferences.translations)) / \(SwimMonthlyChallengeFormatters.formatChallengeValue(challenge.type, challenge.target, t: preferences.translations))")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -351,17 +364,18 @@ struct MonthlyChallengesCardView: View {
 }
 
 struct StrokeDonutChart: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let slices: [StrokeChartSlice]
 
     var body: some View {
         let total = slices.map(\.value).reduce(0, +)
         Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Stroke mix (latest session)")
+                Text(preferences.t("progress.strokeMix"))
                     .font(.headline)
 
                 if slices.isEmpty || total == 0 {
-                    Text("No stroke breakdown for the latest session.")
+                    Text(preferences.t("progress.subtitle"))
                         .foregroundStyle(.secondary)
                 } else {
                     Chart(slices) { slice in
@@ -390,6 +404,7 @@ struct StrokeDonutChart: View {
 }
 
 struct BenchmarkBadgeRankingView: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let label: String
     let percentile: Int
     let vsMedian: String
@@ -403,7 +418,9 @@ struct BenchmarkBadgeRankingView: View {
                         .foregroundStyle(.secondary)
                     Text("\(percentile)%")
                         .font(.system(size: 34, weight: .bold))
-                    Text(vsMedian == "above" ? "Above median" : "Below median")
+                    Text(vsMedian == "above"
+                        ? preferences.t("benchmark.badges.aboveMedian")
+                        : preferences.t("benchmark.badges.belowMedian"))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(vsMedian == "above" ? .green : .orange)
                 }
@@ -422,6 +439,7 @@ struct BenchmarkBadgeRankingView: View {
 }
 
 struct SessionCalendarView: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let sessions: [SwimSession]
     @Binding var selectedDate: String?
 
@@ -441,7 +459,7 @@ struct SessionCalendarView: View {
         Card {
             VStack(spacing: 12) {
                 HStack {
-                    Text("Session calendar")
+                    Text(preferences.t("history.calendarTitle"))
                         .font(.headline)
                     Spacer()
                     Button { shiftMonth(-1) } label: { Image(systemName: "chevron.left") }
@@ -486,6 +504,7 @@ struct SessionCalendarView: View {
         var components = DateComponents(year: viewYear, month: viewMonth, day: 1)
         let date = Calendar.current.date(from: components) ?? Date()
         let formatter = DateFormatter()
+        formatter.locale = preferences.locale
         formatter.dateFormat = "MMMM yyyy"
         return formatter.string(from: date)
     }

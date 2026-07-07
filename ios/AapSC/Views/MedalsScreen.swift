@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MedalsScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.openCoins) private var openCoins
 
     private var shimmerPlus: Bool {
@@ -13,8 +14,8 @@ struct MedalsScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
                     ScreenHeader(
-                        "Medals",
-                        subtitle: "Earn medals by hitting milestones, weekly goals, and seasonal challenges.",
+                        preferences.t("medals.title"),
+                        subtitle: preferences.t("medals.subtitle"),
                         systemImage: "medal"
                     )
 
@@ -33,7 +34,7 @@ struct MedalsScreen: View {
                 .padding()
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Medals")
+            .navigationTitle(preferences.t("medals.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -54,7 +55,7 @@ struct MedalsScreen: View {
         return Card {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Earn medals by hitting milestones, weekly goals, and seasonal challenges.")
+                    Text(preferences.t("medals.subtitle"))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -73,7 +74,7 @@ struct MedalsScreen: View {
             Divider().padding(.vertical, 8)
 
             HStack {
-                Text("Swim coins")
+                Text(preferences.t("coins.label"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -88,10 +89,10 @@ struct MedalsScreen: View {
     private var emptyState: some View {
         Card {
             VStack(spacing: 12) {
-                Text("Log swim sessions to start earning medals.")
+                Text(preferences.t("medals.empty"))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                Text("Use the Upload tab to add your first session.")
+                Text(preferences.t("progress.emptyDesc"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -108,7 +109,7 @@ struct MedalsScreen: View {
 
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(SwimMedalCopy.categoryLabel(category))
+                Text(SwimMedalCopy.categoryLabel(category, t: preferences.translations))
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)

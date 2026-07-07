@@ -81,11 +81,59 @@ enum MascotConstants {
         }
     }
 
+    static func displayName(_ id: String?, t: TranslationService) -> String {
+        switch id {
+        case "flo": return t.t("settings.mascotFloName")
+        case "fins": return t.t("settings.mascotFinsName")
+        default: return t.t("settings.mascotFlipName")
+        }
+    }
+
     static func displayName(_ id: String?) -> String {
         switch id {
         case "flo": return "Flo"
         case "fins": return "Fins"
         default: return "Flip"
+        }
+    }
+
+    static func aspectRatio(_ id: String?) -> CGFloat {
+        switch id {
+        case "flo": return 593.0 / 900.0
+        case "fins": return 490.0 / 900.0
+        default: return 490.0 / 900.0
+        }
+    }
+
+    static func openImageName(_ id: String?) -> String {
+        switch id {
+        case "flo": return "MascotFloOpen"
+        case "fins": return "MascotFinsOpen"
+        default: return "MascotFlipOpen"
+        }
+    }
+
+    static func closedImageName(_ id: String?) -> String {
+        switch id {
+        case "flo": return "MascotFloClosed"
+        case "fins": return "MascotFinsClosed"
+        default: return "MascotFlipClosed"
+        }
+    }
+
+    static func disappointedOpenImageName(_ id: String?) -> String? {
+        switch id {
+        case "flo": return "MascotFloDisappointedOpen"
+        case "fins": return "MascotFinsDisappointedOpen"
+        default: return nil
+        }
+    }
+
+    static func disappointedClosedImageName(_ id: String?) -> String? {
+        switch id {
+        case "flo": return "MascotFloClosed"
+        case "fins": return "MascotFinsDisappointedClosed"
+        default: return nil
         }
     }
 

@@ -117,21 +117,24 @@ struct MedalCelebrationSheet: View {
 }
 
 struct DuplicateSessionAlert: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     let duplicate: SwimSession
     let onCancel: () -> Void
     let onSaveAnyway: () -> Void
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("Duplicate workout?")
+            Text(preferences.t("upload.duplicateTitle"))
                 .font(.headline)
-            Text("A session on \(SwimFormatters.formatDateLong(duplicate.date)) with the same distance and duration already exists.")
+            Text(preferences.t("upload.duplicateMessage", params: [
+                "date": SwimFormatters.formatDateLong(duplicate.date)
+            ]))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
             HStack {
-                Button("Cancel", action: onCancel)
+                Button(preferences.t("common.cancel"), action: onCancel)
                     .buttonStyle(.bordered)
-                Button("Save anyway", action: onSaveAnyway)
+                Button(preferences.t("upload.saveSession"), action: onSaveAnyway)
                     .buttonStyle(.borderedProminent)
             }
         }

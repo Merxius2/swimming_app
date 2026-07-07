@@ -48,6 +48,7 @@
 		B10000000000000000000041 /* AiCoachService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000041 /* AiCoachService.swift */; };
 		B10000000000000000000042 /* AmbientBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000042 /* AmbientBackgroundView.swift */; };
 		B10000000000000000000043 /* SecretSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000043 /* SecretSettingsSheet.swift */; };
+		B10000000000000000000048 /* MascotCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* MascotCharacterView.swift */; };
 		B10000000000000000000044 /* en.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* en.json */; };
 		B10000000000000000000045 /* nl.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* nl.json */; };
 		B10000000000000000000046 /* ru.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ru.json */; };
@@ -99,6 +100,7 @@
 		F10000000000000000000041 /* AiCoachService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiCoachService.swift; sourceTree = "<group>"; };
 		F10000000000000000000042 /* AmbientBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientBackgroundView.swift; sourceTree = "<group>"; };
 		F10000000000000000000043 /* SecretSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretSettingsSheet.swift; sourceTree = "<group>"; };
+		F10000000000000000000048 /* MascotCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotCharacterView.swift; sourceTree = "<group>"; };
 		F10000000000000000000044 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
 		F10000000000000000000045 /* nl.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nl.json; sourceTree = "<group>"; };
 		F10000000000000000000046 /* ru.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ru.json; sourceTree = "<group>"; };
@@ -193,6 +195,7 @@
 				F10000000000000000000036 /* MedalViews.swift */,
 				F10000000000000000000042 /* AmbientBackgroundView.swift */,
 				F10000000000000000000043 /* SecretSettingsSheet.swift */,
+				F10000000000000000000048 /* MascotCharacterView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -357,6 +360,7 @@
 				B10000000000000000000041 /* AiCoachService.swift in Sources */,
 				B10000000000000000000042 /* AmbientBackgroundView.swift in Sources */,
 				B10000000000000000000043 /* SecretSettingsSheet.swift in Sources */,
+				B10000000000000000000048 /* MascotCharacterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

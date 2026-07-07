@@ -24,6 +24,15 @@ final class UserPreferencesService: ObservableObject {
         AppThemes.theme(for: themeCode)
     }
 
+    var locale: Locale {
+        switch language {
+        case "nl": return Locale(identifier: "nl_NL")
+        case "ru": return Locale(identifier: "ru_RU")
+        case "tr": return Locale(identifier: "tr_TR")
+        default: return Locale(identifier: "en_US")
+        }
+    }
+
     init() {
         load()
         translations.setLanguage(language)
