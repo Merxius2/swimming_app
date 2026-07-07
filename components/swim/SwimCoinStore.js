@@ -24,7 +24,6 @@ const CATEGORY_META = {
   vibes: { icon: Sparkles, labelKey: 'coins.store.categories.vibes' },
   flair: { icon: PartyPopper, labelKey: 'coins.store.categories.flair' },
   boosts: { icon: Zap, labelKey: 'coins.store.categories.boosts' },
-  titles: { icon: Award, labelKey: 'coins.store.categories.titles' },
 };
 
 function tf(t, key, params = {}) {
@@ -148,16 +147,6 @@ function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits }) {
           </span>
         </div>
       );
-    case 'title-lane-seven':
-    case 'title-pool-shark':
-    case 'title-splash-zone':
-      return (
-        <div className="h-20 rounded-lg flex items-center justify-center px-4 bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-950 dark:to-slate-800">
-          <span className="text-sm font-bold text-white tracking-wide text-center leading-tight">
-            {t(item.nameKey)}
-          </span>
-        </div>
-      );
     case 'icon-gold-medal':
     case 'icon-neon-lane':
     case 'icon-trophy-splash':
@@ -186,7 +175,7 @@ function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits }) {
 export default function SwimCoinStore() {
   const { t } = useLanguage();
   const { changeTheme, THEMES } = useTheme();
-  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, profile, isLoading, cheats, challengeRerollCredits, bonusWheelSpinCredits } = useSwim();
+  const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats, challengeRerollCredits, bonusWheelSpinCredits } = useSwim();
   const allThemesUnlocked = Boolean(cheats?.allThemesUnlocked);
 
   useEffect(() => {
@@ -204,7 +193,6 @@ export default function SwimCoinStore() {
 
     if (item.themeCode) changeTheme(item.themeCode);
     if (item.id.startsWith('ambient:')) updateProfile({ activeAmbient: item.id });
-    if (item.id.startsWith('title:')) updateProfile({ swimmerTitle: item.id });
     if (item.id.startsWith('icon:')) updateProfile({ activeAppIcon: item.id });
   };
 

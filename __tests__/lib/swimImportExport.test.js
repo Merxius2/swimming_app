@@ -47,7 +47,6 @@ describe('swimImportExport', () => {
       ...sampleData.profile,
       aiApiKey: '',
       activeAmbient: null,
-      swimmerTitle: null,
       activeAppIcon: null,
     });
     assert.equal(imported.sessions.length, 1);
