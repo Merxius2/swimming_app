@@ -695,7 +695,9 @@ struct ThemedUploadFAB: View {
                 .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(style.iconColor)
                 .frame(width: 58, height: 58)
-                .background(fabBackground, in: Circle())
+                .background {
+                    Circle().fill(fabFill)
+                }
                 .overlay(
                     Circle()
                         .strokeBorder(style.borderColor, lineWidth: 2)
@@ -706,14 +708,19 @@ struct ThemedUploadFAB: View {
         .accessibilityLabel("Upload")
     }
 
-    @ViewBuilder
-    private var fabBackground: some View {
+    private var fabFill: AnyShapeStyle {
         if let gradient = style.gradient, gradient.count >= 2 {
-            LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+            AnyShapeStyle(
+                LinearGradient(
+                    colors: gradient,
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
         } else if let solid = style.solid {
-            solid
+            AnyShapeStyle(solid)
         } else {
-            Color("BrandBlue")
+            AnyShapeStyle(Color("BrandBlue"))
         }
     }
 }
