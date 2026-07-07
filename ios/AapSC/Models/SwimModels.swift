@@ -310,7 +310,16 @@ struct SessionFeedbackSummary: Equatable {
     var coachMessage: String
     var motivation: String
     var benchmarkLevel: SwimLevel
+    var highlights: [FeedbackHighlight] = []
+    var tip: String = ""
+    var mascotMood: String = "happy"
     var aiEnhanced: Bool = false
+}
+
+struct FeedbackHighlight: Equatable, Identifiable {
+    var id: String { "\(label)-\(value)" }
+    let label: String
+    let value: String
 }
 
 struct BenchmarkBarItem: Identifiable, Equatable {

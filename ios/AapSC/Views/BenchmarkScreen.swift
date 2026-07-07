@@ -4,6 +4,8 @@ import Charts
 struct BenchmarkScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.openSettings) private var openSettings
+    @Environment(\.openUpload) private var openUpload
 
     var body: some View {
         NavigationStack {
@@ -28,9 +30,19 @@ struct BenchmarkScreen: View {
 
                         if pace == nil {
                             Card {
-                                Text("Upload a session to compare your pace.")
-                                    .foregroundStyle(.secondary)
-                                    .frame(maxWidth: .infinity)
+                                VStack(spacing: 12) {
+                                    Text(preferences.t("medals.progress.noPaceYet"))
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.center)
+                                    Button(action: openUpload) {
+                                        Text(preferences.t("progress.emptyCta"))
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                    .tint(Color("BrandBlue"))
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
                             }
                         } else {
                             BenchmarkBadgeRankingView(
@@ -79,6 +91,12 @@ struct BenchmarkScreen: View {
                 Text(preferences.t("benchmark.profileRequired"))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
+                Button(action: openSettings) {
+                    Text(preferences.t("benchmark.goSettings"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color("BrandBlue"))
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)

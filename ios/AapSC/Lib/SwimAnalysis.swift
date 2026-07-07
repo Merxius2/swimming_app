@@ -202,66 +202,42 @@ enum SwimAnalysis {
     static func buildPersonalFeedback(
         session: SwimSession,
         allSessions: [SwimSession],
+        profile: SwimProfile,
+        t: TranslationService,
+        monthlyChallengeRerolls: [String: MonthRerollEntry] = [:]
+    ) -> SessionFeedbackSummary {
+        SwimFeedback.buildPersonalFeedback(
+            session: session,
+            allSessions: allSessions,
+            profile: profile,
+            t: t,
+            monthlyChallengeRerolls: monthlyChallengeRerolls
+        )
+    }
+
+    static func buildPersonalFeedback(
+        session: SwimSession,
+        allSessions: [SwimSession],
         profile: SwimProfile
     ) -> SessionFeedbackSummary {
-        var insights: [String] = []
-        var badges: [String] = []
-        let metrics = session.metrics
-        let stats = sortedSessions(statsSessions(allSessions))
-        let previous = stats.last(where: { $0.id != session.id && $0.date < session.date }) ?? stats.dropLast().last
-
-        if let prevPace = previous?.metrics.paceSecPer100m,
-           let pace = metrics.paceSecPer100m {
-            let delta = prevPace - pace
-            if delta > 0 {
-                insights.append("You swam \(delta) seconds faster per 100m than your previous session.")
-            } else if delta < 0 {
-                insights.append("Pace was \(abs(delta)) seconds slower per 100m than last time.")
-            }
-        }
-
-        if let goal = metrics.goalM, let distance = metrics.distanceM {
-            if distance >= goal {
-                insights.append("You beat your \(SwimFormatters.formatDistance(goal)) goal by \(SwimFormatters.formatDistance(distance - goal)).")
-            } else {
-                insights.append("You were \(SwimFormatters.formatDistance(goal - distance)) short of your goal.")
-            }
-        }
-
-        if let records = SwimRecords.getPersonalRecords(allSessions) {
-            if let pace = metrics.paceSecPer100m,
-               let fastest = records.fastestPace,
-               Int(fastest.value) == pace {
-                badges.append("Personal best pace")
-            }
-            if let distance = metrics.distanceM,
-               let longest = records.longestDistance,
-               Double(distance) == longest.value {
-                badges.append("Personal best distance")
-            }
-        }
-
-        let benchmark = SwimBenchmarks.benchmark(for: profile.sex, age: profile.age)
-        let level = SwimBenchmarks.swimLevel(paceSecPer100m: metrics.paceSecPer100m, benchmark: benchmark)
-
-        let motivation: String
-        if badges.contains("Personal best pace") {
-            motivation = "That's a new pace record — brilliant swimming!"
-        } else if insights.contains(where: { $0.contains("faster") }) {
-            motivation = "Strong progress. Keep this momentum going."
-        } else {
-            motivation = "Every swim counts. Stay consistent and the numbers will follow."
-        }
-
-        let coachMessage = "Latest session: \(SwimFormatters.formatDistance(metrics.distanceM)) in \(SwimFormatters.formatDuration(metrics.durationSec)) at \(SwimFormatters.formatPace(metrics.paceSecPer100m))."
-
-        return SessionFeedbackSummary(
-            insights: insights,
-            badges: badges,
-            coachMessage: coachMessage,
-            motivation: motivation,
-            benchmarkLevel: level
+        buildPersonalFeedback(
+            session: session,
+            allSessions: allSessions,
+            profile: profile,
+            t: TranslationService()
         )
+    }
+
+    static func wrapCoachMessage(mascotId: String, profile: SwimProfile, t: TranslationService, message: String) -> String {
+        let key: String
+        switch mascotId {
+        case "flo": key = "mascot.coachWrap.flo"
+        case "fins": key = "mascot.coachWrap.fins"
+        default: key = "mascot.coachWrap.flip"
+        }
+        let name = profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let displayName = name.isEmpty ? MascotConstants.displayName(mascotId, t: t) : name
+        return t.t(key, params: ["name": displayName, "message": message])
     }
 
     private static func roundedAverage(_ values: [Int]) -> Int? {
@@ -307,15 +283,4 @@ enum SwimAnalysis {
         return template.replacingOccurrences(of: "{name}", with: displayName)
     }
 
-    private static func wrapCoachMessage(mascotId: String, profile: SwimProfile, t: TranslationService, message: String) -> String {
-        let key: String
-        switch mascotId {
-        case "flo": key = "mascot.coachWrap.flo"
-        case "fins": key = "mascot.coachWrap.fins"
-        default: key = "mascot.coachWrap.flip"
-        }
-        let name = profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let displayName = name.isEmpty ? MascotConstants.displayName(mascotId, t: t) : name
-        return t.t(key, params: ["name": displayName, "message": message])
-    }
 }

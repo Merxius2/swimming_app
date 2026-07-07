@@ -305,9 +305,9 @@ enum ThemeVisualProfiles {
                 usesSystemDefault: false,
                 background: Color(red: 0.031, green: 0.055, blue: 0.11),
                 backgroundGradient: nil,
-                selectedColor: brandBlueDeep,
+                selectedColor: glow,
                 unselectedColor: Color(red: 0.44, green: 0.44, blue: 0.48),
-                accentStripe: nil,
+                accentStripe: glow.opacity(0.7),
                 accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
@@ -356,7 +356,7 @@ enum ThemeVisualProfiles {
                 usesSystemDefault: false,
                 background: Color(red: 0.102, green: 0.039, blue: 0.18),
                 backgroundGradient: [Color(red: 0.176, green: 0.106, blue: 0.412), Color(red: 0.102, green: 0.039, blue: 0.18)],
-                selectedColor: brandBlueDeep,
+                selectedColor: pink,
                 unselectedColor: Color(red: 0.44, green: 0.44, blue: 0.48),
                 accentStripe: cyan,
                 accentStripePosition: .top

@@ -50,6 +50,7 @@ struct ContentView: View {
         }
         .environment(\.openSettings, { showSettings = true })
         .environment(\.openCoins, { showCoins = true })
+        .environment(\.openUpload, { showUpload = true })
         .onAppear {
             viewModel.validateThemeSelection(preferences: preferences)
         }
@@ -80,6 +81,10 @@ private struct OpenCoinsKey: EnvironmentKey {
     static let defaultValue: () -> Void = {}
 }
 
+private struct OpenUploadKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+
 extension EnvironmentValues {
     var openSettings: () -> Void {
         get { self[OpenSettingsKey.self] }
@@ -89,6 +94,11 @@ extension EnvironmentValues {
     var openCoins: () -> Void {
         get { self[OpenCoinsKey.self] }
         set { self[OpenCoinsKey.self] = newValue }
+    }
+
+    var openUpload: () -> Void {
+        get { self[OpenUploadKey.self] }
+        set { self[OpenUploadKey.self] = newValue }
     }
 }
 
