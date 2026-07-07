@@ -344,9 +344,194 @@ enum SwimMedals {
                 season: medal.season,
                 earned: earned,
                 earnedAt: earned ? (earnedAtMap[medal.id] ?? today) : nil,
-                periods: result.periods
+                periods: result.periods,
+                progress: earned ? nil : getMedalProgress(medal, ctx: ctx)
             )
         }
+    }
+
+    static func getMedalProgress(_ medal: MedalDefinition, ctx: MedalContext) -> MedalProgress? {
+        let emptyMonth = PeriodBucket(sessions: 0, distanceM: 0, activeKcal: 0)
+        let currentMonth = ctx.byMonth[ctx.currentMonthKey] ?? emptyMonth
+        let currentSeason = ctx.bySeason[ctx.currentSeasonKey] ?? emptyMonth
+
+        func countProgress(_ current: Int, _ target: Int, _ scope: String, best: Int? = nil, bestPeriod: String? = nil) -> MedalProgress {
+            MedalProgress(
+                percent: clampPercent(current, target),
+                kind: "sessions",
+                scope: scope,
+                current: current,
+                target: target,
+                best: best,
+                bestPeriod: bestPeriod
+            )
+        }
+
+        func distanceProgress(_ current: Int, _ target: Int, _ scope: String, best: Int? = nil, bestPeriod: String? = nil) -> MedalProgress {
+            MedalProgress(
+                percent: clampPercent(current, target),
+                kind: "distance",
+                scope: scope,
+                current: current,
+                target: target,
+                best: best,
+                bestPeriod: bestPeriod
+            )
+        }
+
+        func kcalProgress(_ current: Int, _ target: Int, _ scope: String, best: Int? = nil, bestPeriod: String? = nil) -> MedalProgress {
+            MedalProgress(
+                percent: clampPercent(current, target),
+                kind: "kcal",
+                scope: scope,
+                current: current,
+                target: target,
+                best: best,
+                bestPeriod: bestPeriod
+            )
+        }
+
+        switch medal.id {
+        case "first_splash":
+            return countProgress(ctx.totalSessions, 1, "lifetime")
+        case "ten_sessions":
+            return countProgress(ctx.totalSessions, 10, "lifetime")
+        case "twenty_five_sessions":
+            return countProgress(ctx.totalSessions, 25, "lifetime")
+        case "ten_k_lifetime":
+            return distanceProgress(ctx.totalDistanceM, 10000, "lifetime")
+        case "fifty_k_lifetime":
+            return distanceProgress(ctx.totalDistanceM, 50000, "lifetime")
+        case "hundred_k_lifetime":
+            return distanceProgress(ctx.totalDistanceM, 100000, "lifetime")
+        case "fifty_sessions":
+            return countProgress(ctx.totalSessions, 50, "lifetime")
+        case "two_hundred_k":
+            return distanceProgress(ctx.totalDistanceM, 200000, "lifetime")
+        case "lap_legend":
+            return countProgress(ctx.totalLaps, 1000, "lifetime")
+        case "calorie_collector":
+            return kcalProgress(ctx.totalActiveKcal, 25000, "lifetime")
+        case "two_k_session":
+            return distanceProgress(ctx.maxDistance ?? 0, 2000, "best_session")
+        case "two_five_k_session":
+            return distanceProgress(ctx.maxDistance ?? 0, 2500, "best_session")
+        case "three_k_session":
+            return distanceProgress(ctx.maxDistance ?? 0, 3000, "best_session")
+        case "sub_200_pace":
+            return MedalProgress(
+                percent: paceProgressPercent(ctx.bestPace),
+                kind: "pace",
+                scope: "best_session",
+                current: ctx.bestPace,
+                target: 120,
+                best: nil,
+                bestPeriod: nil
+            )
+        case "sub_210_pace":
+            return MedalProgress(
+                percent: paceProgressPercent(ctx.bestPace, targetSec: 130, baselineSec: 190),
+                kind: "pace",
+                scope: "best_session",
+                current: ctx.bestPace,
+                target: 130,
+                best: nil,
+                bestPeriod: nil
+            )
+        case "marathon_session":
+            return MedalProgress(
+                percent: clampPercent(ctx.maxDurationSec ?? 0, 5400),
+                kind: "duration",
+                scope: "best_session",
+                current: ctx.maxDurationSec,
+                target: 5400,
+                best: nil,
+                bestPeriod: nil
+            )
+        case "century_laps":
+            return countProgress(ctx.maxLapsSession ?? 0, 100, "best_session")
+        case "furnace":
+            return kcalProgress(ctx.maxActiveKcalSession ?? 0, 800, "best_session")
+        case "pulse_racer":
+            return countProgress(ctx.maxHeartRate ?? 0, 155, "best_session")
+        case "frog_master":
+            return distanceProgress(ctx.maxBreaststrokeM ?? 0, 1000, "best_session")
+        case "four_sessions_week":
+            return countProgress(ctx.maxSessionsInWeek, 4, "best_week")
+        case "five_k_week":
+            return distanceProgress(ctx.maxDistanceInWeek, 5000, "best_week")
+        case "hat_trick":
+            return countProgress(ctx.maxConsecutiveDays, 3, "lifetime")
+        case "week_warrior":
+            return countProgress(ctx.maxConsecutiveDays, 7, "lifetime")
+        case "fortnight_flow":
+            return countProgress(ctx.maxConsecutiveDays, 14, "lifetime")
+        case "eight_sessions_month":
+            let best = bestMonthEntry(ctx.byMonth, field: "sessions")
+            return countProgress(currentMonth.sessions, 8, "current_month", best: best?.value, bestPeriod: best?.key)
+        case "ten_k_month":
+            let best = bestMonthEntry(ctx.byMonth, field: "distanceM")
+            return distanceProgress(currentMonth.distanceM, 10000, "current_month", best: best?.value, bestPeriod: best?.key)
+        case "twenty_k_month":
+            let best = bestMonthEntry(ctx.byMonth, field: "distanceM")
+            return distanceProgress(currentMonth.distanceM, 20000, "current_month", best: best?.value, bestPeriod: best?.key)
+        case "ten_k_cal_month":
+            let best = bestMonthEntry(ctx.byMonth, field: "activeKcal")
+            return kcalProgress(currentMonth.activeKcal, 10000, "current_month", best: best?.value, bestPeriod: best?.key)
+        case "season_summer", "season_winter", "season_spring", "season_autumn":
+            guard let prefix = medal.season else { return nil }
+            let target = prefix == "summer" ? 15000 : 10000
+            let inSeason = ctx.currentSeasonKey.hasPrefix("\(prefix)-")
+            let current = inSeason ? currentSeason.distanceM : maxSeasonDistance(ctx.bySeason, prefix: prefix)
+            let scope = inSeason ? "current_season" : "best_season"
+            let best = bestSeasonEntry(ctx.bySeason, prefix: prefix)
+            return distanceProgress(current, target, scope, best: best?.distanceM, bestPeriod: best?.key)
+        default:
+            return nil
+        }
+    }
+
+    private static func clampPercent(_ current: Int, _ target: Int) -> Int {
+        guard target > 0 else { return 0 }
+        return max(0, min(100, Int(round(Double(current) / Double(target) * 100))))
+    }
+
+    private static func paceProgressPercent(_ bestPace: Int?, targetSec: Int = 120, baselineSec: Int = 180) -> Int {
+        guard let bestPace else { return 0 }
+        if bestPace <= targetSec { return 100 }
+        if bestPace >= baselineSec { return 0 }
+        return Int(round(Double(baselineSec - bestPace) / Double(baselineSec - targetSec) * 100))
+    }
+
+    private static func bestMonthEntry(_ byMonth: [String: PeriodBucket], field: String) -> (key: String, value: Int)? {
+        var best: (key: String, value: Int)?
+        for (key, bucket) in byMonth {
+            let value: Int
+            switch field {
+            case "sessions": value = bucket.sessions
+            case "distanceM": value = bucket.distanceM
+            case "activeKcal": value = bucket.activeKcal
+            default: continue
+            }
+            if best == nil || value > best!.value {
+                best = (key, value)
+            }
+        }
+        return best
+    }
+
+    private static func bestSeasonEntry(_ bySeason: [String: PeriodBucket], prefix: String) -> (key: String, distanceM: Int)? {
+        var best: (key: String, distanceM: Int)?
+        for (key, value) in bySeason where key.hasPrefix("\(prefix)-") {
+            if best == nil || value.distanceM > best!.distanceM {
+                best = (key, value.distanceM)
+            }
+        }
+        return best
+    }
+
+    private static func maxSeasonDistance(_ bySeason: [String: PeriodBucket], prefix: String) -> Int {
+        bySeason.filter { $0.key.hasPrefix("\(prefix)-") }.map(\.value.distanceM).max() ?? 0
     }
 
     static func getMedalStats(_ medals: [EvaluatedMedal]) -> (earned: Int, total: Int) {

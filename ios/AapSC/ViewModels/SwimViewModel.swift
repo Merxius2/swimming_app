@@ -168,6 +168,21 @@ final class SwimViewModel: ObservableObject {
     }
 
     @discardableResult
+    func rerollMonthlyChallenge(monthKey: String, tierIndex: Int) -> Bool {
+        guard let next = SwimMonthlyChallenges.applyMonthlyChallengeReroll(
+            data: data,
+            monthKey: monthKey,
+            tierIndex: tierIndex,
+            mascotId: mascotId
+        ) else {
+            return false
+        }
+        data = next
+        persist(immediate: true)
+        return true
+    }
+
+    @discardableResult
     func purchaseStoreItem(_ itemId: String) -> Bool {
         if SwimCoinStore.isConsumableStoreItem(itemId) {
             guard let next = SwimCoinStore.applyConsumableStorePurchase(data: data, itemId: itemId) else {

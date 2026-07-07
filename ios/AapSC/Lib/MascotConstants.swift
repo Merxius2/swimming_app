@@ -81,6 +81,14 @@ enum MascotConstants {
         }
     }
 
+    static func displayName(_ id: String?) -> String {
+        switch id {
+        case "flo": return "Flo"
+        case "fins": return "Fins"
+        default: return "Flip"
+        }
+    }
+
     static func gameplay(_ id: String?) -> MascotGameplay {
         mascot(id).gameplay
     }

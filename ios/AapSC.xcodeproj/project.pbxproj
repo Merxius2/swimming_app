@@ -38,6 +38,9 @@
 		B10000000000000000000031 /* SwimWheelSpins.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000031 /* SwimWheelSpins.swift */; };
 		B10000000000000000000032 /* SwimCoinStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000032 /* SwimCoinStore.swift */; };
 		B10000000000000000000033 /* CoinsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000033 /* CoinsScreen.swift */; };
+		B10000000000000000000034 /* SwimMedalCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000034 /* SwimMedalCopy.swift */; };
+		B10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift */; };
+		B10000000000000000000036 /* MedalViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000036 /* MedalViews.swift */; };
 		B10000000000000000000018 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000018 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -75,6 +78,9 @@
 		F10000000000000000000031 /* SwimWheelSpins.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelSpins.swift; sourceTree = "<group>"; };
 		F10000000000000000000032 /* SwimCoinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimCoinStore.swift; sourceTree = "<group>"; };
 		F10000000000000000000033 /* CoinsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsScreen.swift; sourceTree = "<group>"; };
+		F10000000000000000000034 /* SwimMedalCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimMedalCopy.swift; sourceTree = "<group>"; };
+		F10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimMonthlyChallengeFormatters.swift; sourceTree = "<group>"; };
+		F10000000000000000000036 /* MedalViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalViews.swift; sourceTree = "<group>"; };
 		P10000000000000000000001 /* AapSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AapSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -159,6 +165,7 @@
 				F10000000000000000000028 /* UploadSheets.swift */,
 				F10000000000000000000029 /* SharedSwimViews.swift */,
 				F10000000000000000000033 /* CoinsScreen.swift */,
+				F10000000000000000000036 /* MedalViews.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -181,6 +188,8 @@
 				F10000000000000000000030 /* SwimWheel.swift */,
 				F10000000000000000000031 /* SwimWheelSpins.swift */,
 				F10000000000000000000032 /* SwimCoinStore.swift */,
+				F10000000000000000000034 /* SwimMedalCopy.swift */,
+				F10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -293,6 +302,9 @@
 				B10000000000000000000031 /* SwimWheelSpins.swift in Sources */,
 				B10000000000000000000032 /* SwimCoinStore.swift in Sources */,
 				B10000000000000000000033 /* CoinsScreen.swift in Sources */,
+				B10000000000000000000034 /* SwimMedalCopy.swift in Sources */,
+				B10000000000000000000035 /* SwimMonthlyChallengeFormatters.swift in Sources */,
+				B10000000000000000000036 /* MedalViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

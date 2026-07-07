@@ -357,6 +357,17 @@ struct EvaluatedMedal: Equatable, Identifiable {
     var earned: Bool
     var earnedAt: String?
     var periods: [String]
+    var progress: MedalProgress?
+}
+
+struct MedalProgress: Equatable {
+    var percent: Int
+    var kind: String
+    var scope: String
+    var current: Int?
+    var target: Int
+    var best: Int?
+    var bestPeriod: String?
 }
 
 struct MonthlyChallenge: Equatable, Identifiable {
@@ -375,6 +386,7 @@ struct MonthlyChallengeState: Equatable {
     var completedCount: Int
     var tier: String?
     var earnedAt: String?
+    var isPreview: Bool = false
 }
 
 enum SwimLevel: String {

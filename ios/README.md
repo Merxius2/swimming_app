@@ -38,8 +38,8 @@ open ios/AapSC.xcodeproj
 | 3 | Upload flow (duplicate check, settlement, coin/medal modals) | ✅ |
 | 4 | Progress, History, Benchmark UI parity | ✅ |
 | 5 | Coins page (wheel + store) | ✅ |
-| 6 | Medals page + monthly challenges UI | 🔜 Next |
-| 7 | i18n, themes, dark mode, import/export, AI coach, polish | 🔜 |
+| 6 | Medals page + monthly challenges UI | ✅ |
+| 7 | i18n, themes, dark mode, import/export, AI coach, polish | 🔜 Next |
 
 ## What's included
 
@@ -52,8 +52,9 @@ open ios/AapSC.xcodeproj
 | Age-group benchmarks | ✅ |
 | Swim coins (session rewards) | ✅ |
 | Wheel of Fortune + coin store | ✅ |
+| Medals gallery + monthly challenge history | ✅ |
 | Profile & settings | ✅ |
-| Medals, mascot | Partial |
+| Mascot UI assets | Partial |
 | AI coach feedback | 🔜 Planned follow-up |
 | Import/export web app data | 🔜 Planned follow-up |
 

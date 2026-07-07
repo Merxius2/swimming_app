@@ -105,7 +105,7 @@ enum SwimMonthlyChallenges {
         intensity: Double = 1
     ) -> [MonthlyChallengeState] {
         let months = Array(Set(sessions.map { String($0.date.prefix(7)) })).sorted(by: >)
-        return months.compactMap { monthKey in
+        let real = months.compactMap { monthKey -> MonthlyChallengeState? in
             let state = evaluateMonthlyChallenges(
                 sessions: sessions,
                 monthKey: monthKey,
@@ -114,6 +114,176 @@ enum SwimMonthlyChallenges {
             )
             return state.tier == nil ? nil : state
         }
+
+        guard previewMonthlyMedals else { return real }
+
+        let preview = getPreviewMonthlyMedalHistory(sessions: sessions)
+        let realKeys = Set(real.map(\.monthKey))
+        return (preview.filter { !realKeys.contains($0.monthKey) } + real)
+            .sorted { $0.monthKey > $1.monthKey }
+    }
+
+    static func getMonthRerollOverrides(_ monthKey: String, rerolls: [String: MonthRerollEntry]) -> [String: String] {
+        normalizeMonthRerollEntry(rerolls[monthKey]).overrides
+    }
+
+    static func getFreeMonthlyRerollsUsed(_ monthKey: String, rerolls: [String: MonthRerollEntry]) -> Int {
+        normalizeMonthRerollEntry(rerolls[monthKey]).freeUses
+    }
+
+    static func hasRerollAvailability(
+        monthKey: String,
+        rerolls: [String: MonthRerollEntry],
+        credits: Int,
+        freeLimit: Int = 1
+    ) -> Bool {
+        getFreeMonthlyRerollsUsed(monthKey, rerolls: rerolls) < freeLimit || credits > 0
+    }
+
+    static func createMonthlyChallengeReroll(
+        sessions: [SwimSession],
+        monthKey: String,
+        tierIndex: Int,
+        rerolls: [String: MonthRerollEntry] = [:]
+    ) -> (tierIndex: Int, type: String)? {
+        guard tierIndex >= 0, tierIndex <= 2 else { return nil }
+        let base = generateMonthlyChallenges(
+            sessions: sessions,
+            monthKey: monthKey,
+            rerolls: rerolls,
+            intensity: 1
+        )
+        let lockedTypes = base.enumerated().filter { $0.offset != tierIndex }.map(\.element.type)
+        let currentType = base[tierIndex].type
+        let candidates = challengeTypes.filter { !lockedTypes.contains($0) && $0 != currentType }
+        let salt = getMonthRerollOverrides(monthKey, rerolls: rerolls).count
+        guard let type = pickRerollType(monthKey: monthKey, tierIndex: tierIndex, candidates: candidates, salt: salt) else {
+            return nil
+        }
+        return (tierIndex, type)
+    }
+
+    static func canRerollMonthlyChallenge(
+        sessions: [SwimSession],
+        monthKey: String,
+        tierIndex: Int,
+        rerolls: [String: MonthRerollEntry] = [:],
+        credits: Int = 0,
+        intensity: Double = 1,
+        freeLimit: Int = 1
+    ) -> Bool {
+        guard hasRerollAvailability(monthKey: monthKey, rerolls: rerolls, credits: credits, freeLimit: freeLimit) else {
+            return false
+        }
+        let state = evaluateMonthlyChallenges(
+            sessions: sessions,
+            monthKey: monthKey,
+            rerolls: rerolls,
+            intensity: intensity
+        )
+        guard tierIndex >= 0, tierIndex < state.challenges.count else { return false }
+        let challenge = state.challenges[tierIndex]
+        guard !challenge.completed else { return false }
+        return createMonthlyChallengeReroll(
+            sessions: sessions,
+            monthKey: monthKey,
+            tierIndex: tierIndex,
+            rerolls: rerolls
+        ) != nil
+    }
+
+    static func applyMonthlyChallengeReroll(
+        data: SwimData,
+        monthKey: String,
+        tierIndex: Int,
+        mascotId: String
+    ) -> SwimData? {
+        let credits = data.challengeRerollCredits
+        let gameplay = MascotConstants.gameplay(mascotId)
+        guard canRerollMonthlyChallenge(
+            sessions: data.sessions,
+            monthKey: monthKey,
+            tierIndex: tierIndex,
+            rerolls: data.monthlyChallengeRerolls,
+            credits: credits,
+            intensity: gameplay.challengeIntensity,
+            freeLimit: gameplay.freeMonthlyRerolls
+        ) else {
+            return nil
+        }
+
+        guard let override = createMonthlyChallengeReroll(
+            sessions: data.sessions,
+            monthKey: monthKey,
+            tierIndex: tierIndex,
+            rerolls: data.monthlyChallengeRerolls
+        ) else {
+            return nil
+        }
+
+        var next = data
+        var monthEntry = normalizeMonthRerollEntry(next.monthlyChallengeRerolls[monthKey])
+        let useFree = monthEntry.freeUses < gameplay.freeMonthlyRerolls
+        if !useFree && credits < 1 { return nil }
+
+        monthEntry.overrides[String(override.tierIndex)] = override.type
+        if useFree {
+            monthEntry.freeUses += 1
+        } else {
+            next.challengeRerollCredits -= 1
+        }
+        next.monthlyChallengeRerolls[monthKey] = monthEntry
+        return next
+    }
+
+    private static func getPreviewMonthlyMedalHistory(sessions: [SwimSession], date: Date = Date()) -> [MonthlyChallengeState] {
+        ["gold", "silver", "bronze"].enumerated().map { index, tier in
+            let calendar = Calendar.current
+            let monthDate = calendar.date(byAdding: .month, value: -index, to: date) ?? date
+            return buildPreviewMonthlyMedal(sessions: sessions, monthKey: getMonthKey(monthDate), tier: tier)
+        }
+    }
+
+    private static func buildPreviewMonthlyMedal(
+        sessions: [SwimSession],
+        monthKey: String,
+        tier: String
+    ) -> MonthlyChallengeState {
+        let state = evaluateMonthlyChallenges(sessions: sessions, monthKey: monthKey)
+        let completedCount = tier == "gold" ? 3 : tier == "silver" ? 2 : 1
+        let challenges = state.challenges.enumerated().map { index, challenge in
+            MonthlyChallenge(
+                id: challenge.id,
+                type: challenge.type,
+                monthKey: challenge.monthKey,
+                target: challenge.target,
+                tierIndex: challenge.tierIndex,
+                current: index < completedCount ? challenge.target : max(0, Int(Double(challenge.target) * 0.4)),
+                completed: index < completedCount
+            )
+        }
+        let earnedDay = String(format: "%02d", min(28, 10 + completedCount * 5))
+        return MonthlyChallengeState(
+            monthKey: monthKey,
+            challenges: challenges,
+            completedCount: completedCount,
+            tier: tier,
+            earnedAt: "\(monthKey)-\(earnedDay)",
+            isPreview: true
+        )
+    }
+
+    private static func pickRerollType(
+        monthKey: String,
+        tierIndex: Int,
+        candidates: [String],
+        salt: Int
+    ) -> String? {
+        guard !candidates.isEmpty else { return nil }
+        var seed = hashMonth("\(monthKey):reroll:\(tierIndex):\(salt)")
+        if seed == 0 { seed = 1 }
+        seed = (seed &* 1_103_515_245 &+ 12_345) & 0x7fff_ffff
+        return candidates[seed % candidates.count]
     }
 
     static func getMonthlyShortfallPenalty(

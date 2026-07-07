@@ -120,64 +120,208 @@ struct SessionFeedbackCard: View {
 
 struct MonthlyChallengesCardView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @Environment(\.openCoins) private var openCoins
+
+    private let tierSteps = ["bronze", "silver", "gold"]
 
     var body: some View {
         let monthKey = SwimMonthlyChallenges.getMonthKey()
-        let intensity = MascotConstants.gameplay(viewModel.mascotId).challengeIntensity
+        let gameplay = MascotConstants.gameplay(viewModel.mascotId)
         let state = SwimMonthlyChallenges.evaluateMonthlyChallenges(
             sessions: viewModel.sessions,
             monthKey: monthKey,
             rerolls: viewModel.monthlyChallengeRerolls,
-            intensity: intensity
+            intensity: gameplay.challengeIntensity
+        )
+        let currentTierIndex = state.tier.flatMap { tierSteps.firstIndex(of: $0) } ?? -1
+        let nextTier = currentTierIndex >= 0 && currentTierIndex < tierSteps.count - 1
+            ? tierSteps[currentTierIndex + 1]
+            : nil
+        let nextUpgradeCoins = nextTier.map {
+            SwimCoins.monthlyTierCoinDelta(fromTier: state.tier, toTier: $0)
+        } ?? 0
+        let rerollAvailable = SwimMonthlyChallenges.hasRerollAvailability(
+            monthKey: monthKey,
+            rerolls: viewModel.monthlyChallengeRerolls,
+            credits: viewModel.challengeRerollCredits,
+            freeLimit: gameplay.freeMonthlyRerolls
         )
 
         Card {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .top, spacing: 14) {
+                    VStack(spacing: 8) {
+                        MonthlyMedalIconView(tier: state.tier, size: 64, muted: state.tier == nil)
+                        if let tier = state.tier {
+                            Text(SwimMonthlyChallengeFormatters.tierLabel(tier))
+                                .font(.caption2.weight(.semibold))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(tierColor(tier).opacity(0.2), in: Capsule())
+                            CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
+                        }
+                        HStack(spacing: 6) {
+                            ForEach(Array(tierSteps.enumerated()), id: \.offset) { index, tier in
+                                Circle()
+                                    .fill(index <= currentTierIndex ? tierColor(tier) : Color(.systemGray4))
+                                    .frame(width: 8, height: 8)
+                            }
+                        }
+                    }
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Monthly challenges")
                             .font(.headline)
-                        Text(monthLabel(monthKey))
+                        Text(SwimMonthlyChallengeFormatters.monthLabel(monthKey))
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    if let tier = state.tier {
-                        Text(tier.capitalized)
-                            .font(.caption.bold())
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(tierColor(tier).opacity(0.2), in: Capsule())
+                        Text("One medal per month — complete challenges to upgrade it from bronze to silver to gold.")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
-                ForEach(state.challenges) { challenge in
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Text(challengeTitle(challenge))
-                                .font(.subheadline)
-                            Spacer()
-                            Text("\(challenge.current)/\(challenge.target)")
-                                .font(.caption.bold())
+                ForEach(Array(state.challenges.enumerated()), id: \.element.id) { index, challenge in
+                    challengeRow(
+                        challenge: challenge,
+                        index: index,
+                        monthKey: monthKey,
+                        gameplay: gameplay
+                    )
+                }
+
+                if viewModel.challengeRerollCredits > 0 {
+                    Text("\(viewModel.challengeRerollCredits) reroll credit(s) ready to use")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                if !rerollAvailable {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("You used your free monthly reroll.")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Button("Buy more rerolls in the Swim Coin Store for 500 swim coins.") {
+                            openCoins()
                         }
-                        ProgressView(value: Double(min(challenge.current, challenge.target)), total: Double(max(challenge.target, 1)))
-                            .tint(challenge.completed ? .green : Color("BrandBlue"))
+                        .font(.caption2)
+                        .foregroundStyle(Color("BrandBlue"))
                     }
                 }
 
-                Text("\(state.completedCount)/3 complete")
-                    .font(.caption)
+                Divider()
+
+                Text("Monthly medal coin rewards")
+                    .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
+
+                HStack(spacing: 8) {
+                    ForEach(Array(tierSteps.enumerated()), id: \.offset) { index, tier in
+                        let earned = currentTierIndex >= index
+                        let isCurrent = state.tier == tier
+                        VStack(spacing: 4) {
+                            Text(SwimMonthlyChallengeFormatters.tierLabel(tier))
+                                .font(.caption2.weight(.medium))
+                            CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 6)
+                        .background(
+                            isCurrent
+                                ? Color("BrandBlue").opacity(0.12)
+                                : earned
+                                    ? Color.green.opacity(0.12)
+                                    : Color(.secondarySystemBackground),
+                            in: RoundedRectangle(cornerRadius: 8)
+                        )
+                    }
+                }
+
+                if let nextTier, nextUpgradeCoins > 0 {
+                    Text("Reach \(SwimMonthlyChallengeFormatters.tierLabel(nextTier)) for +\(nextUpgradeCoins) bonus coins on upgrade")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Text("Your monthly medal upgrades as you finish challenges: 1 → bronze · 2 → silver · 3 → gold.")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+
+                if let requiredTier = gameplay.requiredMonthlyTier, gameplay.monthlyPenaltyCoins > 0 {
+                    Text("\(MascotConstants.displayName(viewModel.mascotId)) expects at least \(SwimMonthlyChallengeFormatters.tierLabel(requiredTier)) this month — falling short costs \(gameplay.monthlyPenaltyCoins) coins.")
+                        .font(.caption2)
+                        .foregroundStyle(.red.opacity(0.85))
+                }
             }
         }
     }
 
-    private func monthLabel(_ monthKey: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: "\(monthKey)-01") else { return monthKey }
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: date)
+    @ViewBuilder
+    private func challengeRow(
+        challenge: MonthlyChallenge,
+        index: Int,
+        monthKey: String,
+        gameplay: MascotGameplay
+    ) -> some View {
+        let pct = challenge.target > 0
+            ? min(100, Int(round(Double(challenge.current) / Double(challenge.target) * 100)))
+            : 0
+        let showReroll = SwimMonthlyChallenges.canRerollMonthlyChallenge(
+            sessions: viewModel.sessions,
+            monthKey: monthKey,
+            tierIndex: index,
+            rerolls: viewModel.monthlyChallengeRerolls,
+            credits: viewModel.challengeRerollCredits,
+            intensity: gameplay.challengeIntensity,
+            freeLimit: gameplay.freeMonthlyRerolls
+        )
+
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(SwimMonthlyChallengeFormatters.challengeTypeLabel(challenge.type))
+                    .font(.subheadline.weight(.medium))
+                Spacer()
+                if showReroll {
+                    Button {
+                        viewModel.rerollMonthlyChallenge(monthKey: monthKey, tierIndex: index)
+                    } label: {
+                        Label("Reroll", systemImage: "shuffle")
+                            .font(.caption2.weight(.medium))
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.mini)
+                }
+                if challenge.completed {
+                    Text("Done")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(.green)
+                        .textCase(.uppercase)
+                }
+            }
+
+            Text(SwimMonthlyChallengeFormatters.formatChallengeTarget(challenge.type, challenge.target))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            HStack {
+                Text("\(SwimMonthlyChallengeFormatters.formatChallengeValue(challenge.type, challenge.current)) / \(SwimMonthlyChallengeFormatters.formatChallengeValue(challenge.type, challenge.target))")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("\(pct)%")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(Color("BrandBlue"))
+            }
+
+            ProgressView(value: Double(min(challenge.current, challenge.target)), total: Double(max(challenge.target, 1)))
+                .tint(challenge.completed ? .green : Color("BrandBlue"))
+        }
+        .padding(10)
+        .background(
+            challenge.completed ? Color.green.opacity(0.08) : Color(.secondarySystemBackground),
+            in: RoundedRectangle(cornerRadius: 10)
+        )
     }
 
     private func tierColor(_ tier: String) -> Color {
@@ -185,17 +329,6 @@ struct MonthlyChallengesCardView: View {
         case "gold": return .yellow
         case "silver": return .gray
         default: return .orange
-        }
-    }
-
-    private func challengeTitle(_ challenge: MonthlyChallenge) -> String {
-        switch challenge.type {
-        case "sessions": return "Log \(challenge.target) sessions"
-        case "distance": return "Swim \(SwimFormatters.formatDistance(challenge.target))"
-        case "kcal": return "Burn \(challenge.target) active kcal"
-        case "streak": return "\(challenge.target)-day streak"
-        case "active_weeks": return "\(challenge.target) active weeks"
-        default: return challenge.type.capitalized
         }
     }
 }
