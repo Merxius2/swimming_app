@@ -570,7 +570,7 @@ enum SwimFeedback {
         return parts.joined(separator: " ")
     }
 
-    private static func resolveSessionMascotMood(
+    static func resolveSessionMascotMood(
         mascotId: String,
         isFirst: Bool,
         hasPb: Bool,

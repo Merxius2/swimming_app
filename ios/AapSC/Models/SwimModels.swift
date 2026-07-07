@@ -148,6 +148,49 @@ struct MonthRerollEntry: Codable, Equatable {
     var freeUses: Int
 
     static let empty = MonthRerollEntry(overrides: [:], freeUses: 0)
+
+    init(overrides: [String: String] = [:], freeUses: Int = 0) {
+        self.overrides = overrides
+        self.freeUses = freeUses
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case overrides, freeUses, freeUsed, tierIndex, type
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let tierIndex = try container.decodeIfPresent(Int.self, forKey: .tierIndex),
+           let type = try container.decodeIfPresent(String.self, forKey: .type) {
+            overrides = [String(tierIndex): type]
+            freeUses = 1
+            return
+        }
+        overrides = try container.decodeIfPresent([String: String].self, forKey: .overrides) ?? [:]
+        if let freeUses = try container.decodeIfPresent(Int.self, forKey: .freeUses) {
+            self.freeUses = max(0, freeUses)
+        } else if try container.decodeIfPresent(Bool.self, forKey: .freeUsed) == true {
+            freeUses = 1
+        } else {
+            freeUses = 0
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(overrides, forKey: .overrides)
+        try container.encode(freeUses, forKey: .freeUses)
+    }
+}
+
+struct YearMonthMedal: Equatable {
+    var monthKey: String
+    var month: Int
+    var tier: String?
+    var completedCount: Int
+    var challenges: [MonthlyChallenge]
+    var earnedAt: String?
+    var hasSessions: Bool
 }
 
 struct SwimProfile: Codable, Equatable {

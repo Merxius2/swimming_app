@@ -186,6 +186,14 @@ enum SwimImportExport {
         }
     }
 
+    static func compressSessionForTesting(_ session: SwimSession) -> [String: Any] {
+        compressSession(session)
+    }
+
+    static func decompressSessionForTesting(_ raw: [String: Any]) -> SwimSession {
+        decompressSession(raw)
+    }
+
     private static func compressSession(_ session: SwimSession) -> [String: Any] {
         var result: [String: Any] = [
             "i": session.id,

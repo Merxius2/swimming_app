@@ -144,6 +144,18 @@ enum SwimCoinStore {
         )
     }
 
+    static func canPurchaseTheme(_ themeCode: String, storeUnlocks: [String], totalCoins: Int) -> Bool {
+        canPurchaseStoreItem("theme:\(themeCode)", storeUnlocks: storeUnlocks, totalCoins: totalCoins)
+    }
+
+    static func getUnlockedThemes(
+        _ themes: [AppThemeDefinition],
+        storeUnlocks: [String],
+        allThemesUnlocked: Bool = false
+    ) -> [AppThemeDefinition] {
+        themes.filter { isThemeUnlocked($0.code, storeUnlocks: storeUnlocks, allThemesUnlocked: allThemesUnlocked) }
+    }
+
     static func purchaseStoreItemUpdate(
         id: String,
         storeUnlocks: [String],

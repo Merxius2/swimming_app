@@ -1,6 +1,10 @@
 import Foundation
 
 enum SwimBenchmarks {
+    static func allBenchmarksForTesting() -> [String: [String: BenchmarkTier]] {
+        benchmarks
+    }
+
     private static let benchmarks: [String: [String: BenchmarkTier]] = [
         "male": [
             "18-24": BenchmarkTier(beginner: 148, intermediate: 125, advanced: 98, median: 125),
