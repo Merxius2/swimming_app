@@ -17,39 +17,15 @@ struct AmbientBackgroundView: View {
     let storeUnlocks: [String]
     let isDark: Bool
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var driftPhase: CGFloat = 0
-
     var body: some View {
-        GeometryReader { proxy in
-            if let preset = resolvedPreset {
-                ZStack {
-                    baseLayer(for: preset)
-
-                    if let gradient = preset.gradient {
-                        AnimatedAmbientGradient(spec: gradient, reduceMotion: reduceMotion)
-                    }
-
-                    ForEach(Array(preset.blobs.enumerated()), id: \.offset) { index, blob in
-                        blobView(blob, in: proxy.size, drift: preset.driftBlobs && !reduceMotion, index: index)
-                    }
-
-                    if preset.bubbles && !reduceMotion {
-                        bubbleTrail(in: proxy.size)
-                    }
-                }
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
-                .onAppear {
-                    guard preset.driftBlobs, !reduceMotion else { return }
-                    withAnimation(.easeInOut(duration: 28).repeatForever(autoreverses: true)) {
-                        driftPhase = 1
-                    }
-                }
+        if let preset = resolvedPreset {
+            ZStack {
+                baseLayer(for: preset)
+                AmbientPresetRenderer(preset: preset)
             }
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
         }
-        .ignoresSafeArea()
-        .allowsHitTesting(false)
     }
 
     @ViewBuilder
@@ -77,17 +53,61 @@ struct AmbientBackgroundView: View {
         }
         return nil
     }
+}
+
+/// Renders a store ambient preset — used full-screen and in swim shop previews.
+struct AmbientPresetRenderer: View {
+    let preset: AmbientPreset
+    var isPreview: Bool = false
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var driftPhase: CGFloat = 0
+
+    var body: some View {
+        GeometryReader { proxy in
+            ZStack {
+                if let gradient = renderedGradient {
+                    AnimatedAmbientGradient(spec: gradient, reduceMotion: reduceMotion)
+                }
+
+                ForEach(Array(preset.blobs.enumerated()), id: \.offset) { index, blob in
+                    blobView(blob, in: proxy.size, index: index)
+                }
+
+                if preset.bubbles {
+                    bubbleTrail(in: proxy.size)
+                }
+            }
+        }
+        .onAppear {
+            guard preset.driftBlobs, !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: driftDuration).repeatForever(autoreverses: true)) {
+                driftPhase = 1
+            }
+        }
+    }
+
+    private var renderedGradient: AmbientGradientSpec? {
+        guard let gradient = preset.gradient else { return nil }
+        guard isPreview else { return gradient }
+        return AmbientGradientSpec(colors: gradient.colors, duration: 5, vertical: gradient.vertical)
+    }
+
+    private var driftDuration: Double { isPreview ? 10 : 28 }
+
+    private var blobBlur: CGFloat { isPreview ? 22 : 80 }
 
     @ViewBuilder
-    private func blobView(_ blob: AmbientBlob, in size: CGSize, drift: Bool, index: Int) -> some View {
+    private func blobView(_ blob: AmbientBlob, in size: CGSize, index: Int) -> some View {
         let width = size.width * blob.widthRatio
         let height = size.height * blob.heightRatio
         let x = blob.xRatio.map { $0 * size.width } ?? (blob.rightRatio.map { size.width - $0 * size.width - width } ?? 0)
         let y = blob.yRatio.map { $0 * size.height } ?? (blob.bottomRatio.map { size.height - $0 * size.height - height } ?? 0)
+        let drift = preset.driftBlobs && !reduceMotion
         let driftOffset = drift
             ? CGSize(
-                width: sin(driftPhase * .pi * 2 + CGFloat(index)) * 12,
-                height: cos(driftPhase * .pi * 2 + CGFloat(index)) * 10
+                width: sin(driftPhase * .pi * 2 + CGFloat(index)) * (isPreview ? 6 : 12),
+                height: cos(driftPhase * .pi * 2 + CGFloat(index)) * (isPreview ? 5 : 10)
             )
             : .zero
 
@@ -102,19 +122,26 @@ struct AmbientBackgroundView: View {
             )
             .frame(width: width, height: height)
             .offset(x: x + driftOffset.width, y: y + driftOffset.height)
-            .blur(radius: 80)
+            .blur(radius: blobBlur)
     }
 
     @ViewBuilder
     private func bubbleTrail(in size: CGSize) -> some View {
-        ForEach(StoreAmbients.bubblePositions.indices, id: \.self) { index in
-            let bubble = StoreAmbients.bubblePositions[index]
+        let bubbles = isPreview
+            ? Array(StoreAmbients.bubblePositions.prefix(6))
+            : StoreAmbients.bubblePositions
+        let sizeScale: CGFloat = isPreview ? 0.42 : 1
+        let durationScale: Double = isPreview ? 0.45 : 1
+
+        ForEach(bubbles.indices, id: \.self) { index in
+            let bubble = bubbles[index]
             RisingBubble(
-                size: bubble.size,
+                size: bubble.size * sizeScale,
                 leftRatio: bubble.leftRatio,
                 containerSize: size,
-                delay: bubble.delay,
-                duration: bubble.duration
+                delay: bubble.delay * durationScale,
+                duration: bubble.duration * durationScale,
+                reduceMotion: reduceMotion
             )
         }
     }
@@ -159,6 +186,7 @@ private struct RisingBubble: View {
     let containerSize: CGSize
     let delay: Double
     let duration: Double
+    let reduceMotion: Bool
 
     @State private var offsetY: CGFloat = 0
     @State private var opacity: Double = 0
@@ -178,12 +206,16 @@ private struct RisingBubble: View {
                 Circle()
                     .stroke(Color.white.opacity(0.65), lineWidth: 1)
             )
-            .shadow(color: Color(hex: "#BAE6FD").opacity(0.55), radius: 6)
+            .shadow(color: Color(hex: "#BAE6FD").opacity(0.55), radius: max(2, size * 0.2))
             .frame(width: size, height: size)
             .scaleEffect(scale)
             .position(x: containerSize.width * leftRatio, y: containerSize.height * 0.85 + offsetY)
             .opacity(opacity)
             .onAppear {
+                guard !reduceMotion else {
+                    opacity = 0.7
+                    return
+                }
                 withAnimation(.easeInOut(duration: duration).repeatForever(autoreverses: false).delay(delay)) {
                     offsetY = -containerSize.height * 1.25
                     opacity = 0.85
