@@ -134,7 +134,7 @@ enum StoreAmbients {
         gradient: nil,
         blobs: [
             AmbientBlob(color: Color(hex: "#B8C4FF"), opacity: 0.85, widthRatio: 0.60, heightRatio: 0.60, xRatio: -0.08, yRatio: -0.10),
-            AmbientBlob(color: Color(hex: "#FFC6BC"), opacity: 0.70, widthRatio: 0.50, heightRatio: 0.50, rightRatio: 0.10, yRatio: 0.08),
+            AmbientBlob(color: Color(hex: "#FFC6BC"), opacity: 0.70, widthRatio: 0.50, heightRatio: 0.50, yRatio: 0.08, rightRatio: 0.10),
             AmbientBlob(color: Color(hex: "#C8F0DB"), opacity: 0.80, widthRatio: 0.70, heightRatio: 0.70, xRatio: 0.05, bottomRatio: 0.25),
             AmbientBlob(color: Color(hex: "#E4D6FF"), opacity: 0.70, widthRatio: 0.35, heightRatio: 0.35, rightRatio: 0.10, bottomRatio: 0.05),
         ],
