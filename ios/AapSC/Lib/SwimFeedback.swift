@@ -243,7 +243,7 @@ enum SwimFeedback {
         let combinedAvgPace = combined?.avgPaceSecPer100m
         let daysSinceLast = daysSincePrevious(allSessions, currentId: newSession.id, currentDate: newSession.date)
         let monthKey = String(newSession.date.prefix(7))
-        let monthDistance = monthDistance(allSessions, monthKey: monthKey)
+        let currentMonthDistance = monthDistance(allSessions, monthKey: monthKey)
         let prevMonthDistance = monthDistance(allSessions, monthKey: shiftMonthKey(monthKey, by: -1))
 
         let benchmark = profile.sex.isEmpty || profile.age <= 0
@@ -296,7 +296,7 @@ enum SwimFeedback {
             recentAvgDistance: recentAvgDistance,
             combinedAvgPace: combinedAvgPace,
             daysSinceLast: daysSinceLast,
-            monthDistance: monthDistance,
+            monthDistance: currentMonthDistance,
             prevMonthDistance: prevMonthDistance,
             benchmark: benchmark,
             benchmarkLevel: benchmarkLevel,
