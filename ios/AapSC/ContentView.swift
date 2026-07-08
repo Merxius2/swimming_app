@@ -24,7 +24,7 @@ struct ContentView: View {
         ZStack(alignment: .bottom) {
             tabContent
                 .id(appearanceKey)
-                .safeAreaPadding(.bottom, themeProfile.tabBar.layoutHeight)
+                .safeAreaPadding(.bottom, TabBarLayout.totalHeight(for: themeProfile.tabBar))
 
             CustomTabBar(
                 selectedTab: $selectedTab,

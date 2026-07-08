@@ -70,30 +70,6 @@ struct ThemeTabBarStyle {
     var usesRaisedShadow: Bool = false
     var usesThemeFont: Bool = false
     var fadesUnselectedLabels: Bool = true
-    var progressIcon: String = "chart.bar.fill"
-    var medalsIcon: String = "checkmark.seal.fill"
-    var benchmarkIcon: String = "waveform.path.ecg"
-    var historyIcon: String = "clock.arrow.circlepath"
-    var iconSize: CGFloat = 20
-    var labelFontSize: CGFloat? = nil
-    var itemSpacing: CGFloat = 6
-    var barContentHeight: CGFloat = 58
-    var bottomPadding: CGFloat = 25
-    var horizontalPadding: CGFloat = 10
-    var centerSpacerHeight: CGFloat = 40
-    /// Positive values nest the upload FAB deeper into the bar (less protrusion above the top edge).
-    var fabSeatInset: CGFloat = 6
-    var uploadLabelColor: Color? = nil
-
-    var layoutHeight: CGFloat {
-        let stripe: CGFloat
-        if accentStripe == nil {
-            stripe = 0
-        } else {
-            stripe = accentStripePosition == .bottom ? 3 : 4
-        }
-        return barContentHeight + bottomPadding + stripe
-    }
 }
 
 struct ThemeNavBarStyle {
@@ -129,8 +105,6 @@ struct ThemeUploadFABStyle {
     let shadowColor: Color
     let bottomAccent: Color?
     var usesRaisedShadow: Bool = false
-    var diameter: CGFloat = 65
-    var iconSize: CGFloat = 26
     var usesBorderBottomAccent: Bool = false
 }
 
@@ -305,22 +279,7 @@ enum ThemeVisualProfiles {
                 borderColor: dark ? Color.white.opacity(0.10) : Color.black.opacity(0.20),
                 usesRaisedShadow: true,
                 usesThemeFont: true,
-                fadesUnselectedLabels: false,
-                progressIcon: "chart.bar",
-                medalsIcon: "medal",
-                benchmarkIcon: "chart.line.uptrend.xyaxis",
-                historyIcon: "clock.arrow.circlepath",
-                iconSize: 17,
-                labelFontSize: 9.5,
-                itemSpacing: 4,
-                barContentHeight: 70,
-                bottomPadding: 10,
-                horizontalPadding: 8,
-                centerSpacerHeight: 21,
-                fabSeatInset: 16,
-                uploadLabelColor: dark
-                    ? Color(red: 0.94, green: 0.94, blue: 0.94, opacity: 0.88)
-                    : Color(red: 0.176, green: 0.176, blue: 0.176) // #2D2D2D
+                fadesUnselectedLabels: false
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -344,8 +303,6 @@ enum ThemeVisualProfiles {
                 shadowColor: .black.opacity(0.14),
                 bottomAccent: lightBar,
                 usesRaisedShadow: true,
-                diameter: 56,
-                iconSize: 26,
                 usesBorderBottomAccent: true
             )
         )
