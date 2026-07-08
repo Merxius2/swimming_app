@@ -20,6 +20,15 @@ final class UserPreferencesService: ObservableObject {
         return isDarkMode ? .dark : .light
     }
 
+    /// Resolves dark mode immediately from stored preferences, without waiting for SwiftUI's
+    /// color scheme environment to catch up after `preferredColorScheme` changes.
+    func isDarkModeActive(systemColorScheme: ColorScheme) -> Bool {
+        if isAutoDarkMode {
+            return systemColorScheme == .dark
+        }
+        return isDarkMode
+    }
+
     var themeColors: AppThemeDefinition {
         AppThemes.theme(for: themeCode)
     }

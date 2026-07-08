@@ -12,20 +12,20 @@ struct RecordsSectionView: View {
                 Card {
                     VStack(alignment: .leading, spacing: 12) {
                         Label(preferences.t("records.title"), systemImage: "trophy.fill")
-                            .font(.headline)
+                            .themeFont(.headline, weight: .semibold)
                             .foregroundStyle(.orange)
 
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                             ForEach(entries, id: \.title) { entry in
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(entry.title)
-                                        .font(.caption)
+                                        .themeFont(.caption)
                                         .foregroundStyle(.secondary)
                                     Text(entry.value)
-                                        .font(.headline)
+                                        .themeFont(.headline, weight: .semibold)
                                         .foregroundStyle(entry.color)
                                     Text(SwimFormatters.formatDateShort(entry.date))
-                                        .font(.caption2)
+                                        .themeFont(.caption2)
                                         .foregroundStyle(.secondary)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -126,19 +126,21 @@ struct SessionFeedbackCard: View {
                         bubbleTone: bubbleTone,
                         showStage: true,
                         size: 170,
-                        animated: true
+                        animated: true,
+                        layout: .stacked
                     )
+                    .frame(maxWidth: .infinity)
 
                     VStack(alignment: .leading, spacing: 14) {
                         HStack(spacing: 8) {
                             Image(systemName: "sparkles")
-                                .font(.body.weight(.semibold))
+                                .themeFont(.body, weight: .semibold)
                                 .foregroundStyle(Color("BrandBlue"))
                             Text(preferences.t(titleKey))
-                                .font(.headline)
+                                .themeFont(.headline, weight: .semibold)
                             if feedback.benchmarkLevel != .unknown {
                                 Text(SwimBenchmarks.levelLabel(feedback.benchmarkLevel, t: preferences.translations))
-                                    .font(.caption2.weight(.semibold))
+                                    .themeFont(.caption2, weight: .semibold)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
                                     .background(Color.blue.opacity(0.12), in: Capsule())
@@ -146,7 +148,7 @@ struct SessionFeedbackCard: View {
                             }
                             if feedback.aiEnhanced {
                                 Label("AI", systemImage: "cpu")
-                                    .font(.caption2.weight(.semibold))
+                                    .themeFont(.caption2, weight: .semibold)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 4)
                                     .background(Color.purple.opacity(0.12), in: Capsule())
@@ -156,7 +158,7 @@ struct SessionFeedbackCard: View {
 
                         if isLoading {
                             Text(preferences.t("feedback.aiLoading"))
-                                .font(.subheadline)
+                                .themeFont(.subheadline)
                                 .foregroundStyle(.secondary)
                         } else {
                             if !feedback.highlights.isEmpty {
@@ -167,12 +169,12 @@ struct SessionFeedbackCard: View {
                                     ForEach(feedback.highlights) { item in
                                         VStack(alignment: .leading, spacing: 4) {
                                             Text(item.label)
-                                                .font(.caption2.weight(.semibold))
+                                                .themeFont(.caption2, weight: .semibold)
                                                 .foregroundStyle(.secondary)
                                                 .textCase(.uppercase)
                                                 .tracking(0.8)
                                             Text(item.value)
-                                                .font(.subheadline.weight(.semibold))
+                                                .themeFont(.subheadline, weight: .semibold)
                                         }
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         .padding(.horizontal, 12)
@@ -188,7 +190,7 @@ struct SessionFeedbackCard: View {
 
                             if !feedback.motivation.isEmpty && !feedback.coachMessage.isEmpty {
                                 Text(feedback.motivation)
-                                    .font(.subheadline.weight(.medium))
+                                    .themeFont(.subheadline, weight: .medium)
                                     .italic()
                                     .foregroundStyle(Color("BrandBlue"))
                             }
@@ -197,7 +199,7 @@ struct SessionFeedbackCard: View {
                                 FlowLayout(spacing: 8) {
                                     ForEach(feedback.badges, id: \.self) { badge in
                                         Label(badge, systemImage: "sparkles")
-                                            .font(.caption.weight(.semibold))
+                                            .themeFont(.caption, weight: .semibold)
                                             .padding(.horizontal, 12)
                                             .padding(.vertical, 6)
                                             .background(Color.orange.opacity(0.15), in: Capsule())
@@ -213,11 +215,11 @@ struct SessionFeedbackCard: View {
                                         let positive = SwimFeedback.isPositiveInsight(insight)
                                         HStack(alignment: .top, spacing: 8) {
                                             Image(systemName: positive ? "arrow.up.right" : "arrow.down.right")
-                                                .font(.caption.weight(.semibold))
+                                                .themeFont(.caption, weight: .semibold)
                                                 .foregroundStyle(positive ? .green : .secondary)
                                                 .padding(.top, 2)
                                             Text(insight)
-                                                .font(.subheadline)
+                                                .themeFont(.subheadline)
                                                 .foregroundStyle(.secondary)
                                         }
                                     }
@@ -227,16 +229,16 @@ struct SessionFeedbackCard: View {
                             if !feedback.tip.isEmpty {
                                 HStack(alignment: .top, spacing: 12) {
                                     Image(systemName: "lightbulb.fill")
-                                        .font(.body)
+                                        .themeFont(.body)
                                         .foregroundStyle(Color("BrandBlue"))
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(preferences.t("feedback.tipTitle"))
-                                            .font(.caption2.weight(.semibold))
+                                            .themeFont(.caption2, weight: .semibold)
                                             .foregroundStyle(Color("BrandBlue"))
                                             .textCase(.uppercase)
                                             .tracking(0.8)
                                         Text(feedback.tip)
-                                            .font(.subheadline)
+                                            .themeFont(.subheadline)
                                             .foregroundStyle(.secondary)
                                             .fixedSize(horizontal: false, vertical: true)
                                     }
@@ -341,7 +343,7 @@ struct MonthlyChallengesCardView: View {
                         MonthlyMedalIconView(tier: state.tier, size: 64, muted: state.tier == nil)
                         if let tier = state.tier {
                             Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
-                                .font(.caption2.weight(.semibold))
+                                .themeFont(.caption2, weight: .semibold)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
                                 .background(tierColor(tier).opacity(0.2), in: Capsule())
@@ -358,12 +360,12 @@ struct MonthlyChallengesCardView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text(preferences.t("monthlyChallenges.title"))
-                            .font(.headline)
+                            .themeFont(.headline, weight: .semibold)
                         Text(SwimMonthlyChallengeFormatters.monthLabel(monthKey, locale: preferences.locale))
-                            .font(.caption)
+                            .themeFont(.caption)
                             .foregroundStyle(.secondary)
                         Text(preferences.t("monthlyChallenges.subtitle"))
-                            .font(.caption2)
+                            .themeFont(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -381,19 +383,19 @@ struct MonthlyChallengesCardView: View {
                     Text(preferences.t("monthlyChallenges.rerollCredits", params: [
                         "count": String(viewModel.challengeRerollCredits)
                     ]))
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
                 if !rerollAvailable {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(preferences.t("monthlyChallenges.rerollUsed"))
-                            .font(.caption2)
+                            .themeFont(.caption2)
                             .foregroundStyle(.secondary)
                         Button(preferences.t("monthlyChallenges.rerollBuyHint")) {
                             openCoins()
                         }
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .foregroundStyle(Color("BrandBlue"))
                     }
                 }
@@ -401,7 +403,7 @@ struct MonthlyChallengesCardView: View {
                 Divider()
 
                 Text(preferences.t("coins.monthlyRewards"))
-                    .font(.caption2.weight(.semibold))
+                    .themeFont(.caption2, weight: .semibold)
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
 
@@ -411,7 +413,7 @@ struct MonthlyChallengesCardView: View {
                         let isCurrent = state.tier == tier
                         VStack(spacing: 4) {
                             Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
-                                .font(.caption2.weight(.medium))
+                                .themeFont(.caption2, weight: .medium)
                             CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
                         }
                         .padding(.horizontal, 8)
@@ -432,12 +434,12 @@ struct MonthlyChallengesCardView: View {
                         "tier": SwimMonthlyChallengeFormatters.tierLabel(nextTier, t: preferences.translations),
                         "amount": String(nextUpgradeCoins)
                     ]))
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
                 Text(preferences.t("monthlyChallenges.tierHint"))
-                    .font(.caption2)
+                    .themeFont(.caption2)
                     .foregroundStyle(.secondary)
 
                 if let requiredTier = gameplay.requiredMonthlyTier, gameplay.monthlyPenaltyCoins > 0 {
@@ -446,7 +448,7 @@ struct MonthlyChallengesCardView: View {
                         "tier": SwimMonthlyChallengeFormatters.tierLabel(requiredTier, t: preferences.translations),
                         "amount": String(gameplay.monthlyPenaltyCoins)
                     ]))
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .foregroundStyle(.red.opacity(0.85))
                 }
             }
@@ -476,37 +478,37 @@ struct MonthlyChallengesCardView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text(SwimMonthlyChallengeFormatters.challengeTypeLabel(challenge.type, t: preferences.translations))
-                    .font(.subheadline.weight(.medium))
+                    .themeFont(.subheadline, weight: .medium)
                 Spacer()
                 if showReroll {
                     Button {
                         viewModel.rerollMonthlyChallenge(monthKey: monthKey, tierIndex: index)
                     } label: {
                         Label(preferences.t("monthlyChallenges.reroll"), systemImage: "shuffle")
-                            .font(.caption2.weight(.medium))
+                            .themeFont(.caption2, weight: .medium)
                     }
                     .buttonStyle(.bordered)
                     .controlSize(.mini)
                 }
                 if challenge.completed {
                     Text(preferences.t("monthlyChallenges.done"))
-                        .font(.caption2.weight(.bold))
+                        .themeFont(.caption2, weight: .bold)
                         .foregroundStyle(.green)
                         .textCase(.uppercase)
                 }
             }
 
             Text(SwimMonthlyChallengeFormatters.formatChallengeTarget(challenge.type, challenge.target, t: preferences.translations))
-                .font(.caption)
+                .themeFont(.caption)
                 .foregroundStyle(.secondary)
 
             HStack {
                 Text("\(SwimMonthlyChallengeFormatters.formatChallengeValue(challenge.type, challenge.current, t: preferences.translations)) / \(SwimMonthlyChallengeFormatters.formatChallengeValue(challenge.type, challenge.target, t: preferences.translations))")
-                    .font(.caption2)
+                    .themeFont(.caption2)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text("\(pct)%")
-                    .font(.caption2.weight(.semibold))
+                    .themeFont(.caption2, weight: .semibold)
                     .foregroundStyle(Color("BrandBlue"))
             }
 
@@ -529,43 +531,189 @@ struct MonthlyChallengesCardView: View {
     }
 }
 
-struct StrokeDonutChart: View {
-    @EnvironmentObject private var preferences: UserPreferencesService
-    let slices: [StrokeChartSlice]
+enum SwimChartPalette {
+    static let segmentColors: [Color] = [
+        Color(red: 0.925, green: 0.282, blue: 0.600),
+        Color(red: 0.063, green: 0.725, blue: 0.506),
+        Color(red: 0.231, green: 0.510, blue: 0.965),
+        Color(red: 0.545, green: 0.361, blue: 0.965),
+        Color(red: 0.961, green: 0.620, blue: 0.043),
+        Color(red: 0.024, green: 0.714, blue: 0.831),
+        Color(red: 0.078, green: 0.722, blue: 0.651),
+        Color(red: 0.937, green: 0.267, blue: 0.267),
+        Color(red: 0.976, green: 0.451, blue: 0.086),
+    ]
+
+    private static let strokeOrder = [
+        "mixedM", "breaststrokeM", "freestyleM", "backstrokeM", "butterflyM"
+    ]
+
+    static func color(for strokeId: String) -> Color {
+        let index = strokeOrder.firstIndex(of: strokeId) ?? 0
+        return segmentColors[index % segmentColors.count]
+    }
+}
+
+struct ChartSelectionFooter: View {
+    let title: String
+    let value: String
+    var secondaryValue: String?
 
     var body: some View {
-        let total = slices.map(\.value).reduce(0, +)
-        Card {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(preferences.t("progress.strokeMix"))
-                    .font(.headline)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(title)
+                    .themeFont(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text(value)
+                    .themeFont(.caption, weight: .semibold)
+            }
+            if let secondaryValue {
+                Text(secondaryValue)
+                    .themeFont(.caption, weight: .semibold)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+    }
+}
 
-                if slices.isEmpty || total == 0 {
-                    Text(preferences.t("progress.subtitle"))
-                        .foregroundStyle(.secondary)
-                } else {
-                    Chart(slices) { slice in
+private struct ChartXLabelSelectionModifier: ViewModifier {
+    @Binding var selection: String?
+
+    func body(content: Content) -> some View {
+        content.chartOverlay { proxy in
+            GeometryReader { geometry in
+                if let plotFrame = proxy.plotFrame {
+                    let plotArea = geometry[plotFrame]
+                    Rectangle()
+                        .fill(.clear)
+                        .contentShape(Rectangle())
+                        .frame(width: plotArea.width, height: plotArea.height)
+                        .position(x: plotArea.midX, y: plotArea.midY)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { gesture in
+                                    let x = gesture.location.x - plotArea.minX
+                                    guard x >= 0, x <= plotArea.width else { return }
+                                    if let label: String = proxy.value(atX: x, as: String.self) {
+                                        selection = label
+                                    }
+                                }
+                        )
+                }
+            }
+        }
+    }
+}
+
+extension View {
+    func chartXLabelSelection(_ selection: Binding<String?>) -> some View {
+        modifier(ChartXLabelSelectionModifier(selection: selection))
+    }
+}
+
+struct StrokeDonutChart: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.appIsDark) private var appIsDark
+    let slices: [StrokeChartSlice]
+
+    @State private var selectedValue: Int?
+
+    private var filtered: [StrokeChartSlice] {
+        slices.filter { $0.value > 0 }
+    }
+
+    private var total: Int {
+        filtered.map(\.value).reduce(0, +)
+    }
+
+    var body: some View {
+        Card {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(preferences.t("progress.strokeMix"))
+                    .themeFont(.headline, weight: .semibold)
+
+                ZStack {
+                    Chart(filtered) { slice in
                         SectorMark(
                             angle: .value("Meters", slice.value),
-                            innerRadius: .ratio(0.55),
-                            angularInset: 1.5
+                            innerRadius: .ratio(0.70),
+                            outerRadius: .ratio(0.98),
+                            angularInset: 2
                         )
-                        .foregroundStyle(by: .value("Stroke", slice.label))
+                        .foregroundStyle(SwimChartPalette.color(for: slice.id))
+                        .opacity(selectedValue == nil || selectedValue == slice.value ? 1 : 0.4)
                     }
-                    .frame(height: 220)
+                    .chartLegend(.hidden)
+                    .chartAngleSelection(value: $selectedValue)
 
-                    ForEach(slices) { slice in
-                        HStack {
+                    VStack(spacing: 4) {
+                        Text("M")
+                            .themeFont(.caption, weight: .semibold)
+                            .foregroundStyle(.secondary)
+                            .tracking(3)
+                        Text(total.formatted())
+                            .themeFont(.title2, weight: .bold)
+                            .monospacedDigit()
+                    }
+                    .frame(width: 88, height: 88)
+                    .background {
+                        Circle()
+                            .fill(centerGradient)
+                            .shadow(color: .black.opacity(appIsDark ? 0.3 : 0.1), radius: 10, y: 4)
+                    }
+                    .allowsHitTesting(false)
+                }
+                .frame(maxWidth: 280)
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1, contentMode: .fit)
+                .padding(.vertical, 4)
+
+                VStack(spacing: 10) {
+                    ForEach(filtered) { slice in
+                        let percentage = total > 0 ? Double(slice.value) / Double(total) * 100 : 0
+                        HStack(spacing: 10) {
+                            Circle()
+                                .fill(SwimChartPalette.color(for: slice.id))
+                                .frame(width: 12, height: 12)
                             Text(slice.label)
-                            Spacer()
+                                .themeFont(.subheadline)
+                            Spacer(minLength: 8)
                             Text(SwimFormatters.formatDistance(slice.value))
-                                .fontWeight(.semibold)
+                                .themeFont(.subheadline, weight: .semibold)
+                                .monospacedDigit()
+                            Text(String(format: "(%.1f%%)", percentage))
+                                .themeFont(.caption)
+                                .foregroundStyle(.secondary)
                         }
-                        .font(.caption)
+                        .opacity(selectedValue == nil || selectedValue == slice.value ? 1 : 0.45)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            selectedValue = selectedValue == slice.value ? nil : slice.value
+                        }
                     }
                 }
             }
         }
+    }
+
+    private var centerGradient: LinearGradient {
+        if appIsDark {
+            return LinearGradient(
+                colors: [Color(white: 0.18), Color(white: 0.08)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        return LinearGradient(
+            colors: [Color(white: 0.95), Color(white: 0.90)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
     }
 }
 
@@ -580,14 +728,14 @@ struct BenchmarkBadgeRankingView: View {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(label)
-                        .font(.subheadline)
+                        .themeFont(.subheadline)
                         .foregroundStyle(.secondary)
                     Text("\(percentile)%")
-                        .font(.system(size: 34, weight: .bold))
+                        .themeFont(size: 34, weight: .bold)
                     Text(vsMedian == "above"
                         ? preferences.t("benchmark.badges.aboveMedian")
                         : preferences.t("benchmark.badges.belowMedian"))
-                        .font(.subheadline.weight(.semibold))
+                        .themeFont(.subheadline, weight: .semibold)
                         .foregroundStyle(vsMedian == "above" ? .green : .orange)
                 }
                 Spacer()
@@ -596,7 +744,7 @@ struct BenchmarkBadgeRankingView: View {
                         .fill(vsMedian == "above" ? Color.green : Color.orange)
                         .frame(width: 64, height: 64)
                     Text("\(percentile)%")
-                        .font(.headline.bold())
+                        .themeFont(.headline, weight: .bold)
                         .foregroundStyle(.white)
                 }
             }
@@ -626,11 +774,11 @@ struct SessionCalendarView: View {
             VStack(spacing: 12) {
                 HStack {
                     Text(preferences.t("history.calendarTitle"))
-                        .font(.headline)
+                        .themeFont(.headline, weight: .semibold)
                     Spacer()
                     Button { shiftMonth(-1) } label: { Image(systemName: "chevron.left") }
                     Text(monthTitle)
-                        .font(.subheadline.weight(.semibold))
+                        .themeFont(.subheadline, weight: .semibold)
                         .frame(minWidth: 120)
                     Button { shiftMonth(1) } label: { Image(systemName: "chevron.right") }
                 }
@@ -638,7 +786,7 @@ struct SessionCalendarView: View {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 6) {
                     ForEach(weekdaySymbols, id: \.self) { day in
                         Text(day)
-                            .font(.caption2.weight(.semibold))
+                            .themeFont(.caption2, weight: .semibold)
                             .foregroundStyle(.secondary)
                     }
 
@@ -648,7 +796,7 @@ struct SessionCalendarView: View {
                                 selectedDate = selectedDate == cell.dateKey ? nil : cell.dateKey
                             } label: {
                                 Text("\(cell.day)")
-                                    .font(.caption.weight(cell.isToday ? .bold : .semibold))
+                                    .themeFont(.caption, weight: cell.isToday ? .bold : .semibold)
                                     .frame(maxWidth: .infinity, minHeight: 32)
                                     .background(heatBackground(cell.count), in: RoundedRectangle(cornerRadius: 6))
                                     .overlay(
@@ -668,7 +816,7 @@ struct SessionCalendarView: View {
 
                 HStack {
                     Text(preferences.t("history.calendarLegend"))
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .foregroundStyle(.secondary)
                     Spacer()
                     HStack(spacing: 6) {

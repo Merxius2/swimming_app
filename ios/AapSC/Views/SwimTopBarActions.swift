@@ -3,12 +3,12 @@ import SwiftUI
 struct SwimTopBarActionsModifier: ViewModifier {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
     @Environment(\.openSettings) private var openSettings
     @Environment(\.openCoins) private var openCoins
 
     private var profile: ThemeVisualProfile {
-        ThemeVisualProfiles.profile(code: preferences.themeCode, isDark: colorScheme == .dark)
+        ThemeVisualProfiles.profile(code: preferences.themeCode, isDark: appIsDark)
     }
 
     func body(content: Content) -> some View {
@@ -47,7 +47,7 @@ struct ThemedTopBarPill: View {
 
             Button(action: openSettings) {
                 Image(systemName: "gearshape")
-                    .font(.body.weight(.semibold))
+                    .themeFont(.body, weight: .semibold)
                     .foregroundStyle(style.settingsColor)
                     .frame(width: 40, height: 32)
             }
@@ -80,12 +80,12 @@ struct ThemedTopBarPill: View {
 
 struct ThemedNavigationModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
 
     private var profile: ThemeVisualProfile {
         ThemeVisualProfiles.profile(
             code: preferences.themeCode,
-            isDark: colorScheme == .dark
+            isDark: appIsDark
         )
     }
 
@@ -109,6 +109,10 @@ struct ThemedNavigationModifier: ViewModifier {
                 .tint(nav.tint)
         } else if let solid = nav.solidColor {
             content
+                .background {
+                    ThemedNavBarConfigurator(style: nav, themeCode: preferences.themeCode)
+                        .frame(width: 0, height: 0)
+                }
                 .toolbarBackground(solid, for: .navigationBar)
                 .toolbarBackground(.visible, for: .navigationBar)
                 .toolbarColorScheme(nav.lightContent ? .dark : nil, for: .navigationBar)

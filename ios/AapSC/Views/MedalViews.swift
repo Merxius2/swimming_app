@@ -15,44 +15,50 @@ struct MedalCardView: View {
     var body: some View {
         Card {
             HStack(alignment: .top, spacing: 12) {
-                MedalIconView(id: medal.id, tier: medal.tier, earned: medal.earned, size: 52)
+                MedalIconView(id: medal.id, tier: medal.tier, earned: medal.earned, size: 48)
 
                 VStack(alignment: .leading, spacing: 6) {
-                    HStack(alignment: .top) {
+                    HStack(alignment: .top, spacing: 8) {
                         Text(SwimMedalCopy.title(for: medal.id, t: preferences.translations))
-                            .font(.subheadline.weight(.semibold))
+                            .themeFont(.subheadline, weight: .semibold)
                             .foregroundStyle(medal.earned ? .primary : .secondary)
-                            .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
-                        Spacer(minLength: 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .layoutPriority(1)
+
                         if SwimCoins.medalTierCoins(medal.tier) > 0 {
                             CoinBadge(
                                 count: SwimCoins.medalTierCoins(medal.tier),
                                 size: .sm
                             )
                             .opacity(medal.earned ? 1 : 0.6)
+                            .fixedSize()
                         }
                     }
 
                     Text(SwimMedalCopy.description(for: medal.id, t: preferences.translations))
-                        .font(.caption)
+                        .themeFont(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     if showProgress, let progress = medal.progress {
                         VStack(alignment: .leading, spacing: 4) {
-                            HStack {
+                            HStack(alignment: .firstTextBaseline, spacing: 8) {
                                 Text(progressSummary(progress))
-                                    .font(.caption2)
+                                    .themeFont(.caption2)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
-                                Spacer()
+                                    .truncationMode(.tail)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 Text("\(progress.percent)%")
-                                    .font(.caption2.weight(.semibold))
+                                    .themeFont(.caption2, weight: .semibold)
                                     .foregroundStyle(themeColors.primary)
+                                    .fixedSize()
                             }
                             MedalProgressBar(percent: progress.percent, tint: themeColors.primary)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
                         .onTapGesture { showTooltip.toggle() }
                         .popover(isPresented: $showTooltip, arrowEdge: .top) {
@@ -65,8 +71,10 @@ struct MedalCardView: View {
                         Text(preferences.t("medals.earnedOn", params: [
                             "date": SwimFormatters.formatDateLong(earnedAt)
                         ]))
-                            .font(.caption2.weight(.medium))
+                            .themeFont(.caption2, weight: .medium)
                             .foregroundStyle(themeColors.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     if medal.earned, !medal.periods.isEmpty {
@@ -75,16 +83,20 @@ struct MedalCardView: View {
                             t: preferences.translations,
                             locale: preferences.locale
                         ))
-                            .font(.caption2)
+                            .themeFont(.caption2)
                             .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.top, medal.earned ? 18 : 0)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, medal.earned ? 20 : 0)
             .overlay(alignment: .topLeading) {
                 if medal.earned {
                     Text(preferences.t("medals.earned"))
-                        .font(.caption2.weight(.bold))
+                        .themeFont(.caption2, weight: .bold)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(tierColor(medal.tier).opacity(0.2), in: Capsule())
@@ -244,7 +256,7 @@ private struct MedalProgressTooltip: View {
         VStack(alignment: .leading, spacing: 6) {
             ForEach(lines, id: \.self) { line in
                 Text(line)
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
             }
         }
@@ -329,26 +341,26 @@ struct MonthlyMedalTileView: View {
 
             if compact {
                 Text(SwimMonthlyChallengeFormatters.monthShortLabel(state.monthKey, locale: preferences.locale))
-                    .font(.caption2.weight(.medium))
+                    .themeFont(.caption2, weight: .medium)
 
                 if state.isPreview {
                     Text(preferences.t("monthlyChallenges.previewLabel"))
-                        .font(.caption2.weight(.semibold))
+                        .themeFont(.caption2, weight: .semibold)
                         .foregroundStyle(.orange)
                 }
 
                 if let tier = state.tier {
                     Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
-                        .font(.caption2.weight(.semibold))
+                        .themeFont(.caption2, weight: .semibold)
                         .foregroundStyle(Color("BrandBlue"))
                     CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
                 } else if state.challenges.contains(where: { $0.current > 0 }) {
                     Text(preferences.t("monthlyChallenges.inProgress"))
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .foregroundStyle(.secondary)
                 } else {
                     Text("—")
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -417,15 +429,15 @@ struct MonthlyChallengeHistoryView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(preferences.t("monthlyChallenges.historyTitle"))
-                            .font(.caption.bold())
+                            .themeFont(.caption, weight: .bold)
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)
                         Text(preferences.t("monthlyChallenges.historySubtitle"))
-                            .font(.caption2)
+                            .themeFont(.caption2)
                             .foregroundStyle(.secondary)
                         if viewModel.cheats.previewMonthlyMedals {
                             Text(preferences.t("monthlyChallenges.previewActive"))
-                                .font(.caption2.weight(.medium))
+                                .themeFont(.caption2, weight: .medium)
                                 .foregroundStyle(.orange)
                         }
                     }
@@ -439,7 +451,7 @@ struct MonthlyChallengeHistoryView: View {
                         .pickerStyle(.menu)
                     } else if let year = years(from: history).first {
                         Text(String(year))
-                            .font(.caption.weight(.semibold))
+                            .themeFont(.caption, weight: .semibold)
                             .foregroundStyle(.secondary)
                     }
                 }

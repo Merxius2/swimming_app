@@ -99,14 +99,14 @@ struct WheelOfFortuneView: View {
                             preferences.t("coins.wheel.freeSpinReady", params: ["count": String(freeSpins)]),
                             systemImage: "sparkles"
                         )
-                            .font(.caption.weight(.semibold))
+                            .themeFont(.caption, weight: .semibold)
                             .foregroundStyle(Color(red: 0.482, green: 0.357, blue: 1.0))
                     }
                     Text(preferences.t("coins.wheel.paidSpinsRemaining", params: [
                         "remaining": String(paidSpinsRemaining),
                         "limit": String(dailySpinLimit)
                     ]))
-                        .font(.caption)
+                        .themeFont(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -121,14 +121,14 @@ struct WheelOfFortuneView: View {
                     .frame(width: 260, height: 260)
 
                 Image(systemName: "arrowtriangle.down.fill")
-                    .font(.title3)
+                    .themeFont(.title3, weight: .semibold)
                     .foregroundStyle(themeColors.primary)
                     .offset(y: -150)
             }
             .padding(.vertical, 8)
 
             Text(preferences.t("coins.wheel.pickBet"))
-                .font(.subheadline)
+                .themeFont(.subheadline)
                 .foregroundStyle(.secondary)
 
             HStack(spacing: 10) {
@@ -139,7 +139,7 @@ struct WheelOfFortuneView: View {
                         bet = amount
                     } label: {
                         Text("\(amount)")
-                            .font(.subheadline.weight(.semibold))
+                            .themeFont(.subheadline, weight: .semibold)
                             .frame(minWidth: 56)
                             .padding(.vertical, 10)
                             .background(
@@ -155,7 +155,7 @@ struct WheelOfFortuneView: View {
 
             Button(action: spin) {
                 Text(spinButtonTitle)
-                    .font(.headline)
+                    .themeFont(.headline, weight: .semibold)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                     .background(themeColors.primary, in: RoundedRectangle(cornerRadius: 14))
@@ -165,12 +165,12 @@ struct WheelOfFortuneView: View {
 
             if !canSpin && !spinning && atDailyLimit {
                 Text(preferences.t("coins.wheel.dailyLimitReached"))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             } else if !canSpin && !spinning && viewModel.totalCoins < bet {
                 Text(preferences.t("coins.wheel.notEnough"))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
             }
 
@@ -178,9 +178,9 @@ struct WheelOfFortuneView: View {
                 Card {
                     VStack(spacing: 6) {
                         Text(preferences.t("coins.wheel.resultTitle"))
-                            .font(.subheadline.weight(.semibold))
+                            .themeFont(.subheadline, weight: .semibold)
                         Text(resultMessage(result))
-                            .font(.body)
+                            .themeFont(.body)
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
@@ -304,9 +304,7 @@ private struct WheelDiscView: View {
                 WheelSegmentWedgeView(segment: segment)
             }
 
-            ForEach(layout.segments.filter(SwimWheel.segmentShouldShowLabel)) { segment in
-                WheelSegmentLabel(segment: segment, bet: bet, diameter: diameter)
-            }
+            WheelLabelsCanvas(layout: layout, bet: bet, diameter: diameter)
 
             Circle()
                 .fill(Color(.systemBackground))
@@ -323,7 +321,123 @@ private struct WheelDiscView: View {
                         .frame(width: 20, height: 20)
                 )
         }
+        .frame(width: diameter, height: diameter)
         .rotationEffect(.degrees(rotation))
+    }
+}
+
+private struct WheelLabelsCanvas: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
+
+    let layout: SwimWheel.WheelLayout
+    let bet: Int
+    let diameter: CGFloat
+
+    var body: some View {
+        Canvas { context, size in
+            for segment in layout.segments where SwimWheel.segmentShouldShowLabel(segment) {
+                drawLabel(context: &context, size: size, segment: segment)
+            }
+        }
+        .frame(width: diameter, height: diameter)
+        .allowsHitTesting(false)
+    }
+
+    private func drawLabel(
+        context: inout GraphicsContext,
+        size: CGSize,
+        segment: SwimWheel.LayoutSegment
+    ) {
+        let label = SwimWheel.segmentDisplayLabel(
+            segment,
+            bet: bet,
+            t: preferences.translations
+        )
+        guard !label.isEmpty else { return }
+
+        let fontSize = SwimWheel.segmentFontSize(segment)
+        let font = Font.system(size: fontSize, weight: .bold)
+        let color = segment.shiny
+            ? Color(red: 0.471, green: 0.208, blue: 0.059)
+            : Color.white
+
+        if SwimWheel.segmentUsesRadialLabel(segment) {
+            drawRadialLabel(
+                context: &context,
+                label: label,
+                font: font,
+                color: color,
+                segment: segment,
+                size: size
+            )
+        } else {
+            drawArcLabel(
+                context: &context,
+                label: label,
+                font: font,
+                color: color,
+                segment: segment,
+                size: size
+            )
+        }
+    }
+
+    private func drawRadialLabel(
+        context: inout GraphicsContext,
+        label: String,
+        font: Font,
+        color: Color,
+        segment: SwimWheel.LayoutSegment,
+        size: CGSize
+    ) {
+        let position = SwimWheel.segmentTextPosition(diameter: size.width, segment: segment)
+        let resolved = context.resolve(
+            Text(label)
+                .font(font)
+                .foregroundStyle(color)
+        )
+        var ctx = context
+        ctx.translateBy(x: position.x, y: position.y)
+        ctx.rotate(by: Angle(degrees: position.rotate))
+        ctx.draw(resolved, at: .zero, anchor: .center)
+    }
+
+    private func drawArcLabel(
+        context: inout GraphicsContext,
+        label: String,
+        font: Font,
+        color: Color,
+        segment: SwimWheel.LayoutSegment,
+        size: CGSize
+    ) {
+        let center = CGPoint(x: size.width / 2, y: size.height / 2)
+        let radius = size.width * SwimWheel.labelArcRadiusRatio
+        let chars = Array(label)
+        guard !chars.isEmpty else { return }
+
+        for (index, char) in chars.enumerated() {
+            let progress = (Double(index) + 0.5) / Double(chars.count)
+            let deg = segment.startDeg + segment.sweepDeg * progress
+            let rad = (deg - 90) * Double.pi / 180
+            let point = CGPoint(
+                x: center.x + radius * CGFloat(cos(rad)),
+                y: center.y + radius * CGFloat(sin(rad))
+            )
+            var rotation = deg + 90
+            if deg > 90 && deg < 270 {
+                rotation += 180
+            }
+
+            var ctx = context
+            ctx.translateBy(x: point.x, y: point.y)
+            ctx.rotate(by: Angle(degrees: rotation))
+            let resolved = context.resolve(
+                Text(String(char))
+                    .font(font)
+                    .foregroundStyle(color)
+            )
+            ctx.draw(resolved, at: .zero, anchor: .center)
+        }
     }
 }
 
@@ -374,28 +488,6 @@ private struct WheelSegmentWedgeShape: Shape {
     }
 }
 
-private struct WheelSegmentLabel: View {
-    @EnvironmentObject private var preferences: UserPreferencesService
-    let segment: SwimWheel.LayoutSegment
-    let bet: Int
-    let diameter: CGFloat
-
-    var body: some View {
-        let position = SwimWheel.segmentTextPosition(diameter: diameter, segment: segment)
-        let useRadial = SwimWheel.segmentUsesRadialLabel(segment)
-        let rotation = useRadial ? position.rotate : position.rotate + 90
-
-        Text(SwimWheel.segmentDisplayLabel(segment, bet: bet, t: preferences.translations))
-            .font(.system(size: position.fontSize, weight: .bold))
-            .foregroundStyle(segment.shiny ? Color(red: 0.471, green: 0.208, blue: 0.059) : .white)
-            .shadow(color: segment.shiny ? .white.opacity(0.8) : .black.opacity(0.45), radius: segment.shiny ? 3 : 1, y: 1)
-            .multilineTextAlignment(.center)
-            .frame(width: 44)
-            .position(x: position.x, y: position.y)
-            .rotationEffect(.degrees(rotation))
-    }
-}
-
 struct SwimCoinStoreView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
@@ -411,10 +503,10 @@ struct SwimCoinStoreView: View {
 
             VStack(spacing: 8) {
                 Label(preferences.t("coins.store.title"), systemImage: "bag.fill")
-                    .font(.title3.bold())
+                    .themeFont(.title3, weight: .bold)
                     .foregroundStyle(Color("BrandBlue"))
                 Text(preferences.t("coins.store.subtitle"))
-                    .font(.subheadline)
+                    .themeFont(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -434,13 +526,13 @@ struct SwimCoinStoreView: View {
                 SwimCoinStore.categoryLabel(category, t: preferences.translations),
                 systemImage: SwimCoinStore.categoryIcon(category)
             )
-                .font(.caption.bold())
+                .themeFont(.caption, weight: .bold)
                 .foregroundStyle(.secondary)
                 .textCase(.uppercase)
 
             if category == "vibes" {
                 Text(preferences.t("coins.store.vibesIosNote"))
-                    .font(.caption2)
+                    .themeFont(.caption2)
                     .foregroundStyle(.secondary)
             }
 
@@ -470,9 +562,9 @@ struct SwimCoinStoreView: View {
                 StoreItemPreviewView(item: item, bonusWheelSpinCredits: viewModel.bonusWheelSpinCredits)
 
                 Text(SwimCoinStore.localizedName(item, t: preferences.translations))
-                    .font(.subheadline.weight(.semibold))
+                    .themeFont(.subheadline, weight: .semibold)
                 Text(SwimCoinStore.localizedDescription(item, t: preferences.translations))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
@@ -482,14 +574,14 @@ struct SwimCoinStoreView: View {
                             ? preferences.t("coins.store.bonusSpinOwned", params: ["count": String(ownedCount)])
                             : preferences.t("coins.store.ownedCount", params: ["count": String(ownedCount)])
                     )
-                    .font(.caption2.weight(.medium))
+                    .themeFont(.caption2, weight: .medium)
                     .foregroundStyle(Color("BrandBlue"))
                 }
 
                 HStack {
                     if owned {
                         Text(preferences.t("coins.store.owned"))
-                            .font(.subheadline.weight(.semibold))
+                            .themeFont(.subheadline, weight: .semibold)
                             .foregroundStyle(.green)
                     } else {
                         CoinBadge(count: item.price, golden: false)
@@ -511,7 +603,7 @@ struct SwimCoinStoreView: View {
                                         : preferences.t("coins.store.buy"))
                                     : preferences.t("coins.store.notEnough", params: ["amount": String(shortfall)])
                             )
-                                .font(.caption.weight(.semibold))
+                                .themeFont(.caption, weight: .semibold)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(Color("BrandBlue"), in: RoundedRectangle(cornerRadius: 8))
@@ -572,7 +664,7 @@ private struct StoreItemPreviewView: View {
             )
         case "ambient-bubbles":
             LinearGradient(colors: [.cyan, Color(red: 0.0, green: 0.45, blue: 0.65)], startPoint: .top, endPoint: .bottom)
-                .overlay(Image(systemName: "bubble.left.and.bubble.right.fill").font(.title).foregroundStyle(.white.opacity(0.5)))
+                .overlay(Image(systemName: "bubble.left.and.bubble.right.fill").themeFont(.title, weight: .bold).foregroundStyle(.white.opacity(0.5)))
         case "ambient-aurora":
             LinearGradient(colors: [Color(red: 0.02, green: 0.18, blue: 0.18), .teal, .indigo, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
         case "ambient-deep":
@@ -581,9 +673,9 @@ private struct StoreItemPreviewView: View {
             CoinBadge(count: 1337, golden: true)
         case "confetti":
             HStack {
-                Text("🎊").font(.title2)
-                Text("✨").font(.title3)
-                Text("🎉").font(.title2)
+                Text("🎊").themeFont(.title2, weight: .bold)
+                Text("✨").themeFont(.title3, weight: .semibold)
+                Text("🎉").themeFont(.title2, weight: .bold)
             }
         case "medal-shimmer":
             Image(systemName: "medal.fill")
@@ -592,20 +684,20 @@ private struct StoreItemPreviewView: View {
         case "bonus-spin":
             VStack(spacing: 4) {
                 Text("\(SwimCoinStore.getDailyPaidSpinLimit(bonusWheelSpinCredits))/day")
-                    .font(.title2.weight(.black))
+                    .themeFont(.title2, weight: .black)
                     .foregroundStyle(Color("BrandBlue"))
                 Text("paid spins")
-                    .font(.caption2.weight(.semibold))
+                    .themeFont(.caption2, weight: .semibold)
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
             }
         case "challenge-reroll":
             VStack(spacing: 6) {
                 Image(systemName: "shuffle")
-                    .font(.title)
+                    .themeFont(.title, weight: .bold)
                     .foregroundStyle(Color("BrandBlue"))
                 Text("monthly challenge")
-                    .font(.caption2.weight(.semibold))
+                    .themeFont(.caption2, weight: .semibold)
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
             }
@@ -619,7 +711,7 @@ private struct StoreItemPreviewView: View {
             StoreIconPreview(id: "icon:platinum-star", size: 56)
         default:
             Image(systemName: "bitcoinsign.circle.fill")
-                .font(.title)
+                .themeFont(.title, weight: .bold)
                 .foregroundStyle(.orange)
         }
     }
@@ -647,7 +739,7 @@ private struct StoreItemPreviewView: View {
             .frame(width: 56, height: 56)
             .overlay(
                 Image(systemName: "figure.pool.swim")
-                    .font(.title2)
+                    .themeFont(.title2, weight: .bold)
                     .foregroundStyle(.white)
             )
     }

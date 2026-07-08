@@ -29,23 +29,23 @@ struct ResetDataModal: View {
                         "step": String(step),
                         "total": "3"
                     ]))
-                    .font(.caption.weight(.semibold))
+                    .themeFont(.caption, weight: .semibold)
                     .foregroundStyle(.red)
                     .textCase(.uppercase)
                 }
 
                 Text(stepTitle)
-                    .font(.title2.bold())
+                    .themeFont(.title2, weight: .bold)
 
                 Text(stepMessage)
-                    .font(.subheadline)
+                    .themeFont(.subheadline)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
 
                 if step == 3 {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(preferences.t("settings.resetTypePrompt", params: ["phrase": confirmPhrase]))
-                            .font(.subheadline.weight(.medium))
+                            .themeFont(.subheadline, weight: .medium)
                         TextField(preferences.t("settings.resetTypePlaceholder"), text: $typed)
                             .textInputAutocapitalization(.characters)
                             .autocorrectionDisabled()

@@ -28,11 +28,11 @@ struct HistoryScreen: View {
                                 Text(preferences.t("history.filterDate", params: [
                                     "date": SwimFormatters.formatDateLong(selectedDate)
                                 ]))
-                                    .font(.caption)
+                                    .themeFont(.caption)
                                     .foregroundStyle(.secondary)
                                 Spacer()
                                 Button(preferences.t("history.clearFilter")) { self.selectedDate = nil }
-                                    .font(.caption.weight(.semibold))
+                                    .themeFont(.caption, weight: .semibold)
                             }
                             .padding(.horizontal, 4)
                         }
@@ -109,24 +109,24 @@ private struct HistorySessionCard: View {
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 Text(SwimFormatters.formatDateLong(session.date))
-                                    .font(.headline)
+                                    .themeFont(.headline, weight: .semibold)
                                 if session.excludeFromStats {
                                     Text(preferences.t("history.excludedBadge"))
-                                        .font(.caption2.bold())
+                                        .themeFont(.caption2, weight: .bold)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color(.systemGray5), in: Capsule())
                                 }
                             }
                             Text(summaryLine)
-                                .font(.caption)
+                                .themeFont(.caption)
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
                         let coins = SwimCoinClaims.sessionTotalCoins(session)
                         if coins > 0 {
                             Text("+\(coins)")
-                                .font(.caption.bold())
+                                .themeFont(.caption, weight: .bold)
                                 .foregroundStyle(Color("BrandBlue"))
                                 .accessibilityLabel(preferences.t("history.coinsEarned") + ": +\(coins)")
                         }
@@ -146,7 +146,7 @@ private struct HistorySessionCard: View {
                     Button(role: .destructive, action: onDelete) {
                         Label(preferences.t("history.delete"), systemImage: "trash")
                     }
-                    .font(.subheadline)
+                    .themeFont(.subheadline)
                 }
             }
         }
@@ -168,7 +168,7 @@ private struct HistorySessionCard: View {
             detailItem(preferences.t("upload.fields.location"), value: m.location.isEmpty ? "—" : m.location)
             detailItem(preferences.t("upload.fields.timeRange"), value: m.timeRange.isEmpty ? "—" : m.timeRange)
         }
-        .font(.caption)
+        .themeFont(.caption)
     }
 
     private func detailItem(_ title: String, value: String) -> some View {

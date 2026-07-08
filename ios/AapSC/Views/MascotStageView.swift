@@ -9,20 +9,25 @@ struct MascotStageView<Content: View>: View {
         MascotPresentation.stageId(for: mascotId)
     }
 
+    private var cornerRadius: CGFloat {
+        compact ? 14 : 18
+    }
+
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            stagePhoto
-            stageOverlay
-            content()
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(compact ? 12 : 16)
-        }
-        .frame(maxWidth: .infinity)
-        .clipShape(RoundedRectangle(cornerRadius: compact ? 14 : 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: compact ? 14 : 18, style: .continuous)
-                .strokeBorder(MascotPresentation.stageBorderColor(mascotId: stageId), lineWidth: 1)
-        )
+        content()
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(compact ? 12 : 16)
+            .background {
+                ZStack {
+                    stagePhoto
+                    stageOverlay
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .strokeBorder(MascotPresentation.stageBorderColor(mascotId: stageId), lineWidth: 1)
+            )
     }
 
     @ViewBuilder
@@ -31,8 +36,6 @@ struct MascotStageView<Content: View>: View {
             Image(imageName)
                 .resizable()
                 .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
         } else {
             fallbackGradient
         }

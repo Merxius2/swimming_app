@@ -1,6 +1,17 @@
 import SwiftUI
 import UIKit
 
+private struct AppIsDarkKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var appIsDark: Bool {
+        get { self[AppIsDarkKey.self] }
+        set { self[AppIsDarkKey.self] = newValue }
+    }
+}
+
 // MARK: - Visual profile model
 
 struct ThemeVisualProfile {
@@ -54,6 +65,11 @@ struct ThemeTabBarStyle {
     let unselectedColor: Color
     let accentStripe: Color?
     let accentStripePosition: ThemeTabBarAccentStripePosition
+    var topCornerRadius: CGFloat = 0
+    var borderColor: Color? = nil
+    var usesRaisedShadow: Bool = false
+    var usesThemeFont: Bool = false
+    var fadesUnselectedLabels: Bool = true
 }
 
 struct ThemeNavBarStyle {
@@ -62,6 +78,10 @@ struct ThemeNavBarStyle {
     let gradient: [Color]?
     let tint: Color
     let lightContent: Bool
+    var titleColor: Color? = nil
+    var usesThemeFont: Bool = false
+    var borderColor: Color? = nil
+    var usesRaisedShadow: Bool = false
 }
 
 struct ThemeTopBarStyle {
@@ -81,8 +101,10 @@ struct ThemeUploadFABStyle {
     let solid: Color?
     let iconColor: Color
     let borderColor: Color
+    var borderWidth: CGFloat = 2
     let shadowColor: Color
     let bottomAccent: Color?
+    var usesRaisedShadow: Bool = false
 }
 
 enum ThemeVisualProfiles {
@@ -225,6 +247,7 @@ enum ThemeVisualProfiles {
 
     private static func classic(_ dark: Bool) -> ThemeVisualProfile {
         let lightBar = Color(red: 0.0, green: 0.44, blue: 1.0) // #0070FF
+        let ink = Color(red: 0.102, green: 0.102, blue: 0.102) // #1A1A1A
         let pageGray = dark
             ? Color(red: 0.227, green: 0.227, blue: 0.227)   // #3A3A3A
             : Color(red: 0.741, green: 0.741, blue: 0.741)   // #BDBDBD
@@ -248,26 +271,37 @@ enum ThemeVisualProfiles {
                 background: navGray,
                 backgroundGradient: nil,
                 selectedColor: lightBar,
-                unselectedColor: dark ? Color.white.opacity(0.88) : Color(red: 0.1, green: 0.1, blue: 0.1),
+                unselectedColor: dark ? Color(red: 0.94, green: 0.94, blue: 0.94, opacity: 0.88) : ink,
                 accentStripe: lightBar,
-                accentStripePosition: .bottom
+                accentStripePosition: .bottom,
+                topCornerRadius: 20,
+                borderColor: dark ? Color.white.opacity(0.10) : Color.black.opacity(0.20),
+                usesRaisedShadow: true,
+                usesThemeFont: true,
+                fadesUnselectedLabels: false
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
                 solidColor: navGray,
                 gradient: nil,
                 tint: lightBar,
-                lightContent: dark
+                lightContent: dark,
+                titleColor: dark ? .white : ink,
+                usesThemeFont: true,
+                borderColor: dark ? Color.white.opacity(0.10) : Color.black.opacity(0.20),
+                usesRaisedShadow: true
             ),
             topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
                 solid: panel,
-                iconColor: dark ? .white : Color(red: 0.1, green: 0.1, blue: 0.1),
+                iconColor: dark ? .white : ink,
                 borderColor: .white.opacity(0.9),
+                borderWidth: 3,
                 shadowColor: .black.opacity(0.14),
-                bottomAccent: lightBar
+                bottomAccent: lightBar,
+                usesRaisedShadow: true
             )
         )
     }
@@ -669,12 +703,12 @@ struct ThemedPageBackgroundView: View {
 
 struct ThemedPageBackgroundModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
 
     private var profile: ThemeVisualProfile {
         ThemeVisualProfiles.profile(
             code: preferences.themeCode,
-            isDark: colorScheme == .dark
+            isDark: appIsDark
         )
     }
 
@@ -687,12 +721,12 @@ struct ThemedPageBackgroundModifier: ViewModifier {
 
 struct ThemedCardModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
 
     private var profile: ThemeVisualProfile {
         ThemeVisualProfiles.profile(
             code: preferences.themeCode,
-            isDark: colorScheme == .dark
+            isDark: appIsDark
         )
     }
 
@@ -729,6 +763,59 @@ struct ThemedCardModifier: ViewModifier {
                         .blendMode(.multiply)
                 )
         }
+    }
+}
+
+struct ThemedNavBarConfigurator: UIViewControllerRepresentable {
+    let style: ThemeNavBarStyle
+    let themeCode: String
+
+    func makeUIViewController(context: Context) -> UIViewController {
+        UIViewController()
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+
+        if let gradient = style.gradient,
+           let image = UIImage.themeGradient(colors: gradient.map(UIColor.init)) {
+            appearance.backgroundColor = .clear
+            appearance.backgroundImage = image
+        } else if let solid = style.solidColor {
+            appearance.backgroundColor = UIColor(solid)
+        }
+
+        if style.usesRaisedShadow {
+            appearance.shadowColor = UIColor.black.withAlphaComponent(0.14)
+            appearance.shadowImage = nil
+        } else if let border = style.borderColor {
+            appearance.shadowColor = UIColor(border)
+            appearance.shadowImage = nil
+        } else {
+            appearance.shadowColor = .clear
+            appearance.shadowImage = UIImage()
+        }
+
+        var titleAttributes: [NSAttributedString.Key: Any] = [:]
+        if let titleColor = style.titleColor {
+            titleAttributes[.foregroundColor] = UIColor(titleColor)
+        }
+        if style.usesThemeFont {
+            titleAttributes[.font] = ThemeTypography.uiFont(
+                for: themeCode,
+                textStyle: .headline,
+                weight: .semibold
+            )
+        }
+        appearance.titleTextAttributes = titleAttributes
+        appearance.largeTitleTextAttributes = titleAttributes
+
+        let navBar = UINavigationBar.appearance()
+        navBar.standardAppearance = appearance
+        navBar.scrollEdgeAppearance = appearance
+        navBar.compactAppearance = appearance
+        navBar.tintColor = UIColor(style.tint)
     }
 }
 
@@ -803,7 +890,7 @@ struct ThemedUploadFAB: View {
                 }
                 .overlay(
                     Circle()
-                        .strokeBorder(style.borderColor, lineWidth: 2)
+                        .strokeBorder(style.borderColor, lineWidth: style.borderWidth)
                 )
                 .shadow(color: style.shadowColor, radius: 10, y: 4)
         }

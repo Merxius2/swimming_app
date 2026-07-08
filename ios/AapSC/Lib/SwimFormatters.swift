@@ -36,6 +36,10 @@ enum SwimFormatters {
         return String(format: "%d'%02d\"/100m", minutes, seconds)
     }
 
+    static func formatPaceChartLabel(_ secPer100m: Int?) -> String {
+        formatPace(secPer100m).replacingOccurrences(of: "/100m", with: "")
+    }
+
     static func parseDurationSec(_ raw: String?) -> Int? {
         guard let raw, !raw.isEmpty else { return nil }
         let parts = raw.split(separator: ":").compactMap { Int($0) }

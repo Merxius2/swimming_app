@@ -6,9 +6,17 @@ struct ProgressScreen: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.openUpload) private var openUpload
 
+    @State private var selectedPaceDate: String?
+    @State private var selectedDistanceDate: String?
+    @State private var selectedCaloriesDate: String?
+    @State private var selectedHeartRateDate: String?
+    @State private var selectedVolumeWeek: String?
+
+    private let paceTeal = Color(red: 0.078, green: 0.722, blue: 0.651)
+
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ScrollView(.vertical, showsIndicators: true) {
                 VStack(alignment: .leading, spacing: 16) {
                     ScreenHeader(
                         preferences.t("progress.title"),
@@ -41,14 +49,13 @@ struct ProgressScreen: View {
                         caloriesChart
                         heartRateChart
                         volumeChart
-                        StrokeDonutChart(slices: SwimAnalysis.strokeChartData(
-                            viewModel.sessions.last,
-                            t: preferences.translations
-                        ))
+                        strokeMixChart
                     }
                 }
                 .padding()
+                .frame(maxWidth: .infinity)
             }
+            .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
             .themedPageBackground()
             .navigationTitle(preferences.t("progress.title"))
             .navigationBarTitleDisplayMode(.inline)
@@ -66,8 +73,10 @@ struct ProgressScreen: View {
                     level: MascotConstants.coachedLevel(viewModel.mascotId),
                     coachName: MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
                     size: 200,
-                    animated: true
+                    animated: true,
+                    layout: .stacked
                 )
+                .frame(maxWidth: .infinity)
             }
 
             Card {
@@ -76,14 +85,14 @@ struct ProgressScreen: View {
                         .font(.system(size: 44))
                         .foregroundStyle(Color("BrandBlue"))
                     Text(preferences.t("progress.emptyTitle"))
-                        .font(.title2.bold())
+                        .themeFont(.title2, weight: .bold)
                     Text(preferences.t("progress.emptyDesc"))
-                        .font(.subheadline)
+                        .themeFont(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                     Button(action: openUpload) {
                         Text(preferences.t("progress.emptyCta"))
-                            .font(.subheadline.weight(.semibold))
+                            .themeFont(.subheadline, weight: .semibold)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 12)
                     }
@@ -115,7 +124,7 @@ struct ProgressScreen: View {
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.overviewTitle"))
-                    .font(.caption.bold())
+                    .themeFont(.caption, weight: .bold)
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
                     .tracking(1.1)
@@ -127,8 +136,10 @@ struct ProgressScreen: View {
                     bubbleTone: overviewTone,
                     coachName: MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
                     size: 220,
-                    animated: true
+                    animated: true,
+                    layout: .stacked
                 )
+                .frame(maxWidth: .infinity)
             }
         }
     }
@@ -139,11 +150,11 @@ struct ProgressScreen: View {
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.latestSession"))
-                    .font(.headline)
+                    .themeFont(.headline, weight: .semibold)
                 Text(SwimFormatters.formatDateShort(latest.date))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
-                HStack {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     metricBlock(preferences.t("upload.fields.distance"), value: SwimFormatters.formatDistance(m.distanceM), color: .blue)
                     metricBlock(preferences.t("upload.fields.duration"), value: SwimFormatters.formatDuration(m.durationSec), color: .orange)
                     metricBlock(preferences.t("upload.fields.pace"), value: SwimFormatters.formatPace(m.paceSecPer100m), color: .teal)
@@ -162,13 +173,13 @@ struct ProgressScreen: View {
             Card {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(preferences.t("progress.allTimeStats"))
-                        .font(.headline)
+                        .themeFont(.headline, weight: .semibold)
                     if excluded > 0 {
                         Text(preferences.t("progress.statsBasedOn", params: [
                             "count": String(combined.sessionCount),
                             "total": String(viewModel.sessions.count)
                         ]))
-                            .font(.caption)
+                            .themeFont(.caption)
                             .foregroundStyle(.secondary)
                     }
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -191,78 +202,223 @@ struct ProgressScreen: View {
         SwimAnalysis.chartSessions(viewModel.sessions)
     }
 
+    @ViewBuilder
+    private var strokeMixChart: some View {
+        let slices = SwimAnalysis.strokeChartData(
+            viewModel.sessions.last,
+            t: preferences.translations
+        )
+        if !slices.isEmpty {
+            StrokeDonutChart(slices: slices)
+        }
+    }
+
     private var paceChart: some View {
-        let points = chartPoints.filter { $0.paceSecPer100m != nil }
+        let points = chartPoints.filter { ($0.paceSecPer100m ?? 0) > 0 }
         let domain = SwimFormatters.getPaceChartDomain(points.map(\.paceSecPer100m))
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.paceChart"))
-                    .font(.headline)
+                    .themeFont(.headline, weight: .semibold)
                 if points.isEmpty {
                     Text(preferences.t("medals.progress.noPaceYet")).foregroundStyle(.secondary)
                 } else {
-                    Chart(points) { point in
-                        LineMark(
-                            x: .value("Date", point.dateLabel),
-                            y: .value("Pace", point.paceSecPer100m ?? 0)
-                        )
-                        .foregroundStyle(.teal)
-                        PointMark(
-                            x: .value("Date", point.dateLabel),
-                            y: .value("Pace", point.paceSecPer100m ?? 0)
+                    Chart {
+                        ForEach(points) { point in
+                            let invertedPace = Self.invertedPaceValue(point.paceSecPer100m)
+                            LineMark(
+                                x: .value("Date", point.dateLabel),
+                                y: .value("Pace", invertedPace)
+                            )
+                            .foregroundStyle(paceTeal)
+                            .interpolationMethod(.monotone)
+
+                            PointMark(
+                                x: .value("Date", point.dateLabel),
+                                y: .value("Pace", invertedPace)
+                            )
+                            .foregroundStyle(paceTeal)
+                            .symbolSize(selectedPaceDate == point.dateLabel ? 80 : 36)
+
+                            if selectedPaceDate == point.dateLabel {
+                                RuleMark(x: .value("Date", point.dateLabel))
+                                    .foregroundStyle(Color.secondary.opacity(0.35))
+                                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                            }
+                        }
+                    }
+                    .chartXAxis { sessionDateAxisMarks(count: points.count) }
+                    .chartYScale(domain: invertedPaceDomain(domain))
+                    .chartYAxis { paceYAxisMarks() }
+                    .chartXLabelSelection($selectedPaceDate)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 260)
+
+                    if let selectedPaceDate,
+                       let point = points.first(where: { $0.dateLabel == selectedPaceDate }) {
+                        ChartSelectionFooter(
+                            title: point.dateLabel,
+                            value: SwimFormatters.formatPace(point.paceSecPer100m)
                         )
                     }
-                    .chartYScale(domain: domain ?? 90...180)
-                    .chartYAxis { AxisMarks { _ in AxisGridLine(); AxisTick(); AxisValueLabel() } }
-                    .frame(height: 220)
                 }
             }
         }
     }
 
     private var distanceChart: some View {
-        chartBar(title: preferences.t("progress.distanceChart"), keyPath: \.distanceM, color: .blue)
+        let points = chartPoints.filter { ($0.distanceM ?? 0) > 0 }
+        return Card {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(preferences.t("progress.distanceChart"))
+                    .themeFont(.headline, weight: .semibold)
+                Chart {
+                    ForEach(points) { point in
+                        BarMark(
+                            x: .value("Date", point.dateLabel),
+                            y: .value("Distance", point.distanceM ?? 0)
+                        )
+                        .foregroundStyle(Color.blue.gradient)
+                        .cornerRadius(4)
+
+                        if selectedDistanceDate == point.dateLabel {
+                            RuleMark(x: .value("Date", point.dateLabel))
+                                .foregroundStyle(Color.secondary.opacity(0.35))
+                                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                        }
+                    }
+                }
+                .chartXAxis { sessionDateAxisMarks(count: points.count) }
+                .chartYAxis { valueAxisMarks(formatter: SwimFormatters.formatDistance) }
+                .chartXLabelSelection($selectedDistanceDate)
+                .frame(maxWidth: .infinity)
+                .frame(height: 240)
+
+                if let selectedDistanceDate,
+                   let point = points.first(where: { $0.dateLabel == selectedDistanceDate }) {
+                    ChartSelectionFooter(
+                        title: point.dateLabel,
+                        value: SwimFormatters.formatDistance(point.distanceM)
+                    )
+                }
+            }
+        }
     }
 
     private var caloriesChart: some View {
-        Card {
+        let activeLabel = preferences.t("progress.activeKcal")
+        let totalLabel = preferences.t("progress.totalKcal")
+        return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.caloriesChart"))
-                    .font(.headline)
-                Chart(chartPoints) { point in
-                    AreaMark(
-                        x: .value("Date", point.dateLabel),
-                        y: .value("Active", point.activeKcal ?? 0)
-                    )
-                    .foregroundStyle(.red.opacity(0.25))
-                    LineMark(
-                        x: .value("Date", point.dateLabel),
-                        y: .value("Active", point.activeKcal ?? 0)
-                    )
-                    .foregroundStyle(.red)
+                    .themeFont(.headline, weight: .semibold)
+                Chart {
+                    ForEach(chartPoints) { point in
+                        AreaMark(
+                            x: .value("Date", point.dateLabel),
+                            y: .value("Calories", point.activeKcal ?? 0),
+                            series: .value("Series", activeLabel)
+                        )
+                        .foregroundStyle(Color.red.opacity(0.3))
+                        .interpolationMethod(.monotone)
+
+                        AreaMark(
+                            x: .value("Date", point.dateLabel),
+                            y: .value("Calories", point.totalKcal ?? 0),
+                            series: .value("Series", totalLabel)
+                        )
+                        .foregroundStyle(Color.orange.opacity(0.2))
+                        .interpolationMethod(.monotone)
+
+                        LineMark(
+                            x: .value("Date", point.dateLabel),
+                            y: .value("Calories", point.activeKcal ?? 0),
+                            series: .value("Series", activeLabel)
+                        )
+                        .foregroundStyle(.red)
+                        .interpolationMethod(.monotone)
+
+                        LineMark(
+                            x: .value("Date", point.dateLabel),
+                            y: .value("Calories", point.totalKcal ?? 0),
+                            series: .value("Series", totalLabel)
+                        )
+                        .foregroundStyle(.orange)
+                        .interpolationMethod(.monotone)
+
+                        if selectedCaloriesDate == point.dateLabel {
+                            RuleMark(x: .value("Date", point.dateLabel))
+                                .foregroundStyle(Color.secondary.opacity(0.35))
+                                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                        }
+                    }
                 }
-                .frame(height: 200)
+                .chartXAxis { sessionDateAxisMarks(count: chartPoints.count) }
+                .chartYAxis { valueAxisMarks(formatter: { $0.map { "\($0)" } ?? "—" }) }
+                .chartForegroundStyleScale([
+                    activeLabel: Color.red,
+                    totalLabel: Color.orange,
+                ])
+                .chartLegend(position: .bottom, alignment: .leading)
+                .chartXLabelSelection($selectedCaloriesDate)
+                .frame(maxWidth: .infinity)
+                .frame(height: 240)
+
+                if let selectedCaloriesDate,
+                   let point = chartPoints.first(where: { $0.dateLabel == selectedCaloriesDate }) {
+                    ChartSelectionFooter(
+                        title: point.dateLabel,
+                        value: "\(activeLabel): \((point.activeKcal ?? 0).formatted())",
+                        secondaryValue: "\(totalLabel): \((point.totalKcal ?? 0).formatted())"
+                    )
+                }
             }
         }
     }
 
     private var heartRateChart: some View {
-        Card {
+        let points = chartPoints.filter { ($0.avgHeartRate ?? 0) > 0 }
+        let bpm = preferences.t("common.bpm")
+        return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.heartRateChart"))
-                    .font(.headline)
-                Chart(chartPoints.filter { $0.avgHeartRate != nil }) { point in
-                    LineMark(
-                        x: .value("Date", point.dateLabel),
-                        y: .value("BPM", point.avgHeartRate ?? 0)
-                    )
-                    .foregroundStyle(.orange)
-                    PointMark(
-                        x: .value("Date", point.dateLabel),
-                        y: .value("BPM", point.avgHeartRate ?? 0)
+                    .themeFont(.headline, weight: .semibold)
+                Chart {
+                    ForEach(points) { point in
+                        LineMark(
+                            x: .value("Date", point.dateLabel),
+                            y: .value("BPM", point.avgHeartRate ?? 0)
+                        )
+                        .foregroundStyle(.orange)
+                        .interpolationMethod(.monotone)
+
+                        PointMark(
+                            x: .value("Date", point.dateLabel),
+                            y: .value("BPM", point.avgHeartRate ?? 0)
+                        )
+                        .foregroundStyle(.orange)
+                        .symbolSize(selectedHeartRateDate == point.dateLabel ? 70 : 30)
+
+                        if selectedHeartRateDate == point.dateLabel {
+                            RuleMark(x: .value("Date", point.dateLabel))
+                                .foregroundStyle(Color.secondary.opacity(0.35))
+                                .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                        }
+                    }
+                }
+                .chartXAxis { sessionDateAxisMarks(count: points.count) }
+                .chartYAxis { valueAxisMarks(formatter: { $0.map { "\($0)" } ?? "—" }) }
+                .chartXLabelSelection($selectedHeartRateDate)
+                .frame(maxWidth: .infinity)
+                .frame(height: 240)
+
+                if let selectedHeartRateDate,
+                   let point = points.first(where: { $0.dateLabel == selectedHeartRateDate }) {
+                    ChartSelectionFooter(
+                        title: point.dateLabel,
+                        value: "\(point.avgHeartRate ?? 0) \(bpm)"
                     )
                 }
-                .frame(height: 200)
             }
         }
     }
@@ -272,36 +428,84 @@ struct ProgressScreen: View {
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.weeklyVolume"))
-                    .font(.headline)
+                    .themeFont(.headline, weight: .semibold)
                 if weekly.isEmpty {
                     Text(preferences.t("progress.emptyDesc")).foregroundStyle(.secondary)
                 } else {
-                    Chart(weekly) { week in
-                        BarMark(
-                            x: .value("Week", week.weekLabel),
-                            y: .value("Distance", week.distanceM)
-                        )
-                        .foregroundStyle(.purple.gradient)
+                    Chart {
+                        ForEach(weekly) { week in
+                            BarMark(
+                                x: .value("Week", week.weekLabel),
+                                y: .value("Distance", week.distanceM)
+                            )
+                            .foregroundStyle(Color.purple.gradient)
+                            .cornerRadius(4)
+
+                            if selectedVolumeWeek == week.weekLabel {
+                                RuleMark(x: .value("Week", week.weekLabel))
+                                    .foregroundStyle(Color.secondary.opacity(0.35))
+                                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
+                            }
+                        }
                     }
-                    .frame(height: 220)
+                    .chartXAxis { sessionDateAxisMarks(count: weekly.count) }
+                    .chartYAxis { valueAxisMarks(formatter: SwimFormatters.formatDistance) }
+                    .chartXLabelSelection($selectedVolumeWeek)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 240)
+
+                    if let selectedVolumeWeek,
+                       let week = weekly.first(where: { $0.weekLabel == selectedVolumeWeek }) {
+                        ChartSelectionFooter(
+                            title: week.weekLabel,
+                            value: SwimFormatters.formatDistance(week.distanceM)
+                        )
+                    }
                 }
             }
         }
     }
 
-    private func chartBar(title: String, keyPath: KeyPath<ChartSessionPoint, Int?>, color: Color) -> some View {
-        Card {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(title)
-                    .font(.headline)
-                Chart(chartPoints.filter { $0[keyPath: keyPath] != nil }) { point in
-                    BarMark(
-                        x: .value("Date", point.dateLabel),
-                        y: .value("Value", point[keyPath: keyPath] ?? 0)
-                    )
-                    .foregroundStyle(color.gradient)
+    private static func invertedPaceValue(_ paceSecPer100m: Int?) -> Double {
+        guard let paceSecPer100m, paceSecPer100m > 0 else { return 0 }
+        return Double(-paceSecPer100m)
+    }
+
+    private func invertedPaceDomain(_ domain: ClosedRange<Double>?) -> ClosedRange<Double> {
+        let range = domain ?? 90...180
+        return (-range.upperBound)...(-range.lowerBound)
+    }
+
+    private func sessionDateAxisMarks(count: Int) -> some AxisContent {
+        AxisMarks(values: .automatic(desiredCount: min(5, max(count, 1)))) { _ in
+            AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                .foregroundStyle(Color.secondary.opacity(0.25))
+            AxisValueLabel()
+        }
+    }
+
+    private func paceYAxisMarks() -> some AxisContent {
+        AxisMarks { value in
+            AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                .foregroundStyle(Color.secondary.opacity(0.25))
+            AxisTick()
+            AxisValueLabel {
+                if let invertedSeconds = value.as(Double.self) {
+                    Text(SwimFormatters.formatPaceChartLabel(Int((-invertedSeconds).rounded())))
                 }
-                .frame(height: 200)
+            }
+        }
+    }
+
+    private func valueAxisMarks(formatter: @escaping (Int?) -> String) -> some AxisContent {
+        AxisMarks { value in
+            AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+                .foregroundStyle(Color.secondary.opacity(0.25))
+            AxisTick()
+            AxisValueLabel {
+                if let number = value.as(Int.self) {
+                    Text(formatter(number))
+                }
             }
         }
     }
@@ -309,7 +513,7 @@ struct ProgressScreen: View {
     private var coinsStatTile: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(preferences.t("coins.label").uppercased())
-                .font(.caption2.weight(.semibold))
+                .themeFont(.caption2, weight: .semibold)
                 .foregroundStyle(.secondary)
             CoinBadge(
                 count: viewModel.totalCoins,
@@ -322,10 +526,10 @@ struct ProgressScreen: View {
     private func metricBlock(_ title: String, value: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title.uppercased())
-                .font(.caption2)
+                .themeFont(.caption2)
                 .foregroundStyle(.secondary)
             Text(value)
-                .font(.subheadline.bold())
+                .themeFont(.subheadline, weight: .bold)
                 .foregroundStyle(color)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -334,10 +538,10 @@ struct ProgressScreen: View {
     private func statTile(_ title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title.uppercased())
-                .font(.caption2.weight(.semibold))
+                .themeFont(.caption2, weight: .semibold)
                 .foregroundStyle(.secondary)
             Text(value)
-                .font(.subheadline.bold())
+                .themeFont(.subheadline, weight: .bold)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

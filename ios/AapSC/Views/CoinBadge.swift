@@ -12,10 +12,10 @@ struct CoinBadge: View {
             }
         }
 
-        var font: Font {
+        var textStyle: Font.TextStyle {
             switch self {
-            case .sm: return .caption2.weight(.semibold)
-            case .md: return .caption.weight(.semibold)
+            case .sm: return .caption2
+            case .md: return .caption
             }
         }
     }
@@ -34,7 +34,7 @@ struct CoinBadge: View {
         HStack(spacing: 4) {
             CoinsIcon(size: size.iconSize, golden: isGolden)
             Text(count.formatted())
-                .font(size.font)
+                .themeFont(size.textStyle, weight: .semibold)
                 .monospacedDigit()
         }
         .foregroundStyle(foregroundColor)
@@ -53,7 +53,7 @@ struct CoinBadge: View {
     }
 }
 
-private struct CoinsIcon: View {
+struct CoinsIcon: View {
     let size: CGFloat
     var golden: Bool = false
 

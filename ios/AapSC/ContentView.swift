@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
     @State private var selectedTab = 0
     @State private var showUpload = false
     @State private var showSettings = false
@@ -12,13 +12,18 @@ struct ContentView: View {
     private var themeProfile: ThemeVisualProfile {
         ThemeVisualProfiles.profile(
             code: preferences.themeCode,
-            isDark: colorScheme == .dark
+            isDark: appIsDark
         )
+    }
+
+    private var appearanceKey: String {
+        "\(preferences.themeCode)-\(preferences.isAutoDarkMode)-\(preferences.isDarkMode)"
     }
 
     var body: some View {
         ZStack(alignment: .bottom) {
             tabContent
+                .id(appearanceKey)
                 .padding(.bottom, CustomTabBar.barHeight)
 
             CustomTabBar(
@@ -41,12 +46,15 @@ struct ContentView: View {
         .ignoresSafeArea(.container, edges: .bottom)
         .sheet(isPresented: $showUpload) {
             UploadScreen()
+                .preferredColorScheme(preferences.colorScheme)
         }
         .sheet(isPresented: $showSettings) {
             SettingsScreen()
+                .preferredColorScheme(preferences.colorScheme)
         }
         .sheet(isPresented: $showCoins) {
             CoinsScreen()
+                .preferredColorScheme(preferences.colorScheme)
         }
         .environment(\.openSettings, { showSettings = true })
         .environment(\.openCoins, { showCoins = true })
@@ -122,7 +130,7 @@ struct ScreenHeader: View {
     let subtitle: String?
     let systemImage: String
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
 
     init(_ title: String, subtitle: String? = nil, systemImage: String) {
         self.title = title
@@ -133,23 +141,23 @@ struct ScreenHeader: View {
     private var profile: ThemeVisualProfile {
         ThemeVisualProfiles.profile(
             code: preferences.themeCode,
-            isDark: colorScheme == .dark
+            isDark: appIsDark
         )
     }
 
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: systemImage)
-                .font(.title2.weight(.semibold))
+                .themeFont(.title2, weight: .semibold)
                 .foregroundStyle(profile.displayPrimary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(ThemeTypography.font(for: preferences.themeCode, textStyle: .title2, weight: .bold))
+                    .themeFont(.title2, weight: .bold)
                     .tracking(ThemeTypography.headingTracking(for: preferences.themeCode))
                     .textCase(ThemeTypography.usesUppercaseHeadings(for: preferences.themeCode) ? .uppercase : nil)
                 if let subtitle {
                     Text(subtitle)
-                        .font(.subheadline)
+                        .themeFont(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             }

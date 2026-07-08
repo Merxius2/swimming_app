@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MascotChoiceCardView: View {
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
     @Environment(\.themeColors) private var themeColors
 
     let mascotId: String
@@ -29,7 +29,7 @@ struct MascotChoiceCardView: View {
                 }
 
                 Text(preferences.t(MascotConstants.nameKey(mascotId)))
-                    .font(.title3.bold())
+                    .themeFont(.title3, weight: .bold)
                     .foregroundStyle(.primary)
                     .padding(.top, 4)
 
@@ -40,7 +40,7 @@ struct MascotChoiceCardView: View {
                     .padding(.top, 8)
 
                 Text(preferences.t(MascotConstants.descKey(mascotId)))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -48,7 +48,7 @@ struct MascotChoiceCardView: View {
 
                 if let unlockHint {
                     Text(unlockHint)
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .foregroundStyle(Color(red: 0.92, green: 0.7, blue: 0.03))
                         .multilineTextAlignment(.center)
                         .padding(.top, 8)
@@ -56,9 +56,9 @@ struct MascotChoiceCardView: View {
 
                 HStack(spacing: 4) {
                     Image(systemName: "bitcoinsign.circle")
-                        .font(.caption2)
+                        .themeFont(.caption2)
                     Text(preferences.t(MascotConstants.rulesKey(mascotId)))
-                        .font(.caption2)
+                        .themeFont(.caption2)
                         .multilineTextAlignment(.center)
                 }
                 .foregroundStyle(.tertiary)
@@ -121,7 +121,7 @@ struct MascotChoiceCardView: View {
     }
 
     private var cardBackground: Color {
-        colorScheme == .dark
+        appIsDark
             ? Color(red: 0.27, green: 0.27, blue: 0.27)
             : Color(.secondarySystemGroupedBackground)
     }
@@ -130,7 +130,7 @@ struct MascotChoiceCardView: View {
         if isActive && !isLocked {
             return themeColors.primary
         }
-        return colorScheme == .dark
+        return appIsDark
             ? Color.white.opacity(0.1)
             : Color.black.opacity(0.12)
     }
@@ -140,26 +140,26 @@ struct MascotSettingsSection: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.themeColors) private var themeColors
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 10) {
                 Image(systemName: "sparkles")
-                    .font(.title3)
+                    .themeFont(.title3, weight: .semibold)
                     .foregroundStyle(themeColors.primary)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(preferences.t("settings.mascotTitle"))
-                        .font(.headline)
+                        .themeFont(.headline, weight: .semibold)
                     Text(preferences.t("settings.mascotDesc"))
-                        .font(.caption)
+                        .themeFont(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
 
             if let blockedReason = switchBlockedReason {
                 Text(preferences.t("settings.mascotSwitchBlocked.\(blockedReason)"))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(blockedBannerForeground)
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -170,7 +170,7 @@ struct MascotSettingsSection: View {
                     )
             } else {
                 Text(preferences.t("settings.mascotSwitchHint"))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
             }
 
@@ -189,7 +189,7 @@ struct MascotSettingsSection: View {
                         params: ["name": MascotConstants.displayName(viewModel.mascotId, t: preferences.translations)]
                     )
                 )
-                .font(.subheadline.weight(.medium))
+                .themeFont(.subheadline, weight: .medium)
                 .foregroundStyle(.secondary)
 
                 MascotCoachView(
@@ -200,8 +200,10 @@ struct MascotSettingsSection: View {
                     coachName: MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
                     showStage: true,
                     size: 190,
-                    animated: true
+                    animated: true,
+                    layout: .stacked
                 )
+                .frame(maxWidth: .infinity)
             }
         }
         .padding(.vertical, 4)
@@ -277,19 +279,19 @@ struct MascotSettingsSection: View {
     }
 
     private var blockedBannerForeground: Color {
-        colorScheme == .dark
+        appIsDark
             ? Color(red: 1.0, green: 0.92, blue: 0.75)
             : Color(red: 0.55, green: 0.35, blue: 0.05)
     }
 
     private var blockedBannerBackground: Color {
-        colorScheme == .dark
+        appIsDark
             ? Color(red: 0.25, green: 0.16, blue: 0.04)
             : Color(red: 1.0, green: 0.95, blue: 0.8)
     }
 
     private var blockedBannerBorder: Color {
-        colorScheme == .dark
+        appIsDark
             ? Color(red: 0.55, green: 0.35, blue: 0.1)
             : Color(red: 0.95, green: 0.8, blue: 0.45)
     }

@@ -82,8 +82,9 @@ struct SettingsScreen: View {
     private var mascotSection: some View {
         Section {
             MascotSettingsSection()
-                .listRowInsets(EdgeInsets())
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
         }
     }
 
@@ -91,7 +92,7 @@ struct SettingsScreen: View {
         Section(preferences.t("settings.aiTitle")) {
             SecureField(preferences.t("settings.aiPlaceholder"), text: binding(\.aiApiKey))
             Text(preferences.t("settings.aiDesc"))
-                .font(.caption)
+                .themeFont(.caption)
                 .foregroundStyle(.secondary)
         }
     }
@@ -128,7 +129,7 @@ struct SettingsScreen: View {
                                 .foregroundStyle(themeColors.primary)
                         } else if !unlocked {
                             Image(systemName: "lock.fill")
-                                .font(.caption)
+                                .themeFont(.caption)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -194,7 +195,7 @@ struct SettingsScreen: View {
 
             if let exportStatus {
                 Text(exportStatus)
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
             }
         }
@@ -210,7 +211,7 @@ struct SettingsScreen: View {
 
             if let importError {
                 Text(importError)
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.red)
             }
         }
@@ -220,10 +221,10 @@ struct SettingsScreen: View {
     private var dataSection: some View {
         Section(preferences.t("settings.resetData")) {
             Text(preferences.t("settings.resetDesc"))
-                .font(.caption)
+                .themeFont(.caption)
                 .foregroundStyle(.secondary)
             Text(preferences.t("settings.warning"))
-                .font(.caption)
+                .themeFont(.caption)
                 .foregroundStyle(.orange)
             LabeledContent(preferences.t("navigation.history"), value: "\(viewModel.sessions.count)")
             LabeledContent(preferences.t("coins.label"), value: "\(viewModel.totalCoins)")
@@ -232,7 +233,7 @@ struct SettingsScreen: View {
             }
             if let resetMessage {
                 Text(resetMessage)
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.green)
             }
         }

@@ -7,27 +7,47 @@ struct AapSCApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                AmbientBackgroundView(
-                    themeCode: preferences.themeCode,
-                    activeAmbient: viewModel.profile.activeAmbient,
-                    storeUnlocks: viewModel.storeUnlocks
-                )
-                ContentView()
-            }
-            .environmentObject(viewModel)
-            .environmentObject(preferences)
-            .environment(\.t, preferences.translations)
-            .environment(\.themeColors, preferences.themeColors)
-            .tint(preferences.themeColors.displayPrimary)
-            .preferredColorScheme(preferences.colorScheme)
-            .themedBodyFont()
-            .onAppear {
-                AppIconService.apply(
-                    activeAppIcon: viewModel.profile.activeAppIcon,
-                    storeUnlocks: viewModel.storeUnlocks
-                )
-            }
+            AppRootView()
+                .environmentObject(viewModel)
+                .environmentObject(preferences)
+        }
+    }
+}
+
+private struct AppRootView: View {
+    @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.colorScheme) private var systemColorScheme
+
+    private var appIsDark: Bool {
+        preferences.isDarkModeActive(systemColorScheme: systemColorScheme)
+    }
+
+    var body: some View {
+        ZStack {
+            AmbientBackgroundView(
+                themeCode: preferences.themeCode,
+                activeAmbient: viewModel.profile.activeAmbient,
+                storeUnlocks: viewModel.storeUnlocks
+            )
+            ContentView()
+        }
+        .environment(\.t, preferences.translations)
+        .environment(\.themeColors, preferences.themeColors)
+        .environment(\.appIsDark, appIsDark)
+        .environment(\.themeTypographyCode, preferences.themeCode)
+        .tint(preferences.themeColors.displayPrimary)
+        .preferredColorScheme(preferences.colorScheme)
+        .themedBodyFont()
+        .onAppear {
+            ThemeTypography.applyUIKitAppearance(themeCode: preferences.themeCode)
+            AppIconService.apply(
+                activeAppIcon: viewModel.profile.activeAppIcon,
+                storeUnlocks: viewModel.storeUnlocks
+            )
+        }
+        .onChange(of: preferences.themeCode) { _, themeCode in
+            ThemeTypography.applyUIKitAppearance(themeCode: themeCode)
         }
     }
 }

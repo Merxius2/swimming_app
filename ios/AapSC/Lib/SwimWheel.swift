@@ -224,10 +224,13 @@ enum SwimWheel {
         }
     }
 
+    static let labelArcRadiusRatio: CGFloat = 83.0 / 200.0
+    static let labelRadialRadiusRatio: CGFloat = 79.0 / 200.0
+
     static func segmentTextPosition(diameter: CGFloat, segment: LayoutSegment) -> (x: CGFloat, y: CGFloat, rotate: Double, fontSize: CGFloat) {
         let cx = diameter / 2
         let cy = diameter / 2
-        let radius = diameter * 0.395
+        let radius = diameter * labelRadialRadiusRatio
         let centerDeg = segment.startDeg + segment.sweepDeg / 2
         let mid = (centerDeg - 90) * .pi / 180
         return (

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct CustomTabBar: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
     @Binding var selectedTab: Int
     let profile: ThemeVisualProfile
     let progressTitle: String
@@ -27,7 +28,10 @@ struct CustomTabBar: View {
                     icon: "chart.bar.fill",
                     isActive: selectedTab == 0,
                     selectedColor: profile.tabBar.selectedColor,
-                    unselectedColor: profile.tabBar.unselectedColor
+                    unselectedColor: profile.tabBar.unselectedColor,
+                    usesThemeFont: profile.tabBar.usesThemeFont,
+                    themeCode: preferences.themeCode,
+                    fadesUnselected: profile.tabBar.fadesUnselectedLabels
                 ) {
                     selectedTab = 0
                 }
@@ -37,7 +41,10 @@ struct CustomTabBar: View {
                     icon: "checkmark.seal.fill",
                     isActive: selectedTab == 1,
                     selectedColor: profile.tabBar.selectedColor,
-                    unselectedColor: profile.tabBar.unselectedColor
+                    unselectedColor: profile.tabBar.unselectedColor,
+                    usesThemeFont: profile.tabBar.usesThemeFont,
+                    themeCode: preferences.themeCode,
+                    fadesUnselected: profile.tabBar.fadesUnselectedLabels
                 ) {
                     selectedTab = 1
                 }
@@ -46,7 +53,8 @@ struct CustomTabBar: View {
                     Spacer()
                         .frame(height: 40)
                     Text(uploadTitle)
-                        .font(.caption2.weight(.medium))
+                        .themeFont(.caption2, weight: .medium)
+                        .tracking(profile.tabBar.usesThemeFont ? ThemeTypography.headingTracking(for: preferences.themeCode) : 0)
                         .foregroundStyle(profile.tabBar.unselectedColor)
                 }
                 .frame(maxWidth: .infinity)
@@ -56,7 +64,10 @@ struct CustomTabBar: View {
                     icon: "waveform.path.ecg",
                     isActive: selectedTab == 3,
                     selectedColor: profile.tabBar.selectedColor,
-                    unselectedColor: profile.tabBar.unselectedColor
+                    unselectedColor: profile.tabBar.unselectedColor,
+                    usesThemeFont: profile.tabBar.usesThemeFont,
+                    themeCode: preferences.themeCode,
+                    fadesUnselected: profile.tabBar.fadesUnselectedLabels
                 ) {
                     selectedTab = 3
                 }
@@ -66,7 +77,10 @@ struct CustomTabBar: View {
                     icon: "clock.arrow.circlepath",
                     isActive: selectedTab == 4,
                     selectedColor: profile.tabBar.selectedColor,
-                    unselectedColor: profile.tabBar.unselectedColor
+                    unselectedColor: profile.tabBar.unselectedColor,
+                    usesThemeFont: profile.tabBar.usesThemeFont,
+                    themeCode: preferences.themeCode,
+                    fadesUnselected: profile.tabBar.fadesUnselectedLabels
                 ) {
                     selectedTab = 4
                 }
@@ -74,7 +88,16 @@ struct CustomTabBar: View {
             .padding(.horizontal, 10)
             .padding(.bottom, 25)
             .frame(height: Self.barHeight)
-            .background(barBackground)
+            .background {
+                barBackground
+                    .overlay {
+                        if let border = profile.tabBar.borderColor {
+                            tabBarShape
+                                .strokeBorder(border, lineWidth: 1)
+                        }
+                    }
+                    .clipShape(tabBarShape)
+            }
 
             if let stripe = profile.tabBar.accentStripe,
                profile.tabBar.accentStripePosition == .bottom {
@@ -83,10 +106,18 @@ struct CustomTabBar: View {
                     .frame(maxWidth: .infinity)
             }
         }
+        .modifier(ClassicTabBarShadow(enabled: profile.tabBar.usesRaisedShadow))
     }
 
     private var stripeHeight: CGFloat {
         profile.tabBar.accentStripePosition == .bottom ? 3 : 4
+    }
+
+    private var tabBarShape: UnevenRoundedRectangle {
+        UnevenRoundedRectangle(
+            topLeadingRadius: profile.tabBar.topCornerRadius,
+            topTrailingRadius: profile.tabBar.topCornerRadius
+        )
     }
 
     @ViewBuilder
@@ -106,12 +137,29 @@ struct CustomTabBar: View {
     }
 }
 
+private struct ClassicTabBarShadow: ViewModifier {
+    let enabled: Bool
+
+    func body(content: Content) -> some View {
+        if enabled {
+            content
+                .shadow(color: Color.black.opacity(0.08), radius: 1, x: 0, y: -1)
+                .shadow(color: Color.black.opacity(0.14), radius: 0, x: 0, y: -2)
+        } else {
+            content
+        }
+    }
+}
+
 struct CustomTabButton: View {
     let title: String
     let icon: String
     let isActive: Bool
     let selectedColor: Color
     let unselectedColor: Color
+    let usesThemeFont: Bool
+    let themeCode: String
+    let fadesUnselected: Bool
     let action: () -> Void
 
     var body: some View {
@@ -120,14 +168,22 @@ struct CustomTabButton: View {
                 Image(systemName: icon)
                     .font(.system(size: 20))
                 Text(title)
-                    .font(.caption2.weight(isActive ? .bold : .medium))
+                    .themeFont(.caption2, weight: isActive ? .bold : .medium)
+                    .tracking(usesThemeFont ? ThemeTypography.headingTracking(for: themeCode) : 0)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .foregroundStyle(isActive ? selectedColor : unselectedColor.opacity(0.7))
+            .foregroundStyle(labelColor)
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+    }
+
+    private var labelColor: Color {
+        if isActive {
+            return selectedColor
+        }
+        return fadesUnselected ? unselectedColor.opacity(0.7) : unselectedColor
     }
 }
 
@@ -147,13 +203,13 @@ struct CustomUploadFAB: View {
                     }
                     .overlay(
                         Circle()
-                            .strokeBorder(style.borderColor, lineWidth: 2)
+                            .strokeBorder(style.borderColor, lineWidth: style.borderWidth)
                     )
-                    .shadow(color: style.shadowColor, radius: 10, x: 0, y: 4)
+                    .modifier(ClassicFABShadow(style: style))
 
                 if let bottomAccent = style.bottomAccent {
                     bottomAccent
-                        .frame(width: 34, height: 3)
+                        .frame(width: 34, height: style.borderWidth)
                         .clipShape(Capsule())
                         .offset(y: -2)
                 }
@@ -176,6 +232,21 @@ struct CustomUploadFAB: View {
             AnyShapeStyle(solid)
         } else {
             AnyShapeStyle(Color.yellow)
+        }
+    }
+}
+
+private struct ClassicFABShadow: ViewModifier {
+    let style: ThemeUploadFABStyle
+
+    func body(content: Content) -> some View {
+        if style.usesRaisedShadow {
+            content
+                .shadow(color: Color.black.opacity(0.08), radius: 1, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.14), radius: 0, x: 0, y: 2)
+        } else {
+            content
+                .shadow(color: style.shadowColor, radius: 10, x: 0, y: 4)
         }
     }
 }

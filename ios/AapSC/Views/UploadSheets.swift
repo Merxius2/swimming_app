@@ -25,10 +25,10 @@ struct CoinEarnedSheet: View {
                 Section {
                     HStack {
                         Text(preferences.t("coins.earnedTitle"))
-                            .font(.headline)
+                            .themeFont(.headline, weight: .semibold)
                         Spacer()
                         Text("+\(result.total)")
-                            .font(.title3.bold())
+                            .themeFont(.title3, weight: .bold)
                             .foregroundStyle(Color("BrandBlue"))
                     }
                 }
@@ -87,14 +87,14 @@ struct MedalCelebrationSheet: View {
                     .foregroundStyle(.yellow)
 
                 Text(preferences.t("medals.celebration.titleMultiple"))
-                    .font(.title.bold())
+                    .themeFont(.title, weight: .bold)
 
                 ForEach(medals) { medal in
                     HStack {
                         Text(medal.id.replacingOccurrences(of: "_", with: " ").capitalized)
                         Spacer()
                         Text(medal.tier.capitalized)
-                            .font(.caption.bold())
+                            .themeFont(.caption, weight: .bold)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(.yellow.opacity(0.2), in: Capsule())
@@ -125,7 +125,7 @@ struct DuplicateSessionAlert: View {
     var body: some View {
         VStack(spacing: 16) {
             Text(preferences.t("upload.duplicateTitle"))
-                .font(.headline)
+                .themeFont(.headline, weight: .semibold)
             Text(preferences.t("upload.duplicateMessage", params: [
                 "date": SwimFormatters.formatDateLong(duplicate.date)
             ]))

@@ -33,10 +33,10 @@
 	<dict/>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Fonts/Oxanium-Regular.ttf</string>
-		<string>Fonts/Oxanium-Medium.ttf</string>
-		<string>Fonts/Oxanium-SemiBold.ttf</string>
-		<string>Fonts/Oxanium-Bold.ttf</string>
+		<string>Oxanium-Regular.ttf</string>
+		<string>Oxanium-Medium.ttf</string>
+		<string>Oxanium-SemiBold.ttf</string>
+		<string>Oxanium-Bold.ttf</string>
 	</array>
 	<key>CFBundleIcons</key>
 	<dict>

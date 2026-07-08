@@ -54,15 +54,15 @@ struct BenchmarkScreen: View {
                             Card {
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(preferences.t("benchmark.level"))
-                                        .font(.caption)
+                                        .themeFont(.caption)
                                         .foregroundStyle(.secondary)
                                     Text(SwimBenchmarks.levelLabel(
                                         SwimBenchmarks.swimLevel(paceSecPer100m: pace, benchmark: benchmark),
                                         t: preferences.translations
                                     ))
-                                    .font(.title.bold())
+                                    .themeFont(.title, weight: .bold)
                                     Text(SwimFormatters.formatPace(pace))
-                                        .font(.title3)
+                                        .themeFont(.title3, weight: .semibold)
                                         .foregroundStyle(.teal)
                                 }
                             }
@@ -71,7 +71,7 @@ struct BenchmarkScreen: View {
                         }
 
                         Text(preferences.t("benchmark.methodology"))
-                            .font(.caption2)
+                            .themeFont(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -110,7 +110,7 @@ struct BenchmarkScreen: View {
         return Card {
             VStack(alignment: .leading, spacing: 8) {
                 Text(preferences.t("settings.profileTitle"))
-                    .font(.headline)
+                    .themeFont(.headline, weight: .semibold)
                 Text(preferences.t("settings.age") + ": \(ageGroup)")
                 Text(preferences.t("settings.sex") + ": \(sexLabel)")
                 Divider()
@@ -130,7 +130,7 @@ struct BenchmarkScreen: View {
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("benchmark.chartTitle"))
-                    .font(.headline)
+                    .themeFont(.headline, weight: .semibold)
                 Chart(data) { item in
                     BarMark(
                         x: .value("Pace", item.value),
@@ -150,7 +150,7 @@ struct BenchmarkScreen: View {
             Text(SwimFormatters.formatPace(pace))
                 .fontWeight(.semibold)
         }
-        .font(.subheadline)
+        .themeFont(.subheadline)
     }
 
     private func barColor(_ name: String) -> Color {

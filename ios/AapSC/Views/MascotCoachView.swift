@@ -1,8 +1,14 @@
 import SwiftUI
 
+enum MascotCoachLayout {
+    case automatic
+    case stacked
+    case sideBySide
+}
+
 struct MascotCoachView: View {
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
 
     let mascotId: String
     let message: String
@@ -14,6 +20,7 @@ struct MascotCoachView: View {
     var showStage: Bool = true
     var size: CGFloat = 220
     var animated: Bool = true
+    var layout: MascotCoachLayout = .automatic
 
     private var resolvedLevel: String {
         level ?? MascotConstants.coachedLevel(mascotId)
@@ -36,12 +43,26 @@ struct MascotCoachView: View {
         .frame(maxWidth: .infinity)
     }
 
+    @ViewBuilder
     private var coachContent: some View {
-        ViewThatFits(in: .horizontal) {
-            sideBySideLayout
+        switch layout {
+        case .stacked:
             stackedLayout
+        case .sideBySide:
+            sideBySideLayout
+        case .automatic:
+            AdaptiveMascotCoachLayout(breakpoint: sideBySideBreakpoint) { usesSideBySide in
+                if usesSideBySide {
+                    sideBySideLayout
+                } else {
+                    stackedLayout
+                }
+            }
         }
-        .frame(maxWidth: .infinity)
+    }
+
+    private var sideBySideBreakpoint: CGFloat {
+        size * MascotConstants.aspectRatio(mascotId) + 240
     }
 
     private var stackedLayout: some View {
@@ -81,9 +102,14 @@ struct MascotCoachView: View {
     private func headerRow(alignCenter: Bool) -> some View {
         HStack(spacing: 10) {
             Text(resolvedCoachName.uppercased())
-                .font(.caption.weight(.bold))
+                .themeFont(.caption, weight: .bold)
                 .tracking(1.2)
-                .foregroundStyle(MascotPresentation.coachNameColor(mascotId: mascotId, colorScheme: colorScheme))
+                .foregroundStyle(
+                    MascotPresentation.coachNameColor(
+                        mascotId: mascotId,
+                        colorScheme: appIsDark ? .dark : .light
+                    )
+                )
 
             if showLevelBadge {
                 MascotLevelBadgeView(level: resolvedLevel)
@@ -116,5 +142,26 @@ struct MascotCoachView: View {
             )
             .frame(width: size * 0.7, height: size * 0.12)
             .offset(y: -4)
+    }
+}
+
+private struct AdaptiveMascotCoachLayout<Content: View>: View {
+    let breakpoint: CGFloat
+    @ViewBuilder let content: (_ usesSideBySide: Bool) -> Content
+
+    @State private var width: CGFloat = 0
+
+    var body: some View {
+        content(width >= breakpoint)
+            .frame(maxWidth: .infinity)
+            .background {
+                GeometryReader { proxy in
+                    Color.clear
+                        .onAppear { width = proxy.size.width }
+                        .onChange(of: proxy.size.width) { _, newWidth in
+                            width = newWidth
+                        }
+                }
+            }
     }
 }

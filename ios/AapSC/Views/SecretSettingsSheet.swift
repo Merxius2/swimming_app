@@ -10,7 +10,7 @@ struct SecretSettingsSheet: View {
             Form {
                 Section {
                     Text(preferences.t("settings.secretUnlockHint"))
-                        .font(.caption)
+                        .themeFont(.caption)
                         .foregroundStyle(.secondary)
                 }
 

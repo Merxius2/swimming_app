@@ -10,7 +10,11 @@ struct MascotSpeechBubbleView: View {
     var tone: MascotBubbleTone = .default
     var mascotId: String = "flip"
     var tail: MascotSpeechTailDirection = .left
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.appIsDark) private var appIsDark
+
+    private var resolvedColorScheme: ColorScheme {
+        appIsDark ? .dark : .light
+    }
 
     var body: some View {
         if message.isEmpty {
@@ -19,7 +23,7 @@ struct MascotSpeechBubbleView: View {
             let style = MascotPresentation.speechBubbleStyle(
                 mascotId: mascotId,
                 tone: tone,
-                colorScheme: colorScheme
+                colorScheme: resolvedColorScheme
             )
 
             ZStack(alignment: tail == .bottom ? .bottom : .leading) {
@@ -28,15 +32,15 @@ struct MascotSpeechBubbleView: View {
                         .frame(width: 36, height: 36)
                         .background(
                             Circle()
-                                .fill(Color.white.opacity(colorScheme == .dark ? 0.08 : 0.8))
+                                .fill(Color.white.opacity(appIsDark ? 0.08 : 0.8))
                                 .overlay(
                                     Circle()
-                                        .strokeBorder(Color.white.opacity(colorScheme == .dark ? 0.1 : 0.6), lineWidth: 1)
+                                        .strokeBorder(Color.white.opacity(appIsDark ? 0.1 : 0.6), lineWidth: 1)
                                 )
                         )
 
                     Text(message)
-                        .font(.subheadline.weight(.medium))
+                        .themeFont(.subheadline, weight: .medium)
                         .foregroundStyle(.primary)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -65,9 +69,7 @@ struct MascotSpeechBubbleView: View {
     private var toneIcon: some View {
         switch tone {
         case .reward:
-            Image(systemName: "bitcoinsign.circle.fill")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(.orange)
+            CoinsIcon(size: 18)
         case .tip:
             Image(systemName: "lightbulb.fill")
                 .font(.system(size: 18, weight: .semibold))

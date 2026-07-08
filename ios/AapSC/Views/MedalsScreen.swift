@@ -4,9 +4,16 @@ struct MedalsScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.openUpload) private var openUpload
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var shimmerPlus: Bool {
         SwimCoinStore.hasMedalShimmerPlus(viewModel.storeUnlocks)
+    }
+
+    private var medalGridColumns: [GridItem] {
+        horizontalSizeClass == .regular
+            ? [GridItem(.flexible()), GridItem(.flexible())]
+            : [GridItem(.flexible())]
     }
 
     var body: some View {
@@ -47,13 +54,13 @@ struct MedalsScreen: View {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(preferences.t("medals.subtitle"))
-                        .font(.caption)
+                        .themeFont(.caption)
                         .foregroundStyle(.secondary)
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(stats.earned)")
-                            .font(.system(size: 34, weight: .bold))
+                            .themeFont(size: 34, weight: .bold)
                         Text("/ \(stats.total)")
-                            .font(.title3)
+                            .themeFont(.title3, weight: .semibold)
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -66,7 +73,7 @@ struct MedalsScreen: View {
 
             HStack {
                 Text(preferences.t("coins.label"))
-                    .font(.subheadline)
+                    .themeFont(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
                 CoinBadge(
@@ -104,16 +111,16 @@ struct MedalsScreen: View {
             VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Text(SwimMedalCopy.categoryLabel(category, t: preferences.translations))
-                    .font(.caption.bold())
+                    .themeFont(.caption, weight: .bold)
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
                 Spacer()
                 Text("\(earnedInCategory)/\(categoryMedals.count)")
-                    .font(.caption2)
+                    .themeFont(.caption2)
                     .foregroundStyle(.secondary)
             }
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+            LazyVGrid(columns: medalGridColumns, spacing: 12) {
                 ForEach(categoryMedals) { medal in
                     MedalCardView(medal: medal, shimmerPlus: shimmerPlus)
                 }

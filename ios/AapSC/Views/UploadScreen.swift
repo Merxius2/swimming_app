@@ -98,7 +98,7 @@ struct UploadScreen: View {
                     if let error = viewModel.ocrErrorMessage {
                         Text(error)
                             .foregroundStyle(.red)
-                            .font(.footnote)
+                            .themeFont(.footnote)
                     }
 
                     if let parsed = viewModel.parsedResult {
@@ -191,21 +191,21 @@ struct UploadScreen: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(preferences.t("upload.confidence"))
-                    .font(.subheadline.weight(.semibold))
+                    .themeFont(.subheadline, weight: .semibold)
                 Spacer()
                 Text("\(parsed.confidence)%")
-                    .font(.subheadline.bold())
+                    .themeFont(.subheadline, weight: .bold)
             }
 
             if !parsed.isSwimWorkout {
                 Label(preferences.t("upload.notSwim.unknown"), systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
-                    .font(.footnote)
+                    .themeFont(.footnote)
             }
 
             if !parsed.warnings.isEmpty {
                 Text(parsed.warnings.joined(separator: ", "))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
             }
         }
@@ -215,11 +215,11 @@ struct UploadScreen: View {
         Card {
             VStack(spacing: 12) {
                 Text(preferences.t("upload.reviewTitle"))
-                    .font(.headline)
+                    .themeFont(.headline, weight: .semibold)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 Text(preferences.t("upload.reviewDesc"))
-                    .font(.caption)
+                    .themeFont(.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -238,7 +238,7 @@ struct UploadScreen: View {
     private func formField(_ title: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
-                .font(.caption.weight(.semibold))
+                .themeFont(.caption, weight: .semibold)
                 .foregroundStyle(.secondary)
             TextField(title, text: text)
                 .textFieldStyle(.roundedBorder)
