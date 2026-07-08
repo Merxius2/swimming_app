@@ -1,31 +1,55 @@
 import SwiftUI
 
+/// Shared layout metrics for the bottom tab bar and upload FAB across all themes.
+enum TabBarLayout {
+    static let barContentHeight: CGFloat = 70
+    static let bottomPadding: CGFloat = 10
+    static let horizontalPadding: CGFloat = 8
+    static let itemSpacing: CGFloat = 4
+    static let iconSize: CGFloat = 20
+    static let labelHeight: CGFloat = 11
+    static let fabDiameter: CGFloat = 56
+    static let fabIconSize: CGFloat = 26
+    static let fabSeatInset: CGFloat = 12
+    static let bottomStripeHeight: CGFloat = 3
+    static let topStripeHeight: CGFloat = 4
+
+    static let progressIcon = "chart.bar.fill"
+    static let medalsIcon = "checkmark.seal.fill"
+    static let benchmarkIcon = "waveform.path.ecg"
+    static let historyIcon = "clock.arrow.circlepath"
+
+    static func totalHeight(for tabBar: ThemeTabBarStyle) -> CGFloat {
+        guard let _ = tabBar.accentStripe else { return barContentHeight }
+        return barContentHeight + (tabBar.accentStripePosition == .bottom ? bottomStripeHeight : topStripeHeight)
+    }
+}
+
 struct CustomTabBar: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Binding var selectedTab: Int
     let profile: ThemeVisualProfile
+    let uploadActive: Bool
+    let onUpload: (() -> Void)?
     let progressTitle: String
     let medalsTitle: String
     let uploadTitle: String
     let benchmarkTitle: String
     let historyTitle: String
 
-    static let barHeight: CGFloat = 90
-    static let fabOffset: CGFloat = 45
-
     var body: some View {
         VStack(spacing: 0) {
             if let stripe = profile.tabBar.accentStripe,
                profile.tabBar.accentStripePosition == .top {
                 stripe
-                    .frame(height: stripeHeight)
+                    .frame(height: TabBarLayout.topStripeHeight)
                     .frame(maxWidth: .infinity)
             }
 
             HStack(alignment: .bottom, spacing: 0) {
                 CustomTabButton(
                     title: progressTitle,
-                    icon: "chart.bar.fill",
+                    icon: TabBarLayout.progressIcon,
                     isActive: selectedTab == 0,
                     selectedColor: profile.tabBar.selectedColor,
                     unselectedColor: profile.tabBar.unselectedColor,
@@ -38,7 +62,7 @@ struct CustomTabBar: View {
 
                 CustomTabButton(
                     title: medalsTitle,
-                    icon: "checkmark.seal.fill",
+                    icon: TabBarLayout.medalsIcon,
                     isActive: selectedTab == 1,
                     selectedColor: profile.tabBar.selectedColor,
                     unselectedColor: profile.tabBar.unselectedColor,
@@ -49,19 +73,16 @@ struct CustomTabBar: View {
                     selectedTab = 1
                 }
 
-                VStack(spacing: 6) {
+                VStack(spacing: TabBarLayout.itemSpacing) {
                     Spacer()
-                        .frame(height: 40)
-                    Text(uploadTitle)
-                        .themeFont(.caption2, weight: .medium)
-                        .tracking(profile.tabBar.usesThemeFont ? ThemeTypography.headingTracking(for: preferences.themeCode) : 0)
-                        .foregroundStyle(profile.tabBar.unselectedColor)
+                        .frame(height: centerIconSlotHeight)
+                    uploadLabel
                 }
                 .frame(maxWidth: .infinity)
 
                 CustomTabButton(
                     title: benchmarkTitle,
-                    icon: "waveform.path.ecg",
+                    icon: TabBarLayout.benchmarkIcon,
                     isActive: selectedTab == 3,
                     selectedColor: profile.tabBar.selectedColor,
                     unselectedColor: profile.tabBar.unselectedColor,
@@ -74,7 +95,7 @@ struct CustomTabBar: View {
 
                 CustomTabButton(
                     title: historyTitle,
-                    icon: "clock.arrow.circlepath",
+                    icon: TabBarLayout.historyIcon,
                     isActive: selectedTab == 4,
                     selectedColor: profile.tabBar.selectedColor,
                     unselectedColor: profile.tabBar.unselectedColor,
@@ -85,9 +106,9 @@ struct CustomTabBar: View {
                     selectedTab = 4
                 }
             }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 25)
-            .frame(height: Self.barHeight)
+            .padding(.horizontal, TabBarLayout.horizontalPadding)
+            .padding(.bottom, TabBarLayout.bottomPadding)
+            .frame(height: TabBarLayout.barContentHeight)
             .background {
                 barBackground
                     .overlay {
@@ -102,15 +123,45 @@ struct CustomTabBar: View {
             if let stripe = profile.tabBar.accentStripe,
                profile.tabBar.accentStripePosition == .bottom {
                 stripe
-                    .frame(height: stripeHeight)
+                    .frame(height: TabBarLayout.bottomStripeHeight)
                     .frame(maxWidth: .infinity)
+            }
+        }
+        .overlay(alignment: .top) {
+            if profile.uploadFAB.usesOverlay, let onUpload {
+                CustomUploadFAB(style: profile.uploadFAB, action: onUpload)
+                    .offset(y: resolvedFabTopOffset)
             }
         }
         .modifier(ClassicTabBarShadow(enabled: profile.tabBar.usesRaisedShadow))
     }
 
-    private var stripeHeight: CGFloat {
-        profile.tabBar.accentStripePosition == .bottom ? 3 : 4
+    private var centerIconSlotHeight: CGFloat {
+        TabBarLayout.iconSize + TabBarLayout.itemSpacing
+    }
+
+    private var uploadLabelTopY: CGFloat {
+        TabBarLayout.barContentHeight - TabBarLayout.bottomPadding - TabBarLayout.labelHeight
+    }
+
+    private var resolvedFabTopOffset: CGFloat {
+        let maxBottom = uploadLabelTopY - TabBarLayout.itemSpacing
+        let maxInset = maxBottom - TabBarLayout.fabDiameter / 2
+        let inset = min(TabBarLayout.fabSeatInset, maxInset)
+        return -(TabBarLayout.fabDiameter / 2) + inset
+    }
+
+    @ViewBuilder
+    private var uploadLabel: some View {
+        let labelColor = uploadActive ? profile.tabBar.selectedColor : profile.tabBar.unselectedColor
+        let labelWeight: Font.Weight = uploadActive ? .bold : .medium
+
+        Text(uploadTitle)
+            .themeFont(.caption2, weight: labelWeight)
+            .tracking(profile.tabBar.usesThemeFont ? ThemeTypography.headingTracking(for: preferences.themeCode) : 0)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .foregroundStyle(labelColor)
     }
 
     private var tabBarShape: UnevenRoundedRectangle {
@@ -164,9 +215,9 @@ struct CustomTabButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6) {
+            VStack(spacing: TabBarLayout.itemSpacing) {
                 Image(systemName: icon)
-                    .font(.system(size: 20))
+                    .font(.system(size: TabBarLayout.iconSize, weight: isActive ? .semibold : .regular))
                 Text(title)
                     .themeFont(.caption2, weight: isActive ? .bold : .medium)
                     .tracking(usesThemeFont ? ThemeTypography.headingTracking(for: themeCode) : 0)
@@ -195,19 +246,30 @@ struct CustomUploadFAB: View {
         Button(action: action) {
             ZStack(alignment: .bottom) {
                 Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 26, weight: .bold))
+                    .font(.system(size: TabBarLayout.fabIconSize, weight: .bold))
                     .foregroundStyle(style.iconColor)
-                    .frame(width: 65, height: 65)
+                    .frame(width: TabBarLayout.fabDiameter, height: TabBarLayout.fabDiameter)
                     .background {
                         Circle().fill(fabFill)
                     }
-                    .overlay(
+                    .overlay {
                         Circle()
                             .strokeBorder(style.borderColor, lineWidth: style.borderWidth)
-                    )
+                    }
+                    .overlay {
+                        if style.usesBorderBottomAccent, let bottomAccent = style.bottomAccent {
+                            Circle()
+                                .stroke(bottomAccent, lineWidth: style.borderWidth)
+                                .mask(alignment: .bottom) {
+                                    Rectangle()
+                                        .frame(height: style.borderWidth * 4)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                                }
+                        }
+                    }
                     .modifier(ClassicFABShadow(style: style))
 
-                if let bottomAccent = style.bottomAccent {
+                if !style.usesBorderBottomAccent, let bottomAccent = style.bottomAccent {
                     bottomAccent
                         .frame(width: 34, height: style.borderWidth)
                         .clipShape(Capsule())

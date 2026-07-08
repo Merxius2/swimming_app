@@ -105,6 +105,7 @@ struct ThemeUploadFABStyle {
     let shadowColor: Color
     let bottomAccent: Color?
     var usesRaisedShadow: Bool = false
+    var usesBorderBottomAccent: Bool = false
 }
 
 enum ThemeVisualProfiles {
@@ -301,7 +302,8 @@ enum ThemeVisualProfiles {
                 borderWidth: 3,
                 shadowColor: .black.opacity(0.14),
                 bottomAccent: lightBar,
-                usesRaisedShadow: true
+                usesRaisedShadow: true,
+                usesBorderBottomAccent: true
             )
         )
     }
