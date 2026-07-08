@@ -56,7 +56,7 @@ struct CustomTabBar: View {
 
                 VStack(spacing: profile.tabBar.itemSpacing) {
                     Spacer()
-                        .frame(height: profile.tabBar.centerSpacerHeight)
+                        .frame(height: centerIconSlotHeight)
                     uploadLabel
                 }
                 .frame(maxWidth: .infinity)
@@ -117,14 +117,34 @@ struct CustomTabBar: View {
         .overlay(alignment: .top) {
             if profile.uploadFAB.usesOverlay, let onUpload {
                 CustomUploadFAB(style: profile.uploadFAB, action: onUpload)
-                    .offset(y: fabTopOffset)
+                    .offset(y: resolvedFabTopOffset)
             }
         }
         .modifier(ClassicTabBarShadow(enabled: profile.tabBar.usesRaisedShadow))
     }
 
-    private var fabTopOffset: CGFloat {
-        -(profile.uploadFAB.diameter / 2) + profile.tabBar.fabSeatInset
+    /// Matches the icon slot height used by the other tab buttons.
+    private var centerIconSlotHeight: CGFloat {
+        profile.tabBar.iconSize + profile.tabBar.itemSpacing
+    }
+
+    private var uploadLabelTopY: CGFloat {
+        let labelHeight = profile.tabBar.labelFontSize ?? 11
+        return profile.tabBar.barContentHeight - profile.tabBar.bottomPadding - labelHeight
+    }
+
+    private var resolvedFabTopOffset: CGFloat {
+        let desired = fabTopOffset(for: profile.tabBar.fabSeatInset)
+        guard profile.uploadFAB.usesOverlay else { return desired }
+
+        let maxBottom = uploadLabelTopY - profile.tabBar.itemSpacing
+        let maxInset = maxBottom - profile.uploadFAB.diameter / 2
+        let clampedInset = min(profile.tabBar.fabSeatInset, maxInset)
+        return fabTopOffset(for: clampedInset)
+    }
+
+    private func fabTopOffset(for seatInset: CGFloat) -> CGFloat {
+        -(profile.uploadFAB.diameter / 2) + seatInset
     }
 
     @ViewBuilder

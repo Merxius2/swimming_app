@@ -313,10 +313,10 @@ enum ThemeVisualProfiles {
                 iconSize: 17,
                 labelFontSize: 9.5,
                 itemSpacing: 4,
-                barContentHeight: 64,
+                barContentHeight: 70,
                 bottomPadding: 10,
                 horizontalPadding: 8,
-                centerSpacerHeight: 26,
+                centerSpacerHeight: 21,
                 fabSeatInset: 16,
                 uploadLabelColor: dark
                     ? Color(red: 0.94, green: 0.94, blue: 0.94, opacity: 0.88)
