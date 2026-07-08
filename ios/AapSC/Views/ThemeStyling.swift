@@ -205,9 +205,9 @@ enum ThemeVisualProfiles {
             ),
             topBar: glassTopBar(
                 background: dark ? Color(red: 0.24, green: 0.0, blue: 0.47) : purple,
+                borderColor: Color.black.opacity(0.18),
                 coinsColor: lime,
-                settingsColor: .white,
-                borderColor: Color.black.opacity(0.18)
+                settingsColor: .white
             ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
@@ -359,9 +359,9 @@ enum ThemeVisualProfiles {
             ),
             topBar: glassTopBar(
                 background: Color(red: 0.031, green: 0.055, blue: 0.11),
+                borderColor: glow.opacity(0.35),
                 coinsColor: glow,
-                settingsColor: glow,
-                borderColor: glow.opacity(0.35)
+                settingsColor: glow
             ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
@@ -417,9 +417,9 @@ enum ThemeVisualProfiles {
             topBar: glassTopBar(
                 background: Color(red: 0.102, green: 0.039, blue: 0.18),
                 backgroundGradient: [Color(red: 0.176, green: 0.106, blue: 0.412), Color(red: 0.102, green: 0.039, blue: 0.18)],
+                borderColor: pink.opacity(0.45),
                 coinsColor: pink,
-                settingsColor: pink,
-                borderColor: pink.opacity(0.45)
+                settingsColor: pink
             ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
