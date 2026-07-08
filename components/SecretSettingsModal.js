@@ -1,4 +1,4 @@
-import { X, Award, Sparkles, Palette } from 'lucide-react';
+import { X, Award, Sparkles, Palette, Coins } from 'lucide-react';
 import { THEMES } from '../lib/appConstants';
 import { useSecretSettings } from '../context/FeatureContext';
 import { useSwim } from '../context/SwimContext';
@@ -6,7 +6,7 @@ import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
 
 export default function SecretSettingsModal() {
   const { isSecretSettingsOpen, closeSecretSettings } = useSecretSettings();
-  const { sessions, cheats, setAllMedalsUnlocked, setPreviewMonthlyMedals, setAllThemesUnlocked } = useSwim();
+  const { sessions, cheats, setAllMedalsUnlocked, setPreviewMonthlyMedals, setAllThemesUnlocked, adjustCoins } = useSwim();
 
   if (!isSecretSettingsOpen) return null;
 
@@ -142,6 +142,17 @@ export default function SecretSettingsModal() {
                 Cheat active — preview monthly medals shown on Medals page.
               </p>
             )}
+          </div>
+
+          <div className="bg-indigo-800/50 border border-indigo-400/60 rounded-lg p-4">
+            <button
+              type="button"
+              onClick={() => adjustCoins(500)}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-bold py-2.5 px-4 rounded-lg transition-all"
+            >
+              <Coins size={18} />
+              Add 500 swim coins
+            </button>
           </div>
         </div>
 
