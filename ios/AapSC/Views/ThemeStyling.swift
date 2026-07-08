@@ -312,11 +312,11 @@ enum ThemeVisualProfiles {
                 historyIcon: "clock.arrow.circlepath",
                 iconSize: 17,
                 labelFontSize: 9.5,
-                itemSpacing: 2,
-                barContentHeight: 52,
-                bottomPadding: 4,
-                horizontalPadding: 6,
-                centerSpacerHeight: 20,
+                itemSpacing: 4,
+                barContentHeight: 64,
+                bottomPadding: 10,
+                horizontalPadding: 8,
+                centerSpacerHeight: 26,
                 fabSeatInset: 16,
                 uploadLabelColor: dark
                     ? Color(red: 0.94, green: 0.94, blue: 0.94, opacity: 0.88)
