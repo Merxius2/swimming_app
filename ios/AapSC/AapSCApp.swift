@@ -8,7 +8,11 @@ struct AapSCApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                AmbientBackgroundView(ambientId: viewModel.profile.activeAmbient)
+                AmbientBackgroundView(
+                    themeCode: preferences.themeCode,
+                    activeAmbient: viewModel.profile.activeAmbient,
+                    storeUnlocks: viewModel.storeUnlocks
+                )
                 ContentView()
             }
             .environmentObject(viewModel)
@@ -17,6 +21,13 @@ struct AapSCApp: App {
             .environment(\.themeColors, preferences.themeColors)
             .tint(preferences.themeColors.displayPrimary)
             .preferredColorScheme(preferences.colorScheme)
+            .themedBodyFont()
+            .onAppear {
+                AppIconService.apply(
+                    activeAppIcon: viewModel.profile.activeAppIcon,
+                    storeUnlocks: viewModel.storeUnlocks
+                )
+            }
         }
     }
 }

@@ -10,13 +10,14 @@ struct MascotStageView<Content: View>: View {
     }
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             stagePhoto
             stageOverlay
             content()
                 .frame(maxWidth: .infinity, alignment: .center)
                 .padding(compact ? 12 : 16)
         }
+        .frame(maxWidth: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: compact ? 14 : 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: compact ? 14 : 18, style: .continuous)

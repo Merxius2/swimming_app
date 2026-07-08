@@ -89,6 +89,14 @@ enum MascotConstants {
         }
     }
 
+    static func cheerKey(_ id: String?) -> String {
+        switch id {
+        case "flo": return "mascot.cheerFlo"
+        case "fins": return "mascot.cheerFins"
+        default: return "mascot.cheerFlip"
+        }
+    }
+
     static func displayName(_ id: String?) -> String {
         switch id {
         case "flo": return "Flo"
@@ -151,6 +159,38 @@ enum MascotConstants {
 
     static func coachedLevel(_ id: String?) -> String {
         mascot(id).coachedLevel
+    }
+
+    static func nameKey(_ id: String?) -> String {
+        switch id {
+        case "flo": return "settings.mascotFloName"
+        case "fins": return "settings.mascotFinsName"
+        default: return "settings.mascotFlipName"
+        }
+    }
+
+    static func descKey(_ id: String?) -> String {
+        switch id {
+        case "flo": return "settings.mascotFloDesc"
+        case "fins": return "settings.mascotFinsDesc"
+        default: return "settings.mascotFlipDesc"
+        }
+    }
+
+    static func rulesKey(_ id: String?) -> String {
+        switch id {
+        case "flo": return "settings.mascotFloRules"
+        case "fins": return "settings.mascotFinsRules"
+        default: return "settings.mascotFlipRules"
+        }
+    }
+
+    static func traitKeys(_ id: String?) -> [String] {
+        switch id {
+        case "flo": return ["mascot.traits.friendly", "mascot.traits.motivating"]
+        case "fins": return ["mascot.traits.focused", "mascot.traits.challenging"]
+        default: return ["mascot.traits.encouraging", "mascot.traits.approachable"]
+        }
     }
 
     static func stageBackgroundImageName(_ id: String?) -> String? {

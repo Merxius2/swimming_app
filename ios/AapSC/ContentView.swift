@@ -18,65 +18,27 @@ struct ContentView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            TabView(selection: $selectedTab) {
-                ProgressScreen()
-                    .tabItem {
-                        Label(preferences.t("navigation.progress"), systemImage: "chart.line.uptrend.xyaxis")
-                    }
-                    .tag(0)
+            tabContent
+                .padding(.bottom, CustomTabBar.barHeight)
 
-                MedalsScreen()
-                    .tabItem {
-                        Label(preferences.t("navigation.medals"), systemImage: "medal")
-                    }
-                    .tag(1)
-
-                Color.clear
-                    .tabItem {
-                        Label(
-                            preferences.t("navigation.upload"),
-                            systemImage: themeProfile.uploadFAB.usesOverlay ? "circle.fill" : "plus.circle.fill"
-                        )
-                    }
-                    .tag(2)
-
-                BenchmarkScreen()
-                    .tabItem {
-                        Label(preferences.t("navigation.benchmark"), systemImage: "gauge.with.dots.needle.67percent")
-                    }
-                    .tag(3)
-
-                HistoryScreen()
-                    .tabItem {
-                        Label(preferences.t("navigation.history"), systemImage: "clock.arrow.circlepath")
-                    }
-                    .tag(4)
-            }
-            .background {
-                ThemedTabBarConfigurator(profile: themeProfile)
-            }
-            .onChange(of: selectedTab) { _, newValue in
-                if newValue == 2 {
-                    showUpload = true
-                    selectedTab = 0
-                }
-            }
-            .onChange(of: preferences.themeCode) { _, _ in
-                refreshTabBar()
-            }
-            .onChange(of: colorScheme) { _, _ in
-                refreshTabBar()
-            }
+            CustomTabBar(
+                selectedTab: $selectedTab,
+                profile: themeProfile,
+                progressTitle: preferences.t("navigation.progress"),
+                medalsTitle: preferences.t("navigation.medals"),
+                uploadTitle: preferences.t("navigation.upload"),
+                benchmarkTitle: preferences.t("navigation.benchmark"),
+                historyTitle: preferences.t("navigation.history")
+            )
 
             if themeProfile.uploadFAB.usesOverlay {
-                ThemedUploadFAB(style: themeProfile.uploadFAB) {
+                CustomUploadFAB(style: themeProfile.uploadFAB) {
                     showUpload = true
                 }
-                .offset(y: -18)
+                .offset(y: -CustomTabBar.fabOffset)
             }
-
-            ThemeTabBarChrome(accentStripe: themeProfile.tabBar.accentStripe)
         }
+        .ignoresSafeArea(.container, edges: .bottom)
         .sheet(isPresented: $showUpload) {
             UploadScreen()
         }
@@ -88,14 +50,26 @@ struct ContentView: View {
         }
         .environment(\.openSettings, { showSettings = true })
         .environment(\.openCoins, { showCoins = true })
+        .environment(\.openUpload, { showUpload = true })
         .onAppear {
             viewModel.validateThemeSelection(preferences: preferences)
-            refreshTabBar()
         }
     }
 
-    private func refreshTabBar() {
-        _ = ThemedTabBarConfigurator(profile: themeProfile)
+    @ViewBuilder
+    private var tabContent: some View {
+        switch selectedTab {
+        case 0:
+            ProgressScreen()
+        case 1:
+            MedalsScreen()
+        case 3:
+            BenchmarkScreen()
+        case 4:
+            HistoryScreen()
+        default:
+            ProgressScreen()
+        }
     }
 }
 
@@ -104,6 +78,10 @@ private struct OpenSettingsKey: EnvironmentKey {
 }
 
 private struct OpenCoinsKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+
+private struct OpenUploadKey: EnvironmentKey {
     static let defaultValue: () -> Void = {}
 }
 
@@ -116,6 +94,11 @@ extension EnvironmentValues {
     var openCoins: () -> Void {
         get { self[OpenCoinsKey.self] }
         set { self[OpenCoinsKey.self] = newValue }
+    }
+
+    var openUpload: () -> Void {
+        get { self[OpenUploadKey.self] }
+        set { self[OpenUploadKey.self] = newValue }
     }
 }
 
@@ -161,7 +144,9 @@ struct ScreenHeader: View {
                 .foregroundStyle(profile.displayPrimary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.title2.bold())
+                    .font(ThemeTypography.font(for: preferences.themeCode, textStyle: .title2, weight: .bold))
+                    .tracking(ThemeTypography.headingTracking(for: preferences.themeCode))
+                    .textCase(ThemeTypography.usesUppercaseHeadings(for: preferences.themeCode) ? .uppercase : nil)
                 if let subtitle {
                     Text(subtitle)
                         .font(.subheadline)

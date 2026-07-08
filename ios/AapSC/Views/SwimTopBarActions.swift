@@ -2,23 +2,71 @@ import SwiftUI
 
 struct SwimTopBarActionsModifier: ViewModifier {
     @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openSettings) private var openSettings
     @Environment(\.openCoins) private var openCoins
+
+    private var profile: ThemeVisualProfile {
+        ThemeVisualProfiles.profile(code: preferences.themeCode, isDark: colorScheme == .dark)
+    }
 
     func body(content: Content) -> some View {
         content.toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: 10) {
-                    Button(action: openCoins) {
-                        CoinBadge(count: viewModel.totalCoins)
-                    }
-                    .buttonStyle(.plain)
-
-                    Button(action: openSettings) {
-                        Image(systemName: "gearshape")
-                    }
-                }
+                ThemedTopBarPill(
+                    style: profile.topBar,
+                    coins: viewModel.totalCoins,
+                    openCoins: openCoins,
+                    openSettings: openSettings
+                )
             }
+        }
+    }
+}
+
+struct ThemedTopBarPill: View {
+    let style: ThemeTopBarStyle
+    let coins: Int
+    let openCoins: () -> Void
+    let openSettings: () -> Void
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Button(action: openCoins) {
+                CoinBadge(count: coins)
+                    .foregroundStyle(style.coinsColor)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+            }
+            .buttonStyle(.plain)
+
+            Rectangle()
+                .fill(style.dividerColor)
+                .frame(width: 1, height: 20)
+
+            Button(action: openSettings) {
+                Image(systemName: "gearshape")
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(style.settingsColor)
+                    .frame(width: 40, height: 32)
+            }
+            .buttonStyle(.plain)
+        }
+        .background(pillBackground, in: Capsule())
+        .overlay(
+            Capsule()
+                .strokeBorder(style.borderColor, lineWidth: style.borderWidth)
+        )
+        .shadow(color: style.shadowColor, radius: 8, x: 0, y: 2)
+    }
+
+    @ViewBuilder
+    private var pillBackground: some ShapeStyle {
+        if let gradient = style.backgroundGradient, gradient.count >= 2 {
+            LinearGradient(colors: gradient, startPoint: .leading, endPoint: .trailing)
+        } else {
+            style.background
         }
     }
 }

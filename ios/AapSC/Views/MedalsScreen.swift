@@ -3,6 +3,7 @@ import SwiftUI
 struct MedalsScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.openUpload) private var openUpload
 
     private var shimmerPlus: Bool {
         SwimCoinStore.hasMedalShimmerPlus(viewModel.storeUnlocks)
@@ -82,11 +83,15 @@ struct MedalsScreen: View {
                 Text(preferences.t("medals.empty"))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
-                Text(preferences.t("progress.emptyDesc"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Button(action: openUpload) {
+                    Text(preferences.t("progress.emptyCta"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color("BrandBlue"))
             }
             .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
         }
     }
 

@@ -77,73 +77,230 @@ struct SessionFeedbackCard: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     let feedback: SessionFeedbackSummary
+    var titleKey: String = "feedback.title"
     var isLoading: Bool = false
 
+    private var mascotMessage: String {
+        if isLoading { return preferences.t("mascot.thinking") }
+        if !feedback.coachMessage.isEmpty { return feedback.coachMessage }
+        if !feedback.motivation.isEmpty { return feedback.motivation }
+        if !feedback.tip.isEmpty { return feedback.tip }
+        if let first = feedback.insights.first { return first }
+        let template = preferences.t(MascotConstants.cheerKey(viewModel.mascotId))
+        return applyMessagePlaceholders(template)
+    }
+
+    private var bubbleTone: MascotBubbleTone {
+        if feedback.mascotMood == "disappointed" { return .disappointed }
+        return MascotPresentation.resolveBubbleTone(
+            loading: isLoading,
+            coachMessage: feedback.coachMessage,
+            motivation: feedback.motivation,
+            tip: feedback.tip,
+            badges: feedback.badges,
+            benchmarkLevel: feedback.benchmarkLevel,
+            message: mascotMessage
+        )
+    }
+
+    private var hasContent: Bool {
+        isLoading
+            || !feedback.insights.isEmpty
+            || !feedback.badges.isEmpty
+            || !feedback.coachMessage.isEmpty
+            || !feedback.motivation.isEmpty
+            || !feedback.highlights.isEmpty
+            || !feedback.tip.isEmpty
+    }
+
     var body: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 12) {
-                if isLoading {
-                    HStack(spacing: 8) {
-                        ProgressView()
-                        Text(preferences.t("feedback.aiLoading"))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+        if !hasContent {
+            EmptyView()
+        } else {
+            Card {
+                VStack(alignment: .leading, spacing: 16) {
+                    MascotCoachView(
+                        mascotId: viewModel.mascotId,
+                        message: mascotMessage,
+                        mood: feedback.mascotMood,
+                        bubbleTone: bubbleTone,
+                        showStage: true,
+                        size: 170,
+                        animated: true
+                    )
 
-                MascotCoachView(
-                    mascotId: viewModel.mascotId,
-                    message: feedback.coachMessage,
-                    bubbleTone: MascotPresentation.resolveBubbleTone(
-                        coachMessage: feedback.coachMessage,
-                        motivation: feedback.motivation,
-                        badges: feedback.badges,
-                        benchmarkLevel: feedback.benchmarkLevel
-                    ),
-                    showStage: true,
-                    size: 170,
-                    animated: true
-                )
+                    VStack(alignment: .leading, spacing: 14) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "sparkles")
+                                .font(.body.weight(.semibold))
+                                .foregroundStyle(Color("BrandBlue"))
+                            Text(preferences.t(titleKey))
+                                .font(.headline)
+                            if feedback.benchmarkLevel != .unknown {
+                                Text(SwimBenchmarks.levelLabel(feedback.benchmarkLevel, t: preferences.translations))
+                                    .font(.caption2.weight(.semibold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.blue.opacity(0.12), in: Capsule())
+                                    .foregroundStyle(.blue)
+                            }
+                            if feedback.aiEnhanced {
+                                Label("AI", systemImage: "cpu")
+                                    .font(.caption2.weight(.semibold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.purple.opacity(0.12), in: Capsule())
+                                    .foregroundStyle(.purple)
+                            }
+                        }
 
-                if feedback.aiEnhanced {
-                    Label("AI", systemImage: "sparkles")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.purple)
-                }
+                        if isLoading {
+                            Text(preferences.t("feedback.aiLoading"))
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            if !feedback.highlights.isEmpty {
+                                LazyVGrid(
+                                    columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 2),
+                                    spacing: 8
+                                ) {
+                                    ForEach(feedback.highlights) { item in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(item.label)
+                                                .font(.caption2.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                                .textCase(.uppercase)
+                                                .tracking(0.8)
+                                            Text(item.value)
+                                                .font(.subheadline.weight(.semibold))
+                                        }
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 10)
+                                        .background(Color(.secondarySystemBackground).opacity(0.8), in: RoundedRectangle(cornerRadius: 10))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10)
+                                                .strokeBorder(Color(.separator).opacity(0.35), lineWidth: 1)
+                                        )
+                                    }
+                                }
+                            }
 
-                if !feedback.insights.isEmpty {
-                    ForEach(feedback.insights, id: \.self) { insight in
-                        Label(insight, systemImage: "lightbulb")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
+                            if !feedback.motivation.isEmpty && !feedback.coachMessage.isEmpty {
+                                Text(feedback.motivation)
+                                    .font(.subheadline.weight(.medium))
+                                    .italic()
+                                    .foregroundStyle(Color("BrandBlue"))
+                            }
 
-                if !feedback.badges.isEmpty {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack {
-                            ForEach(feedback.badges, id: \.self) { badge in
-                                Text(badge)
-                                    .font(.caption.bold())
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(Color("BrandBlue").opacity(0.12), in: Capsule())
+                            if !feedback.badges.isEmpty {
+                                FlowLayout(spacing: 8) {
+                                    ForEach(feedback.badges, id: \.self) { badge in
+                                        Label(badge, systemImage: "sparkles")
+                                            .font(.caption.weight(.semibold))
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(Color.orange.opacity(0.15), in: Capsule())
+                                            .foregroundStyle(Color.orange.opacity(0.9))
+                                    }
+                                }
+                            }
+
+                            if !feedback.insights.isEmpty {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Divider()
+                                    ForEach(feedback.insights, id: \.self) { insight in
+                                        let positive = SwimFeedback.isPositiveInsight(insight)
+                                        HStack(alignment: .top, spacing: 8) {
+                                            Image(systemName: positive ? "arrow.up.right" : "arrow.down.right")
+                                                .font(.caption.weight(.semibold))
+                                                .foregroundStyle(positive ? .green : .secondary)
+                                                .padding(.top, 2)
+                                            Text(insight)
+                                                .font(.subheadline)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                            }
+
+                            if !feedback.tip.isEmpty {
+                                HStack(alignment: .top, spacing: 12) {
+                                    Image(systemName: "lightbulb.fill")
+                                        .font(.body)
+                                        .foregroundStyle(Color("BrandBlue"))
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(preferences.t("feedback.tipTitle"))
+                                            .font(.caption2.weight(.semibold))
+                                            .foregroundStyle(Color("BrandBlue"))
+                                            .textCase(.uppercase)
+                                            .tracking(0.8)
+                                        Text(feedback.tip)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                }
+                                .padding(14)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color("BrandBlue").opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .strokeBorder(Color("BrandBlue").opacity(0.2), lineWidth: 1)
+                                )
                             }
                         }
                     }
                 }
-
-                Text(feedback.motivation)
-                    .font(.subheadline.italic())
-                    .foregroundStyle(Color("BrandBlue"))
-
-                Text(preferences.t("feedback.benchmarkLevel", params: [
-                    "level": SwimBenchmarks.levelLabel(feedback.benchmarkLevel, t: preferences.translations)
-                ]))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private func applyMessagePlaceholders(_ template: String) -> String {
+        let name = viewModel.profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let displayName = name.isEmpty ? preferences.t("settings.swimmerNamePlaceholder") : name
+        return template.replacingOccurrences(of: "{name}", with: displayName)
+    }
+}
+
+private struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = arrange(proposal: proposal, subviews: subviews)
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = arrange(proposal: proposal, subviews: subviews)
+        for (index, position) in result.positions.enumerated() {
+            subviews[index].place(
+                at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y),
+                proposal: .unspecified
+            )
+        }
+    }
+
+    private func arrange(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
+        let maxWidth = proposal.width ?? .infinity
+        var positions: [CGPoint] = []
+        var x: CGFloat = 0
+        var y: CGFloat = 0
+        var rowHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x > 0 && x + size.width > maxWidth {
+                x = 0
+                y += rowHeight + spacing
+                rowHeight = 0
+            }
+            positions.append(CGPoint(x: x, y: y))
+            rowHeight = max(rowHeight, size.height)
+            x += size.width + spacing
+        }
+
+        return (CGSize(width: maxWidth, height: y + rowHeight), positions)
     }
 }
 
@@ -479,7 +636,7 @@ struct SessionCalendarView: View {
                 }
 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 6) {
-                    ForEach(["M", "T", "W", "T", "F", "S", "S"], id: \.self) { day in
+                    ForEach(weekdaySymbols, id: \.self) { day in
                         Text(day)
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(.secondary)
@@ -491,18 +648,34 @@ struct SessionCalendarView: View {
                                 selectedDate = selectedDate == cell.dateKey ? nil : cell.dateKey
                             } label: {
                                 Text("\(cell.day)")
-                                    .font(.caption.weight(.semibold))
+                                    .font(.caption.weight(cell.isToday ? .bold : .semibold))
                                     .frame(maxWidth: .infinity, minHeight: 32)
-                                    .background(heatColor(cell.count), in: RoundedRectangle(cornerRadius: 6))
+                                    .background(heatBackground(cell.count), in: RoundedRectangle(cornerRadius: 6))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 6)
                                             .stroke(selectedDate == cell.dateKey ? Color("BrandBlue") : .clear, lineWidth: 2)
                                     )
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(cellAccessibilityLabel(cell))
                         } else {
                             Color.clear.frame(minHeight: 32)
                         }
+                    }
+                }
+
+                Divider().padding(.top, 4)
+
+                HStack {
+                    Text(preferences.t("history.calendarLegend"))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    HStack(spacing: 6) {
+                        legendSwatch(count: 0)
+                        legendSwatch(count: 1)
+                        legendSwatch(count: 2)
+                        legendSwatch(count: 3)
                     }
                 }
             }
@@ -534,7 +707,7 @@ struct SessionCalendarView: View {
 
         for day in range {
             let dateKey = String(format: "%04d-%02d-%02d", viewYear, viewMonth, day)
-            result.append(CalendarCell(day: day, dateKey: dateKey, count: sessionsByDate[dateKey] ?? 0))
+            result.append(CalendarCell(day: day, dateKey: dateKey, count: sessionsByDate[dateKey] ?? 0, isToday: dateKey == todayKey))
         }
         while result.count % 7 != 0 { result.append(nil) }
         return result
@@ -547,18 +720,56 @@ struct SessionCalendarView: View {
         viewMonth = Calendar.current.component(.month, from: date)
     }
 
-    private func heatColor(_ count: Int) -> Color {
-        switch count {
-        case 0: return Color(.systemGray5)
-        case 1: return Color("BrandBlue").opacity(0.25)
-        case 2: return Color("BrandBlue").opacity(0.45)
-        default: return Color("BrandBlue").opacity(0.7)
+    private var weekdaySymbols: [String] {
+        var calendar = Calendar.current
+        calendar.locale = preferences.locale
+        return calendar.veryShortWeekdaySymbols
+    }
+
+    private func cellAccessibilityLabel(_ cell: CalendarCell) -> String {
+        if cell.count == 0 {
+            return "\(cell.day)"
         }
+        return "\(cell.day), \(cell.count) sessions"
+    }
+
+    private func heatBackground(_ count: Int) -> AnyShapeStyle {
+        switch count {
+        case 0:
+            return AnyShapeStyle(Color(.systemGray5))
+        case 1:
+            return AnyShapeStyle(Color("BrandBlue").opacity(0.28))
+        case 2:
+            return AnyShapeStyle(Color("BrandBlue").opacity(0.55))
+        default:
+            return AnyShapeStyle(
+                LinearGradient(
+                    colors: [Color("BrandBlue"), Color(red: 0.48, green: 0.36, blue: 1.0)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+        }
+    }
+
+    private func legendSwatch(count: Int) -> some View {
+        RoundedRectangle(cornerRadius: 4)
+            .fill(heatBackground(count))
+            .frame(width: 16, height: 16)
+    }
+
+    private var todayKey: String {
+        let today = Date()
+        let year = Calendar.current.component(.year, from: today)
+        let month = Calendar.current.component(.month, from: today)
+        let day = Calendar.current.component(.day, from: today)
+        return String(format: "%04d-%02d-%02d", year, month, day)
     }
 
     private struct CalendarCell {
         let day: Int
         let dateKey: String
         let count: Int
+        let isToday: Bool
     }
 }

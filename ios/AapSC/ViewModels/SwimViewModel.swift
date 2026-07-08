@@ -221,6 +221,7 @@ final class SwimViewModel: ObservableObject {
             data.profile.activeAmbient = itemId
         } else if itemId.hasPrefix("icon:") {
             data.profile.activeAppIcon = itemId
+            AppIconService.apply(activeAppIcon: itemId, storeUnlocks: data.storeUnlocks)
         }
 
         data.profile = SwimCoinStore.sanitizeProfileCosmetics(
@@ -285,7 +286,8 @@ final class SwimViewModel: ObservableObject {
         lastUploadFeedback = SwimAnalysis.buildPersonalFeedback(
             session: saved,
             allSessions: sessions,
-            profile: profile
+            profile: profile,
+            t: makeTranslations()
         )
         isEnhancingUploadFeedback = !profile.aiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         Task { await enhanceUploadFeedback(for: saved) }
@@ -355,6 +357,12 @@ final class SwimViewModel: ObservableObject {
             return language
         }
         return TranslationService.defaultLanguage
+    }
+
+    private func makeTranslations() -> TranslationService {
+        let translations = TranslationService()
+        translations.setLanguage(currentLanguageCode())
+        return translations
     }
 
     private func prepareUploadSave() -> Bool {

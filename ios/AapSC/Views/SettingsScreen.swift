@@ -7,6 +7,7 @@ struct SettingsScreen: View {
     @Environment(\.themeColors) private var themeColors
 
     @State private var showResetConfirm = false
+    @State private var resetMessage: String?
     @State private var showImportConfirm = false
     @State private var showSecretSettings = false
     @State private var exportString = ""
@@ -52,17 +53,11 @@ struct SettingsScreen: View {
             } message: {
                 Text(preferences.t("settings.importConfirmDesc"))
             }
-            .confirmationDialog(
-                preferences.t("settings.confirm"),
-                isPresented: $showResetConfirm,
-                titleVisibility: .visible
-            ) {
-                Button(preferences.t("settings.clearButton"), role: .destructive) {
+            .sheet(isPresented: $showResetConfirm) {
+                ResetDataModal(sessionCount: viewModel.sessions.count) {
                     viewModel.resetAllData()
+                    resetMessage = preferences.t("settings.success")
                 }
-                Button(preferences.t("common.cancel"), role: .cancel) {}
-            } message: {
-                Text(preferences.t("settings.confirmDesc"))
             }
             .sheet(isPresented: $showSecretSettings) {
                 SecretSettingsSheet()
@@ -86,47 +81,9 @@ struct SettingsScreen: View {
 
     private var mascotSection: some View {
         Section {
-            Text(preferences.t("settings.mascotDesc"))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            ForEach(MascotConstants.ids, id: \.self) { mascotId in
-                Button {
-                    _ = viewModel.switchMascot(mascotId)
-                } label: {
-                    HStack {
-                        Text(mascotDisplayName(mascotId))
-                        Spacer()
-                        if viewModel.mascotId == mascotId {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(themeColors.primary)
-                        }
-                    }
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 10) {
-                Text(
-                    preferences.t(
-                        "settings.mascotActiveCoach",
-                        params: ["name": mascotDisplayName(viewModel.mascotId)]
-                    )
-                )
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-
-                MascotCoachView(
-                    mascotId: viewModel.mascotId,
-                    message: mascotPreviewMessage,
-                    level: MascotConstants.coachedLevel(viewModel.mascotId),
-                    coachName: mascotDisplayName(viewModel.mascotId),
-                    size: 110,
-                    animated: true
-                )
-            }
-            .padding(.vertical, 4)
-        } header: {
-            Text(preferences.t("settings.mascotTitle"))
+            MascotSettingsSection()
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
         }
     }
 
@@ -202,7 +159,12 @@ struct SettingsScreen: View {
             Picker(preferences.t("settings.activeAppIcon"), selection: iconBinding) {
                 Text(preferences.t("settings.iconDefault")).tag(Optional<String>.none)
                 ForEach(ownedIcons, id: \.self) { id in
-                    Text(iconLabel(id)).tag(Optional(id))
+                    Label {
+                        Text(iconLabel(id))
+                    } icon: {
+                        StoreIconPreview(id: id, size: 20)
+                    }
+                    .tag(Optional(id))
                 }
             }
         }
@@ -257,10 +219,21 @@ struct SettingsScreen: View {
 
     private var dataSection: some View {
         Section(preferences.t("settings.resetData")) {
+            Text(preferences.t("settings.resetDesc"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(preferences.t("settings.warning"))
+                .font(.caption)
+                .foregroundStyle(.orange)
             LabeledContent(preferences.t("navigation.history"), value: "\(viewModel.sessions.count)")
             LabeledContent(preferences.t("coins.label"), value: "\(viewModel.totalCoins)")
             Button(preferences.t("settings.clearButton"), role: .destructive) {
                 showResetConfirm = true
+            }
+            if let resetMessage {
+                Text(resetMessage)
+                    .font(.caption)
+                    .foregroundStyle(.green)
             }
         }
     }
@@ -270,21 +243,6 @@ struct SettingsScreen: View {
             LabeledContent("App", value: "Aap-SC")
             LabeledContent("Platform", value: "Native iOS")
             LabeledContent("Storage", value: SwimStorageService.storageKey)
-        }
-    }
-
-    private var mascotPreviewMessage: String {
-        let template = preferences.t(MascotConstants.previewKey(viewModel.mascotId))
-        let name = viewModel.profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let displayName = name.isEmpty ? preferences.t("settings.defaultSwimmerName") : name
-        return template.replacingOccurrences(of: "{name}", with: displayName)
-    }
-
-    private func mascotDisplayName(_ id: String) -> String {
-        switch id {
-        case "flo": return preferences.t("settings.mascotFloName")
-        case "fins": return preferences.t("settings.mascotFinsName")
-        default: return preferences.t("settings.mascotFlipName")
         }
     }
 
@@ -323,6 +281,10 @@ struct SettingsScreen: View {
             get: { viewModel.profile.activeAppIcon },
             set: { newValue in
                 viewModel.updateProfile { $0.activeAppIcon = newValue }
+                AppIconService.apply(
+                    activeAppIcon: newValue,
+                    storeUnlocks: viewModel.storeUnlocks
+                )
             }
         )
     }

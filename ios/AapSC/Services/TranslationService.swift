@@ -7,6 +7,7 @@ final class TranslationService: ObservableObject {
 
     @Published private(set) var language: String = defaultLanguage
     private var tables: [String: [String: Any]] = [:]
+    var returnsKeysForTesting = false
 
     init() {
         for code in Self.supportedLanguages {
@@ -27,6 +28,9 @@ final class TranslationService: ObservableObject {
     }
 
     func t(_ key: String, params: [String: String] = [:]) -> String {
+        if returnsKeysForTesting {
+            return key
+        }
         var text = resolve(key, language: language)
             ?? resolve(key, language: Self.defaultLanguage)
             ?? key

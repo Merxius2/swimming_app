@@ -4,6 +4,7 @@ import Charts
 struct ProgressScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.openUpload) private var openUpload
 
     var body: some View {
         NavigationStack {
@@ -28,8 +29,11 @@ struct ProgressScreen: View {
                                 feedback: SwimAnalysis.buildPersonalFeedback(
                                     session: latest,
                                     allSessions: viewModel.sessions,
-                                    profile: viewModel.profile
-                                )
+                                    profile: viewModel.profile,
+                                    t: preferences.translations,
+                                    monthlyChallengeRerolls: viewModel.monthlyChallengeRerolls
+                                ),
+                                titleKey: "progress.sessionFeedbackTitle"
                             )
                         }
                         paceChart
@@ -54,24 +58,49 @@ struct ProgressScreen: View {
     }
 
     private var emptyState: some View {
-        Card {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(preferences.t("progress.overviewTitle"))
-                    .font(.caption.bold())
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
-                    .tracking(1.1)
-
+        VStack(spacing: 16) {
+            Card {
                 MascotCoachView(
                     mascotId: viewModel.mascotId,
-                    message: preferences.t("progress.mascotEmpty"),
+                    message: emptyMascotMessage,
                     level: MascotConstants.coachedLevel(viewModel.mascotId),
                     coachName: MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
                     size: 200,
                     animated: true
                 )
             }
+
+            Card {
+                VStack(spacing: 16) {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .font(.system(size: 44))
+                        .foregroundStyle(Color("BrandBlue"))
+                    Text(preferences.t("progress.emptyTitle"))
+                        .font(.title2.bold())
+                    Text(preferences.t("progress.emptyDesc"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                    Button(action: openUpload) {
+                        Text(preferences.t("progress.emptyCta"))
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color("BrandBlue"))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+            }
         }
+    }
+
+    private var emptyMascotMessage: String {
+        let template = preferences.t("progress.mascotEmpty")
+        let name = viewModel.profile.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let displayName = name.isEmpty ? preferences.t("settings.swimmerNamePlaceholder") : name
+        return template.replacingOccurrences(of: "{name}", with: displayName)
     }
 
     private var overviewCard: some View {
@@ -151,6 +180,7 @@ struct ProgressScreen: View {
                         statTile(preferences.t("progress.totalCalories"), value: "\(combined.totalActiveKcal) " + preferences.t("common.kcal"))
                         statTile(preferences.t("progress.totalLaps"), value: "\(combined.totalLaps)")
                         statTile(preferences.t("progress.avgHeartRate"), value: combined.avgHeartRate.map { "\($0) " + preferences.t("common.bpm") } ?? "—")
+                        coinsStatTile
                     }
                 }
             }
@@ -169,7 +199,7 @@ struct ProgressScreen: View {
                 Text(preferences.t("progress.paceChart"))
                     .font(.headline)
                 if points.isEmpty {
-                    Text("Add swims with pace data to see this chart.").foregroundStyle(.secondary)
+                    Text(preferences.t("medals.progress.noPaceYet")).foregroundStyle(.secondary)
                 } else {
                     Chart(points) { point in
                         LineMark(
@@ -244,7 +274,7 @@ struct ProgressScreen: View {
                 Text(preferences.t("progress.weeklyVolume"))
                     .font(.headline)
                 if weekly.isEmpty {
-                    Text("No distance data yet.").foregroundStyle(.secondary)
+                    Text(preferences.t("progress.emptyDesc")).foregroundStyle(.secondary)
                 } else {
                     Chart(weekly) { week in
                         BarMark(
@@ -274,6 +304,19 @@ struct ProgressScreen: View {
                 .frame(height: 200)
             }
         }
+    }
+
+    private var coinsStatTile: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(preferences.t("coins.label").uppercased())
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+            CoinBadge(
+                count: viewModel.totalCoins,
+                golden: SwimCoinStore.hasGoldenCoinBadge(viewModel.storeUnlocks)
+            )
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func metricBlock(_ title: String, value: String, color: Color) -> some View {

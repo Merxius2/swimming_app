@@ -187,6 +187,33 @@ enum SwimCoins {
         }
     }
 
+    static func migrateCoinBonuses(_ sessions: [SwimSession]) -> [SwimSession] {
+        let sorted = sessions.sorted { $0.date < $1.date }
+        var prior: [SwimSession] = []
+        return sorted.map { session in
+            var next = session
+            if next.coinsEarned == nil {
+                next.coinsEarned = calculateSessionCoins(next, priorSessions: prior)
+            }
+            if next.coinBonus == nil {
+                let allWithNew = prior + [next]
+                let earnedNow = SwimMedals.getNewlyEarnedMedals(sessionsBefore: prior, sessionsAfter: allWithNew)
+                let monthKey = String(next.date.prefix(7))
+                let breakdown = calculateUploadCoins(
+                    session: next,
+                    sessionsBefore: prior,
+                    sessionsAfter: allWithNew,
+                    newMedals: earnedNow,
+                    spentCoinClaims: [],
+                    monthKey: monthKey
+                )
+                next.coinBonus = breakdown.medalCoins + breakdown.monthlyCoins
+            }
+            prior.append(next)
+            return next
+        }
+    }
+
     static func reconcileTotalCoins(sessions: [SwimSession], storedTotal: Int, coinsSpent: Int = 0) -> Int {
         let fromSessions = sumSessionCoins(sessions)
         var stored = storedTotal

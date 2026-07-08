@@ -324,7 +324,58 @@ enum SwimMonthlyChallenges {
         )
     }
 
-    private struct ChallengeDefinition {
+    static func generateMonthlyChallenges(
+        sessions: [SwimSession],
+        monthKey: String,
+        rerolls: [String: MonthRerollEntry] = [:],
+        intensity: Double = 1
+    ) -> [ChallengeDefinition] {
+        generateMonthlyChallengeDefinitions(
+            sessions: sessions,
+            monthKey: monthKey,
+            rerolls: rerolls,
+            intensity: intensity
+        )
+    }
+
+    static func hasMonthlyChallengeReroll(_ monthKey: String, rerolls: [String: MonthRerollEntry]) -> Bool {
+        !getMonthRerollOverrides(monthKey, rerolls: rerolls).isEmpty
+    }
+
+    static func getMonthlyMedalsForYear(
+        sessions: [SwimSession],
+        year: Int = Calendar.current.component(.year, from: Date()),
+        monthlyChallengeRerolls: [String: MonthRerollEntry] = [:],
+        intensity: Double = 1
+    ) -> [YearMonthMedal] {
+        (1...12).map { month in
+            let monthKey = String(format: "%04d-%02d", year, month)
+            let state = evaluateMonthlyChallenges(
+                sessions: sessions,
+                monthKey: monthKey,
+                rerolls: monthlyChallengeRerolls,
+                intensity: intensity
+            )
+            return YearMonthMedal(
+                monthKey: monthKey,
+                month: month,
+                tier: state.tier,
+                completedCount: state.completedCount,
+                challenges: state.challenges,
+                earnedAt: state.earnedAt,
+                hasSessions: sessions.contains { $0.date.hasPrefix(monthKey) }
+            )
+        }
+    }
+
+    static func getPreviewMonthlyMedalHistoryForTesting(
+        sessions: [SwimSession] = [],
+        date: Date = Date()
+    ) -> [MonthlyChallengeState] {
+        getPreviewMonthlyMedalHistory(sessions: sessions, date: date)
+    }
+
+    struct ChallengeDefinition {
         var id: String
         var type: String
         var monthKey: String
@@ -332,7 +383,7 @@ enum SwimMonthlyChallenges {
         var tierIndex: Int
     }
 
-    private static func generateMonthlyChallenges(
+    private static func generateMonthlyChallengeDefinitions(
         sessions: [SwimSession],
         monthKey: String,
         rerolls: [String: MonthRerollEntry],

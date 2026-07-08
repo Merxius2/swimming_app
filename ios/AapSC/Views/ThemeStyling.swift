@@ -10,6 +10,7 @@ struct ThemeVisualProfile {
     let card: ThemeCardStyle
     let tabBar: ThemeTabBarStyle
     let navBar: ThemeNavBarStyle
+    let topBar: ThemeTopBarStyle
     let uploadFAB: ThemeUploadFABStyle
 }
 
@@ -33,6 +34,16 @@ enum ThemeCardStyle {
         shadowY: CGFloat = 2,
         glow: Color? = nil
     )
+    case inset(
+        fill: Color,
+        border: Color,
+        cornerRadius: CGFloat = 14
+    )
+}
+
+enum ThemeTabBarAccentStripePosition {
+    case top
+    case bottom
 }
 
 struct ThemeTabBarStyle {
@@ -42,6 +53,7 @@ struct ThemeTabBarStyle {
     let selectedColor: Color
     let unselectedColor: Color
     let accentStripe: Color?
+    let accentStripePosition: ThemeTabBarAccentStripePosition
 }
 
 struct ThemeNavBarStyle {
@@ -52,6 +64,17 @@ struct ThemeNavBarStyle {
     let lightContent: Bool
 }
 
+struct ThemeTopBarStyle {
+    let background: Color
+    let backgroundGradient: [Color]?
+    let borderColor: Color
+    let borderWidth: CGFloat
+    let shadowColor: Color
+    let dividerColor: Color
+    let coinsColor: Color
+    let settingsColor: Color
+}
+
 struct ThemeUploadFABStyle {
     let usesOverlay: Bool
     let gradient: [Color]?
@@ -59,12 +82,32 @@ struct ThemeUploadFABStyle {
     let iconColor: Color
     let borderColor: Color
     let shadowColor: Color
+    let bottomAccent: Color?
 }
 
 enum ThemeVisualProfiles {
     static let brandBlue = Color(red: 0.23, green: 0.27, blue: 1.0)
     static let brandBlueDeep = Color(red: 0.16, green: 0.27, blue: 0.8)
     static let brandViolet = Color(red: 0.48, green: 0.36, blue: 1.0)
+
+    private static func glassTopBar(
+        background: Color = Color.white.opacity(0.72),
+        backgroundGradient: [Color]? = nil,
+        borderColor: Color = Color.black.opacity(0.06),
+        coinsColor: Color = Color(red: 0.851, green: 0.467, blue: 0.024),
+        settingsColor: Color = Color(red: 0.44, green: 0.44, blue: 0.48)
+    ) -> ThemeTopBarStyle {
+        ThemeTopBarStyle(
+            background: background,
+            backgroundGradient: backgroundGradient,
+            borderColor: borderColor,
+            borderWidth: 1,
+            shadowColor: Color.black.opacity(0.06),
+            dividerColor: Color.black.opacity(0.08),
+            coinsColor: coinsColor,
+            settingsColor: settingsColor
+        )
+    }
 
     static func isAlwaysDark(_ code: String) -> Bool {
         code == "midnight-lane" || code == "retro-wave"
@@ -104,7 +147,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: brandBlueDeep,
                 unselectedColor: Color(red: 0.44, green: 0.44, blue: 0.48),
-                accentStripe: nil
+                accentStripe: nil,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -113,13 +157,15 @@ enum ThemeVisualProfiles {
                 tint: brandBlue,
                 lightContent: false
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: [brandBlue, brandViolet],
                 solid: nil,
                 iconColor: .white,
                 borderColor: .white,
-                shadowColor: brandBlue.opacity(0.45)
+                shadowColor: brandBlue.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -147,7 +193,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: lime,
                 unselectedColor: Color.white.opacity(0.88),
-                accentStripe: nil
+                accentStripe: nil,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -156,13 +203,20 @@ enum ThemeVisualProfiles {
                 tint: lime,
                 lightContent: true
             ),
+            topBar: glassTopBar(
+                background: dark ? Color(red: 0.24, green: 0.0, blue: 0.47) : purple,
+                coinsColor: lime,
+                settingsColor: .white,
+                borderColor: Color.black.opacity(0.18)
+            ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
                 solid: lime,
                 iconColor: Color(red: 0.1, green: 0.1, blue: 0.1),
                 borderColor: Color.white.opacity(0.35),
-                shadowColor: .black.opacity(0.18)
+                shadowColor: .black.opacity(0.18),
+                bottomAccent: nil
             )
         )
     }
@@ -170,20 +224,24 @@ enum ThemeVisualProfiles {
     // MARK: classic
 
     private static func classic(_ dark: Bool) -> ThemeVisualProfile {
-        let lightBar = Color(red: 0.0, green: 0.44, blue: 1.0)
-        let navGray = dark ? Color(red: 0.145, green: 0.145, blue: 0.145) : Color(red: 0.557, green: 0.557, blue: 0.557)
-        let panel = dark ? Color(red: 0.271, green: 0.271, blue: 0.271) : Color(red: 0.831, green: 0.831, blue: 0.831)
+        let lightBar = Color(red: 0.0, green: 0.44, blue: 1.0) // #0070FF
+        let pageGray = dark
+            ? Color(red: 0.227, green: 0.227, blue: 0.227)   // #3A3A3A
+            : Color(red: 0.741, green: 0.741, blue: 0.741)   // #BDBDBD
+        let navGray = dark
+            ? Color(red: 0.145, green: 0.145, blue: 0.145)   // #252525
+            : Color(red: 0.557, green: 0.557, blue: 0.557)   // #8E8E8E
+        let panel = dark
+            ? Color(red: 0.271, green: 0.271, blue: 0.271)   // #454545
+            : Color(red: 0.831, green: 0.831, blue: 0.831)   // #D4D4D4
         return ThemeVisualProfile(
-            displayPrimary: Color(red: 0.0, green: 0.56, blue: 0.84),
+            displayPrimary: Color(red: 0.0, green: 0.56, blue: 0.84), // #008FD6
             displayAccent: lightBar,
-            pageBackground: .solid(dark ? Color(red: 0.227, green: 0.227, blue: 0.227) : Color(red: 0.741, green: 0.741, blue: 0.741)),
-            card: .flat(
+            pageBackground: .solid(pageGray),
+            card: .inset(
                 fill: panel,
                 border: dark ? Color.white.opacity(0.08) : Color.black.opacity(0.14),
-                borderWidth: 1,
-                cornerRadius: 14,
-                shadow: Color.black.opacity(dark ? 0.25 : 0.18),
-                shadowY: 2
+                cornerRadius: 14
             ),
             tabBar: ThemeTabBarStyle(
                 usesSystemDefault: false,
@@ -191,7 +249,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: lightBar,
                 unselectedColor: dark ? Color.white.opacity(0.88) : Color(red: 0.1, green: 0.1, blue: 0.1),
-                accentStripe: lightBar
+                accentStripe: lightBar,
+                accentStripePosition: .bottom
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -200,13 +259,15 @@ enum ThemeVisualProfiles {
                 tint: lightBar,
                 lightContent: dark
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
                 solid: panel,
                 iconColor: dark ? .white : Color(red: 0.1, green: 0.1, blue: 0.1),
                 borderColor: .white.opacity(0.9),
-                shadowColor: .black.opacity(0.14)
+                shadowColor: .black.opacity(0.14),
+                bottomAccent: lightBar
             )
         )
     }
@@ -239,7 +300,8 @@ enum ThemeVisualProfiles {
                 backgroundGradient: nil,
                 selectedColor: gold,
                 unselectedColor: Color.white.opacity(0.88),
-                accentStripe: gold
+                accentStripe: gold,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -248,13 +310,15 @@ enum ThemeVisualProfiles {
                 tint: gold,
                 lightContent: true
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
                 solid: gold,
                 iconColor: laneDeep,
                 borderColor: .white.opacity(0.9),
-                shadowColor: gold.opacity(0.45)
+                shadowColor: gold.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -281,9 +345,10 @@ enum ThemeVisualProfiles {
                 usesSystemDefault: false,
                 background: Color(red: 0.031, green: 0.055, blue: 0.11),
                 backgroundGradient: nil,
-                selectedColor: brandBlueDeep,
+                selectedColor: glow,
                 unselectedColor: Color(red: 0.44, green: 0.44, blue: 0.48),
-                accentStripe: nil
+                accentStripe: glow.opacity(0.7),
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -292,13 +357,20 @@ enum ThemeVisualProfiles {
                 tint: glow,
                 lightContent: true
             ),
+            topBar: glassTopBar(
+                background: Color(red: 0.031, green: 0.055, blue: 0.11),
+                coinsColor: glow,
+                settingsColor: glow,
+                borderColor: glow.opacity(0.35)
+            ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: [brandBlue, brandViolet],
                 solid: nil,
                 iconColor: .white,
                 borderColor: .white,
-                shadowColor: brandBlue.opacity(0.45)
+                shadowColor: brandBlue.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -330,9 +402,10 @@ enum ThemeVisualProfiles {
                 usesSystemDefault: false,
                 background: Color(red: 0.102, green: 0.039, blue: 0.18),
                 backgroundGradient: [Color(red: 0.176, green: 0.106, blue: 0.412), Color(red: 0.102, green: 0.039, blue: 0.18)],
-                selectedColor: brandBlueDeep,
+                selectedColor: pink,
                 unselectedColor: Color(red: 0.44, green: 0.44, blue: 0.48),
-                accentStripe: cyan
+                accentStripe: cyan,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -341,13 +414,21 @@ enum ThemeVisualProfiles {
                 tint: pink,
                 lightContent: true
             ),
+            topBar: glassTopBar(
+                background: Color(red: 0.102, green: 0.039, blue: 0.18),
+                backgroundGradient: [Color(red: 0.176, green: 0.106, blue: 0.412), Color(red: 0.102, green: 0.039, blue: 0.18)],
+                coinsColor: pink,
+                settingsColor: pink,
+                borderColor: pink.opacity(0.45)
+            ),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: [brandBlue, brandViolet],
                 solid: nil,
                 iconColor: .white,
                 borderColor: .white,
-                shadowColor: brandBlue.opacity(0.45)
+                shadowColor: brandBlue.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -382,7 +463,8 @@ enum ThemeVisualProfiles {
                     : [sea, Color(red: 0.059, green: 0.467, blue: 0.431)],
                 selectedColor: mint,
                 unselectedColor: Color.white.opacity(0.9),
-                accentStripe: nil
+                accentStripe: nil,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -393,13 +475,15 @@ enum ThemeVisualProfiles {
                 tint: mint,
                 lightContent: true
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: [coral, Color(red: 0.984, green: 0.573, blue: 0.235)],
                 solid: nil,
                 iconColor: .white,
                 borderColor: .white.opacity(0.9),
-                shadowColor: coral.opacity(0.45)
+                shadowColor: coral.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -434,7 +518,8 @@ enum ThemeVisualProfiles {
                     : [goldDeep, Color(red: 0.471, green: 0.208, blue: 0.059)],
                 selectedColor: goldLight,
                 unselectedColor: Color(red: 1.0, green: 0.984, blue: 0.922, opacity: 0.88),
-                accentStripe: goldLight
+                accentStripe: goldLight,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -445,13 +530,15 @@ enum ThemeVisualProfiles {
                 tint: goldLight,
                 lightContent: true
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
                 solid: goldLight,
                 iconColor: goldDeep,
                 borderColor: .white.opacity(0.9),
-                shadowColor: goldLight.opacity(0.45)
+                shadowColor: goldLight.opacity(0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -485,7 +572,8 @@ enum ThemeVisualProfiles {
                     : [Color(red: 0.2, green: 0.255, blue: 0.333), Color(red: 0.118, green: 0.161, blue: 0.231)],
                 selectedColor: ice,
                 unselectedColor: Color(red: 0.973, green: 0.98, blue: 0.988, opacity: 0.88),
-                accentStripe: ice
+                accentStripe: ice,
+                accentStripePosition: .top
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: true,
@@ -496,13 +584,15 @@ enum ThemeVisualProfiles {
                 tint: ice,
                 lightContent: true
             ),
+            topBar: glassTopBar(),
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: [Color(red: 0.796, green: 0.835, blue: 0.882), Color(red: 0.58, green: 0.639, blue: 0.722)],
                 solid: nil,
                 iconColor: Color(red: 0.118, green: 0.161, blue: 0.231),
                 borderColor: .white.opacity(0.9),
-                shadowColor: Color(red: 0.58, green: 0.639, blue: 0.722, opacity: 0.45)
+                shadowColor: Color(red: 0.58, green: 0.639, blue: 0.722, opacity: 0.45),
+                bottomAccent: nil
             )
         )
     }
@@ -625,6 +715,19 @@ struct ThemedCardModifier: ViewModifier {
                 .shadow(color: shadow ?? .clear, radius: glow == nil ? 0 : 12, y: shadowY)
                 .shadow(color: glow ?? .clear, radius: glow == nil ? 0 : 18, y: 0)
                 .shadow(color: shadow ?? .clear, radius: 12, y: shadowY + 6)
+        case .inset(let fill, let border, let cornerRadius):
+            content
+                .background(fill, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(border, lineWidth: 1)
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius - 1, style: .continuous)
+                        .strokeBorder(Color.black.opacity(0.1), lineWidth: 2)
+                        .padding(1)
+                        .blendMode(.multiply)
+                )
         }
     }
 }

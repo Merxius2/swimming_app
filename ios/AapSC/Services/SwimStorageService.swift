@@ -2,9 +2,10 @@ import Foundation
 
 enum SwimStorageService {
     static let storageKey = "AUDIT_SWIM_DATA"
+    static var defaults: UserDefaults = .standard
 
     static func load() -> SwimData {
-        guard let raw = UserDefaults.standard.data(forKey: storageKey) else {
+        guard let raw = defaults.data(forKey: storageKey) else {
             return .empty
         }
         do {
@@ -18,14 +19,14 @@ enum SwimStorageService {
     static func save(_ data: SwimData) {
         do {
             let encoded = try JSONEncoder().encode(data)
-            UserDefaults.standard.set(encoded, forKey: storageKey)
+            defaults.set(encoded, forKey: storageKey)
         } catch {
             print("Failed to save swim data: \(error)")
         }
     }
 
     static func clear() {
-        UserDefaults.standard.removeObject(forKey: storageKey)
+        defaults.removeObject(forKey: storageKey)
     }
 
     static func createSessionId() -> String {
@@ -38,7 +39,7 @@ enum SwimStorageService {
 
     private static func migrate(_ data: SwimData) -> SwimData {
         var next = data
-        let sessions = SwimCoins.migrateSessionCoins(next.sessions)
+        let sessions = SwimCoins.migrateCoinBonuses(SwimCoins.migrateSessionCoins(next.sessions))
         next.sessions = sessions.sorted { $0.date < $1.date }
 
         let rawStoreUnlocks = SwimCoinStore.normalizeStoreUnlocks(next.storeUnlocks)
