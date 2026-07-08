@@ -18,8 +18,8 @@ struct MascotChoiceCardView: View {
                 ZStack(alignment: .topTrailing) {
                     MascotCharacterView(
                         mascotId: mascotId,
-                        size: 120,
-                        animated: isActive && !isLocked
+                        animated: isActive && !isLocked,
+                        size: 120
                     )
                     .padding(.top, 8)
                     .opacity(isLocked ? 0.75 : 1)
@@ -198,9 +198,9 @@ struct MascotSettingsSection: View {
                     level: MascotConstants.coachedLevel(viewModel.mascotId),
                     bubbleTone: viewModel.mascotId == "fins" ? .levelUp : .default,
                     coachName: MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
+                    showStage: true,
                     size: 190,
-                    animated: true,
-                    showStage: true
+                    animated: true
                 )
             }
         }
