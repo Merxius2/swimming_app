@@ -5,10 +5,19 @@ private struct AppIsDarkKey: EnvironmentKey {
     static let defaultValue = false
 }
 
+private struct AmbientBackgroundVisibleKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
 extension EnvironmentValues {
     var appIsDark: Bool {
         get { self[AppIsDarkKey.self] }
         set { self[AppIsDarkKey.self] = newValue }
+    }
+
+    var ambientBackgroundVisible: Bool {
+        get { self[AmbientBackgroundVisibleKey.self] }
+        set { self[AmbientBackgroundVisibleKey.self] = newValue }
     }
 }
 
@@ -158,7 +167,10 @@ enum ThemeVisualProfiles {
             displayPrimary: brandBlue,
             displayAccent: Color(red: 0.91, green: 0.35, blue: 0.55),
             pageBackground: dark
-                ? .solid(Color(red: 0.04, green: 0.04, blue: 0.05))
+                ? .topRadial(
+                    glow: Color(red: 0.48, green: 0.36, blue: 1.0, opacity: 0.10),
+                    base: Color(red: 0.04, green: 0.04, blue: 0.05)
+                )
                 : .topRadial(
                     glow: Color(red: 0.48, green: 0.36, blue: 1.0, opacity: 0.08),
                     base: Color(red: 0.933, green: 0.945, blue: 0.965)
@@ -706,6 +718,7 @@ struct ThemedPageBackgroundView: View {
 struct ThemedPageBackgroundModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.appIsDark) private var appIsDark
+    @Environment(\.ambientBackgroundVisible) private var ambientBackgroundVisible
 
     private var profile: ThemeVisualProfile {
         ThemeVisualProfiles.profile(
@@ -715,9 +728,15 @@ struct ThemedPageBackgroundModifier: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        content.background {
-            ThemedPageBackgroundView(background: profile.pageBackground)
-        }
+        content
+            .scrollContentBackground(ambientBackgroundVisible ? .hidden : .automatic)
+            .background {
+                if ambientBackgroundVisible {
+                    Color.clear.ignoresSafeArea()
+                } else {
+                    ThemedPageBackgroundView(background: profile.pageBackground)
+                }
+            }
     }
 }
 

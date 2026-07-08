@@ -23,18 +23,28 @@ private struct AppRootView: View {
         preferences.isDarkModeActive(systemColorScheme: systemColorScheme)
     }
 
+    private var ambientBackgroundVisible: Bool {
+        AmbientBackgroundState.isVisible(
+            themeCode: preferences.themeCode,
+            activeAmbient: viewModel.profile.activeAmbient,
+            storeUnlocks: viewModel.storeUnlocks
+        )
+    }
+
     var body: some View {
         ZStack {
             AmbientBackgroundView(
                 themeCode: preferences.themeCode,
                 activeAmbient: viewModel.profile.activeAmbient,
-                storeUnlocks: viewModel.storeUnlocks
+                storeUnlocks: viewModel.storeUnlocks,
+                isDark: appIsDark
             )
             ContentView()
         }
         .environment(\.t, preferences.translations)
         .environment(\.themeColors, preferences.themeColors)
         .environment(\.appIsDark, appIsDark)
+        .environment(\.ambientBackgroundVisible, ambientBackgroundVisible)
         .environment(\.themeTypographyCode, preferences.themeCode)
         .tint(preferences.themeColors.displayPrimary)
         .preferredColorScheme(preferences.colorScheme)

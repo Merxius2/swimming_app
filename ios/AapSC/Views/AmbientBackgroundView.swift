@@ -1,32 +1,47 @@
 import SwiftUI
 
+enum AmbientBackgroundState {
+    static func isVisible(themeCode: String, activeAmbient: String?, storeUnlocks: [String]) -> Bool {
+        if let activeAmbient,
+           SwimCoinStore.isStoreItemOwned(activeAmbient, storeUnlocks: storeUnlocks),
+           StoreAmbients.preset(for: activeAmbient) != nil {
+            return true
+        }
+        return themeCode == "liquid-os"
+    }
+}
+
 struct AmbientBackgroundView: View {
     let themeCode: String
     let activeAmbient: String?
     let storeUnlocks: [String]
+    let isDark: Bool
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var driftPhase: CGFloat = 0
 
     var body: some View {
         GeometryReader { proxy in
             if let preset = resolvedPreset {
                 ZStack {
+                    baseLayer(for: preset)
+
                     if let gradient = preset.gradient {
-                        LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+                        AnimatedAmbientGradient(spec: gradient, reduceMotion: reduceMotion)
                     }
 
                     ForEach(Array(preset.blobs.enumerated()), id: \.offset) { index, blob in
-                        blobView(blob, in: proxy.size, drift: preset.driftBlobs, index: index)
+                        blobView(blob, in: proxy.size, drift: preset.driftBlobs && !reduceMotion, index: index)
                     }
 
-                    if preset.bubbles {
+                    if preset.bubbles && !reduceMotion {
                         bubbleTrail(in: proxy.size)
                     }
                 }
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
                 .onAppear {
-                    guard preset.driftBlobs else { return }
+                    guard preset.driftBlobs, !reduceMotion else { return }
                     withAnimation(.easeInOut(duration: 28).repeatForever(autoreverses: true)) {
                         driftPhase = 1
                     }
@@ -35,6 +50,20 @@ struct AmbientBackgroundView: View {
         }
         .ignoresSafeArea()
         .allowsHitTesting(false)
+    }
+
+    @ViewBuilder
+    private func baseLayer(for preset: AmbientPreset) -> some View {
+        if preset.gradient != nil {
+            Color.clear
+        } else if themeCode == "liquid-os" {
+            (isDark
+                ? Color(red: 0.04, green: 0.04, blue: 0.05)
+                : Color(red: 0.933, green: 0.945, blue: 0.965))
+                .ignoresSafeArea()
+        } else {
+            Color.clear
+        }
     }
 
     private var resolvedPreset: AmbientPreset? {
@@ -55,7 +84,12 @@ struct AmbientBackgroundView: View {
         let height = size.height * blob.heightRatio
         let x = blob.xRatio.map { $0 * size.width } ?? (blob.rightRatio.map { size.width - $0 * size.width - width } ?? 0)
         let y = blob.yRatio.map { $0 * size.height } ?? (blob.bottomRatio.map { size.height - $0 * size.height - height } ?? 0)
-        let driftOffset = drift ? CGSize(width: sin(driftPhase * .pi * 2 + CGFloat(index)) * 12, height: cos(driftPhase * .pi * 2 + CGFloat(index)) * 10) : .zero
+        let driftOffset = drift
+            ? CGSize(
+                width: sin(driftPhase * .pi * 2 + CGFloat(index)) * 12,
+                height: cos(driftPhase * .pi * 2 + CGFloat(index)) * 10
+            )
+            : .zero
 
         Circle()
             .fill(
@@ -86,6 +120,39 @@ struct AmbientBackgroundView: View {
     }
 }
 
+private struct AnimatedAmbientGradient: View {
+    let spec: AmbientGradientSpec
+    let reduceMotion: Bool
+
+    @State private var phase = false
+
+    var body: some View {
+        GeometryReader { geo in
+            LinearGradient(
+                colors: spec.colors,
+                startPoint: spec.vertical ? .top : .leading,
+                endPoint: spec.vertical ? .bottom : .trailing
+            )
+            .frame(
+                width: spec.vertical ? geo.size.width : geo.size.width * 2,
+                height: spec.vertical ? geo.size.height * 2.2 : geo.size.height * 2
+            )
+            .offset(
+                x: spec.vertical ? 0 : (phase ? -geo.size.width * 0.5 : 0),
+                y: spec.vertical ? (phase ? -geo.size.height * 1.2 : 0) : 0
+            )
+        }
+        .clipped()
+        .ignoresSafeArea()
+        .onAppear {
+            guard !reduceMotion else { return }
+            withAnimation(.easeInOut(duration: spec.duration).repeatForever(autoreverses: true)) {
+                phase = true
+            }
+        }
+    }
+}
+
 private struct RisingBubble: View {
     let size: CGFloat
     let leftRatio: CGFloat
@@ -94,18 +161,36 @@ private struct RisingBubble: View {
     let duration: Double
 
     @State private var offsetY: CGFloat = 0
-    @State private var opacity: Double = 0.8
+    @State private var opacity: Double = 0
+    @State private var scale: CGFloat = 0.85
 
     var body: some View {
         Circle()
-            .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
+            .fill(
+                RadialGradient(
+                    colors: [Color.white.opacity(0.95), Color(hex: "#BAE6FD").opacity(0.35)],
+                    center: UnitPoint(x: 0.3, y: 0.3),
+                    startRadius: 0,
+                    endRadius: size * 0.5
+                )
+            )
+            .overlay(
+                Circle()
+                    .stroke(Color.white.opacity(0.65), lineWidth: 1)
+            )
+            .shadow(color: Color(hex: "#BAE6FD").opacity(0.55), radius: 6)
             .frame(width: size, height: size)
+            .scaleEffect(scale)
             .position(x: containerSize.width * leftRatio, y: containerSize.height * 0.85 + offsetY)
             .opacity(opacity)
             .onAppear {
                 withAnimation(.easeInOut(duration: duration).repeatForever(autoreverses: false).delay(delay)) {
-                    offsetY = -containerSize.height * 0.9
-                    opacity = 0
+                    offsetY = -containerSize.height * 1.25
+                    opacity = 0.85
+                    scale = 1.2
+                }
+                withAnimation(.easeInOut(duration: duration * 0.08).delay(delay)) {
+                    opacity = 0.85
                 }
             }
     }
@@ -122,8 +207,14 @@ struct AmbientBlob {
     var bottomRatio: CGFloat?
 }
 
+struct AmbientGradientSpec {
+    let colors: [Color]
+    let duration: Double
+    let vertical: Bool
+}
+
 struct AmbientPreset {
-    let gradient: [Color]?
+    let gradient: AmbientGradientSpec?
     let blobs: [AmbientBlob]
     let driftBlobs: Bool
     let bubbles: Bool
@@ -152,7 +243,15 @@ enum StoreAmbients {
         switch id {
         case "ambient:neon-lagoon":
             return AmbientPreset(
-                gradient: [Color(hex: "#020617"), Color(hex: "#7C3AED"), Color(hex: "#00E5FF")],
+                gradient: AmbientGradientSpec(
+                    colors: [
+                        Color(hex: "#020617"), Color(hex: "#0C1445"), Color(hex: "#1A0533"),
+                        Color(hex: "#7C3AED"), Color(hex: "#00E5FF"), Color(hex: "#FF00AA"),
+                        Color(hex: "#020617"),
+                    ],
+                    duration: 18,
+                    vertical: false
+                ),
                 blobs: [
                     blob("#00E5FF", 0.55, 0.58, -0.12, -0.12),
                     blob("#FF00AA", 0.45, 0.48, nil, 0.05, right: 0.08),
@@ -164,7 +263,15 @@ enum StoreAmbients {
             )
         case "ambient:sunset-lap":
             return AmbientPreset(
-                gradient: [Color(hex: "#431407"), .orange, .pink],
+                gradient: AmbientGradientSpec(
+                    colors: [
+                        Color(hex: "#431407"), Color(hex: "#9A3412"), Color(hex: "#FB923C"),
+                        Color(hex: "#F472B6"), Color(hex: "#FBBF24"), Color(hex: "#7C2D12"),
+                        Color(hex: "#1C1917"),
+                    ],
+                    duration: 22,
+                    vertical: false
+                ),
                 blobs: [
                     blob("#FB923C", 0.65, 0.65, -0.10, -0.15),
                     blob("#F472B6", 0.45, 0.50, nil, 0.10, right: 0.12),
@@ -176,7 +283,14 @@ enum StoreAmbients {
             )
         case "ambient:bubble-trail":
             return AmbientPreset(
-                gradient: [.cyan, Color(hex: "#007EA5")],
+                gradient: AmbientGradientSpec(
+                    colors: [
+                        Color(hex: "#0EA5E9"), Color(hex: "#0284C7"), Color(hex: "#0369A1"),
+                        Color(hex: "#0C4A6E"), Color(hex: "#082F49"),
+                    ],
+                    duration: 16,
+                    vertical: true
+                ),
                 blobs: [
                     blob("#BAE6FD", 0.45, 0.45, -0.05, -0.08),
                     blob("#A5F3FC", 0.40, 0.40, nil, nil, right: 0.05, bottom: 0.10),
@@ -186,7 +300,15 @@ enum StoreAmbients {
             )
         case "ambient:aurora-lap":
             return AmbientPreset(
-                gradient: [Color(hex: "#042F2E"), .teal, .indigo],
+                gradient: AmbientGradientSpec(
+                    colors: [
+                        Color(hex: "#042F2E"), Color(hex: "#134E4A"), Color(hex: "#065F46"),
+                        Color(hex: "#312E81"), Color(hex: "#4338CA"), Color(hex: "#0E7490"),
+                        Color(hex: "#042F2E"),
+                    ],
+                    duration: 20,
+                    vertical: false
+                ),
                 blobs: [
                     blob("#34D399", 0.40, 0.55, -0.10, -0.12),
                     blob("#818CF8", 0.45, 0.48, nil, 0.08, right: 0.08),
@@ -198,7 +320,15 @@ enum StoreAmbients {
             )
         case "ambient:deep-current":
             return AmbientPreset(
-                gradient: [.black, Color(hex: "#004C6D"), .cyan],
+                gradient: AmbientGradientSpec(
+                    colors: [
+                        Color(hex: "#020617"), Color(hex: "#0C4A6E"), Color(hex: "#0369A1"),
+                        Color(hex: "#164E63"), Color(hex: "#0EA5E9"), Color(hex: "#082F49"),
+                        Color(hex: "#020617"),
+                    ],
+                    duration: 24,
+                    vertical: false
+                ),
                 blobs: [
                     blob("#0EA5E9", 0.45, 0.58, -0.12, -0.10),
                     blob("#0369A1", 0.50, 0.52, nil, 0.12, right: 0.10),
