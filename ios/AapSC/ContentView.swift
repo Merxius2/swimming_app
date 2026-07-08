@@ -24,11 +24,12 @@ struct ContentView: View {
         ZStack(alignment: .bottom) {
             tabContent
                 .id(appearanceKey)
-                .padding(.bottom, CustomTabBar.barHeight)
+                .safeAreaPadding(.bottom, themeProfile.tabBar.layoutHeight)
 
             CustomTabBar(
                 selectedTab: $selectedTab,
                 profile: themeProfile,
+                uploadActive: showUpload,
                 progressTitle: preferences.t("navigation.progress"),
                 medalsTitle: preferences.t("navigation.medals"),
                 uploadTitle: preferences.t("navigation.upload"),
@@ -40,7 +41,7 @@ struct ContentView: View {
                 CustomUploadFAB(style: themeProfile.uploadFAB) {
                     showUpload = true
                 }
-                .offset(y: -CustomTabBar.fabOffset)
+                .offset(y: -themeProfile.tabBar.fabVerticalOffset)
             }
         }
         .ignoresSafeArea(.container, edges: .bottom)

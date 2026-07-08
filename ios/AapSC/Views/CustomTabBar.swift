@@ -4,14 +4,12 @@ struct CustomTabBar: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Binding var selectedTab: Int
     let profile: ThemeVisualProfile
+    let uploadActive: Bool
     let progressTitle: String
     let medalsTitle: String
     let uploadTitle: String
     let benchmarkTitle: String
     let historyTitle: String
-
-    static let barHeight: CGFloat = 90
-    static let fabOffset: CGFloat = 45
 
     var body: some View {
         VStack(spacing: 0) {
@@ -25,10 +23,13 @@ struct CustomTabBar: View {
             HStack(alignment: .bottom, spacing: 0) {
                 CustomTabButton(
                     title: progressTitle,
-                    icon: "chart.bar.fill",
+                    icon: profile.tabBar.progressIcon,
                     isActive: selectedTab == 0,
                     selectedColor: profile.tabBar.selectedColor,
                     unselectedColor: profile.tabBar.unselectedColor,
+                    iconSize: profile.tabBar.iconSize,
+                    labelFontSize: profile.tabBar.labelFontSize,
+                    itemSpacing: profile.tabBar.itemSpacing,
                     usesThemeFont: profile.tabBar.usesThemeFont,
                     themeCode: preferences.themeCode,
                     fadesUnselected: profile.tabBar.fadesUnselectedLabels
@@ -38,10 +39,13 @@ struct CustomTabBar: View {
 
                 CustomTabButton(
                     title: medalsTitle,
-                    icon: "checkmark.seal.fill",
+                    icon: profile.tabBar.medalsIcon,
                     isActive: selectedTab == 1,
                     selectedColor: profile.tabBar.selectedColor,
                     unselectedColor: profile.tabBar.unselectedColor,
+                    iconSize: profile.tabBar.iconSize,
+                    labelFontSize: profile.tabBar.labelFontSize,
+                    itemSpacing: profile.tabBar.itemSpacing,
                     usesThemeFont: profile.tabBar.usesThemeFont,
                     themeCode: preferences.themeCode,
                     fadesUnselected: profile.tabBar.fadesUnselectedLabels
@@ -49,22 +53,22 @@ struct CustomTabBar: View {
                     selectedTab = 1
                 }
 
-                VStack(spacing: 6) {
+                VStack(spacing: profile.tabBar.itemSpacing) {
                     Spacer()
-                        .frame(height: 40)
-                    Text(uploadTitle)
-                        .themeFont(.caption2, weight: .medium)
-                        .tracking(profile.tabBar.usesThemeFont ? ThemeTypography.headingTracking(for: preferences.themeCode) : 0)
-                        .foregroundStyle(profile.tabBar.unselectedColor)
+                        .frame(height: profile.tabBar.centerSpacerHeight)
+                    uploadLabel
                 }
                 .frame(maxWidth: .infinity)
 
                 CustomTabButton(
                     title: benchmarkTitle,
-                    icon: "waveform.path.ecg",
+                    icon: profile.tabBar.benchmarkIcon,
                     isActive: selectedTab == 3,
                     selectedColor: profile.tabBar.selectedColor,
                     unselectedColor: profile.tabBar.unselectedColor,
+                    iconSize: profile.tabBar.iconSize,
+                    labelFontSize: profile.tabBar.labelFontSize,
+                    itemSpacing: profile.tabBar.itemSpacing,
                     usesThemeFont: profile.tabBar.usesThemeFont,
                     themeCode: preferences.themeCode,
                     fadesUnselected: profile.tabBar.fadesUnselectedLabels
@@ -74,10 +78,13 @@ struct CustomTabBar: View {
 
                 CustomTabButton(
                     title: historyTitle,
-                    icon: "clock.arrow.circlepath",
+                    icon: profile.tabBar.historyIcon,
                     isActive: selectedTab == 4,
                     selectedColor: profile.tabBar.selectedColor,
                     unselectedColor: profile.tabBar.unselectedColor,
+                    iconSize: profile.tabBar.iconSize,
+                    labelFontSize: profile.tabBar.labelFontSize,
+                    itemSpacing: profile.tabBar.itemSpacing,
                     usesThemeFont: profile.tabBar.usesThemeFont,
                     themeCode: preferences.themeCode,
                     fadesUnselected: profile.tabBar.fadesUnselectedLabels
@@ -85,9 +92,9 @@ struct CustomTabBar: View {
                     selectedTab = 4
                 }
             }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 25)
-            .frame(height: Self.barHeight)
+            .padding(.horizontal, profile.tabBar.horizontalPadding)
+            .padding(.bottom, profile.tabBar.bottomPadding)
+            .frame(height: profile.tabBar.barContentHeight)
             .background {
                 barBackground
                     .overlay {
@@ -107,6 +114,28 @@ struct CustomTabBar: View {
             }
         }
         .modifier(ClassicTabBarShadow(enabled: profile.tabBar.usesRaisedShadow))
+    }
+
+    @ViewBuilder
+    private var uploadLabel: some View {
+        let labelColor = uploadActive
+            ? profile.tabBar.selectedColor
+            : (profile.tabBar.uploadLabelColor ?? profile.tabBar.unselectedColor)
+        let labelWeight: Font.Weight = uploadActive ? .bold : .medium
+
+        Group {
+            if let labelFontSize = profile.tabBar.labelFontSize {
+                Text(uploadTitle)
+                    .themeFont(size: labelFontSize, weight: labelWeight)
+            } else {
+                Text(uploadTitle)
+                    .themeFont(.caption2, weight: labelWeight)
+            }
+        }
+        .tracking(profile.tabBar.usesThemeFont ? ThemeTypography.headingTracking(for: preferences.themeCode) : 0)
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+        .foregroundStyle(labelColor)
     }
 
     private var stripeHeight: CGFloat {
@@ -157,6 +186,9 @@ struct CustomTabButton: View {
     let isActive: Bool
     let selectedColor: Color
     let unselectedColor: Color
+    let iconSize: CGFloat
+    let labelFontSize: CGFloat?
+    let itemSpacing: CGFloat
     let usesThemeFont: Bool
     let themeCode: String
     let fadesUnselected: Bool
@@ -164,19 +196,33 @@ struct CustomTabButton: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(spacing: 6) {
+            VStack(spacing: itemSpacing) {
                 Image(systemName: icon)
-                    .font(.system(size: 20))
-                Text(title)
-                    .themeFont(.caption2, weight: isActive ? .bold : .medium)
-                    .tracking(usesThemeFont ? ThemeTypography.headingTracking(for: themeCode) : 0)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .font(.system(size: iconSize, weight: isActive ? .semibold : .regular))
+                tabLabel
             }
             .foregroundStyle(labelColor)
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var tabLabel: some View {
+        let weight: Font.Weight = isActive ? .bold : .medium
+        if let labelFontSize {
+            Text(title)
+                .themeFont(size: labelFontSize, weight: weight)
+                .tracking(usesThemeFont ? ThemeTypography.headingTracking(for: themeCode) : 0)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        } else {
+            Text(title)
+                .themeFont(.caption2, weight: weight)
+                .tracking(usesThemeFont ? ThemeTypography.headingTracking(for: themeCode) : 0)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
     }
 
     private var labelColor: Color {
@@ -195,19 +241,30 @@ struct CustomUploadFAB: View {
         Button(action: action) {
             ZStack(alignment: .bottom) {
                 Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 26, weight: .bold))
+                    .font(.system(size: style.iconSize, weight: .bold))
                     .foregroundStyle(style.iconColor)
-                    .frame(width: 65, height: 65)
+                    .frame(width: style.diameter, height: style.diameter)
                     .background {
                         Circle().fill(fabFill)
                     }
-                    .overlay(
+                    .overlay {
                         Circle()
                             .strokeBorder(style.borderColor, lineWidth: style.borderWidth)
-                    )
+                    }
+                    .overlay {
+                        if style.usesBorderBottomAccent, let bottomAccent = style.bottomAccent {
+                            Circle()
+                                .stroke(bottomAccent, lineWidth: style.borderWidth)
+                                .mask(alignment: .bottom) {
+                                    Rectangle()
+                                        .frame(height: style.borderWidth * 4)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                                }
+                        }
+                    }
                     .modifier(ClassicFABShadow(style: style))
 
-                if let bottomAccent = style.bottomAccent {
+                if !style.usesBorderBottomAccent, let bottomAccent = style.bottomAccent {
                     bottomAccent
                         .frame(width: 34, height: style.borderWidth)
                         .clipShape(Capsule())
