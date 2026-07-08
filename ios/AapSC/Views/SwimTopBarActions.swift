@@ -53,7 +53,9 @@ struct ThemedTopBarPill: View {
             }
             .buttonStyle(.plain)
         }
-        .background(pillBackground, in: Capsule())
+        .background {
+            Capsule().fill(pillFill)
+        }
         .overlay(
             Capsule()
                 .strokeBorder(style.borderColor, lineWidth: style.borderWidth)
@@ -61,12 +63,17 @@ struct ThemedTopBarPill: View {
         .shadow(color: style.shadowColor, radius: 8, x: 0, y: 2)
     }
 
-    @ViewBuilder
-    private var pillBackground: some ShapeStyle {
+    private var pillFill: AnyShapeStyle {
         if let gradient = style.backgroundGradient, gradient.count >= 2 {
-            LinearGradient(colors: gradient, startPoint: .leading, endPoint: .trailing)
+            AnyShapeStyle(
+                LinearGradient(
+                    colors: gradient,
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
         } else {
-            style.background
+            AnyShapeStyle(style.background)
         }
     }
 }
