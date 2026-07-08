@@ -66,6 +66,7 @@
 		B10000000000000000000063 /* AppIconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000063 /* AppIconService.swift */; };
 		B10000000000000000000064 /* ThemeTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000064 /* ThemeTypography.swift */; };
 		B10000000000000000000065 /* StoreIconPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000065 /* StoreIconPreview.swift */; };
+		B10000000000000000000070 /* StoreVibePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000070 /* StoreVibePreviewView.swift */; };
 		B10000000000000000000066 /* Oxanium-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000066 /* Oxanium-Regular.ttf */; };
 		B10000000000000000000067 /* Oxanium-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000067 /* Oxanium-Medium.ttf */; };
 		B10000000000000000000068 /* Oxanium-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000068 /* Oxanium-SemiBold.ttf */; };
@@ -157,6 +158,7 @@
 		F10000000000000000000063 /* AppIconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconService.swift; sourceTree = "<group>"; };
 		F10000000000000000000064 /* ThemeTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTypography.swift; sourceTree = "<group>"; };
 		F10000000000000000000065 /* StoreIconPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreIconPreview.swift; sourceTree = "<group>"; };
+		F10000000000000000000070 /* StoreVibePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreVibePreviewView.swift; sourceTree = "<group>"; };
 		F10000000000000000000066 /* Oxanium-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Regular.ttf"; sourceTree = "<group>"; };
 		F10000000000000000000067 /* Oxanium-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Medium.ttf"; sourceTree = "<group>"; };
 		F10000000000000000000068 /* Oxanium-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -326,6 +328,7 @@
 				F10000000000000000000061 /* MedalIconGlyphs.swift */,
 				F10000000000000000000062 /* ResetDataModal.swift */,
 				F10000000000000000000065 /* StoreIconPreview.swift */,
+				F10000000000000000000070 /* StoreVibePreviewView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -567,6 +570,7 @@
 				B10000000000000000000063 /* AppIconService.swift in Sources */,
 				B10000000000000000000064 /* ThemeTypography.swift in Sources */,
 				B10000000000000000000065 /* StoreIconPreview.swift in Sources */,
+				B10000000000000000000070 /* StoreVibePreviewView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

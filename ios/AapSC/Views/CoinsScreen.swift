@@ -643,80 +643,68 @@ private struct StoreItemPreviewView: View {
 
     @ViewBuilder
     private var previewContent: some View {
-        switch item.preview {
-        case "theme":
-            if let themeCode = item.themeCode {
-                ThemePreviewBar(theme: AppThemes.theme(for: themeCode), height: 80)
-            } else {
-                ThemePreviewBar(theme: AppThemes.theme(for: AppThemes.defaultCode), height: 80)
-            }
-        case "ambient-neon":
-            LinearGradient(
-                colors: [.black, Color(red: 0.05, green: 0.08, blue: 0.27), .purple, .cyan, .pink],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        case "ambient-sunset":
-            LinearGradient(
-                colors: [Color(red: 0.26, green: 0.08, blue: 0.03), .orange, .pink, .yellow],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        case "ambient-bubbles":
-            LinearGradient(colors: [.cyan, Color(red: 0.0, green: 0.45, blue: 0.65)], startPoint: .top, endPoint: .bottom)
-                .overlay(Image(systemName: "bubble.left.and.bubble.right.fill").themeFont(.title, weight: .bold).foregroundStyle(.white.opacity(0.5)))
-        case "ambient-aurora":
-            LinearGradient(colors: [Color(red: 0.02, green: 0.18, blue: 0.18), .teal, .indigo, .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
-        case "ambient-deep":
-            LinearGradient(colors: [.black, Color(red: 0.0, green: 0.29, blue: 0.44), .cyan], startPoint: .topLeading, endPoint: .bottomTrailing)
-        case "golden-coins":
-            CoinBadge(count: 1337, golden: true)
-        case "confetti":
-            HStack {
-                Text("🎊").themeFont(.title2, weight: .bold)
-                Text("✨").themeFont(.title3, weight: .semibold)
-                Text("🎉").themeFont(.title2, weight: .bold)
-            }
-        case "medal-shimmer":
-            Image(systemName: "medal.fill")
-                .font(.system(size: 36))
-                .foregroundStyle(.orange)
-        case "bonus-spin":
-            VStack(spacing: 4) {
-                Text("\(SwimCoinStore.getDailyPaidSpinLimit(bonusWheelSpinCredits))/day")
-                    .themeFont(.title2, weight: .black)
-                    .foregroundStyle(Color("BrandBlue"))
-                Text("paid spins")
-                    .themeFont(.caption2, weight: .semibold)
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
-            }
-        case "challenge-reroll":
-            VStack(spacing: 6) {
-                Image(systemName: "shuffle")
+        if let vibeStyle = StoreVibePreviewStyle(preview: item.preview) {
+            StoreVibePreviewView(style: vibeStyle)
+        } else {
+            switch item.preview {
+            case "theme":
+                if let themeCode = item.themeCode {
+                    ThemePreviewBar(theme: AppThemes.theme(for: themeCode), height: 80)
+                } else {
+                    ThemePreviewBar(theme: AppThemes.theme(for: AppThemes.defaultCode), height: 80)
+                }
+            case "golden-coins":
+                CoinBadge(count: 1337, golden: true)
+            case "confetti":
+                HStack {
+                    Text("🎊").themeFont(.title2, weight: .bold)
+                    Text("✨").themeFont(.title3, weight: .semibold)
+                    Text("🎉").themeFont(.title2, weight: .bold)
+                }
+            case "medal-shimmer":
+                Image(systemName: "medal.fill")
+                    .font(.system(size: 36))
+                    .foregroundStyle(.orange)
+            case "bonus-spin":
+                VStack(spacing: 4) {
+                    Text("\(SwimCoinStore.getDailyPaidSpinLimit(bonusWheelSpinCredits))/day")
+                        .themeFont(.title2, weight: .black)
+                        .foregroundStyle(Color("BrandBlue"))
+                    Text("paid spins")
+                        .themeFont(.caption2, weight: .semibold)
+                        .foregroundStyle(.secondary)
+                        .textCase(.uppercase)
+                }
+            case "challenge-reroll":
+                VStack(spacing: 6) {
+                    Image(systemName: "shuffle")
+                        .themeFont(.title, weight: .bold)
+                        .foregroundStyle(Color("BrandBlue"))
+                    Text("monthly challenge")
+                        .themeFont(.caption2, weight: .semibold)
+                        .foregroundStyle(.secondary)
+                        .textCase(.uppercase)
+                }
+            case "icon-gold-medal":
+                StoreIconPreview(id: "icon:gold-medal", size: 56)
+            case "icon-neon-lane":
+                StoreIconPreview(id: "icon:neon-lane", size: 56)
+            case "icon-trophy-splash":
+                StoreIconPreview(id: "icon:trophy-splash", size: 56)
+            case "icon-platinum-star":
+                StoreIconPreview(id: "icon:platinum-star", size: 56)
+            default:
+                Image(systemName: "bitcoinsign.circle.fill")
                     .themeFont(.title, weight: .bold)
-                    .foregroundStyle(Color("BrandBlue"))
-                Text("monthly challenge")
-                    .themeFont(.caption2, weight: .semibold)
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
+                    .foregroundStyle(.orange)
             }
-        case "icon-gold-medal":
-            StoreIconPreview(id: "icon:gold-medal", size: 56)
-        case "icon-neon-lane":
-            StoreIconPreview(id: "icon:neon-lane", size: 56)
-        case "icon-trophy-splash":
-            StoreIconPreview(id: "icon:trophy-splash", size: 56)
-        case "icon-platinum-star":
-            StoreIconPreview(id: "icon:platinum-star", size: 56)
-        default:
-            Image(systemName: "bitcoinsign.circle.fill")
-                .themeFont(.title, weight: .bold)
-                .foregroundStyle(.orange)
         }
     }
 
     private var previewBackground: some ShapeStyle {
+        if StoreVibePreviewStyle(preview: item.preview) != nil {
+            return AnyShapeStyle(Color.clear)
+        }
         switch item.preview {
         case "golden-coins":
             return AnyShapeStyle(LinearGradient(colors: [Color(red: 1.0, green: 0.98, blue: 0.9), .yellow.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing))
