@@ -5,6 +5,7 @@ struct CustomTabBar: View {
     @Binding var selectedTab: Int
     let profile: ThemeVisualProfile
     let uploadActive: Bool
+    let onUpload: (() -> Void)?
     let progressTitle: String
     let medalsTitle: String
     let uploadTitle: String
@@ -113,7 +114,17 @@ struct CustomTabBar: View {
                     .frame(maxWidth: .infinity)
             }
         }
+        .overlay(alignment: .top) {
+            if profile.uploadFAB.usesOverlay, let onUpload {
+                CustomUploadFAB(style: profile.uploadFAB, action: onUpload)
+                    .offset(y: fabTopOffset)
+            }
+        }
         .modifier(ClassicTabBarShadow(enabled: profile.tabBar.usesRaisedShadow))
+    }
+
+    private var fabTopOffset: CGFloat {
+        -(profile.uploadFAB.diameter / 2) + profile.tabBar.fabSeatInset
     }
 
     @ViewBuilder

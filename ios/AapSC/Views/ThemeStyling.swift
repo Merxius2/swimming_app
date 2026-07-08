@@ -81,7 +81,8 @@ struct ThemeTabBarStyle {
     var bottomPadding: CGFloat = 25
     var horizontalPadding: CGFloat = 10
     var centerSpacerHeight: CGFloat = 40
-    var fabVerticalOffset: CGFloat = 45
+    /// Positive values nest the upload FAB deeper into the bar (less protrusion above the top edge).
+    var fabSeatInset: CGFloat = 6
     var uploadLabelColor: Color? = nil
 
     var layoutHeight: CGFloat {
@@ -316,7 +317,7 @@ enum ThemeVisualProfiles {
                 bottomPadding: 4,
                 horizontalPadding: 6,
                 centerSpacerHeight: 20,
-                fabVerticalOffset: 20,
+                fabSeatInset: 16,
                 uploadLabelColor: dark
                     ? Color(red: 0.94, green: 0.94, blue: 0.94, opacity: 0.88)
                     : Color(red: 0.176, green: 0.176, blue: 0.176) // #2D2D2D

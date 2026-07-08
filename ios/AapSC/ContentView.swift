@@ -30,19 +30,13 @@ struct ContentView: View {
                 selectedTab: $selectedTab,
                 profile: themeProfile,
                 uploadActive: showUpload,
+                onUpload: { showUpload = true },
                 progressTitle: preferences.t("navigation.progress"),
                 medalsTitle: preferences.t("navigation.medals"),
                 uploadTitle: preferences.t("navigation.upload"),
                 benchmarkTitle: preferences.t("navigation.benchmark"),
                 historyTitle: preferences.t("navigation.history")
             )
-
-            if themeProfile.uploadFAB.usesOverlay {
-                CustomUploadFAB(style: themeProfile.uploadFAB) {
-                    showUpload = true
-                }
-                .offset(y: -themeProfile.tabBar.fabVerticalOffset)
-            }
         }
         .ignoresSafeArea(.container, edges: .bottom)
         .sheet(isPresented: $showUpload) {
