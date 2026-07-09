@@ -13,16 +13,17 @@ import { useSwim } from '../context/SwimContext';
 import { evaluateAllMedals, getMedalStats } from '../lib/swimMedals';
 import SecretAppIcon from './SecretAppIcon';
 import CoinBadge from './swim/CoinBadge';
+import NavPageIcon from './NavPageIcon';
 
 const NAV = [
   {
     titleKey: 'navigation.swimCoach',
-    items: [
-      { path: '/progress', labelKey: 'navigation.progress', icon: BarChart3 },
-      { path: '/upload', labelKey: 'navigation.upload', icon: Upload },
-      { path: '/history', labelKey: 'navigation.history', icon: History },
-      { path: '/benchmark', labelKey: 'navigation.benchmark', icon: TrendingUp },
-      { path: '/medals', labelKey: 'navigation.medals', icon: Award },
+      items: [
+      { path: '/progress', labelKey: 'navigation.progress', icon: BarChart3, pageKey: 'progress' },
+      { path: '/upload', labelKey: 'navigation.upload', icon: Upload, pageKey: 'upload' },
+      { path: '/history', labelKey: 'navigation.history', icon: History, pageKey: 'history' },
+      { path: '/benchmark', labelKey: 'navigation.benchmark', icon: TrendingUp, pageKey: 'benchmark' },
+      { path: '/medals', labelKey: 'navigation.medals', icon: Award, pageKey: 'medals' },
     ],
   },
 ];
@@ -76,7 +77,6 @@ export default function Sidebar() {
             </p>
             <div className="space-y-0.5">
               {section.items.map((item) => {
-                const Icon = item.icon;
                 const active = isActive(item.path);
                 const isUpload = item.path === '/upload';
                 const isMedals = item.path === '/medals';
@@ -84,7 +84,12 @@ export default function Sidebar() {
                   <Link key={item.path} href={item.path}>
                     <div className={`${itemClass(active, isUpload)} ${isMedals ? 'justify-between' : ''}`}>
                       <span className="flex items-center gap-2.5 min-w-0">
-                        <Icon size={isUpload ? 18 : 17} strokeWidth={isUpload ? 2.5 : 2} />
+                        <NavPageIcon
+                          icon={item.icon}
+                          pageKey={item.pageKey}
+                          size={isUpload ? 18 : 17}
+                          strokeWidth={isUpload ? 2.5 : 2}
+                        />
                         <span>{t(item.labelKey)}</span>
                       </span>
                       {isMedals && !isLoading && (
@@ -107,7 +112,7 @@ export default function Sidebar() {
 
       <Link href="/settings">
         <div className={`${itemClass(isActive('/settings'))} mt-auto`}>
-          <Settings size={17} />
+          <NavPageIcon icon={Settings} pageKey="settings" size={17} strokeWidth={isActive('/settings') ? 2.5 : 2} />
           <span>{t('navigation.settings')}</span>
         </div>
       </Link>

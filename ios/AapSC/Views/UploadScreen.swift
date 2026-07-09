@@ -90,6 +90,7 @@ struct UploadScreen: View {
             ScreenHeader(
                 preferences.t("upload.title"),
                 subtitle: preferences.t("upload.subtitle"),
+                pageKey: "upload",
                 systemImage: "square.and.arrow.up"
             )
 

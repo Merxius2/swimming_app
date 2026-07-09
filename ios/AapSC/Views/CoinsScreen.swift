@@ -12,6 +12,7 @@ struct CoinsScreen: View {
                     ScreenHeader(
                         preferences.t("coins.wheel.title"),
                         subtitle: preferences.t("coins.wheel.subtitle"),
+                        pageKey: "coins",
                         systemImage: "bitcoinsign.circle.fill"
                     )
 

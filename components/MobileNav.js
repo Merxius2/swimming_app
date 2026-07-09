@@ -12,13 +12,14 @@ import {
   BarChart3, Upload, History, TrendingUp, Award,
 } from 'lucide-react';
 import { useLanguage } from '../context/UserPreferencesContext';
+import NavPageIcon from './NavPageIcon';
 
 const TABS = [
-  { path: '/progress', labelKey: 'navigation.progress', icon: BarChart3 },
-  { path: '/medals', labelKey: 'navigation.medals', icon: Award },
+  { path: '/progress', labelKey: 'navigation.progress', icon: BarChart3, pageKey: 'progress' },
+  { path: '/medals', labelKey: 'navigation.medals', icon: Award, pageKey: 'medals' },
   null, // center slot — upload FAB
-  { path: '/benchmark', labelKey: 'navigation.benchmark', icon: TrendingUp },
-  { path: '/history', labelKey: 'navigation.history', icon: History },
+  { path: '/benchmark', labelKey: 'navigation.benchmark', icon: TrendingUp, pageKey: 'benchmark' },
+  { path: '/history', labelKey: 'navigation.history', icon: History, pageKey: 'history' },
 ];
 
 function useVisualViewportPin(ref) {
@@ -47,14 +48,14 @@ function useVisualViewportPin(ref) {
   }, [ref]);
 }
 
-function NavTab({ path, labelKey, icon: Icon, isActive, t }) {
+function NavTab({ path, labelKey, icon, pageKey, isActive, t }) {
   return (
     <Link href={path} className="mobile-nav-tab">
       <button
         type="button"
         className={`mobile-nav-tab-btn ${isActive ? 'mobile-nav-tab-active' : ''}`}
       >
-        <Icon size={17} strokeWidth={isActive ? 2.5 : 2} />
+        <NavPageIcon icon={icon} pageKey={pageKey} size={17} strokeWidth={isActive ? 2.5 : 2} />
         <span className="mobile-nav-tab-label">{t(labelKey)}</span>
       </button>
     </Link>
@@ -87,7 +88,7 @@ export default function MobileNav() {
                     aria-current={uploadActive ? 'page' : undefined}
                     className={`mobile-nav-fab ${uploadActive ? 'mobile-nav-fab-active' : ''}`}
                   >
-                    <Upload size={26} strokeWidth={2.5} />
+                    <NavPageIcon icon={Upload} pageKey="upload" size={26} strokeWidth={2.5} />
                   </button>
                 </Link>
                 <span className={`mobile-nav-fab-label ${uploadActive ? 'text-[#2A45CC] font-semibold' : 'text-ink-soft'}`}>

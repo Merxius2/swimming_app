@@ -4,6 +4,7 @@ struct AmbientBackgroundView: View {
     let themeCode: String
     let activeAmbient: String?
     let storeUnlocks: [String]
+    var includeBubbles: Bool = false
 
     @State private var driftPhase: CGFloat = 0
 
@@ -19,7 +20,7 @@ struct AmbientBackgroundView: View {
                         blobView(blob, in: proxy.size, drift: preset.driftBlobs, index: index)
                     }
 
-                    if preset.bubbles {
+                    if includeBubbles && preset.bubbles {
                         bubbleTrail(in: proxy.size)
                     }
                 }
@@ -86,6 +87,35 @@ struct AmbientBackgroundView: View {
     }
 }
 
+struct AmbientBubbleOverlayView: View {
+    let activeAmbient: String?
+    let storeUnlocks: [String]
+
+    var body: some View {
+        GeometryReader { proxy in
+            if let activeAmbient,
+               SwimCoinStore.isStoreItemOwned(activeAmbient, storeUnlocks: storeUnlocks),
+               let preset = StoreAmbients.preset(for: activeAmbient),
+               preset.bubbles {
+                ZStack {
+                    ForEach(StoreAmbients.bubblePositions.indices, id: \.self) { index in
+                        let bubble = StoreAmbients.bubblePositions[index]
+                        RisingBubble(
+                            size: bubble.size,
+                            leftRatio: bubble.leftRatio,
+                            containerSize: proxy.size,
+                            delay: bubble.delay,
+                            duration: bubble.duration
+                        )
+                    }
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+    }
+}
+
 private struct RisingBubble: View {
     let size: CGFloat
     let leftRatio: CGFloat
@@ -93,21 +123,25 @@ private struct RisingBubble: View {
     let delay: Double
     let duration: Double
 
-    @State private var offsetY: CGFloat = 0
-    @State private var opacity: Double = 0.8
-
     var body: some View {
-        Circle()
-            .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
-            .frame(width: size, height: size)
-            .position(x: containerSize.width * leftRatio, y: containerSize.height * 0.85 + offsetY)
-            .opacity(opacity)
-            .onAppear {
-                withAnimation(.easeInOut(duration: duration).repeatForever(autoreverses: false).delay(delay)) {
-                    offsetY = -containerSize.height * 0.9
-                    opacity = 0
-                }
-            }
+        TimelineView(.animation) { timeline in
+            let elapsed = timeline.date.timeIntervalSinceReferenceDate
+            let cycle = max(duration, 0.1)
+            let shifted = elapsed - delay
+            let progress = shifted < 0
+                ? 0.0
+                : (shifted.truncatingRemainder(dividingBy: cycle)) / cycle
+            let y = containerSize.height * (0.85 - progress * 0.95)
+            let fade = progress < 0.08
+                ? progress / 0.08
+                : max(0, 1 - (progress - 0.08) / 0.92)
+
+            Circle()
+                .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
+                .frame(width: size, height: size)
+                .position(x: containerSize.width * leftRatio, y: y)
+                .opacity(0.85 * fade)
+        }
     }
 }
 

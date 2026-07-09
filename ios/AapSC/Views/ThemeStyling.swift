@@ -705,6 +705,7 @@ struct ThemedPageBackgroundView: View {
 
 struct ThemedPageBackgroundModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
+    @EnvironmentObject private var viewModel: SwimViewModel
     @Environment(\.appIsDark) private var appIsDark
 
     private var profile: ThemeVisualProfile {
@@ -714,9 +715,21 @@ struct ThemedPageBackgroundModifier: ViewModifier {
         )
     }
 
+    private var ambientActive: Bool {
+        guard let ambient = viewModel.profile.activeAmbient,
+              SwimCoinStore.isStoreItemOwned(ambient, storeUnlocks: viewModel.storeUnlocks) else {
+            return false
+        }
+        return StoreAmbients.preset(for: ambient) != nil
+    }
+
     func body(content: Content) -> some View {
         content.background {
-            ThemedPageBackgroundView(background: profile.pageBackground)
+            if ambientActive {
+                Color.clear
+            } else {
+                ThemedPageBackgroundView(background: profile.pageBackground)
+            }
         }
     }
 }

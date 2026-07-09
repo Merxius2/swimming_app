@@ -852,6 +852,15 @@ html.dark .coin-badge-golden {
     animation: none;
     opacity: 0.35;
   }
+
+  html.ambient-active .ambient-bubble {
+    -webkit-animation-name: ambient-bubble-rise;
+    animation-name: ambient-bubble-rise;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+  }
 }
 
 .store-bubble {

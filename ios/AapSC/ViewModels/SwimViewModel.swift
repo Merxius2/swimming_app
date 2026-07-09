@@ -160,6 +160,10 @@ final class SwimViewModel: ObservableObject {
     func importDataString(_ exportString: String) async throws {
         let imported = try await SwimImportExport.parseImportString(exportString)
         replaceData(imported)
+        AppIconService.apply(
+            activeAppIcon: profile.activeAppIcon,
+            storeUnlocks: storeUnlocks
+        )
     }
 
     func adjustCoins(delta: Int) {

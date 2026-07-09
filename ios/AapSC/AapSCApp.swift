@@ -31,6 +31,10 @@ private struct AppRootView: View {
                 storeUnlocks: viewModel.storeUnlocks
             )
             ContentView()
+            AmbientBubbleOverlayView(
+                activeAmbient: viewModel.profile.activeAmbient,
+                storeUnlocks: viewModel.storeUnlocks
+            )
         }
         .environment(\.t, preferences.translations)
         .environment(\.themeColors, preferences.themeColors)
@@ -44,6 +48,18 @@ private struct AppRootView: View {
             AppIconService.apply(
                 activeAppIcon: viewModel.profile.activeAppIcon,
                 storeUnlocks: viewModel.storeUnlocks
+            )
+        }
+        .onChange(of: viewModel.profile.activeAppIcon) { _, activeAppIcon in
+            AppIconService.apply(
+                activeAppIcon: activeAppIcon,
+                storeUnlocks: viewModel.storeUnlocks
+            )
+        }
+        .onChange(of: viewModel.storeUnlocks) { _, storeUnlocks in
+            AppIconService.apply(
+                activeAppIcon: viewModel.profile.activeAppIcon,
+                storeUnlocks: storeUnlocks
             )
         }
         .onChange(of: preferences.themeCode) { _, themeCode in

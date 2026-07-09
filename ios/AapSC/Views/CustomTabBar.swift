@@ -27,6 +27,7 @@ enum TabBarLayout {
 
 struct CustomTabBar: View {
     @EnvironmentObject private var preferences: UserPreferencesService
+    @EnvironmentObject private var viewModel: SwimViewModel
     @Binding var selectedTab: Int
     let profile: ThemeVisualProfile
     let uploadActive: Bool
@@ -49,6 +50,7 @@ struct CustomTabBar: View {
             HStack(alignment: .bottom, spacing: 0) {
                 CustomTabButton(
                     title: progressTitle,
+                    pageKey: "progress",
                     icon: TabBarLayout.progressIcon,
                     isActive: selectedTab == 0,
                     selectedColor: profile.tabBar.selectedColor,
@@ -62,6 +64,7 @@ struct CustomTabBar: View {
 
                 CustomTabButton(
                     title: medalsTitle,
+                    pageKey: "medals",
                     icon: TabBarLayout.medalsIcon,
                     isActive: selectedTab == 1,
                     selectedColor: profile.tabBar.selectedColor,
@@ -82,6 +85,7 @@ struct CustomTabBar: View {
 
                 CustomTabButton(
                     title: benchmarkTitle,
+                    pageKey: "benchmark",
                     icon: TabBarLayout.benchmarkIcon,
                     isActive: selectedTab == 3,
                     selectedColor: profile.tabBar.selectedColor,
@@ -95,6 +99,7 @@ struct CustomTabBar: View {
 
                 CustomTabButton(
                     title: historyTitle,
+                    pageKey: "history",
                     icon: TabBarLayout.historyIcon,
                     isActive: selectedTab == 4,
                     selectedColor: profile.tabBar.selectedColor,
@@ -204,6 +209,7 @@ private struct ClassicTabBarShadow: ViewModifier {
 
 struct CustomTabButton: View {
     let title: String
+    let pageKey: String
     let icon: String
     let isActive: Bool
     let selectedColor: Color
@@ -216,8 +222,12 @@ struct CustomTabButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: TabBarLayout.itemSpacing) {
-                Image(systemName: icon)
-                    .font(.system(size: TabBarLayout.iconSize, weight: isActive ? .semibold : .regular))
+                StorePageIconView(
+                    pageKey: pageKey,
+                    systemImage: icon,
+                    size: TabBarLayout.iconSize,
+                    color: labelColor
+                )
                 Text(title)
                     .themeFont(.caption2, weight: isActive ? .bold : .medium)
                     .tracking(usesThemeFont ? ThemeTypography.headingTracking(for: themeCode) : 0)
@@ -241,14 +251,30 @@ struct CustomTabButton: View {
 struct CustomUploadFAB: View {
     let style: ThemeUploadFABStyle
     let action: () -> Void
+    @EnvironmentObject private var viewModel: SwimViewModel
 
     var body: some View {
         Button(action: action) {
             ZStack(alignment: .bottom) {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: TabBarLayout.fabIconSize, weight: .bold))
-                    .foregroundStyle(style.iconColor)
-                    .frame(width: TabBarLayout.fabDiameter, height: TabBarLayout.fabDiameter)
+                Group {
+                    if StorePageIcons.resolve(
+                        activeAppIcon: viewModel.profile.activeAppIcon,
+                        pageKey: "upload",
+                        storeUnlocks: viewModel.storeUnlocks
+                    ) != nil {
+                        StorePageIconView(
+                            pageKey: "upload",
+                            systemImage: "square.and.arrow.up",
+                            size: TabBarLayout.fabIconSize,
+                            color: style.iconColor
+                        )
+                    } else {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: TabBarLayout.fabIconSize, weight: .bold))
+                            .foregroundStyle(style.iconColor)
+                    }
+                }
+                .frame(width: TabBarLayout.fabDiameter, height: TabBarLayout.fabDiameter)
                     .background {
                         Circle().fill(fabFill)
                     }

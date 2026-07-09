@@ -14,6 +14,7 @@ struct BenchmarkScreen: View {
                     ScreenHeader(
                         preferences.t("benchmark.title"),
                         subtitle: preferences.t("benchmark.subtitle"),
+                        pageKey: "benchmark",
                         systemImage: "gauge.with.dots.needle.67percent"
                     )
 
