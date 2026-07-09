@@ -85,7 +85,12 @@ enum SwimFeedback {
             motivation = t.t("feedback.motivationPaceUp", params: ["seconds": String(Int(delta.rounded()))])
         } else if let delta = ctx.paceDeltaVsPrevious, delta <= -5 {
             if coachGameplay.positiveOnly {
-                motivation = t.t("feedback.motivationKeepGoing")
+                motivation = FeedbackVariants.translateVariant(
+                    t,
+                    baseKey: "feedback.motivationKeepGoing",
+                    count: 3,
+                    seed: session.date
+                )
             } else if coachGameplay.sessionPenalty {
                 motivation = t.t("feedback.motivationPaceDownCritical")
                 usedPaceDownMotivation = true
@@ -98,9 +103,19 @@ enum SwimFeedback {
         } else if let trend = ctx.paceTrendDelta, trend >= 4 {
             motivation = t.t("feedback.motivationTrendUp")
         } else if recentCount(ctx: ctx, days: 7) >= 3 {
-            motivation = t.t("feedback.motivationConsistent")
+            motivation = FeedbackVariants.translateVariant(
+                t,
+                baseKey: "feedback.motivationConsistent",
+                count: 2,
+                seed: session.date
+            )
         } else {
-            motivation = t.t("feedback.motivationKeepGoing")
+            motivation = FeedbackVariants.translateVariant(
+                t,
+                baseKey: "feedback.motivationKeepGoing",
+                count: 3,
+                seed: "\(session.date)-default"
+            )
         }
 
         var coachMessage = buildCoachNarrative(ctx: ctx, t: t, coachGameplay: coachGameplay)
@@ -521,7 +536,12 @@ enum SwimFeedback {
             return t.t("feedback.tipNearGoal", params: ["meters": String(goal - distance)])
         }
 
-        return t.t("feedback.tipDefault")
+        return FeedbackVariants.translateVariant(
+            t,
+            baseKey: "feedback.tipDefault",
+            count: 3,
+            seed: "\(ctx.newSession.date)-tip"
+        )
     }
 
     private static func buildCoachNarrative(
@@ -542,12 +562,23 @@ enum SwimFeedback {
         } else if let delta = ctx.paceDeltaVsPrevious, delta <= -5, coachGameplay.sessionPenalty {
             parts.append(t.t("feedback.coachCriticalSession"))
         } else if let delta = ctx.paceDeltaVsPrevious, delta <= -5, ctx.metrics.avgHeartRate != nil {
-            parts.append(t.t("feedback.coachRecovery"))
+            parts.append(FeedbackVariants.translateVariant(
+                t,
+                baseKey: "feedback.coachRecovery",
+                count: 2,
+                seed: "\(ctx.newSession.date)-recovery"
+            ))
         } else {
-            parts.append(t.t("feedback.welcomeBack", params: [
-                "distance": SwimFormatters.formatDistance(ctx.metrics.distanceM),
-                "pace": SwimFormatters.formatPace(ctx.metrics.paceSecPer100m)
-            ]))
+            parts.append(FeedbackVariants.translateVariant(
+                t,
+                baseKey: "feedback.welcomeBack",
+                count: 3,
+                seed: "\(ctx.newSession.date)-\(ctx.metrics.distanceM ?? 0)",
+                params: [
+                    "distance": SwimFormatters.formatDistance(ctx.metrics.distanceM),
+                    "pace": SwimFormatters.formatPace(ctx.metrics.paceSecPer100m)
+                ]
+            ))
         }
 
         if ctx.benchmarkLevel != .unknown {
@@ -608,8 +639,7 @@ enum SwimFeedback {
     }
 
     static func isPositiveInsight(_ insight: String) -> Bool {
-        let pattern = "faster|sneller|lower|lager|over|boven|record|streak|reeks|быстрее|hızlı|daha hızlı|improv|trending|percentile|above|median"
-        return insight.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil
+        InsightPolarity.isPositiveInsight(insight)
     }
 
     // MARK: - Helpers

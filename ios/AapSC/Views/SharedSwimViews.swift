@@ -871,7 +871,10 @@ struct SessionCalendarView: View {
     private var weekdaySymbols: [String] {
         var calendar = Calendar.current
         calendar.locale = preferences.locale
-        return calendar.veryShortWeekdaySymbols
+        let symbols = calendar.veryShortWeekdaySymbols
+        // Grid is Monday-first; rotate labels to match day columns.
+        let mondayIndex = 1
+        return Array(symbols[mondayIndex...] + symbols[..<mondayIndex])
     }
 
     private func cellAccessibilityLabel(_ cell: CalendarCell) -> String {

@@ -11,10 +11,7 @@ import {
 } from '../../lib/mascotConstants';
 import { applyMessagePlaceholders } from '../../lib/swimProfile';
 import { resolveMascotBubbleTone } from '../../lib/mascotPresentation';
-
-const isPositiveInsight = (insight) => (
-  /faster|sneller|lower|lager|over|boven|record|streak|reeks|быстрее|hızlı|daha hızlı|improv|trending|percentile|above|median/i.test(insight)
-);
+import { isPositiveInsight } from '../../lib/insightPolarity';
 
 function pickMascotMessage({ coachMessage, motivation, tip, insights, loading, mascotId, profile, t }) {
   if (loading) return t('mascot.thinking');
