@@ -4,7 +4,6 @@
 
 import '../styles/globals.css';
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/router';
 
 import { UserPreferencesProvider, useTheme } from '../context/UserPreferencesContext';
 import { SwimProvider, useSwim } from '../context/SwimContext';
@@ -22,16 +21,9 @@ import AmbientBackground from '../components/AmbientBackground';
 import SecretSettingsModal from '../components/SecretSettingsModal';
 
 function AppContent({ Component, pageProps }) {
-  const router = useRouter();
   const { theme, changeTheme, isLoading: prefsLoading } = useTheme();
   const { storeUnlocks, isLoading: swimLoading, cheats, profile } = useSwim();
   const themeHydratedRef = useRef(false);
-  const isHomePage = router.pathname === '/' || router.pathname === '/index';
-
-  // Redirect legacy landing route to progress (all devices).
-  useEffect(() => {
-    if (isHomePage) router.replace('/progress');
-  }, [isHomePage, router]);
 
   useEffect(() => {
     if (prefsLoading || swimLoading) return;

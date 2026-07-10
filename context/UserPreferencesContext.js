@@ -1,13 +1,11 @@
 /**
- * User Preferences Context
- * Consolidated context combining: DarkMode, Language, Currency, RainbowMode, Theme
- * Reduces provider nesting and centralizes user preference management
+ * User preferences — dark mode, language, and theme.
  */
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { saveToCookie, loadFromCookie } from '../lib/cookieStorage';
 import translations from '../lib/i18n';
-import { CURRENCIES, DEFAULT_LANGUAGE, DEFAULT_THEME, THEMES } from '../lib/appConstants';
+import { DEFAULT_LANGUAGE, DEFAULT_THEME, THEMES } from '../lib/appConstants';
 
 const UserPreferencesContext = createContext();
 
@@ -27,28 +25,13 @@ function resolveTranslation(lang, key) {
 }
 
 export function UserPreferencesProvider({ children }) {
-  // Dark Mode State
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isAutoMode, setIsAutoMode] = useState(true);
-
-  // Language State
   const [language, setLanguage] = useState('en');
-
-  // Currency State
-  const [currency, setCurrency] = useState('EUR');
-
-  // Rainbow Mode State
-  const [isRainbow, setIsRainbow] = useState(false);
-
-  // Theme State
   const [theme, setTheme] = useState(DEFAULT_THEME);
-
-  // Loading State
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load all preferences from cookies on mount
   useEffect(() => {
-    // Load dark mode preferences
     const savedDarkMode = loadFromCookie('AUDIT_DARK_MODE_PREFERENCE');
     const savedAutoMode = loadFromCookie('AUDIT_DARK_MODE_AUTO');
 
@@ -65,7 +48,6 @@ export function UserPreferencesProvider({ children }) {
       setIsAutoMode(false);
     }
 
-    // Load language preference
     const savedLanguage = loadFromCookie('AUDIT_LANGUAGE_PREFERENCE');
     if (savedLanguage?.language) {
       const lang = savedLanguage.language === 'mu' ? DEFAULT_LANGUAGE : savedLanguage.language;
@@ -75,19 +57,6 @@ export function UserPreferencesProvider({ children }) {
       }
     }
 
-    // Load currency preference
-    const savedCurrency = loadFromCookie('AUDIT_CURRENCY_PREFERENCE');
-    if (savedCurrency && savedCurrency.currency) {
-      setCurrency(savedCurrency.currency);
-    }
-
-    // Load rainbow mode preference
-    const savedRainbow = loadFromCookie('AUDIT_RAINBOW_MODE_PREFERENCE');
-    if (savedRainbow !== null) {
-      setIsRainbow(savedRainbow);
-    }
-
-    // Load theme preference
     const savedTheme = loadFromCookie('AUDIT_THEME_PREFERENCE');
     if (savedTheme?.theme && THEMES.some((item) => item.code === savedTheme.theme)) {
       setTheme(savedTheme.theme);
@@ -96,7 +65,6 @@ export function UserPreferencesProvider({ children }) {
     setIsLoading(false);
   }, []);
 
-  // Update the DOM when dark mode changes
   useEffect(() => {
     if (isLoading) return;
 
@@ -107,20 +75,16 @@ export function UserPreferencesProvider({ children }) {
     }
   }, [isDarkMode, isLoading]);
 
-  // Listen for system theme changes when auto mode is enabled
   useEffect(() => {
     if (!isAutoMode || isLoading) return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => {
-      setIsDarkMode(e.matches);
-    };
+    const handleChange = (e) => setIsDarkMode(e.matches);
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [isAutoMode, isLoading]);
 
-  // Dark Mode Methods
   const toggleDarkMode = () => {
     const newValue = !isDarkMode;
     setIsDarkMode(newValue);
@@ -140,7 +104,6 @@ export function UserPreferencesProvider({ children }) {
     }
   };
 
-  // Language Methods
   const changeLanguage = (lang) => {
     const next = lang === 'mu' ? DEFAULT_LANGUAGE : lang;
     setLanguage(next);
@@ -153,28 +116,6 @@ export function UserPreferencesProvider({ children }) {
       ?? key;
   };
 
-  // Currency Methods
-  const changeCurrency = (curr) => {
-    setCurrency(curr);
-    saveToCookie('AUDIT_CURRENCY_PREFERENCE', { currency: curr }, 365);
-  };
-
-  const getSymbol = () => {
-    return CURRENCIES[currency]?.symbol || '€';
-  };
-
-  const getCurrencyName = () => {
-    return CURRENCIES[currency]?.name || 'Euro';
-  };
-
-  // Rainbow Mode Methods
-  const toggleRainbow = () => {
-    const newValue = !isRainbow;
-    setIsRainbow(newValue);
-    saveToCookie('AUDIT_RAINBOW_MODE_PREFERENCE', newValue, 365);
-  };
-
-  // Theme Methods
   const changeTheme = (nextTheme) => {
     if (!THEMES.some((item) => item.code === nextTheme)) return;
     setTheme(nextTheme);
@@ -182,34 +123,16 @@ export function UserPreferencesProvider({ children }) {
   };
 
   const value = {
-    // Dark Mode
     isDarkMode,
     toggleDarkMode,
     isAutoMode,
     toggleAutoMode,
-
-    // Language
     language,
     changeLanguage,
     t,
-
-    // Currency
-    currency,
-    changeCurrency,
-    getSymbol,
-    getCurrencyName,
-    CURRENCIES,
-
-    // Rainbow Mode
-    isRainbow,
-    toggleRainbow,
-
-    // Theme
     theme,
     changeTheme,
     THEMES,
-
-    // Loading
     isLoading,
   };
 
@@ -220,7 +143,6 @@ export function UserPreferencesProvider({ children }) {
   );
 }
 
-// Individual hooks for backward compatibility and convenience
 export function useUserPreferences() {
   const context = useContext(UserPreferencesContext);
   if (!context) {
@@ -229,7 +151,6 @@ export function useUserPreferences() {
   return context;
 }
 
-// Convenience hooks that wrap the main context
 export function useDarkMode() {
   const context = useContext(UserPreferencesContext);
   if (!context) {
@@ -253,33 +174,6 @@ export function useLanguage() {
     language: context.language,
     changeLanguage: context.changeLanguage,
     t: context.t,
-    isLoading: context.isLoading,
-  };
-}
-
-export function useCurrency() {
-  const context = useContext(UserPreferencesContext);
-  if (!context) {
-    throw new Error('useCurrency must be used within UserPreferencesProvider');
-  }
-  return {
-    currency: context.currency,
-    changeCurrency: context.changeCurrency,
-    getSymbol: context.getSymbol,
-    getCurrencyName: context.getCurrencyName,
-    CURRENCIES: context.CURRENCIES,
-    isLoading: context.isLoading,
-  };
-}
-
-export function useRainbowMode() {
-  const context = useContext(UserPreferencesContext);
-  if (!context) {
-    throw new Error('useRainbowMode must be used within UserPreferencesProvider');
-  }
-  return {
-    isRainbow: context.isRainbow,
-    toggleRainbow: context.toggleRainbow,
     isLoading: context.isLoading,
   };
 }

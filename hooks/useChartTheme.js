@@ -5,7 +5,7 @@
  */
 
 import { useDarkMode } from '../context/UserPreferencesContext';
-import { CHART_COLORS } from '../lib/constants';
+import { CHART_COLORS } from '../lib/swimConstants';
 
 /**
  * Get chart theme colors based on dark mode preference
