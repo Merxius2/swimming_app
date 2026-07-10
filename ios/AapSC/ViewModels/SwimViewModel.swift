@@ -58,12 +58,13 @@ final class SwimViewModel: ObservableObject {
     }
 
     func updateProfile(_ updates: (inout SwimProfile) -> Void) {
-        var profile = data.profile
-        updates(&profile)
-        data.profile = SwimCoinStore.sanitizeProfileCosmetics(
-            profile,
-            storeUnlocks: data.storeUnlocks
+        var next = data
+        updates(&next.profile)
+        next.profile = SwimCoinStore.sanitizeProfileCosmetics(
+            next.profile,
+            storeUnlocks: next.storeUnlocks
         )
+        data = next
         persist(immediate: true)
     }
 

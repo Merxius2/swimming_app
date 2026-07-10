@@ -31,6 +31,7 @@ struct SettingsScreen: View {
                 dataSection
                 aboutSection
             }
+            .themedPageBackground()
             .navigationTitle(preferences.t("settings.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

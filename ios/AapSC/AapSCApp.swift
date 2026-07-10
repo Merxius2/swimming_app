@@ -39,6 +39,7 @@ private struct AppRootView: View {
                 storeUnlocks: viewModel.storeUnlocks,
                 isDark: appIsDark
             )
+            .id(viewModel.profile.activeAmbient ?? "theme-\(preferences.themeCode)")
             ContentView()
             AmbientBubbleOverlayView(
                 activeAmbient: viewModel.profile.activeAmbient,
