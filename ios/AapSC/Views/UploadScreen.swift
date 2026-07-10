@@ -26,7 +26,6 @@ struct UploadScreen: View {
                 }
                 .padding()
             }
-            .themedPageBackground()
             .navigationTitle(preferences.t("upload.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -80,6 +79,7 @@ struct UploadScreen: View {
                 dateRequiredSheet
             }
         }
+        .themedPageBackground()
     }
 
     private var canSave: Bool {

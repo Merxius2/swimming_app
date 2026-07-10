@@ -79,6 +79,9 @@ struct ThemeTabBarStyle {
     var usesRaisedShadow: Bool = false
     var usesThemeFont: Bool = false
     var fadesUnselectedLabels: Bool = true
+    var usesPlainTabIcons: Bool = false
+    var tabIconSize: CGFloat = 20
+    var fabLabelInactiveColor: Color? = nil
 }
 
 struct ThemeNavBarStyle {
@@ -270,6 +273,7 @@ enum ThemeVisualProfiles {
         let panel = dark
             ? Color(red: 0.271, green: 0.271, blue: 0.271)   // #454545
             : Color(red: 0.831, green: 0.831, blue: 0.831)   // #D4D4D4
+        let fabPanel = Color(red: 0.831, green: 0.831, blue: 0.831) // #D4D4D4 — matches web classic mobile FAB
         return ThemeVisualProfile(
             displayPrimary: Color(red: 0.0, green: 0.56, blue: 0.84), // #008FD6
             displayAccent: lightBar,
@@ -288,10 +292,15 @@ enum ThemeVisualProfiles {
                 accentStripe: lightBar,
                 accentStripePosition: .bottom,
                 topCornerRadius: 20,
-                borderColor: dark ? Color.white.opacity(0.10) : Color.black.opacity(0.20),
+                borderColor: nil,
                 usesRaisedShadow: true,
                 usesThemeFont: true,
-                fadesUnselectedLabels: false
+                fadesUnselectedLabels: false,
+                usesPlainTabIcons: true,
+                tabIconSize: 17,
+                fabLabelInactiveColor: dark
+                    ? Color(red: 0.94, green: 0.94, blue: 0.94, opacity: 0.88)
+                    : Color(red: 0.176, green: 0.176, blue: 0.176)
             ),
             navBar: ThemeNavBarStyle(
                 usesThemeGradient: false,
@@ -308,7 +317,7 @@ enum ThemeVisualProfiles {
             uploadFAB: ThemeUploadFABStyle(
                 usesOverlay: true,
                 gradient: nil,
-                solid: panel,
+                solid: fabPanel,
                 iconColor: dark ? .white : ink,
                 borderColor: .white.opacity(0.9),
                 borderWidth: 3,
@@ -731,8 +740,7 @@ struct ThemedPageBackgroundModifier: ViewModifier {
         content
             .scrollContentBackground(ambientBackgroundVisible ? .hidden : .automatic)
             .background {
-                NavigationStackBackgroundClearer(transparent: ambientBackgroundVisible)
-                    .frame(width: 0, height: 0)
+                AmbientHierarchyBackgroundClearer(active: ambientBackgroundVisible)
             }
             .background {
                 if ambientBackgroundVisible {
@@ -744,37 +752,66 @@ struct ThemedPageBackgroundModifier: ViewModifier {
     }
 }
 
-/// Clears the UIKit navigation container background so root-level ambient layers show through (iOS 17).
-private struct NavigationStackBackgroundClearer: UIViewControllerRepresentable {
-    let transparent: Bool
+/// Clears UIKit scroll/navigation backgrounds so store ambients show through (matches web `html.ambient-active`).
+private struct AmbientHierarchyBackgroundClearer: UIViewRepresentable {
+    let active: Bool
 
-    func makeUIViewController(context: Context) -> Controller {
-        Controller()
+    func makeUIView(context: Context) -> ClearerView {
+        ClearerView()
     }
 
-    func updateUIViewController(_ uiViewController: Controller, context: Context) {
-        uiViewController.transparent = transparent
-        uiViewController.apply()
+    func updateUIView(_ uiView: ClearerView, context: Context) {
+        uiView.active = active
+        uiView.setNeedsLayout()
     }
 
-    final class Controller: UIViewController {
-        var transparent = false
+    final class ClearerView: UIView {
+        var active = false
 
-        override func viewDidLayoutSubviews() {
-            super.viewDidLayoutSubviews()
-            apply()
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            applyIfNeeded()
         }
 
-        func apply() {
-            view.isHidden = true
-            view.isUserInteractionEnabled = false
-            guard let navigationController = navigationController ?? parent?.navigationController else { return }
-            if transparent {
-                navigationController.view.backgroundColor = .clear
-                navigationController.view.isOpaque = false
-            } else {
-                navigationController.view.backgroundColor = nil
-                navigationController.view.isOpaque = true
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            applyIfNeeded()
+        }
+
+        private func applyIfNeeded() {
+            isUserInteractionEnabled = false
+            backgroundColor = .clear
+
+            guard active else { return }
+
+            var responder: UIResponder? = next
+            while let current = responder {
+                if let viewController = current as? UIViewController {
+                    viewController.view.backgroundColor = .clear
+                    viewController.view.isOpaque = false
+                    viewController.navigationController?.view.backgroundColor = .clear
+                    viewController.navigationController?.view.isOpaque = false
+                }
+                if let view = current as? UIView {
+                    clearAmbientBlockingBackground(on: view)
+                }
+                responder = current.next
+            }
+
+            var ancestor: UIView? = superview
+            var depth = 0
+            while let view = ancestor, depth < 18 {
+                clearAmbientBlockingBackground(on: view)
+                ancestor = view.superview
+                depth += 1
+            }
+        }
+
+        private func clearAmbientBlockingBackground(on view: UIView) {
+            let typeName = String(describing: type(of: view))
+            if view is UIScrollView || view is UITableView || typeName.contains("Hosting") {
+                view.backgroundColor = .clear
+                view.isOpaque = false
             }
         }
     }

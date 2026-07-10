@@ -126,22 +126,87 @@ struct MascotCoachView: View {
                 animated: animated,
                 size: size
             )
-            mascotShadow
+            MascotShadowPulseView(size: size, animated: animated)
         }
+        .modifier(MascotEnterModifier(enabled: animated))
+    }
+}
+
+/// Matches web `.mascot-shadow` pulse (`styles/globals.css`).
+private struct MascotShadowPulseView: View {
+    let size: CGFloat
+    let animated: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appIsDark) private var appIsDark
+
+    var body: some View {
+        let pulseEnabled = animated && !reduceMotion
+
+        Group {
+            if pulseEnabled {
+                TimelineView(.animation) { timeline in
+                    let elapsed = timeline.date.timeIntervalSinceReferenceDate
+                    let progress = (elapsed.truncatingRemainder(dividingBy: 4.2)) / 4.2
+                    let scaleX = MascotIdleMotion.interpolate(
+                        progress,
+                        keyframes: [(0, 1), (0.3, 0.88), (0.6, 0.97), (1, 1)]
+                    )
+                    let opacity = MascotIdleMotion.interpolate(
+                        progress,
+                        keyframes: [(0, 0.7), (0.3, 0.45), (0.6, 0.62), (1, 0.7)]
+                    )
+
+                    shadowBody
+                        .scaleEffect(x: scaleX, y: 1, anchor: .center)
+                        .opacity(Double(opacity))
+                }
+            } else {
+                shadowBody.opacity(0.7)
+            }
+        }
+        .offset(y: -4)
     }
 
-    private var mascotShadow: some View {
+    private var shadowBody: some View {
         Ellipse()
             .fill(
                 RadialGradient(
-                    colors: [Color.black.opacity(0.18), .clear],
+                    colors: [
+                        (appIsDark ? Color.black : Color(red: 0.11, green: 0.18, blue: 0.35))
+                            .opacity(appIsDark ? 0.5 : 0.22),
+                        .clear,
+                    ],
                     center: .center,
                     startRadius: 0,
                     endRadius: size * 0.35
                 )
             )
             .frame(width: size * 0.7, height: size * 0.12)
-            .offset(y: -4)
+    }
+}
+
+/// Matches web `.mascot-enter` one-shot entrance.
+private struct MascotEnterModifier: ViewModifier {
+    let enabled: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var entered = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(entered ? 1 : 0)
+            .offset(y: entered ? 0 : 12)
+            .scaleEffect(entered ? 1 : 0.95, anchor: .bottom)
+            .onAppear {
+                guard enabled, !reduceMotion else {
+                    entered = true
+                    return
+                }
+                withAnimation(.timingCurve(0.34, 1.4, 0.64, 1, duration: 0.5)) {
+                    entered = true
+                }
+            }
     }
 }
 

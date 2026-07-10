@@ -4,41 +4,39 @@ struct ContentView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.appIsDark) private var appIsDark
+    @Environment(\.ambientBackgroundVisible) private var ambientBackgroundVisible
     @State private var selectedTab = 0
     @State private var showUpload = false
     @State private var showSettings = false
     @State private var showCoins = false
 
-    private var themeProfile: ThemeVisualProfile {
-        ThemeVisualProfiles.profile(
-            code: preferences.themeCode,
-            isDark: appIsDark
-        )
-    }
-
     private var appearanceKey: String {
-        "\(preferences.themeCode)-\(preferences.isAutoDarkMode)-\(preferences.isDarkMode)"
+        "\(preferences.themeCode)-\(appIsDark)-\(preferences.isAutoDarkMode)-\(preferences.isDarkMode)"
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            tabContent
+        tabContent
+            .id(appearanceKey)
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                CustomTabBar(
+                    selectedTab: $selectedTab,
+                    uploadActive: showUpload,
+                    onUpload: { showUpload = true },
+                    progressTitle: preferences.t("navigation.progress"),
+                    medalsTitle: preferences.t("navigation.medals"),
+                    uploadTitle: preferences.t("navigation.upload"),
+                    benchmarkTitle: preferences.t("navigation.benchmark"),
+                    historyTitle: preferences.t("navigation.history")
+                )
                 .id(appearanceKey)
-                .safeAreaPadding(.bottom, TabBarLayout.totalHeight(for: themeProfile.tabBar))
-
-            CustomTabBar(
-                selectedTab: $selectedTab,
-                profile: themeProfile,
-                uploadActive: showUpload,
-                onUpload: { showUpload = true },
-                progressTitle: preferences.t("navigation.progress"),
-                medalsTitle: preferences.t("navigation.medals"),
-                uploadTitle: preferences.t("navigation.upload"),
-                benchmarkTitle: preferences.t("navigation.benchmark"),
-                historyTitle: preferences.t("navigation.history")
-            )
+                .ignoresSafeArea(.container, edges: .bottom)
+            }
+        .background {
+            if ambientBackgroundVisible {
+                Color.clear.ignoresSafeArea()
+            }
         }
-        .ignoresSafeArea(.container, edges: .bottom)
+        .ignoresSafeArea(.keyboard)
         .sheet(isPresented: $showUpload) {
             UploadScreen()
                 .preferredColorScheme(preferences.colorScheme)

@@ -6,32 +6,18 @@ struct SettingsScreen: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.themeColors) private var themeColors
 
-    @State private var showResetConfirm = false
-    @State private var resetMessage: String?
-    @State private var showImportConfirm = false
     @State private var showSecretSettings = false
-    @State private var exportString = ""
-    @State private var importString = ""
-    @State private var importError: String?
-    @State private var exportStatus: String?
-    @State private var isExporting = false
-    @State private var isImporting = false
 
     var body: some View {
         NavigationStack {
             Form {
                 profileSection
                 mascotSection
-                aiSection
                 languageSection
                 themeSection
                 darkModeSection
                 cosmeticsSection
-                importExportSection
-                dataSection
-                aboutSection
             }
-            .themedPageBackground()
             .navigationTitle(preferences.t("settings.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -42,29 +28,12 @@ struct SettingsScreen: View {
             .onTapGesture(count: 3) {
                 showSecretSettings = true
             }
-            .confirmationDialog(
-                preferences.t("settings.importConfirm"),
-                isPresented: $showImportConfirm,
-                titleVisibility: .visible
-            ) {
-                Button(preferences.t("settings.importButton"), role: .destructive) {
-                    Task { await performImport() }
-                }
-                Button(preferences.t("common.cancel"), role: .cancel) {}
-            } message: {
-                Text(preferences.t("settings.importConfirmDesc"))
-            }
-            .sheet(isPresented: $showResetConfirm) {
-                ResetDataModal(sessionCount: viewModel.sessions.count) {
-                    viewModel.resetAllData()
-                    resetMessage = preferences.t("settings.success")
-                }
-            }
             .sheet(isPresented: $showSecretSettings) {
                 SecretSettingsSheet()
             }
             .themedNavigationBar()
         }
+        .themedPageBackground()
     }
 
     private var profileSection: some View {
@@ -86,15 +55,6 @@ struct SettingsScreen: View {
                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden)
-        }
-    }
-
-    private var aiSection: some View {
-        Section(preferences.t("settings.aiTitle")) {
-            SecureField(preferences.t("settings.aiPlaceholder"), text: binding(\.aiApiKey))
-            Text(preferences.t("settings.aiDesc"))
-                .themeFont(.caption)
-                .foregroundStyle(.secondary)
         }
     }
 
@@ -172,82 +132,6 @@ struct SettingsScreen: View {
         }
     }
 
-    private var importExportSection: some View {
-        Group {
-            Section(preferences.t("settings.exportTitle")) {
-            Button {
-                Task { await performExport() }
-            } label: {
-                if isExporting {
-                    ProgressView()
-                } else {
-                    Text(preferences.t("settings.exportButton"))
-                }
-            }
-
-            if !exportString.isEmpty {
-                TextEditor(text: $exportString)
-                    .frame(minHeight: 80)
-                Button(preferences.t("settings.copy")) {
-                    UIPasteboard.general.string = exportString
-                    exportStatus = preferences.t("settings.copied")
-                }
-            }
-
-            if let exportStatus {
-                Text(exportStatus)
-                    .themeFont(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-
-        Section(preferences.t("settings.importTitle")) {
-            TextEditor(text: $importString)
-                .frame(minHeight: 80)
-
-            Button(preferences.t("settings.importButton")) {
-                showImportConfirm = true
-            }
-            .disabled(importString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isImporting)
-
-            if let importError {
-                Text(importError)
-                    .themeFont(.caption)
-                    .foregroundStyle(.red)
-            }
-        }
-        }
-    }
-
-    private var dataSection: some View {
-        Section(preferences.t("settings.resetData")) {
-            Text(preferences.t("settings.resetDesc"))
-                .themeFont(.caption)
-                .foregroundStyle(.secondary)
-            Text(preferences.t("settings.warning"))
-                .themeFont(.caption)
-                .foregroundStyle(.orange)
-            LabeledContent(preferences.t("navigation.history"), value: "\(viewModel.sessions.count)")
-            LabeledContent(preferences.t("coins.label"), value: "\(viewModel.totalCoins)")
-            Button(preferences.t("settings.clearButton"), role: .destructive) {
-                showResetConfirm = true
-            }
-            if let resetMessage {
-                Text(resetMessage)
-                    .themeFont(.caption)
-                    .foregroundStyle(.green)
-            }
-        }
-    }
-
-    private var aboutSection: some View {
-        Section("About") {
-            LabeledContent("App", value: "Aap-SC")
-            LabeledContent("Platform", value: "Native iOS")
-            LabeledContent("Storage", value: SwimStorageService.storageKey)
-        }
-    }
-
     private var languageBinding: Binding<String> {
         Binding(
             get: { preferences.language },
@@ -313,29 +197,6 @@ struct SettingsScreen: View {
     private func iconLabel(_ id: String) -> String {
         guard let item = SwimCoinStore.getStoreItem(id) else { return id }
         return SwimCoinStore.localizedName(item, t: preferences.translations)
-    }
-
-    private func performExport() async {
-        isExporting = true
-        defer { isExporting = false }
-        do {
-            exportString = try await viewModel.exportDataString()
-            exportStatus = nil
-        } catch {
-            exportStatus = error.localizedDescription
-        }
-    }
-
-    private func performImport() async {
-        isImporting = true
-        importError = nil
-        defer { isImporting = false }
-        do {
-            try await viewModel.importDataString(importString)
-            importString = ""
-        } catch {
-            importError = error.localizedDescription
-        }
     }
 
     private var ageBinding: Binding<Int> {

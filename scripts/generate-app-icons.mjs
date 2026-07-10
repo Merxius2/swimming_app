@@ -20,6 +20,7 @@ const ICON_SETS = [
 async function renderPng(svgPath, size, outputPath) {
   await sharp(svgPath)
     .resize(size, size)
+    .flatten({ background: '#38BDF8' })
     .png()
     .toFile(outputPath);
 }

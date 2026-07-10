@@ -78,12 +78,12 @@ struct BenchmarkScreen: View {
                 }
                 .padding()
             }
-            .themedPageBackground()
             .navigationTitle(preferences.t("benchmark.title"))
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()
             .themedNavigationBar()
         }
+        .themedPageBackground()
     }
 
     private var profileRequiredCard: some View {

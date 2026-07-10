@@ -41,12 +41,12 @@ struct MedalsScreen: View {
                 }
                 .padding()
             }
-            .themedPageBackground()
             .navigationTitle(preferences.t("medals.title"))
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()
             .themedNavigationBar()
         }
+        .themedPageBackground()
     }
 
     private var statsCard: some View {

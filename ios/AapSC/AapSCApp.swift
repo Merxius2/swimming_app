@@ -40,11 +40,11 @@ private struct AppRootView: View {
                 isDark: appIsDark
             )
             .id(viewModel.profile.activeAmbient ?? "theme-\(preferences.themeCode)")
-            ContentView()
             AmbientBubbleOverlayView(
                 activeAmbient: viewModel.profile.activeAmbient,
                 storeUnlocks: viewModel.storeUnlocks
             )
+            ContentView()
         }
         .environment(\.t, preferences.translations)
         .environment(\.themeColors, preferences.themeColors)

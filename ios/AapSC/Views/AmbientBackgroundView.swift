@@ -70,7 +70,11 @@ struct AmbientPresetRenderer: View {
         GeometryReader { proxy in
             ZStack {
                 if let gradient = renderedGradient {
-                    AnimatedAmbientGradient(spec: gradient, reduceMotion: reduceMotion)
+                    AnimatedAmbientGradient(
+                        spec: gradient,
+                        reduceMotion: reduceMotion,
+                        containerSize: proxy.size
+                    )
                 }
 
                 ForEach(Array(preset.blobs.enumerated()), id: \.offset) { index, blob in
@@ -81,6 +85,7 @@ struct AmbientPresetRenderer: View {
                     bubbleTrail(in: proxy.size)
                 }
             }
+            .frame(width: proxy.size.width, height: proxy.size.height)
         }
         .onAppear {
             guard preset.driftBlobs, !reduceMotion else { return }
@@ -154,12 +159,18 @@ struct AmbientBubbleOverlayView: View {
     let activeAmbient: String?
     let storeUnlocks: [String]
 
+    private var showsBubbles: Bool {
+        guard let activeAmbient,
+              SwimCoinStore.isStoreItemOwned(activeAmbient, storeUnlocks: storeUnlocks),
+              let preset = StoreAmbients.preset(for: activeAmbient) else {
+            return false
+        }
+        return preset.bubbles
+    }
+
     var body: some View {
-        GeometryReader { proxy in
-            if let activeAmbient,
-               SwimCoinStore.isStoreItemOwned(activeAmbient, storeUnlocks: storeUnlocks),
-               let preset = StoreAmbients.preset(for: activeAmbient),
-               preset.bubbles {
+        if showsBubbles {
+            GeometryReader { proxy in
                 ZStack {
                     ForEach(StoreAmbients.bubblePositions.indices, id: \.self) { index in
                         let bubble = StoreAmbients.bubblePositions[index]
@@ -170,45 +181,66 @@ struct AmbientBubbleOverlayView: View {
                             delay: bubble.delay,
                             duration: bubble.duration
                         )
+                        .allowsHitTesting(false)
                     }
                 }
             }
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
         }
-        .ignoresSafeArea()
-        .allowsHitTesting(false)
     }
 }
 
 private struct AnimatedAmbientGradient: View {
     let spec: AmbientGradientSpec
     let reduceMotion: Bool
-
-    @State private var phase = false
+    let containerSize: CGSize
 
     var body: some View {
-        GeometryReader { geo in
-            LinearGradient(
-                colors: spec.colors,
-                startPoint: spec.vertical ? .top : .leading,
-                endPoint: spec.vertical ? .bottom : .trailing
-            )
-            .frame(
-                width: spec.vertical ? geo.size.width : geo.size.width * 2,
-                height: spec.vertical ? geo.size.height * 2.2 : geo.size.height * 2
-            )
-            .offset(
-                x: spec.vertical ? 0 : (phase ? -geo.size.width * 0.5 : 0),
-                y: spec.vertical ? (phase ? -geo.size.height * 1.2 : 0) : 0
-            )
-        }
-        .clipped()
-        .ignoresSafeArea()
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: spec.duration).repeatForever(autoreverses: true)) {
-                phase = true
+        let width = max(containerSize.width, 1)
+        let height = max(containerSize.height, 1)
+
+        Group {
+            if reduceMotion {
+                gradientLayer
+                    .frame(width: width * 1.4, height: height * 1.4)
+                    .position(x: width * 0.5, y: height * 0.5)
+            } else {
+                TimelineView(.animation) { timeline in
+                    let elapsed = timeline.date.timeIntervalSinceReferenceDate
+                    let cycle = max(spec.duration, 0.1)
+                    let progress = (elapsed.truncatingRemainder(dividingBy: cycle)) / cycle
+                    let wave = sin(progress * .pi * 2)
+                    let scale: CGFloat = spec.vertical ? 1.05 : 1.06
+                    let offsetX = spec.vertical ? 0 : CGFloat(wave) * width * 0.10
+                    let offsetY = spec.vertical
+                        ? CGFloat(wave) * height * 0.08
+                        : CGFloat(wave) * height * 0.06
+
+                    gradientLayer
+                        .frame(
+                            width: width * (spec.vertical ? 1.0 : 1.6),
+                            height: height * (spec.vertical ? 2.2 : 1.6)
+                        )
+                        .scaleEffect(spec.vertical ? 1.0 : (1 + (scale - 1) * abs(CGFloat(wave))))
+                        .offset(x: offsetX, y: offsetY)
+                        .position(x: width * 0.5, y: height * 0.5)
+                }
             }
         }
+        .frame(width: width, height: height)
+        .clipped()
+        .ignoresSafeArea()
+    }
+
+    /// Matches web `linear-gradient(-45deg, …)` with 400% background-size drift.
+    private var gradientLayer: some View {
+        LinearGradient(
+            colors: spec.colors,
+            startPoint: spec.vertical ? .top : .topLeading,
+            endPoint: spec.vertical ? .bottom : .bottomTrailing
+        )
     }
 }
 

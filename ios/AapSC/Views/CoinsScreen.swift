@@ -21,7 +21,6 @@ struct CoinsScreen: View {
                 }
                 .padding()
             }
-            .themedPageBackground()
             .navigationTitle(preferences.t("coins.label"))
             .navigationBarTitleDisplayMode(.inline)
             .themedNavigationBar()
@@ -31,6 +30,7 @@ struct CoinsScreen: View {
                 }
             }
         }
+        .themedPageBackground()
     }
 }
 

@@ -10,4 +10,14 @@
   <path d="M84 92h24v16c0 12-8 20-12 20s-12-8-12-20V92z" fill="#FFFBEB"/>
   <path d="M60 128c10 8 22 12 36 12s26-4 36-12" stroke="#FFFBEB" stroke-width="8" stroke-linecap="round" opacity="0.75"/>
   <path d="M52 140c16 10 34 14 44 14s28-4 44-14" stroke="#FFFBEB" stroke-width="5" stroke-linecap="round" opacity="0.45"/>
+  <circle cx="96" cy="22" r="20" fill="#FFFFFF" opacity="0.96"/>
+  <g transform="translate(96 22) scale(0.62)" fill="#57C4B7">
+    <g transform="translate(-32 -34)">
+      <circle cx="22" cy="17" r="9"/>
+      <path d="M29 21C36 14 44 16 48 26" stroke="#57C4B7" stroke-width="7" stroke-linecap="round" fill="none"/>
+      <path d="M10 46C16 42 22 42 28 46C34 50 40 50 46 46C52 42 58 42 64 46" stroke="#57C4B7" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path d="M6 54C14 50 22 50 30 54C38 58 46 58 54 54" stroke="#57C4B7" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.85"/>
+      <path d="M10 62C18 58 26 58 34 62C42 66 50 66 58 62" stroke="#57C4B7" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"/>
+    </g>
+  </g>
 </svg>

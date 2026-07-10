@@ -39,6 +39,13 @@ enum AppIconService {
         UIApplication.shared.setAlternateIconName(targetName) { error in
             if let error {
                 NSLog("App icon switch failed: \(error.localizedDescription)")
+                if targetName != nil {
+                    UIApplication.shared.setAlternateIconName(nil) { resetError in
+                        if let resetError {
+                            NSLog("App icon reset failed: \(resetError.localizedDescription)")
+                        }
+                    }
+                }
             }
         }
     }

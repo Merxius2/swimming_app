@@ -86,7 +86,10 @@ async function buildIcon(size) {
     })
   );
 
-  return sharp(background).composite(layers).png().toBuffer();
+  return sharp(await sharp(background).composite(layers).png().toBuffer())
+    .flatten({ background: '#38BDF8' })
+    .png()
+    .toBuffer();
 }
 
 async function writeIcon(size, relativePath) {

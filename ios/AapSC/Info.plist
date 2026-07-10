@@ -38,55 +38,6 @@
 		<string>Oxanium-SemiBold.ttf</string>
 		<string>Oxanium-Bold.ttf</string>
 	</array>
-	<key>CFBundleIcons</key>
-	<dict>
-		<key>CFBundleAlternateIcons</key>
-		<dict>
-			<key>GoldMedal</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>GoldMedal</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>NeonLane</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>NeonLane</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>TrophySplash</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>TrophySplash</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-			<key>PlatinumStar</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>PlatinumStar</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
-		</dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array/>
-			<key>UIPrerenderedIcon</key>
-			<false/>
-		</dict>
-	</dict>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

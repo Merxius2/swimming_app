@@ -67,7 +67,6 @@ struct HistoryScreen: View {
                 }
                 .padding()
             }
-            .themedPageBackground()
             .navigationTitle(preferences.t("history.title"))
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()
@@ -90,6 +89,7 @@ struct HistoryScreen: View {
                 Button(preferences.t("common.cancel"), role: .cancel) { deleteId = nil }
             }
         }
+        .themedPageBackground()
     }
 }
 

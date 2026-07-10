@@ -57,12 +57,12 @@ struct ProgressScreen: View {
                 .frame(maxWidth: .infinity)
             }
             .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
-            .themedPageBackground()
             .navigationTitle(preferences.t("progress.title"))
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()
             .themedNavigationBar()
         }
+        .themedPageBackground()
     }
 
     private var emptyState: some View {
