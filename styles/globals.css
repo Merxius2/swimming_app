@@ -1319,6 +1319,7 @@ html.dark .medal-card-locked {
 
 .session-cal-day-empty {
   background: rgba(0, 0, 0, 0.04);
+  color: #71717A;
 }
 
 html.dark .session-cal-day-empty {
@@ -1327,12 +1328,12 @@ html.dark .session-cal-day-empty {
 }
 
 .session-cal-day-1 {
-  background: rgba(59, 91, 255, 0.28);
-  color: #2A45CC;
+  background: #3B5BFF;
+  color: #fff;
 }
 
 .session-cal-day-2 {
-  background: rgba(59, 91, 255, 0.55);
+  background: #2A45CC;
   color: #fff;
 }
 

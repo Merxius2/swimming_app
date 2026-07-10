@@ -33,6 +33,12 @@ enum SwimDuplicates {
         excludeId: String? = nil
     ) -> SwimSession? {
         guard !candidate.date.isEmpty, !sessions.isEmpty else { return nil }
+        if let workoutUUID = candidate.healthKitWorkoutUUID,
+           let match = sessions.first(where: { session in
+               session.id != excludeId && session.healthKitWorkoutUUID == workoutUUID
+           }) {
+            return match
+        }
         return sessions.first { session in
             session.id != excludeId && coreMetricsMatch(candidate, session)
         }

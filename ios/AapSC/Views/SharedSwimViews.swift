@@ -797,6 +797,7 @@ struct SessionCalendarView: View {
                             } label: {
                                 Text("\(cell.day)")
                                     .themeFont(.caption, weight: cell.isToday ? .bold : .semibold)
+                                    .foregroundStyle(cell.count > 0 ? Color.white : Color.secondary)
                                     .frame(maxWidth: .infinity, minHeight: 32)
                                     .background(heatBackground(cell.count), in: RoundedRectangle(cornerRadius: 6))
                                     .overlay(
@@ -889,9 +890,9 @@ struct SessionCalendarView: View {
         case 0:
             return AnyShapeStyle(Color(.systemGray5))
         case 1:
-            return AnyShapeStyle(Color("BrandBlue").opacity(0.28))
+            return AnyShapeStyle(Color("BrandBlue").opacity(0.72))
         case 2:
-            return AnyShapeStyle(Color("BrandBlue").opacity(0.55))
+            return AnyShapeStyle(Color("BrandBlue"))
         default:
             return AnyShapeStyle(
                 LinearGradient(

@@ -17,8 +17,12 @@ final class SwimViewModel: ObservableObject {
     @Published var duplicateSession: SwimSession?
     @Published var lastUploadFeedback: SessionFeedbackSummary?
     @Published var isEnhancingUploadFeedback = false
+    @Published var isSyncingHealthKit = false
+    @Published var healthKitSyncMessage: String?
+    @Published var lastHealthKitImportResult: HealthKitImportResult?
 
     private var saveTask: Task<Void, Never>?
+    private var hasAttemptedHealthKitAutoSync = false
 
     var sessions: [SwimSession] { data.sessions }
     var profile: SwimProfile { data.profile }
@@ -91,7 +95,8 @@ final class SwimViewModel: ObservableObject {
         date: String,
         metrics: SwimMetrics,
         coinsEarned: Int,
-        coinBonus: Int = 0
+        coinBonus: Int = 0,
+        healthKitWorkoutUUID: String? = nil
     ) -> SwimSession {
         let entry = SwimSession(
             id: SwimStorageService.createSessionId(),
@@ -99,7 +104,8 @@ final class SwimViewModel: ObservableObject {
             date: date,
             metrics: metrics,
             coinsEarned: coinsEarned,
-            coinBonus: coinBonus
+            coinBonus: coinBonus,
+            healthKitWorkoutUUID: healthKitWorkoutUUID
         )
         data.sessions.append(entry)
         data.sessions.sort { $0.date < $1.date }
@@ -320,6 +326,63 @@ final class SwimViewModel: ObservableObject {
         isEnhancingUploadFeedback = false
     }
 
+    func syncHealthKitWorkouts(
+        requestAuthorizationIfNeeded: Bool = false,
+        maxImports: Int = 40,
+        lookbackMonths: Int = 24
+    ) async {
+        let t = makeTranslations()
+        guard HealthKitService.isAvailable else {
+            healthKitSyncMessage = t.t("upload.healthUnavailable")
+            return
+        }
+
+        isSyncingHealthKit = true
+        healthKitSyncMessage = nil
+        defer { isSyncingHealthKit = false }
+
+        do {
+            if requestAuthorizationIfNeeded || !HealthKitService.isAuthorizedForWorkouts {
+                try await HealthKitService.requestAuthorization()
+            }
+            let result = try await importHealthKitWorkouts(
+                maxImports: maxImports,
+                lookbackMonths: lookbackMonths
+            )
+            lastHealthKitImportResult = result
+            if result.importedCount > 0 {
+                if result.hasMoreAvailable {
+                    healthKitSyncMessage = t.t(
+                        "upload.healthImportedPartial",
+                        params: ["count": "\(result.importedCount)"]
+                    )
+                } else {
+                    healthKitSyncMessage = t.t(
+                        "upload.healthImported",
+                        params: ["count": "\(result.importedCount)"]
+                    )
+                }
+            } else if result.totalFound == 0 {
+                healthKitSyncMessage = t.t("upload.healthNoWorkouts")
+            } else {
+                healthKitSyncMessage = t.t("upload.healthAlreadySynced")
+            }
+        } catch {
+            healthKitSyncMessage = error.localizedDescription
+        }
+    }
+
+    func syncHealthKitWorkoutsIfAuthorized() async {
+        guard !hasAttemptedHealthKitAutoSync else { return }
+        hasAttemptedHealthKitAutoSync = true
+        guard HealthKitService.isAvailable, HealthKitService.isAuthorizedForWorkouts else { return }
+        await syncHealthKitWorkouts(
+            requestAuthorizationIfNeeded: false,
+            maxImports: 5,
+            lookbackMonths: 1
+        )
+    }
+
     func validateThemeSelection(preferences: UserPreferencesService) {
         let unlocked = SwimCoinStore.isThemeUnlocked(
             preferences.themeCode,
@@ -374,10 +437,23 @@ final class SwimViewModel: ObservableObject {
         let metrics = uploadDraft.toMetrics()
         let date = uploadDraft.resolvedDate
         let candidate = SwimSession(date: date, metrics: metrics)
+        let coinResult = prepareSessionSave(candidate: candidate)
+
+        let sessionsAfter = sessions + [candidate]
+        lastNewMedals = SwimMedals.getNewlyEarnedMedals(
+            sessionsBefore: sessions,
+            sessionsAfter: sessionsAfter,
+            allMedalsUnlocked: cheats.allMedalsUnlocked
+        )
+        lastUploadCoinResult = coinResult
+        return true
+    }
+
+    private func prepareSessionSave(candidate: SwimSession) -> UploadCoinResult {
         let sessionsBefore = sessions
         let mascot = mascotId
         let intensity = MascotConstants.gameplay(mascot).challengeIntensity
-        let monthKey = String(date.prefix(7))
+        let monthKey = String(candidate.date.prefix(7))
 
         if let penalty = SwimMonthlyChallenges.getMonthlyShortfallPenalty(
             sessions: sessionsBefore,
@@ -395,7 +471,7 @@ final class SwimViewModel: ObservableObject {
             sessionsAfter: sessionsAfter,
             allMedalsUnlocked: cheats.allMedalsUnlocked
         )
-        let coinResult = SwimCoins.calculateUploadCoins(
+        return SwimCoins.calculateUploadCoins(
             session: candidate,
             sessionsBefore: sessionsBefore,
             sessionsAfter: sessionsAfter,
@@ -406,10 +482,76 @@ final class SwimViewModel: ObservableObject {
             rerolls: monthlyChallengeRerolls,
             intensity: intensity
         )
+    }
 
-        lastUploadCoinResult = coinResult
-        lastNewMedals = newMedals
-        return true
+    private func importHealthKitWorkouts(
+        maxImports: Int,
+        lookbackMonths: Int
+    ) async throws -> HealthKitImportResult {
+        let existingUUIDs = Set(sessions.compactMap(\.healthKitWorkoutUUID))
+        let since = healthKitLookbackDate(months: lookbackMonths)
+        let fetchResult = try await HealthKitService.fetchNewSwimWorkouts(
+            excluding: existingUUIDs,
+            since: since,
+            maxResults: maxImports
+        )
+
+        var importedCount = 0
+        var skippedCount = 0
+
+        for workout in fetchResult.workouts {
+            let candidate = SwimSession(
+                date: workout.date,
+                metrics: workout.metrics,
+                healthKitWorkoutUUID: workout.id
+            )
+
+            if SwimDuplicates.findDuplicateSession(sessions, candidate: candidate) != nil {
+                skippedCount += 1
+                continue
+            }
+
+            guard let distanceM = workout.metrics.distanceM, distanceM > 0,
+                  let durationSec = workout.metrics.durationSec, durationSec > 0 else {
+                skippedCount += 1
+                continue
+            }
+
+            let coinResult = prepareSessionSave(candidate: candidate)
+
+            _ = addSession(
+                date: workout.date,
+                metrics: workout.metrics,
+                coinsEarned: coinResult.sessionCoins,
+                coinBonus: coinResult.medalCoins + coinResult.monthlyCoins,
+                healthKitWorkoutUUID: workout.id
+            )
+            importedCount += 1
+
+            if importedCount.isMultiple(of: 10) {
+                await Task.yield()
+            }
+        }
+
+        if importedCount > 0 {
+            persist(immediate: true)
+        }
+
+        let hasMoreAvailable = fetchResult.workouts.count >= maxImports
+            || fetchResult.queriedCount >= HealthKitService.queryLimit
+
+        return HealthKitImportResult(
+            importedCount: importedCount,
+            skippedCount: skippedCount,
+            totalFound: fetchResult.queriedCount,
+            hasMoreAvailable: hasMoreAvailable
+        )
+    }
+
+    private func healthKitLookbackDate(months: Int) -> Date {
+        let calendar = Calendar.current
+        let lookback = calendar.date(byAdding: .month, value: -months, to: Date()) ?? .distantPast
+        return lookback
     }
 
     private func persist(immediate: Bool = false) {

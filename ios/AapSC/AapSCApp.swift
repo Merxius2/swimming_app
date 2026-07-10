@@ -60,6 +60,7 @@ private struct AppRootView: View {
                 activeAppIcon: viewModel.profile.activeAppIcon,
                 storeUnlocks: viewModel.storeUnlocks
             )
+            Task { await viewModel.syncHealthKitWorkoutsIfAuthorized() }
         }
         .onChange(of: viewModel.profile.activeAppIcon) { _, activeAppIcon in
             AppIconService.apply(

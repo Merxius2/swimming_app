@@ -97,6 +97,34 @@ struct UploadScreen: View {
 
             Card {
                 VStack(spacing: 16) {
+                    Button {
+                        Task { await viewModel.syncHealthKitWorkouts(requestAuthorizationIfNeeded: true) }
+                    } label: {
+                        Label(preferences.t("upload.healthImport"), systemImage: "heart.text.square.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(Color("BrandBlue"))
+                    .disabled(viewModel.isSyncingHealthKit)
+
+                    if viewModel.isSyncingHealthKit {
+                        ProgressView(preferences.t("upload.healthSyncing"))
+                    }
+
+                    if let message = viewModel.healthKitSyncMessage {
+                        Text(message)
+                            .themeFont(.footnote)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    Text(preferences.t("upload.healthHint"))
+                        .themeFont(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Divider()
+
                     PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
                         Label(preferences.t("upload.dropzone"), systemImage: "photo.on.rectangle.angled")
                             .frame(maxWidth: .infinity)

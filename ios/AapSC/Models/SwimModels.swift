@@ -54,6 +54,7 @@ struct SwimSession: Codable, Identifiable, Equatable {
     var excludeFromStats: Bool
     var coinsEarned: Int?
     var coinBonus: Int?
+    var healthKitWorkoutUUID: String?
 
     init(
         id: String = UUID().uuidString,
@@ -62,7 +63,8 @@ struct SwimSession: Codable, Identifiable, Equatable {
         metrics: SwimMetrics,
         excludeFromStats: Bool = false,
         coinsEarned: Int? = nil,
-        coinBonus: Int? = nil
+        coinBonus: Int? = nil,
+        healthKitWorkoutUUID: String? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -71,10 +73,12 @@ struct SwimSession: Codable, Identifiable, Equatable {
         self.excludeFromStats = excludeFromStats
         self.coinsEarned = coinsEarned
         self.coinBonus = coinBonus
+        self.healthKitWorkoutUUID = healthKitWorkoutUUID
     }
 
     enum CodingKeys: String, CodingKey {
         case id, createdAt, date, metrics, excludeFromStats, coinsEarned, coinBonus, sessionCoins
+        case healthKitWorkoutUUID
     }
 
     init(from decoder: Decoder) throws {
@@ -87,6 +91,7 @@ struct SwimSession: Codable, Identifiable, Equatable {
         coinsEarned = try container.decodeIfPresent(Int.self, forKey: .coinsEarned)
             ?? container.decodeIfPresent(Int.self, forKey: .sessionCoins)
         coinBonus = try container.decodeIfPresent(Int.self, forKey: .coinBonus)
+        healthKitWorkoutUUID = try container.decodeIfPresent(String.self, forKey: .healthKitWorkoutUUID)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -98,7 +103,15 @@ struct SwimSession: Codable, Identifiable, Equatable {
         try container.encode(excludeFromStats, forKey: .excludeFromStats)
         try container.encodeIfPresent(coinsEarned, forKey: .coinsEarned)
         try container.encodeIfPresent(coinBonus, forKey: .coinBonus)
+        try container.encodeIfPresent(healthKitWorkoutUUID, forKey: .healthKitWorkoutUUID)
     }
+}
+
+struct HealthKitImportResult: Equatable {
+    var importedCount: Int
+    var skippedCount: Int
+    var totalFound: Int
+    var hasMoreAvailable: Bool = false
 }
 
 struct CoinLineItem: Equatable {
