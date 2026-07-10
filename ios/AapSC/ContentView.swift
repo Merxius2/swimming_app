@@ -123,13 +123,15 @@ struct Card<Content: View>: View {
 struct ScreenHeader: View {
     let title: String
     let subtitle: String?
+    let pageKey: String
     let systemImage: String
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.appIsDark) private var appIsDark
 
-    init(_ title: String, subtitle: String? = nil, systemImage: String) {
+    init(_ title: String, subtitle: String? = nil, pageKey: String, systemImage: String) {
         self.title = title
         self.subtitle = subtitle
+        self.pageKey = pageKey
         self.systemImage = systemImage
     }
 
@@ -142,9 +144,12 @@ struct ScreenHeader: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: systemImage)
-                .themeFont(.title2, weight: .semibold)
-                .foregroundStyle(profile.displayPrimary)
+            StorePageIconView(
+                pageKey: pageKey,
+                systemImage: systemImage,
+                size: 28,
+                color: profile.displayPrimary
+            )
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .themeFont(.title2, weight: .bold)

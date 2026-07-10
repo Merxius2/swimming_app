@@ -23,6 +23,7 @@ struct MedalsScreen: View {
                     ScreenHeader(
                         preferences.t("medals.title"),
                         subtitle: preferences.t("medals.subtitle"),
+                        pageKey: "medals",
                         systemImage: "medal"
                     )
 

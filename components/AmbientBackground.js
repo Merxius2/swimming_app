@@ -1,9 +1,3 @@
-/**
- * AmbientBackground
- * Fixed-position mesh-gradient blobs that sit behind all content.
- * Liquid-glass surfaces above pick up tint from this layer through backdrop-filter.
- * Portaled to document.body so iOS Safari keeps the layer visible behind the page.
- */
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTheme } from '../context/UserPreferencesContext';
@@ -77,7 +71,7 @@ function AmbientLayer({ theme, ambientPreset }) {
         ))}
       </div>
       {showBubbles && (
-        <div aria-hidden className="ambient-bubbles pointer-events-none fixed inset-0 z-[1] overflow-hidden">
+        <div aria-hidden className="ambient-bubbles pointer-events-none fixed inset-0 z-[120] overflow-hidden">
           {BUBBLE_POSITIONS.map((bubble, index) => (
             <span
               key={index}

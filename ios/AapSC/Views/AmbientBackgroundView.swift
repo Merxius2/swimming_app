@@ -18,14 +18,17 @@ struct AmbientBackgroundView: View {
     let isDark: Bool
 
     var body: some View {
-        if let preset = resolvedPreset {
-            ZStack {
-                baseLayer(for: preset)
-                AmbientPresetRenderer(preset: preset)
+        Group {
+            if let preset = resolvedPreset {
+                ZStack {
+                    baseLayer(for: preset)
+                    AmbientPresetRenderer(preset: preset)
+                }
             }
-            .ignoresSafeArea()
-            .allowsHitTesting(false)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
     }
 
     @ViewBuilder
@@ -74,7 +77,7 @@ struct AmbientPresetRenderer: View {
                     blobView(blob, in: proxy.size, index: index)
                 }
 
-                if preset.bubbles {
+                if preset.bubbles && isPreview {
                     bubbleTrail(in: proxy.size)
                 }
             }
@@ -147,6 +150,35 @@ struct AmbientPresetRenderer: View {
     }
 }
 
+struct AmbientBubbleOverlayView: View {
+    let activeAmbient: String?
+    let storeUnlocks: [String]
+
+    var body: some View {
+        GeometryReader { proxy in
+            if let activeAmbient,
+               SwimCoinStore.isStoreItemOwned(activeAmbient, storeUnlocks: storeUnlocks),
+               let preset = StoreAmbients.preset(for: activeAmbient),
+               preset.bubbles {
+                ZStack {
+                    ForEach(StoreAmbients.bubblePositions.indices, id: \.self) { index in
+                        let bubble = StoreAmbients.bubblePositions[index]
+                        RisingBubble(
+                            size: bubble.size,
+                            leftRatio: bubble.leftRatio,
+                            containerSize: proxy.size,
+                            delay: bubble.delay,
+                            duration: bubble.duration
+                        )
+                    }
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+    }
+}
+
 private struct AnimatedAmbientGradient: View {
     let spec: AmbientGradientSpec
     let reduceMotion: Bool
@@ -186,45 +218,35 @@ private struct RisingBubble: View {
     let containerSize: CGSize
     let delay: Double
     let duration: Double
-    let reduceMotion: Bool
-
-    @State private var offsetY: CGFloat = 0
-    @State private var opacity: Double = 0
-    @State private var scale: CGFloat = 0.85
+    var reduceMotion: Bool = false
 
     var body: some View {
-        Circle()
-            .fill(
-                RadialGradient(
-                    colors: [Color.white.opacity(0.95), Color(hex: "#BAE6FD").opacity(0.35)],
-                    center: UnitPoint(x: 0.3, y: 0.3),
-                    startRadius: 0,
-                    endRadius: size * 0.5
-                )
-            )
-            .overlay(
+        if reduceMotion {
+            Circle()
+                .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
+                .frame(width: size, height: size)
+                .position(x: containerSize.width * leftRatio, y: containerSize.height * 0.5)
+                .opacity(0.7)
+        } else {
+            TimelineView(.animation) { timeline in
+                let elapsed = timeline.date.timeIntervalSinceReferenceDate
+                let cycle = max(duration, 0.1)
+                let shifted = elapsed - delay
+                let progress = shifted < 0
+                    ? 0.0
+                    : (shifted.truncatingRemainder(dividingBy: cycle)) / cycle
+                let y = containerSize.height * (0.85 - progress * 0.95)
+                let fade = progress < 0.08
+                    ? progress / 0.08
+                    : max(0, 1 - (progress - 0.08) / 0.92)
+
                 Circle()
-                    .stroke(Color.white.opacity(0.65), lineWidth: 1)
-            )
-            .shadow(color: Color(hex: "#BAE6FD").opacity(0.55), radius: max(2, size * 0.2))
-            .frame(width: size, height: size)
-            .scaleEffect(scale)
-            .position(x: containerSize.width * leftRatio, y: containerSize.height * 0.85 + offsetY)
-            .opacity(opacity)
-            .onAppear {
-                guard !reduceMotion else {
-                    opacity = 0.7
-                    return
-                }
-                withAnimation(.easeInOut(duration: duration).repeatForever(autoreverses: false).delay(delay)) {
-                    offsetY = -containerSize.height * 1.25
-                    opacity = 0.85
-                    scale = 1.2
-                }
-                withAnimation(.easeInOut(duration: duration * 0.08).delay(delay)) {
-                    opacity = 0.85
-                }
+                    .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
+                    .frame(width: size, height: size)
+                    .position(x: containerSize.width * leftRatio, y: y)
+                    .opacity(0.85 * fade)
             }
+        }
     }
 }
 

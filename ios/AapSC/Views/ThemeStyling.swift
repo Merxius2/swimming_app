@@ -731,12 +731,52 @@ struct ThemedPageBackgroundModifier: ViewModifier {
         content
             .scrollContentBackground(ambientBackgroundVisible ? .hidden : .automatic)
             .background {
+                NavigationStackBackgroundClearer(transparent: ambientBackgroundVisible)
+                    .frame(width: 0, height: 0)
+            }
+            .background {
                 if ambientBackgroundVisible {
                     Color.clear.ignoresSafeArea()
                 } else {
                     ThemedPageBackgroundView(background: profile.pageBackground)
                 }
             }
+    }
+}
+
+/// Clears the UIKit navigation container background so root-level ambient layers show through (iOS 17).
+private struct NavigationStackBackgroundClearer: UIViewControllerRepresentable {
+    let transparent: Bool
+
+    func makeUIViewController(context: Context) -> Controller {
+        Controller()
+    }
+
+    func updateUIViewController(_ uiViewController: Controller, context: Context) {
+        uiViewController.transparent = transparent
+        uiViewController.apply()
+    }
+
+    final class Controller: UIViewController {
+        var transparent = false
+
+        override func viewDidLayoutSubviews() {
+            super.viewDidLayoutSubviews()
+            apply()
+        }
+
+        func apply() {
+            view.isHidden = true
+            view.isUserInteractionEnabled = false
+            guard let navigationController = navigationController ?? parent?.navigationController else { return }
+            if transparent {
+                navigationController.view.backgroundColor = .clear
+                navigationController.view.isOpaque = false
+            } else {
+                navigationController.view.backgroundColor = nil
+                navigationController.view.isOpaque = true
+            }
+        }
     }
 }
 

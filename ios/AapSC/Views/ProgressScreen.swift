@@ -21,6 +21,7 @@ struct ProgressScreen: View {
                     ScreenHeader(
                         preferences.t("progress.title"),
                         subtitle: preferences.t("progress.subtitle"),
+                        pageKey: "progress",
                         systemImage: "chart.line.uptrend.xyaxis"
                     )
 

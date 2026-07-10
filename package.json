@@ -8,9 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "pretest": "node -e \"const fs=require('fs'); if(!fs.existsSync('node_modules/lucide-react')) { console.error('Missing dependencies. Run npm install before npm test.'); process.exit(1); }\"",
-    "test": "node --test __tests__/lib/screenshotParser.test.js __tests__/lib/swimImportExport.test.js __tests__/lib/swimMedals.test.js __tests__/lib/swimDuplicates.test.js __tests__/lib/swimCoinStore.test.js __tests__/lib/swimCoins.test.js __tests__/lib/storePageIcons.test.js __tests__/lib/swimMonthlyChallenges.test.js __tests__/lib/swimAnalysis.test.js __tests__/lib/swimChallengeRerollStorage.test.js __tests__/lib/swimStorage.test.js __tests__/lib/mascotMood.test.js __tests__/lib/mascotUnlock.test.js __tests__/lib/swimBenchmarks.test.js __tests__/lib/swimWheel.test.js __tests__/lib/swimWheelSpins.test.js __tests__/lib/swimCoinClaims.test.js",
+    "test": "node --test __tests__/lib/screenshotParser.test.js __tests__/lib/swimImportExport.test.js __tests__/lib/swimMedals.test.js __tests__/lib/swimDuplicates.test.js __tests__/lib/swimCoinStore.test.js __tests__/lib/swimCoins.test.js __tests__/lib/storePageIcons.test.js __tests__/lib/swimMonthlyChallenges.test.js __tests__/lib/swimAnalysis.test.js __tests__/lib/insightPolarity.test.js __tests__/lib/swimChallengeRerollStorage.test.js __tests__/lib/swimStorage.test.js __tests__/lib/mascotMood.test.js __tests__/lib/mascotUnlock.test.js __tests__/lib/swimBenchmarks.test.js __tests__/lib/swimWheel.test.js __tests__/lib/swimWheelSpins.test.js __tests__/lib/swimCoinClaims.test.js",
     "generate:icons": "node scripts/generate-app-icons.mjs",
-    "generate:page-icons": "node scripts/generate-page-icons.mjs"
+    "generate:page-icons": "node scripts/generate-page-icons.mjs",
+    "sync:ios-store-assets": "node scripts/generate-page-icons.mjs && node scripts/sync-ios-store-assets.mjs"
   },
   "dependencies": {
     "autoprefixer": "^10.5.0",

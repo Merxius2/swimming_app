@@ -9,6 +9,8 @@ struct UploadScreen: View {
     @State private var showCoinSheet = false
     @State private var showMedalSheet = false
     @State private var showDuplicateConfirm = false
+    @State private var showDateModal = false
+    @State private var pendingDate = Date()
     @State private var uploadSaved = false
 
     var body: some View {
@@ -40,6 +42,12 @@ struct UploadScreen: View {
             .onChange(of: viewModel.selectedPhotoItem) { _, _ in
                 Task { await viewModel.processSelectedPhoto() }
             }
+            .onChange(of: viewModel.parsedResult?.missingDate) { _, missingDate in
+                if missingDate == true, viewModel.uploadDraft.date.isEmpty {
+                    pendingDate = Date()
+                    showDateModal = true
+                }
+            }
             .confirmationDialog(
                 preferences.t("upload.duplicateTitle"),
                 isPresented: $showDuplicateConfirm,
@@ -67,6 +75,9 @@ struct UploadScreen: View {
             .sheet(isPresented: $showMedalSheet, onDismiss: presentCoinSheetIfNeeded) {
                 MedalCelebrationSheet(medals: viewModel.lastNewMedals)
             }
+            .sheet(isPresented: $showDateModal) {
+                dateRequiredSheet
+            }
         }
     }
 
@@ -79,6 +90,7 @@ struct UploadScreen: View {
             ScreenHeader(
                 preferences.t("upload.title"),
                 subtitle: preferences.t("upload.subtitle"),
+                pageKey: "upload",
                 systemImage: "square.and.arrow.up"
             )
 
@@ -133,7 +145,51 @@ struct UploadScreen: View {
         }
     }
 
+    private var dateRequiredSheet: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(preferences.t("upload.dateRequiredDesc"))
+                    .themeFont(.body)
+                    .foregroundStyle(.secondary)
+
+                DatePicker(
+                    preferences.t("upload.fields.date"),
+                    selection: $pendingDate,
+                    displayedComponents: .date
+                )
+                .datePickerStyle(.graphical)
+
+                Button {
+                    viewModel.uploadDraft.date = Self.formatDateKey(pendingDate)
+                    showDateModal = false
+                } label: {
+                    Text(preferences.t("upload.confirmDate"))
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(Color("BrandBlue"))
+            }
+            .padding()
+            .navigationTitle(preferences.t("upload.dateRequired"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(preferences.t("common.cancel")) {
+                        showDateModal = false
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+
     private func handleSave(ignoreDuplicate: Bool = false) {
+        if viewModel.uploadDraft.date.isEmpty {
+            pendingDate = Date()
+            showDateModal = true
+            return
+        }
+
         if !ignoreDuplicate, viewModel.duplicateSession != nil {
             showDuplicateConfirm = true
             return
@@ -223,7 +279,7 @@ struct UploadScreen: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                formField(preferences.t("upload.fields.date"), text: $viewModel.uploadDraft.date)
+                dateField
                 formField(preferences.t("upload.fields.duration"), text: $viewModel.uploadDraft.duration)
                 formField(preferences.t("upload.fields.distance"), text: $viewModel.uploadDraft.distance)
                 formField(preferences.t("upload.fields.pace"), text: $viewModel.uploadDraft.pace)
@@ -235,6 +291,28 @@ struct UploadScreen: View {
         }
     }
 
+    private var dateField: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(preferences.t("upload.fields.date"))
+                .themeFont(.caption, weight: .semibold)
+                .foregroundStyle(.secondary)
+            DatePicker(
+                "",
+                selection: dateBinding,
+                displayedComponents: .date
+            )
+            .labelsHidden()
+            .datePickerStyle(.compact)
+        }
+    }
+
+    private var dateBinding: Binding<Date> {
+        Binding(
+            get: { Self.parseDateKey(viewModel.uploadDraft.date) ?? Date() },
+            set: { viewModel.uploadDraft.date = Self.formatDateKey($0) }
+        )
+    }
+
     private func formField(_ title: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -243,5 +321,20 @@ struct UploadScreen: View {
             TextField(title, text: text)
                 .textFieldStyle(.roundedBorder)
         }
+    }
+
+    private static func parseDateKey(_ value: String) -> Date? {
+        guard !value.isEmpty else { return nil }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.date(from: value)
+    }
+
+    private static func formatDateKey(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.string(from: date)
     }
 }
