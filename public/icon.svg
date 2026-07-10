@@ -1,4 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
-  <rect width="192" height="192" fill="#000000"/>
-  <text x="96" y="110" font-size="80" font-weight="bold" fill="#ffffff" text-anchor="middle" font-family="Arial, sans-serif">👋</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="24" y1="16" x2="168" y2="176" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="0.55" stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#0066CC"/>
+    </linearGradient>
+    <linearGradient id="water" x1="96" y1="118" x2="96" y2="176" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0284C7" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#0369A1"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="url(#bg)"/>
+  <rect x="0" y="128" width="192" height="14" fill="#BAE6FD"/>
+  <path d="M0 142 Q48 132 96 136 T192 142 V192 H0 Z" fill="url(#water)"/>
+  <path d="M0 132 Q96 122 192 132" stroke="#fff" stroke-width="2" opacity="0.35"/>
+  <line x1="64" y1="144" x2="64" y2="184" stroke="#fff" stroke-width="1.5" opacity="0.2"/>
+  <line x1="128" y1="144" x2="128" y2="184" stroke="#fff" stroke-width="1.5" opacity="0.2"/>
+  <circle cx="96" cy="34" r="22" fill="#fff" opacity="0.96"/>
+  <g transform="translate(96 34) scale(0.62)" fill="#57C4B7">
+    <g transform="translate(-32 -34)">
+      <circle cx="22" cy="17" r="9"/>
+      <path d="M29 21C36 14 44 16 48 26" stroke="#57C4B7" stroke-width="7" stroke-linecap="round" fill="none"/>
+      <path d="M10 46C16 42 22 42 28 46C34 50 40 50 46 46C52 42 58 42 64 46" stroke="#57C4B7" stroke-width="5" stroke-linecap="round" fill="none"/>
+      <path d="M6 54C14 50 22 50 30 54C38 58 46 58 54 54" stroke="#57C4B7" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.85"/>
+      <path d="M10 62C18 58 26 58 34 62C42 66 50 66 58 62" stroke="#57C4B7" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.7"/>
+    </g>
+  </g>
+  <!-- Flip (blue coach) -->
+  <circle cx="52" cy="98" r="20" fill="#8B5E3C"/>
+  <ellipse cx="52" cy="84" rx="18" ry="16" fill="#3B82F6"/>
+  <rect x="39" y="104" width="26" height="24" rx="6" fill="#3B82F6"/>
+  <!-- Flo (pink coach, center) -->
+  <circle cx="96" cy="94" r="22" fill="#8B5E3C"/>
+  <ellipse cx="96" cy="78" rx="20" ry="17" fill="#EC4899"/>
+  <rect x="81" y="102" width="30" height="26" rx="6" fill="#EC4899"/>
+  <!-- Fins (red coach) -->
+  <circle cx="140" cy="98" r="20" fill="#8B5E3C"/>
+  <ellipse cx="140" cy="84" rx="18" ry="16" fill="#EF4444"/>
+  <rect x="127" y="104" width="26" height="24" rx="6" fill="#EF4444"/>
 </svg>

@@ -9,4 +9,6 @@
   <circle cx="96" cy="96" r="88" fill="url(#p)"/>
   <circle cx="96" cy="96" r="72" fill="#475569" fill-opacity="0.12"/>
   <path d="M96 52l12 28h30l-24 18 9 30-27-18-27 18 9-30-24-18h30l12-28z" fill="#F8FAFC" stroke="#94A3B8" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M44 138 Q96 124 148 138" stroke="#38BDF8" stroke-width="5" stroke-linecap="round" opacity="0.55"/>
+  <path d="M52 148 Q96 136 140 148" stroke="#0EA5E9" stroke-width="4" stroke-linecap="round" opacity="0.35"/>
 </svg>

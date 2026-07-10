@@ -34,7 +34,7 @@ enum SwimMedalCopy {
                 guard parts.count == 2,
                       let year = Int(parts[0]),
                       let month = Int(parts[1]) else { return period }
-                var components = DateComponents(year: year, month: month, day: 1)
+                let components = DateComponents(year: year, month: month, day: 1)
                 let formatter = DateFormatter()
                 formatter.locale = locale
                 formatter.dateFormat = "MMM yyyy"

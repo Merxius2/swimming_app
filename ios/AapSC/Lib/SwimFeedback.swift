@@ -65,7 +65,7 @@ enum SwimFeedback {
             base: base,
             combined: combined
         )
-        var insights = enrichInsights(base: base, ctx: ctx, t: t)
+        let insights = enrichInsights(base: base, ctx: ctx, t: t)
 
         let mascotContext = sessionsForStats
         let mascotId = MascotUnlock.resolveMascotId(

@@ -831,7 +831,7 @@ struct SessionCalendarView: View {
     }
 
     private var monthTitle: String {
-        var components = DateComponents(year: viewYear, month: viewMonth, day: 1)
+        let components = DateComponents(year: viewYear, month: viewMonth, day: 1)
         let date = Calendar.current.date(from: components) ?? Date()
         let formatter = DateFormatter()
         formatter.locale = preferences.locale
@@ -846,7 +846,7 @@ struct SessionCalendarView: View {
     }
 
     private var cells: [CalendarCell?] {
-        var components = DateComponents(year: viewYear, month: viewMonth, day: 1)
+        let components = DateComponents(year: viewYear, month: viewMonth, day: 1)
         guard let firstDay = Calendar.current.date(from: components),
               let range = Calendar.current.range(of: .day, in: .month, for: firstDay) else { return [] }
 
@@ -862,7 +862,7 @@ struct SessionCalendarView: View {
     }
 
     private func shiftMonth(_ delta: Int) {
-        var components = DateComponents(year: viewYear, month: viewMonth + delta, day: 1)
+        let components = DateComponents(year: viewYear, month: viewMonth + delta, day: 1)
         guard let date = Calendar.current.date(from: components) else { return }
         viewYear = Calendar.current.component(.year, from: date)
         viewMonth = Calendar.current.component(.month, from: date)

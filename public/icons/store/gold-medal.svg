@@ -8,7 +8,10 @@
   </defs>
   <circle cx="96" cy="96" r="88" fill="url(#g)"/>
   <circle cx="96" cy="96" r="72" fill="#78350F" fill-opacity="0.18"/>
+  <path d="M40 138 Q96 124 152 138" stroke="#FFFBEB" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
   <path d="M56 118c12-28 32-42 40-42s28 14 40 42" stroke="#FFFBEB" stroke-width="10" stroke-linecap="round"/>
   <path d="M68 92c8-12 18-18 28-18s20 6 28 18" stroke="#FFFBEB" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
   <circle cx="96" cy="132" r="8" fill="#FFFBEB"/>
+  <ellipse cx="96" cy="68" rx="22" ry="14" fill="#0284C7" opacity="0.85"/>
+  <path d="M74 68h44" stroke="#FFFBEB" stroke-width="4" stroke-linecap="round"/>
 </svg>

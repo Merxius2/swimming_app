@@ -4,6 +4,7 @@ import PhotosUI
 struct UploadScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.t) private var t
     @Environment(\.dismiss) private var dismiss
 
     @State private var showCoinSheet = false
@@ -60,7 +61,7 @@ struct UploadScreen: View {
             } message: {
                 if let duplicate = viewModel.duplicateSession {
                     Text(
-                        preferences.t(
+                        t.t(
                             "upload.duplicateMessage",
                             params: ["date": SwimFormatters.formatDateLong(duplicate.date)]
                         )
