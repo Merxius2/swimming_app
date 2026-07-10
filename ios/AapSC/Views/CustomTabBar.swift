@@ -161,6 +161,7 @@ struct CustomTabBar: View {
             uploadLabel
         }
         .frame(maxWidth: .infinity)
+        .zIndex(profile.tabBar.accentStripePosition == .top ? 1 : 0)
     }
 
     private func tabButton(title: String, pageKey: String, icon: String, tab: Int) -> some View {

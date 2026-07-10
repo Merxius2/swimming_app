@@ -432,7 +432,12 @@ html.theme-classic.dark .recharts-tooltip-wrapper > div {
     border-left: none !important;
     border-right: none !important;
     border-bottom: none !important;
-    border-bottom: 3px solid var(--ps-lightbar) !important;
+    border-top: 3px solid var(--ps-lightbar) !important;
+  }
+
+  html.theme-classic nav.mobile-nav-bar .mobile-nav-fab-wrap {
+    position: relative;
+    z-index: 2;
   }
 
   html.theme-classic nav.mobile-nav-bar .mobile-nav-tab-btn {

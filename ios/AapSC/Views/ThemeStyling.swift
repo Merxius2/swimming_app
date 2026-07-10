@@ -290,7 +290,7 @@ enum ThemeVisualProfiles {
                 selectedColor: lightBar,
                 unselectedColor: dark ? Color(red: 0.94, green: 0.94, blue: 0.94, opacity: 0.88) : ink,
                 accentStripe: lightBar,
-                accentStripePosition: .bottom,
+                accentStripePosition: .top,
                 topCornerRadius: 20,
                 borderColor: nil,
                 usesRaisedShadow: true,
