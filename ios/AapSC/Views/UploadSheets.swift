@@ -56,20 +56,47 @@ struct CoinEarnedSheet: View {
 
     private func label(for line: CoinLineItem) -> String {
         switch line.type {
-        case "base": return preferences.t("coins.lineBase")
-        case "distance": return preferences.t("coins.lineDistance")
-        case "duration": return preferences.t("coins.lineDuration")
-        case "kcal": return preferences.t("coins.lineKcal")
-        case "paceImprovement": return preferences.t("coins.linePaceImprovement")
-        case "finsBonus": return preferences.t("coins.lineFinsBonus")
-        case "finsPenalty": return preferences.t("coins.lineFinsPenalty")
-        case "coachShare": return preferences.t("coins.lineCoachShare")
-        case "medal": return preferences.t("coins.lineMedal", params: [
-            "tier": line.medalId ?? "",
-            "title": line.medalId?.replacingOccurrences(of: "_", with: " ") ?? "earned"
-        ])
-        case "monthly": return preferences.t("coins.lineMonthly")
-        default: return line.type.capitalized
+        case "base":
+            return preferences.t("coins.lineBase")
+        case "distance":
+            return preferences.t("coins.lineDistance", params: [
+                "distance": SwimFormatters.formatDistance(line.distanceM),
+            ])
+        case "duration":
+            return preferences.t("coins.lineDuration", params: [
+                "duration": SwimFormatters.formatDuration(line.durationSec),
+            ])
+        case "kcal":
+            return preferences.t("coins.lineKcal", params: [
+                "kcal": line.kcal.map { String($0) } ?? "0",
+            ])
+        case "paceImprovement":
+            return preferences.t("coins.linePaceImprovement", params: [
+                "pace": SwimFormatters.formatPace(line.paceSec),
+                "avgPace": SwimFormatters.formatPace(line.avgPaceSec.map { Int($0.rounded()) }),
+            ])
+        case "finsBonus":
+            return preferences.t("coins.lineFinsBonus")
+        case "finsPenalty":
+            return preferences.t("coins.lineFinsPenalty", params: [
+                "pace": SwimFormatters.formatPace(line.paceSec),
+                "avgPace": SwimFormatters.formatPace(line.avgPaceSec.map { Int($0.rounded()) }),
+            ])
+        case "coachShare":
+            return preferences.t("coins.lineCoachShare")
+        case "medal":
+            return preferences.t("coins.lineMedal", params: [
+                "tier": line.tier.map { preferences.t("monthlyChallenges.tiers.\($0)") } ?? "",
+                "title": line.medalId.map { preferences.t("medals.items.\($0).title") }
+                    ?? line.medalId?.replacingOccurrences(of: "_", with: " ") ?? "earned",
+            ])
+        case "monthly":
+            return preferences.t("coins.lineMonthly", params: [
+                "from": line.fromTier.map { preferences.t("monthlyChallenges.tiers.\($0)") } ?? "—",
+                "to": line.toTier.map { preferences.t("monthlyChallenges.tiers.\($0)") } ?? "—",
+            ])
+        default:
+            return line.type.capitalized
         }
     }
 }

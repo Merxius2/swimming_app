@@ -19,6 +19,7 @@ import MobileTopActions from '../components/MobileTopActions';
 import ErrorBoundary from '../components/ErrorBoundary';
 import AmbientBackground from '../components/AmbientBackground';
 import SecretSettingsModal from '../components/SecretSettingsModal';
+import LaunchReminderBanner from '../components/LaunchReminderBanner';
 
 function AppContent({ Component, pageProps }) {
   const { theme, changeTheme, isLoading: prefsLoading } = useTheme();
@@ -111,6 +112,7 @@ function AppContent({ Component, pageProps }) {
       <MobileTopActions />
       <MobileNav />
       <SecretSettingsModal />
+      <LaunchReminderBanner />
       <Component {...pageProps} />
     </div>
   );

@@ -98,6 +98,7 @@
 		B20000000000000000000017 /* SwimWheelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000017 /* SwimWheelTests.swift */; };
 		B20000000000000000000018 /* SwimWheelSpinsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000018 /* SwimWheelSpinsTests.swift */; };
 		B10000000000000000000074 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000074 /* HealthKitService.swift */; };
+		B10000000000000000000075 /* SwimNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000076 /* SwimNotifications.swift */; };
 		B20000000000000000000019 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* XCTest.framework */; };
 /* End PBXBuildFile section */
 
@@ -196,6 +197,7 @@
 		F20000000000000000000017 /* SwimWheelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000018 /* SwimWheelSpinsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelSpinsTests.swift; sourceTree = "<group>"; };
 		F10000000000000000000074 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		F10000000000000000000076 /* SwimNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimNotifications.swift; sourceTree = "<group>"; };
 		F10000000000000000000075 /* AapSC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AapSC.entitlements; sourceTree = "<group>"; };
 		F20000000000000000000019 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
@@ -298,6 +300,7 @@
 				F10000000000000000000041 /* AiCoachService.swift */,
 				F10000000000000000000063 /* AppIconService.swift */,
 				F10000000000000000000074 /* HealthKitService.swift */,
+				F10000000000000000000076 /* SwimNotifications.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -586,6 +589,7 @@
 				B10000000000000000000062 /* ResetDataModal.swift in Sources */,
 				B10000000000000000000063 /* AppIconService.swift in Sources */,
 				B10000000000000000000074 /* HealthKitService.swift in Sources */,
+				B10000000000000000000075 /* SwimNotifications.swift in Sources */,
 				B10000000000000000000064 /* ThemeTypography.swift in Sources */,
 				B10000000000000000000065 /* StoreIconPreview.swift in Sources */,
 				B10000000000000000000073 /* StoreVibePreviewView.swift in Sources */,

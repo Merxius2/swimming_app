@@ -26,6 +26,8 @@
 	<string>Aap-SC reads Apple Fitness swim screenshots from your photo library to log workouts.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Aap-SC reads your swim workouts from Apple Health to add sessions automatically.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Aap-SC sends reminders when monthly swim goals are still open near the end of the month.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

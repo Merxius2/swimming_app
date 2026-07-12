@@ -329,6 +329,7 @@ final class SwimViewModel: ObservableObject {
     func syncHealthKitWorkouts(
         requestAuthorizationIfNeeded: Bool = false,
         maxImports: Int = 40,
+        since: Date? = nil,
         lookbackMonths: Int = 24
     ) async {
         let t = makeTranslations()
@@ -345,9 +346,10 @@ final class SwimViewModel: ObservableObject {
             if requestAuthorizationIfNeeded || !HealthKitService.isAuthorizedForWorkouts {
                 try await HealthKitService.requestAuthorization()
             }
+            let syncSince = since ?? healthKitLookbackDate(months: lookbackMonths)
             let result = try await importHealthKitWorkouts(
                 maxImports: maxImports,
-                lookbackMonths: lookbackMonths
+                since: syncSince
             )
             lastHealthKitImportResult = result
             if result.importedCount > 0 {
@@ -378,8 +380,17 @@ final class SwimViewModel: ObservableObject {
         guard HealthKitService.isAvailable, HealthKitService.isAuthorizedForWorkouts else { return }
         await syncHealthKitWorkouts(
             requestAuthorizationIfNeeded: false,
-            maxImports: 5,
-            lookbackMonths: 1
+            maxImports: 20,
+            since: healthKitSyncSinceDate()
+        )
+    }
+
+    func refreshLaunchNotifications() async {
+        await SwimNotifications.refreshMonthlyGoalReminders(
+            sessions: sessions,
+            profile: profile,
+            monthlyChallengeRerolls: monthlyChallengeRerolls,
+            t: makeTranslations()
         )
     }
 
@@ -486,10 +497,9 @@ final class SwimViewModel: ObservableObject {
 
     private func importHealthKitWorkouts(
         maxImports: Int,
-        lookbackMonths: Int
+        since: Date
     ) async throws -> HealthKitImportResult {
         let existingUUIDs = Set(sessions.compactMap(\.healthKitWorkoutUUID))
-        let since = healthKitLookbackDate(months: lookbackMonths)
         let fetchResult = try await HealthKitService.fetchNewSwimWorkouts(
             excluding: existingUUIDs,
             since: since,
@@ -554,6 +564,17 @@ final class SwimViewModel: ObservableObject {
         return lookback
     }
 
+    private func healthKitSyncSinceDate() -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        if let lastDate = sessions.map(\.date).max(),
+           let date = formatter.date(from: lastDate) {
+            return Calendar.current.date(byAdding: .day, value: -1, to: date) ?? date
+        }
+        return healthKitLookbackDate(months: 3)
+    }
+
     private func persist(immediate: Bool = false) {
         if immediate {
             SwimStorageService.save(data)
@@ -581,11 +602,13 @@ struct UploadDraft: Equatable {
     var goal: String
     var location: String
     var timeRange: String
+    var strokes: StrokeDistances
 
     static let empty = UploadDraft(
         date: "", duration: "", distance: "", pace: "",
         activeKcal: "", totalKcal: "", avgHeartRate: "",
-        laps: "", poolLength: "25", goal: "", location: "", timeRange: ""
+        laps: "", poolLength: "25", goal: "", location: "", timeRange: "",
+        strokes: .empty
     )
 
     var resolvedDate: String {
@@ -608,7 +631,8 @@ struct UploadDraft: Equatable {
             poolLength: String(fields.poolLengthM),
             goal: fields.goalM.map(String.init) ?? "",
             location: fields.location,
-            timeRange: fields.timeRange
+            timeRange: fields.timeRange,
+            strokes: fields.strokes
         )
     }
 
@@ -625,7 +649,7 @@ struct UploadDraft: Equatable {
             goalM: SwimFormatters.parseDistanceM(goal),
             location: location,
             timeRange: timeRange,
-            strokes: .empty
+            strokes: strokes
         )
     }
 }

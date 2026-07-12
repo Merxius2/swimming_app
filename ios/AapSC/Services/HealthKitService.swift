@@ -38,6 +38,9 @@ enum HealthKitService {
         if let energy = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
             types.insert(energy)
         }
+        if let heartRate = HKQuantityType.quantityType(forIdentifier: .heartRate) {
+            types.insert(heartRate)
+        }
         return types
     }()
 
@@ -56,8 +59,7 @@ enum HealthKitService {
         try await store.requestAuthorization(toShare: [], read: readTypes)
     }
 
-    /// Fetches swim workouts not yet imported. Heart rate is omitted during bulk import to
-    /// avoid one statistics query per workout (major memory + query amplification).
+    /// Fetches swim workouts not yet imported, enriching each candidate with heart rate and lap data.
     static func fetchNewSwimWorkouts(
         excluding existingUUIDs: Set<String>,
         since: Date,
@@ -82,9 +84,16 @@ enum HealthKitService {
         mapped.reserveCapacity(min(rawWorkouts.count, maxResults))
 
         for workout in rawWorkouts {
-            let mappedWorkout = mapWorkout(workout)
-            guard !existingUUIDs.contains(mappedWorkout.id) else { continue }
-            mapped.append(mappedWorkout)
+            let base = mapWorkout(workout)
+            guard !existingUUIDs.contains(base.id) else { continue }
+            let enriched = await enrichWorkoutMetrics(workout, base: base.metrics)
+            mapped.append(HealthKitSwimWorkout(
+                id: base.id,
+                date: base.date,
+                metrics: enriched,
+                startDate: base.startDate,
+                endDate: base.endDate
+            ))
         }
 
         mapped.sort { $0.startDate < $1.startDate }
@@ -135,6 +144,16 @@ enum HealthKitService {
             location = ""
         }
 
+        var poolLengthM = 25
+        if let lapLength = workout.metadata?[HKMetadataKeyLapLength] as? HKQuantity {
+            poolLengthM = max(1, Int(lapLength.doubleValue(for: .meter()).rounded()))
+        }
+
+        var laps: Int?
+        if let distanceM, poolLengthM > 0 {
+            laps = max(1, distanceM / poolLengthM)
+        }
+
         return HealthKitSwimWorkout(
             id: workout.uuid.uuidString,
             date: date,
@@ -145,8 +164,8 @@ enum HealthKitService {
                 totalKcal: activeKcal,
                 paceSecPer100m: paceSecPer100m,
                 avgHeartRate: nil,
-                laps: nil,
-                poolLengthM: 25,
+                laps: laps,
+                poolLengthM: poolLengthM,
                 goalM: nil,
                 location: location,
                 timeRange: timeRange,
@@ -155,6 +174,53 @@ enum HealthKitService {
             startDate: workout.startDate,
             endDate: workout.endDate
         )
+    }
+
+    private static func enrichWorkoutMetrics(_ workout: HKWorkout, base: SwimMetrics) async -> SwimMetrics {
+        var metrics = base
+        if metrics.avgHeartRate == nil, let hr = await averageHeartRate(for: workout) {
+            metrics.avgHeartRate = hr
+        }
+        if metrics.laps == nil, let laps = lapCount(for: workout) {
+            metrics.laps = laps
+        } else if metrics.laps == nil,
+                  let distanceM = metrics.distanceM,
+                  metrics.poolLengthM > 0 {
+            metrics.laps = max(1, distanceM / metrics.poolLengthM)
+        }
+        return metrics
+    }
+
+    private static func averageHeartRate(for workout: HKWorkout) async -> Int? {
+        guard let hrType = HKQuantityType.quantityType(forIdentifier: .heartRate) else { return nil }
+        return await withCheckedContinuation { continuation in
+            let predicate = HKQuery.predicateForSamples(
+                withStart: workout.startDate,
+                end: workout.endDate,
+                options: .strictStartDate
+            )
+            let query = HKStatisticsQuery(
+                quantityType: hrType,
+                quantitySamplePredicate: predicate,
+                options: .discreteAverage
+            ) { _, stats, _ in
+                guard let quantity = stats?.averageQuantity() else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let bpm = quantity.doubleValue(
+                    for: HKUnit.count().unitDivided(by: HKUnit.minute())
+                )
+                continuation.resume(returning: Int(bpm.rounded()))
+            }
+            store.execute(query)
+        }
+    }
+
+    private static func lapCount(for workout: HKWorkout) -> Int? {
+        guard let events = workout.workoutEvents else { return nil }
+        let laps = events.filter { $0.type == .lap }
+        return laps.isEmpty ? nil : laps.count
     }
 
     private static let dateKeyFormatter: DateFormatter = {

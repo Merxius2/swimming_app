@@ -52,6 +52,10 @@ describe('swimImportExport', () => {
     assert.equal(imported.sessions.length, 1);
     assert.equal(imported.sessions[0].metrics.distanceM, 2550);
     assert.equal(imported.sessions[0].metrics.paceSecPer100m, 130);
+    assert.equal(imported.sessions[0].metrics.avgHeartRate, 140);
+    assert.equal(imported.sessions[0].metrics.laps, 102);
+    assert.equal(imported.sessions[0].metrics.strokes.freestyleM, 2025);
+    assert.equal(imported.sessions[0].metrics.strokes.breaststrokeM, 475);
     assert.equal(imported.sessions[0].coinsEarned, 24);
     assert.equal(imported.sessions[0].coinBonus, 25);
     assert.equal(imported.totalCoins, 42);
