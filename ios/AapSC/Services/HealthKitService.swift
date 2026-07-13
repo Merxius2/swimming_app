@@ -59,12 +59,13 @@ enum HealthKitService {
         try await store.requestAuthorization(toShare: [], read: readTypes)
     }
 
-    /// Fetches swim workouts not yet imported, enriching each candidate with heart rate and lap data.
+    /// Fetches swim workouts not yet imported, optionally enriching each with heart rate data.
     static func fetchNewSwimWorkouts(
         excluding existingUUIDs: Set<String>,
         since: Date,
         maxResults: Int,
-        queryLimit: Int = queryLimit
+        queryLimit: Int = queryLimit,
+        enrichHeartRate: Bool = true
     ) async throws -> (workouts: [HealthKitSwimWorkout], queriedCount: Int) {
         guard isAvailable else { throw HealthKitServiceError.unavailable }
 
@@ -86,7 +87,9 @@ enum HealthKitService {
         for workout in rawWorkouts {
             let base = mapWorkout(workout)
             guard !existingUUIDs.contains(base.id) else { continue }
-            let enriched = await enrichWorkoutMetrics(workout, base: base.metrics)
+            let enriched = enrichHeartRate
+                ? await enrichWorkoutMetrics(workout, base: base.metrics)
+                : enrichWorkoutMetricsSync(workout, base: base.metrics)
             mapped.append(HealthKitSwimWorkout(
                 id: base.id,
                 date: base.date,
@@ -174,6 +177,18 @@ enum HealthKitService {
             startDate: workout.startDate,
             endDate: workout.endDate
         )
+    }
+
+    private static func enrichWorkoutMetricsSync(_ workout: HKWorkout, base: SwimMetrics) -> SwimMetrics {
+        var metrics = base
+        if metrics.laps == nil, let laps = lapCount(for: workout) {
+            metrics.laps = laps
+        } else if metrics.laps == nil,
+                  let distanceM = metrics.distanceM,
+                  metrics.poolLengthM > 0 {
+            metrics.laps = max(1, distanceM / metrics.poolLengthM)
+        }
+        return metrics
     }
 
     private static func enrichWorkoutMetrics(_ workout: HKWorkout, base: SwimMetrics) async -> SwimMetrics {

@@ -2,7 +2,7 @@
  * User preferences — dark mode, language, and theme.
  */
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { saveToCookie, loadFromCookie } from '../lib/cookieStorage';
 import translations from '../lib/i18n';
 import { DEFAULT_LANGUAGE, DEFAULT_THEME, THEMES } from '../lib/appConstants';
@@ -110,11 +110,11 @@ export function UserPreferencesProvider({ children }) {
     saveToCookie('AUDIT_LANGUAGE_PREFERENCE', { language: next }, 365);
   };
 
-  const t = (key) => {
+  const t = useCallback((key) => {
     return resolveTranslation(language, key)
       ?? resolveTranslation(DEFAULT_LANGUAGE, key)
       ?? key;
-  };
+  }, [language]);
 
   const changeTheme = (nextTheme) => {
     if (!THEMES.some((item) => item.code === nextTheme)) return;
@@ -122,7 +122,7 @@ export function UserPreferencesProvider({ children }) {
     saveToCookie('AUDIT_THEME_PREFERENCE', { theme: nextTheme }, 365);
   };
 
-  const value = {
+  const value = useMemo(() => ({
     isDarkMode,
     toggleDarkMode,
     isAutoMode,
@@ -134,7 +134,14 @@ export function UserPreferencesProvider({ children }) {
     changeTheme,
     THEMES,
     isLoading,
-  };
+  }), [
+    isDarkMode,
+    isAutoMode,
+    language,
+    t,
+    theme,
+    isLoading,
+  ]);
 
   return (
     <UserPreferencesContext.Provider value={value}>

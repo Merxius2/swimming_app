@@ -18,9 +18,14 @@ private struct AppRootView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.colorScheme) private var systemColorScheme
+    @Environment(\.scenePhase) private var scenePhase
 
     private var appIsDark: Bool {
         preferences.isDarkModeActive(systemColorScheme: systemColorScheme)
+    }
+
+    private var animationsPaused: Bool {
+        scenePhase != .active
     }
 
     private var ambientBackgroundVisible: Bool {
@@ -50,20 +55,22 @@ private struct AppRootView: View {
         .environment(\.themeColors, preferences.themeColors)
         .environment(\.appIsDark, appIsDark)
         .environment(\.ambientBackgroundVisible, ambientBackgroundVisible)
+        .environment(\.appAnimationsPaused, animationsPaused)
         .environment(\.themeTypographyCode, preferences.themeCode)
         .tint(preferences.themeColors.displayPrimary)
         .preferredColorScheme(preferences.colorScheme)
         .themedBodyFont()
+        .task(priority: .utility) {
+            try? await Task.sleep(for: .milliseconds(300))
+            await viewModel.syncHealthKitWorkoutsIfAuthorized()
+            await viewModel.refreshLaunchNotifications()
+        }
         .onAppear {
             ThemeTypography.applyUIKitAppearance(themeCode: preferences.themeCode)
             AppIconService.apply(
                 activeAppIcon: viewModel.profile.activeAppIcon,
                 storeUnlocks: viewModel.storeUnlocks
             )
-            Task {
-                await viewModel.syncHealthKitWorkoutsIfAuthorized()
-                await viewModel.refreshLaunchNotifications()
-            }
         }
         .onChange(of: viewModel.profile.activeAppIcon) { _, activeAppIcon in
             AppIconService.apply(

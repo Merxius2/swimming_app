@@ -126,7 +126,7 @@ struct SessionFeedbackCard: View {
                         bubbleTone: bubbleTone,
                         showStage: true,
                         size: 170,
-                        animated: true,
+                        animated: false,
                         layout: .stacked
                     )
                     .frame(maxWidth: .infinity)

@@ -9,6 +9,7 @@ enum MascotCoachLayout {
 struct MascotCoachView: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.appIsDark) private var appIsDark
+    @Environment(\.appAnimationsPaused) private var animationsPaused
 
     let mascotId: String
     let message: String
@@ -28,6 +29,10 @@ struct MascotCoachView: View {
 
     private var resolvedCoachName: String {
         coachName ?? MascotConstants.displayName(mascotId, t: preferences.translations)
+    }
+
+    private var motionEnabled: Bool {
+        animated && !animationsPaused
     }
 
     var body: some View {
@@ -123,12 +128,12 @@ struct MascotCoachView: View {
             MascotCharacterView(
                 mascotId: mascotId,
                 mood: mood,
-                animated: animated,
+                animated: motionEnabled,
                 size: size
             )
-            MascotShadowPulseView(size: size, animated: animated)
+            MascotShadowPulseView(size: size, animated: motionEnabled)
         }
-        .modifier(MascotEnterModifier(enabled: animated))
+        .modifier(MascotEnterModifier(enabled: motionEnabled))
     }
 }
 
@@ -145,7 +150,7 @@ private struct MascotShadowPulseView: View {
 
         Group {
             if pulseEnabled {
-                TimelineView(.animation) { timeline in
+                TimelineView(BatteryEfficientAnimation.timelineSchedule) { timeline in
                     let elapsed = timeline.date.timeIntervalSinceReferenceDate
                     let progress = (elapsed.truncatingRemainder(dividingBy: 4.2)) / 4.2
                     let scaleX = MascotIdleMotion.interpolate(

@@ -103,7 +103,7 @@ enum SwimNotifications {
 
         let daysLeft = daysRemainingInMonth(now)
         let openSummary = open.prefix(2).map {
-            SwimMonthlyChallengeFormatters.formatTarget(type: $0.type, target: $0.target, t: t)
+            SwimMonthlyChallengeFormatters.formatChallengeTarget($0.type, $0.target, t: t)
         }.joined(separator: ", ")
 
         return [ReminderPayload(

@@ -23,6 +23,19 @@ final class SwimViewModel: ObservableObject {
 
     private var saveTask: Task<Void, Never>?
     private var hasAttemptedHealthKitAutoSync = false
+    private var hasRefreshedLaunchNotifications = false
+    private var cachedEvaluatedMedals: [EvaluatedMedal]?
+    private var evaluatedMedalsCacheStamp = ""
+    private var cachedProgressSnapshot: ProgressPageSnapshot?
+    private var progressSnapshotCacheStamp = ""
+    private var cachedMonthlyChallengeHistory: [MonthlyChallengeState]?
+    private var monthlyChallengeHistoryCacheStamp = ""
+
+    private static let healthKitAutoSyncAtKey = "HEALTHKIT_AUTO_SYNC_AT"
+
+    private var sessionDataStamp: String {
+        "\(sessions.count)-\(sessions.last?.id ?? "")-\(cheats.allMedalsUnlocked)-\(cheats.previewMonthlyMedals)-\(monthlyChallengeRerolls.count)"
+    }
 
     var sessions: [SwimSession] { data.sessions }
     var profile: SwimProfile { data.profile }
@@ -45,10 +58,70 @@ final class SwimViewModel: ObservableObject {
     }
 
     var evaluatedMedals: [EvaluatedMedal] {
-        SwimMedals.evaluateAllMedals(
+        let stamp = sessionDataStamp
+        if let cachedEvaluatedMedals, evaluatedMedalsCacheStamp == stamp {
+            return cachedEvaluatedMedals
+        }
+        let medals = SwimMedals.evaluateAllMedals(
             sessions,
             allMedalsUnlocked: cheats.allMedalsUnlocked
         )
+        cachedEvaluatedMedals = medals
+        evaluatedMedalsCacheStamp = stamp
+        return medals
+    }
+
+    var monthlyChallengeHistory: [MonthlyChallengeState] {
+        let intensity = MascotConstants.gameplay(mascotId).challengeIntensity
+        let stamp = "\(sessionDataStamp)-\(intensity)"
+        if let cachedMonthlyChallengeHistory, monthlyChallengeHistoryCacheStamp == stamp {
+            return cachedMonthlyChallengeHistory
+        }
+        let history = SwimMonthlyChallenges.getMonthlyChallengeHistory(
+            sessions: sessions,
+            previewMonthlyMedals: cheats.previewMonthlyMedals,
+            monthlyChallengeRerolls: monthlyChallengeRerolls,
+            intensity: intensity
+        )
+        cachedMonthlyChallengeHistory = history
+        monthlyChallengeHistoryCacheStamp = stamp
+        return history
+    }
+
+    func progressPageSnapshot(t: TranslationService) -> ProgressPageSnapshot {
+        let stamp = "\(sessionDataStamp)-\(t.language)-\(profile.name)"
+        if let cachedProgressSnapshot, progressSnapshotCacheStamp == stamp {
+            return cachedProgressSnapshot
+        }
+
+        let chartPoints = SwimAnalysis.chartSessions(sessions)
+        let latest = sessions.last
+        let snapshot = ProgressPageSnapshot(
+            chartPoints: chartPoints,
+            weeklyVolume: SwimAnalysis.weeklyVolumeData(sessions),
+            combinedStats: SwimAnalysis.combinedStats(sessions),
+            statsSessionCount: SwimAnalysis.statsSessions(sessions).count,
+            records: SwimRecords.getPersonalRecords(sessions),
+            latestFeedback: latest.map {
+                SwimAnalysis.buildPersonalFeedback(
+                    session: $0,
+                    allSessions: sessions,
+                    profile: profile,
+                    t: t,
+                    monthlyChallengeRerolls: monthlyChallengeRerolls
+                )
+            },
+            overviewMessage: SwimAnalysis.buildProgressOverviewMessage(
+                profile: profile,
+                sessions: sessions,
+                t: t,
+                monthlyChallengeRerolls: monthlyChallengeRerolls
+            ),
+            strokeSlices: SwimAnalysis.strokeChartData(latest, t: t)
+        )
+        cachedProgressSnapshot = snapshot
+        progressSnapshotCacheStamp = stamp
+        return snapshot
     }
 
     init() {
@@ -58,6 +131,7 @@ final class SwimViewModel: ObservableObject {
     func load() {
         data = SwimStorageService.load()
         cheats = SwimCheatsService.load()
+        invalidateMedalCache()
         isLoading = false
     }
 
@@ -69,6 +143,7 @@ final class SwimViewModel: ObservableObject {
             storeUnlocks: next.storeUnlocks
         )
         data = next
+        invalidateMedalCache()
         persist(immediate: true)
     }
 
@@ -110,6 +185,7 @@ final class SwimViewModel: ObservableObject {
         data.sessions.append(entry)
         data.sessions.sort { $0.date < $1.date }
         data.totalCoins = max(0, data.totalCoins + coinsEarned + coinBonus)
+        invalidateMedalCache()
         persist()
         return entry
     }
@@ -135,23 +211,27 @@ final class SwimViewModel: ObservableObject {
         }
         data.totalCoins = max(0, data.totalCoins - coinsRemoved)
         data.sessions.removeAll { $0.id == id }
+        invalidateMedalCache()
         persist()
     }
 
     func updateSession(id: String, updates: (inout SwimSession) -> Void) {
         guard let index = data.sessions.firstIndex(where: { $0.id == id }) else { return }
         updates(&data.sessions[index])
+        invalidateMedalCache()
         persist()
     }
 
     func replaceData(_ nextData: SwimData) {
         data = SwimStorageService.normalize(nextData)
+        invalidateMedalCache()
         persist(immediate: true)
     }
 
     func clearAll() {
         data = .empty
         cheats = .empty
+        invalidateMedalCache()
         SwimStorageService.clear()
         SwimCheatsService.clear()
     }
@@ -330,7 +410,8 @@ final class SwimViewModel: ObservableObject {
         requestAuthorizationIfNeeded: Bool = false,
         maxImports: Int = 40,
         since: Date? = nil,
-        lookbackMonths: Int = 24
+        lookbackMonths: Int = 24,
+        enrichHeartRate: Bool = true
     ) async {
         let t = makeTranslations()
         guard HealthKitService.isAvailable else {
@@ -349,7 +430,8 @@ final class SwimViewModel: ObservableObject {
             let syncSince = since ?? healthKitLookbackDate(months: lookbackMonths)
             let result = try await importHealthKitWorkouts(
                 maxImports: maxImports,
-                since: syncSince
+                since: syncSince,
+                enrichHeartRate: enrichHeartRate
             )
             lastHealthKitImportResult = result
             if result.importedCount > 0 {
@@ -378,14 +460,24 @@ final class SwimViewModel: ObservableObject {
         guard !hasAttemptedHealthKitAutoSync else { return }
         hasAttemptedHealthKitAutoSync = true
         guard HealthKitService.isAvailable, HealthKitService.isAuthorizedForWorkouts else { return }
+
+        if let lastSync = UserDefaults.standard.object(forKey: Self.healthKitAutoSyncAtKey) as? Date,
+           Date().timeIntervalSince(lastSync) < 3600 {
+            return
+        }
+
         await syncHealthKitWorkouts(
             requestAuthorizationIfNeeded: false,
             maxImports: 20,
-            since: healthKitSyncSinceDate()
+            since: healthKitSyncSinceDate(),
+            enrichHeartRate: false
         )
+        UserDefaults.standard.set(Date(), forKey: Self.healthKitAutoSyncAtKey)
     }
 
     func refreshLaunchNotifications() async {
+        guard !hasRefreshedLaunchNotifications else { return }
+        hasRefreshedLaunchNotifications = true
         await SwimNotifications.refreshMonthlyGoalReminders(
             sessions: sessions,
             profile: profile,
@@ -460,8 +552,11 @@ final class SwimViewModel: ObservableObject {
         return true
     }
 
-    private func prepareSessionSave(candidate: SwimSession) -> UploadCoinResult {
-        let sessionsBefore = sessions
+    private func prepareSessionSave(
+        candidate: SwimSession,
+        sessionsBefore: [SwimSession]? = nil
+    ) -> UploadCoinResult {
+        let sessionsBefore = sessionsBefore ?? sessions
         let mascot = mascotId
         let intensity = MascotConstants.gameplay(mascot).challengeIntensity
         let monthKey = String(candidate.date.prefix(7))
@@ -497,17 +592,21 @@ final class SwimViewModel: ObservableObject {
 
     private func importHealthKitWorkouts(
         maxImports: Int,
-        since: Date
+        since: Date,
+        enrichHeartRate: Bool = true
     ) async throws -> HealthKitImportResult {
         let existingUUIDs = Set(sessions.compactMap(\.healthKitWorkoutUUID))
         let fetchResult = try await HealthKitService.fetchNewSwimWorkouts(
             excluding: existingUUIDs,
             since: since,
-            maxResults: maxImports
+            maxResults: maxImports,
+            enrichHeartRate: enrichHeartRate
         )
 
         var importedCount = 0
         var skippedCount = 0
+        var runningSessions = sessions
+        var coinDelta = 0
 
         for workout in fetchResult.workouts {
             let candidate = SwimSession(
@@ -516,7 +615,7 @@ final class SwimViewModel: ObservableObject {
                 healthKitWorkoutUUID: workout.id
             )
 
-            if SwimDuplicates.findDuplicateSession(sessions, candidate: candidate) != nil {
+            if SwimDuplicates.findDuplicateSession(runningSessions, candidate: candidate) != nil {
                 skippedCount += 1
                 continue
             }
@@ -527,15 +626,22 @@ final class SwimViewModel: ObservableObject {
                 continue
             }
 
-            let coinResult = prepareSessionSave(candidate: candidate)
-
-            _ = addSession(
+            let coinResult = prepareSessionSave(
+                candidate: candidate,
+                sessionsBefore: runningSessions
+            )
+            let entry = SwimSession(
+                id: SwimStorageService.createSessionId(),
+                createdAt: ISO8601DateFormatter().string(from: Date()),
                 date: workout.date,
                 metrics: workout.metrics,
                 coinsEarned: coinResult.sessionCoins,
                 coinBonus: coinResult.medalCoins + coinResult.monthlyCoins,
                 healthKitWorkoutUUID: workout.id
             )
+            runningSessions.append(entry)
+            runningSessions.sort { $0.date < $1.date }
+            coinDelta += coinResult.sessionCoins + coinResult.medalCoins + coinResult.monthlyCoins
             importedCount += 1
 
             if importedCount.isMultiple(of: 10) {
@@ -544,6 +650,9 @@ final class SwimViewModel: ObservableObject {
         }
 
         if importedCount > 0 {
+            data.sessions = runningSessions
+            data.totalCoins = max(0, data.totalCoins + coinDelta)
+            invalidateMedalCache()
             persist(immediate: true)
         }
 
@@ -573,6 +682,15 @@ final class SwimViewModel: ObservableObject {
             return Calendar.current.date(byAdding: .day, value: -1, to: date) ?? date
         }
         return healthKitLookbackDate(months: 3)
+    }
+
+    private func invalidateMedalCache() {
+        cachedEvaluatedMedals = nil
+        evaluatedMedalsCacheStamp = ""
+        cachedProgressSnapshot = nil
+        progressSnapshotCacheStamp = ""
+        cachedMonthlyChallengeHistory = nil
+        monthlyChallengeHistoryCacheStamp = ""
     }
 
     private func persist(immediate: Bool = false) {
@@ -662,4 +780,15 @@ private extension Optional where Wrapped == Int {
         }
         self = value
     }
+}
+
+struct ProgressPageSnapshot {
+    let chartPoints: [ChartSessionPoint]
+    let weeklyVolume: [WeeklyVolumePoint]
+    let combinedStats: CombinedStats?
+    let statsSessionCount: Int
+    let records: PersonalRecords?
+    let latestFeedback: SessionFeedbackSummary?
+    let overviewMessage: String
+    let strokeSlices: [StrokeChartSlice]
 }

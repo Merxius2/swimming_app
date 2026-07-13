@@ -307,25 +307,32 @@ private struct MedalProgressTooltip: View {
 
 private struct MedalShineOverlay: View {
     let tier: String
-    @State private var phase: CGFloat = -1
+    @Environment(\.appAnimationsPaused) private var animationsPaused
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        GeometryReader { proxy in
-            LinearGradient(
-                colors: [.clear, Color.white.opacity(0.35), .clear],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-            .frame(width: proxy.size.width * 0.35)
-            .offset(x: proxy.size.width * phase)
-            .onAppear {
-                withAnimation(.linear(duration: 2.8).repeatForever(autoreverses: false)) {
-                    phase = 1.4
+        if animationsPaused || reduceMotion {
+            EmptyView()
+        } else {
+            TimelineView(BatteryEfficientAnimation.timelineSchedule) { timeline in
+                let elapsed = timeline.date.timeIntervalSinceReferenceDate
+                let cycle = 2.8
+                let progress = (elapsed.truncatingRemainder(dividingBy: cycle)) / cycle
+                let phase = -1 + progress * 2.4
+
+                GeometryReader { proxy in
+                    LinearGradient(
+                        colors: [.clear, Color.white.opacity(0.35), .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: proxy.size.width * 0.35)
+                    .offset(x: proxy.size.width * phase)
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .allowsHitTesting(false)
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .allowsHitTesting(false)
     }
 }
 
@@ -416,13 +423,7 @@ struct MonthlyChallengeHistoryView: View {
     @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
 
     var body: some View {
-        let intensity = MascotConstants.gameplay(viewModel.mascotId).challengeIntensity
-        let history = SwimMonthlyChallenges.getMonthlyChallengeHistory(
-            sessions: viewModel.sessions,
-            previewMonthlyMedals: viewModel.cheats.previewMonthlyMedals,
-            monthlyChallengeRerolls: viewModel.monthlyChallengeRerolls,
-            intensity: intensity
-        )
+        let history = viewModel.monthlyChallengeHistory
 
         if !history.isEmpty {
             VStack(alignment: .leading, spacing: 12) {

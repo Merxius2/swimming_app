@@ -4,12 +4,15 @@ import PhotosUI
 struct UploadScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.t) private var t
     @Environment(\.dismiss) private var dismiss
 
     @State private var showCoinSheet = false
     @State private var showMedalSheet = false
     @State private var showDuplicateConfirm = false
+    @State private var duplicateConfirmTitle = ""
+    @State private var duplicateConfirmSaveLabel = ""
+    @State private var duplicateConfirmCancelLabel = ""
+    @State private var duplicateConfirmMessage = ""
     @State private var showDateModal = false
     @State private var pendingDate = Date()
     @State private var uploadSaved = false
@@ -49,22 +52,17 @@ struct UploadScreen: View {
                 }
             }
             .confirmationDialog(
-                preferences.t("upload.duplicateTitle"),
+                duplicateConfirmTitle,
                 isPresented: $showDuplicateConfirm,
                 titleVisibility: .visible
             ) {
-                Button(preferences.t("upload.saveSession")) { handleSave(ignoreDuplicate: true) }
-                Button(preferences.t("common.cancel"), role: .cancel) {
+                Button(duplicateConfirmSaveLabel) { handleSave(ignoreDuplicate: true) }
+                Button(duplicateConfirmCancelLabel, role: .cancel) {
                     viewModel.duplicateSession = nil
                 }
             } message: {
-                if let duplicate = viewModel.duplicateSession {
-                    Text(
-                        t.t(
-                            "upload.duplicateMessage",
-                            params: ["date": SwimFormatters.formatDateLong(duplicate.date)]
-                        )
-                    )
+                if !duplicateConfirmMessage.isEmpty {
+                    Text(duplicateConfirmMessage)
                 }
             }
             .sheet(isPresented: $showCoinSheet, onDismiss: finishCelebrations) {
@@ -86,8 +84,26 @@ struct UploadScreen: View {
         !viewModel.uploadDraft.distance.isEmpty || !viewModel.uploadDraft.duration.isEmpty
     }
 
+    private func presentDuplicateConfirm() {
+        duplicateConfirmTitle = preferences.t("upload.duplicateTitle")
+        duplicateConfirmSaveLabel = preferences.t("upload.saveSession")
+        duplicateConfirmCancelLabel = preferences.t("common.cancel")
+        if let duplicate = viewModel.duplicateSession {
+            duplicateConfirmMessage = preferences.t(
+                "upload.duplicateMessage",
+                params: ["date": SwimFormatters.formatDateLong(duplicate.date)]
+            )
+        } else {
+            duplicateConfirmMessage = ""
+        }
+        showDuplicateConfirm = true
+    }
+
     private var editingView: some View {
-        Group {
+        let healthImportLabel = preferences.t("upload.healthImport")
+        let dropzoneLabel = preferences.t("upload.dropzone")
+
+        return Group {
             ScreenHeader(
                 preferences.t("upload.title"),
                 subtitle: preferences.t("upload.subtitle"),
@@ -100,7 +116,7 @@ struct UploadScreen: View {
                     Button {
                         Task { await viewModel.syncHealthKitWorkouts(requestAuthorizationIfNeeded: true) }
                     } label: {
-                        Label(preferences.t("upload.healthImport"), systemImage: "heart.text.square.fill")
+                        Label(healthImportLabel, systemImage: "heart.text.square.fill")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.bordered)
@@ -126,7 +142,7 @@ struct UploadScreen: View {
                     Divider()
 
                     PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
-                        Label(preferences.t("upload.dropzone"), systemImage: "photo.on.rectangle.angled")
+                        Label(dropzoneLabel, systemImage: "photo.on.rectangle.angled")
                             .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(.borderedProminent)
@@ -155,7 +171,9 @@ struct UploadScreen: View {
     }
 
     private var savedFeedbackView: some View {
-        Group {
+        let uploadAnotherLabel = preferences.t("upload.uploadAnother")
+
+        return Group {
             if let feedback = viewModel.lastUploadFeedback {
                 SessionFeedbackCard(
                     feedback: feedback,
@@ -166,7 +184,7 @@ struct UploadScreen: View {
             Button {
                 resetForAnotherUpload()
             } label: {
-                Text(preferences.t("upload.uploadAnother"))
+                Text(uploadAnotherLabel)
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -175,7 +193,9 @@ struct UploadScreen: View {
     }
 
     private var dateRequiredSheet: some View {
-        NavigationStack {
+        let confirmDateLabel = preferences.t("upload.confirmDate")
+
+        return NavigationStack {
             VStack(alignment: .leading, spacing: 16) {
                 Text(preferences.t("upload.dateRequiredDesc"))
                     .themeFont(.body)
@@ -192,7 +212,7 @@ struct UploadScreen: View {
                     viewModel.uploadDraft.date = Self.formatDateKey(pendingDate)
                     showDateModal = false
                 } label: {
-                    Text(preferences.t("upload.confirmDate"))
+                    Text(confirmDateLabel)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -220,7 +240,7 @@ struct UploadScreen: View {
         }
 
         if !ignoreDuplicate, viewModel.duplicateSession != nil {
-            showDuplicateConfirm = true
+            presentDuplicateConfirm()
             return
         }
 
@@ -229,14 +249,14 @@ struct UploadScreen: View {
             let candidate = SwimSession(date: viewModel.uploadDraft.resolvedDate, metrics: metrics)
             if SwimDuplicates.findDuplicateSession(viewModel.sessions, candidate: candidate) != nil {
                 viewModel.duplicateSession = candidate
-                showDuplicateConfirm = true
+                presentDuplicateConfirm()
                 return
             }
         }
 
         guard viewModel.saveUploadDraft(ignoreDuplicate: ignoreDuplicate) else {
             if viewModel.duplicateSession != nil {
-                showDuplicateConfirm = true
+                presentDuplicateConfirm()
             }
             return
         }

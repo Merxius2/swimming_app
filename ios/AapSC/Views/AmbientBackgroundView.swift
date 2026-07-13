@@ -64,33 +64,45 @@ struct AmbientPresetRenderer: View {
     var isPreview: Bool = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var driftPhase: CGFloat = 0
+    @Environment(\.appAnimationsPaused) private var animationsPaused
 
     var body: some View {
         GeometryReader { proxy in
-            ZStack {
-                if let gradient = renderedGradient {
-                    AnimatedAmbientGradient(
-                        spec: gradient,
-                        reduceMotion: reduceMotion,
-                        containerSize: proxy.size
-                    )
-                }
+            let motionEnabled = !reduceMotion && !animationsPaused && !isPreview
 
-                ForEach(Array(preset.blobs.enumerated()), id: \.offset) { index, blob in
-                    blobView(blob, in: proxy.size, index: index)
-                }
-
-                if preset.bubbles && isPreview {
-                    bubbleTrail(in: proxy.size)
+            Group {
+                if motionEnabled, preset.gradient != nil || preset.driftBlobs {
+                    TimelineView(BatteryEfficientAnimation.timelineSchedule) { timeline in
+                        presetContent(
+                            in: proxy.size,
+                            elapsed: timeline.date.timeIntervalSinceReferenceDate
+                        )
+                    }
+                } else {
+                    presetContent(in: proxy.size, elapsed: 0)
                 }
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
-        .onAppear {
-            guard preset.driftBlobs, !reduceMotion else { return }
-            withAnimation(.easeInOut(duration: driftDuration).repeatForever(autoreverses: true)) {
-                driftPhase = 1
+    }
+
+    @ViewBuilder
+    private func presetContent(in size: CGSize, elapsed: TimeInterval) -> some View {
+        ZStack {
+            if let gradient = renderedGradient {
+                AnimatedAmbientGradient(
+                    spec: gradient,
+                    containerSize: size,
+                    elapsed: elapsed
+                )
+            }
+
+            ForEach(Array(preset.blobs.enumerated()), id: \.offset) { index, blob in
+                blobView(blob, in: size, index: index, elapsed: elapsed)
+            }
+
+            if preset.bubbles && isPreview {
+                bubbleTrail(in: size, elapsed: elapsed)
             }
         }
     }
@@ -101,18 +113,24 @@ struct AmbientPresetRenderer: View {
         return AmbientGradientSpec(colors: gradient.colors, duration: 5, vertical: gradient.vertical)
     }
 
-    private var driftDuration: Double { isPreview ? 10 : 28 }
-
-    private var blobBlur: CGFloat { isPreview ? 22 : 80 }
+    private var blobBlur: CGFloat { isPreview ? 22 : 40 }
 
     @ViewBuilder
-    private func blobView(_ blob: AmbientBlob, in size: CGSize, index: Int) -> some View {
+    private func blobView(
+        _ blob: AmbientBlob,
+        in size: CGSize,
+        index: Int,
+        elapsed: TimeInterval
+    ) -> some View {
         let width = size.width * blob.widthRatio
         let height = size.height * blob.heightRatio
         let x = blob.xRatio.map { $0 * size.width } ?? (blob.rightRatio.map { size.width - $0 * size.width - width } ?? 0)
         let y = blob.yRatio.map { $0 * size.height } ?? (blob.bottomRatio.map { size.height - $0 * size.height - height } ?? 0)
-        let drift = preset.driftBlobs && !reduceMotion
-        let driftOffset = drift
+        let driftDuration = isPreview ? 10.0 : 28.0
+        let driftPhase = preset.driftBlobs
+            ? (elapsed.truncatingRemainder(dividingBy: driftDuration)) / driftDuration
+            : 0
+        let driftOffset = preset.driftBlobs
             ? CGSize(
                 width: sin(driftPhase * .pi * 2 + CGFloat(index)) * (isPreview ? 6 : 12),
                 height: cos(driftPhase * .pi * 2 + CGFloat(index)) * (isPreview ? 5 : 10)
@@ -134,12 +152,10 @@ struct AmbientPresetRenderer: View {
     }
 
     @ViewBuilder
-    private func bubbleTrail(in size: CGSize) -> some View {
-        let bubbles = isPreview
-            ? Array(StoreAmbients.bubblePositions.prefix(6))
-            : StoreAmbients.bubblePositions
-        let sizeScale: CGFloat = isPreview ? 0.42 : 1
-        let durationScale: Double = isPreview ? 0.45 : 1
+    private func bubbleTrail(in size: CGSize, elapsed: TimeInterval) -> some View {
+        let bubbles = Array(StoreAmbients.bubblePositions.prefix(6))
+        let sizeScale: CGFloat = 0.42
+        let durationScale = 0.45
 
         ForEach(bubbles.indices, id: \.self) { index in
             let bubble = bubbles[index]
@@ -149,7 +165,7 @@ struct AmbientPresetRenderer: View {
                 containerSize: size,
                 delay: bubble.delay * durationScale,
                 duration: bubble.duration * durationScale,
-                reduceMotion: reduceMotion
+                elapsed: elapsed
             )
         }
     }
@@ -158,6 +174,9 @@ struct AmbientPresetRenderer: View {
 struct AmbientBubbleOverlayView: View {
     let activeAmbient: String?
     let storeUnlocks: [String]
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appAnimationsPaused) private var animationsPaused
 
     private var showsBubbles: Bool {
         guard let activeAmbient,
@@ -171,17 +190,18 @@ struct AmbientBubbleOverlayView: View {
     var body: some View {
         if showsBubbles {
             GeometryReader { proxy in
-                ZStack {
-                    ForEach(StoreAmbients.bubblePositions.indices, id: \.self) { index in
-                        let bubble = StoreAmbients.bubblePositions[index]
-                        RisingBubble(
-                            size: bubble.size,
-                            leftRatio: bubble.leftRatio,
-                            containerSize: proxy.size,
-                            delay: bubble.delay,
-                            duration: bubble.duration
-                        )
-                        .allowsHitTesting(false)
+                let motionEnabled = !reduceMotion && !animationsPaused
+
+                Group {
+                    if motionEnabled {
+                        TimelineView(BatteryEfficientAnimation.timelineSchedule) { timeline in
+                            bubbleLayer(
+                                in: proxy.size,
+                                elapsed: timeline.date.timeIntervalSinceReferenceDate
+                            )
+                        }
+                    } else {
+                        bubbleLayer(in: proxy.size, elapsed: 0)
                     }
                 }
             }
@@ -190,48 +210,54 @@ struct AmbientBubbleOverlayView: View {
             .accessibilityHidden(true)
         }
     }
+
+    @ViewBuilder
+    private func bubbleLayer(in size: CGSize, elapsed: TimeInterval) -> some View {
+        ZStack {
+            ForEach(StoreAmbients.bubblePositions.indices, id: \.self) { index in
+                let bubble = StoreAmbients.bubblePositions[index]
+                RisingBubble(
+                    size: bubble.size,
+                    leftRatio: bubble.leftRatio,
+                    containerSize: size,
+                    delay: bubble.delay,
+                    duration: bubble.duration,
+                    elapsed: elapsed
+                )
+                .allowsHitTesting(false)
+            }
+        }
+    }
 }
 
 private struct AnimatedAmbientGradient: View {
     let spec: AmbientGradientSpec
-    let reduceMotion: Bool
     let containerSize: CGSize
+    let elapsed: TimeInterval
 
     var body: some View {
         let width = max(containerSize.width, 1)
         let height = max(containerSize.height, 1)
+        let cycle = max(spec.duration, 0.1)
+        let progress = (elapsed.truncatingRemainder(dividingBy: cycle)) / cycle
+        let wave = sin(progress * .pi * 2)
+        let scale: CGFloat = spec.vertical ? 1.05 : 1.06
+        let offsetX = spec.vertical ? 0 : CGFloat(wave) * width * 0.10
+        let offsetY = spec.vertical
+            ? CGFloat(wave) * height * 0.08
+            : CGFloat(wave) * height * 0.06
 
-        Group {
-            if reduceMotion {
-                gradientLayer
-                    .frame(width: width * 1.4, height: height * 1.4)
-                    .position(x: width * 0.5, y: height * 0.5)
-            } else {
-                TimelineView(.animation) { timeline in
-                    let elapsed = timeline.date.timeIntervalSinceReferenceDate
-                    let cycle = max(spec.duration, 0.1)
-                    let progress = (elapsed.truncatingRemainder(dividingBy: cycle)) / cycle
-                    let wave = sin(progress * .pi * 2)
-                    let scale: CGFloat = spec.vertical ? 1.05 : 1.06
-                    let offsetX = spec.vertical ? 0 : CGFloat(wave) * width * 0.10
-                    let offsetY = spec.vertical
-                        ? CGFloat(wave) * height * 0.08
-                        : CGFloat(wave) * height * 0.06
-
-                    gradientLayer
-                        .frame(
-                            width: width * (spec.vertical ? 1.0 : 1.6),
-                            height: height * (spec.vertical ? 2.2 : 1.6)
-                        )
-                        .scaleEffect(spec.vertical ? 1.0 : (1 + (scale - 1) * abs(CGFloat(wave))))
-                        .offset(x: offsetX, y: offsetY)
-                        .position(x: width * 0.5, y: height * 0.5)
-                }
-            }
-        }
-        .frame(width: width, height: height)
-        .clipped()
-        .ignoresSafeArea()
+        gradientLayer
+            .frame(
+                width: width * (spec.vertical ? 1.0 : 1.6),
+                height: height * (spec.vertical ? 2.2 : 1.6)
+            )
+            .scaleEffect(spec.vertical ? 1.0 : (1 + (scale - 1) * abs(CGFloat(wave))))
+            .offset(x: offsetX, y: offsetY)
+            .position(x: width * 0.5, y: height * 0.5)
+            .frame(width: width, height: height)
+            .clipped()
+            .ignoresSafeArea()
     }
 
     /// Matches web `linear-gradient(-45deg, …)` with 400% background-size drift.
@@ -250,35 +276,24 @@ private struct RisingBubble: View {
     let containerSize: CGSize
     let delay: Double
     let duration: Double
-    var reduceMotion: Bool = false
+    let elapsed: TimeInterval
 
     var body: some View {
-        if reduceMotion {
-            Circle()
-                .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
-                .frame(width: size, height: size)
-                .position(x: containerSize.width * leftRatio, y: containerSize.height * 0.5)
-                .opacity(0.7)
-        } else {
-            TimelineView(.animation) { timeline in
-                let elapsed = timeline.date.timeIntervalSinceReferenceDate
-                let cycle = max(duration, 0.1)
-                let shifted = elapsed - delay
-                let progress = shifted < 0
-                    ? 0.0
-                    : (shifted.truncatingRemainder(dividingBy: cycle)) / cycle
-                let y = containerSize.height * (0.85 - progress * 0.95)
-                let fade = progress < 0.08
-                    ? progress / 0.08
-                    : max(0, 1 - (progress - 0.08) / 0.92)
+        let cycle = max(duration, 0.1)
+        let shifted = elapsed - delay
+        let progress = shifted < 0
+            ? 0.0
+            : (shifted.truncatingRemainder(dividingBy: cycle)) / cycle
+        let y = containerSize.height * (0.85 - progress * 0.95)
+        let fade = progress < 0.08
+            ? progress / 0.08
+            : max(0, 1 - (progress - 0.08) / 0.92)
 
-                Circle()
-                    .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
-                    .frame(width: size, height: size)
-                    .position(x: containerSize.width * leftRatio, y: y)
-                    .opacity(0.85 * fade)
-            }
-        }
+        Circle()
+            .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
+            .frame(width: size, height: size)
+            .position(x: containerSize.width * leftRatio, y: y)
+            .opacity(0.85 * fade)
     }
 }
 

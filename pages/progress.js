@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { BarChart3 } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
@@ -48,6 +49,34 @@ export default function ProgressPage() {
   } = useSwim();
   const { tooltipStyle, tooltipLabelStyle, gridStyle, axisStyle } = useChartTheme();
 
+  const chartSessions = useMemo(
+    () => getChartSessions(sessions).map((s) => ({
+      ...s,
+      dateLabel: formatDateShort(s.date),
+    })),
+    [sessions]
+  );
+  const paceDomain = useMemo(
+    () => getPaceChartDomain(chartSessions.map((s) => s.paceSecPer100m)),
+    [chartSessions]
+  );
+  const weeklyData = useMemo(() => getWeeklyVolumeData(sessions), [sessions]);
+  const combined = useMemo(() => getCombinedStats(sessions), [sessions]);
+  const statsSessionCount = useMemo(() => getStatsSessions(sessions).length, [sessions]);
+  const records = useMemo(() => getPersonalRecords(sessions), [sessions]);
+  const feedback = useMemo(
+    () => (sessions.length ? buildPersonalFeedback(sessions[sessions.length - 1], sessions, t, profile) : null),
+    [sessions, t, profile]
+  );
+  const overviewMessage = useMemo(
+    () => buildProgressOverviewMessage(sessions, profile, t, { monthlyChallengeRerolls }),
+    [sessions, profile, t, monthlyChallengeRerolls]
+  );
+  const strokeData = useMemo(
+    () => (sessions.length ? getStrokeChartData(sessions[sessions.length - 1], t) : []),
+    [sessions, t]
+  );
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0 flex items-center justify-center">
@@ -89,22 +118,8 @@ export default function ProgressPage() {
     );
   }
 
-  const chartSessions = getChartSessions(sessions).map((s) => ({
-    ...s,
-    dateLabel: formatDateShort(s.date),
-  }));
-  const paceDomain = getPaceChartDomain(chartSessions.map((s) => s.paceSecPer100m));
-  const weeklyData = getWeeklyVolumeData(sessions);
   const latest = sessions[sessions.length - 1];
-  const strokeData = getStrokeChartData(latest, t);
-  const combined = getCombinedStats(sessions);
-  const statsSessionCount = getStatsSessions(sessions).length;
   const excludedCount = sessions.length - statsSessionCount;
-  const records = getPersonalRecords(sessions);
-  const feedback = buildPersonalFeedback(latest, sessions, t, profile);
-  const overviewMessage = buildProgressOverviewMessage(sessions, profile, t, {
-    monthlyChallengeRerolls,
-  });
   const mascotContext = { sessions, monthlyChallengeRerolls };
   const mascotId = resolveMascotId(profile, mascotContext);
   const mascotLevel = getMascotCoachedLevel(mascotId);

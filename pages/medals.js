@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Award } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import MedalCard from '../components/swim/MedalCard';
@@ -29,6 +30,21 @@ export default function MedalsPage() {
       .join(' · ');
   };
 
+  const medals = useMemo(
+    () => evaluateAllMedals(sessions, { allMedalsUnlocked: cheats?.allMedalsUnlocked }),
+    [sessions, cheats?.allMedalsUnlocked]
+  );
+  const stats = useMemo(() => getMedalStats(medals), [medals]);
+  const medalsByCategory = useMemo(
+    () => Object.fromEntries(
+      CATEGORIES.map((category) => [
+        category,
+        medals.filter((medal) => medal.category === category),
+      ])
+    ),
+    [medals]
+  );
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white pb-32 lg:ml-64 md:pb-0 flex items-center justify-center">
@@ -37,8 +53,6 @@ export default function MedalsPage() {
     );
   }
 
-  const medals = evaluateAllMedals(sessions, { allMedalsUnlocked: cheats?.allMedalsUnlocked });
-  const stats = getMedalStats(medals);
   const shimmerPlus = hasMedalShimmerPlus(storeUnlocks);
 
   return (
@@ -81,7 +95,7 @@ export default function MedalsPage() {
         <MonthlyChallengeHistory sessions={sessions} />
 
         {CATEGORIES.map((category) => {
-          const categoryMedals = medals.filter((m) => m.category === category);
+          const categoryMedals = medalsByCategory[category] || [];
           if (!categoryMedals.length) return null;
           const earnedInCat = categoryMedals.filter((m) => m.earned).length;
 

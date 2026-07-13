@@ -37,7 +37,7 @@ final class TranslationService: ObservableObject {
         for (name, value) in params {
             text = text.replacingOccurrences(of: "{\(name)}", with: value.isEmpty ? "—" : value)
         }
-        if let range = text.range(of: #"\{[a-zA-Z]+\}"#, options: .regularExpression) {
+        if text.range(of: #"\{[a-zA-Z]+\}"#, options: .regularExpression) != nil {
             text = text.replacingOccurrences(of: #"\{[a-zA-Z]+\}"#, with: "—", options: .regularExpression)
         }
         return text

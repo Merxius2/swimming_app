@@ -10,7 +10,7 @@ import {
 } from '../lib/swimNotifications';
 
 export default function LaunchReminderBanner() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { sessions, profile, monthlyChallengeRerolls, isLoading } = useSwim();
   const [visible, setVisible] = useState([]);
 
@@ -19,7 +19,7 @@ export default function LaunchReminderBanner() {
     return filterUndismissedReminders(
       collectLaunchReminders(sessions, profile, t, { monthlyChallengeRerolls })
     );
-  }, [isLoading, sessions, profile, monthlyChallengeRerolls, t]);
+  }, [isLoading, sessions, profile, monthlyChallengeRerolls, language, t]);
 
   useEffect(() => {
     if (!reminders.length) {

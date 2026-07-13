@@ -17,6 +17,10 @@ struct MedalsScreen: View {
     }
 
     var body: some View {
+        let medals = viewModel.evaluatedMedals
+        let stats = SwimMedals.getMedalStats(medals)
+        let medalsByCategory = Dictionary(grouping: medals, by: \.category)
+
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -27,7 +31,7 @@ struct MedalsScreen: View {
                         systemImage: "medal"
                     )
 
-                    statsCard
+                    statsCard(stats: stats)
 
                     if viewModel.sessions.isEmpty {
                         emptyState
@@ -36,7 +40,7 @@ struct MedalsScreen: View {
                     MonthlyChallengeHistoryView()
 
                     ForEach(SwimMedalCopy.categories, id: \.self) { category in
-                        categorySection(category)
+                        categorySection(category, medals: medalsByCategory[category] ?? [])
                     }
                 }
                 .padding()
@@ -49,9 +53,8 @@ struct MedalsScreen: View {
         .themedPageBackground()
     }
 
-    private var statsCard: some View {
-        let stats = SwimMedals.getMedalStats(viewModel.evaluatedMedals)
-        return Card {
+    private func statsCard(stats: (earned: Int, total: Int)) -> some View {
+        Card {
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(preferences.t("medals.subtitle"))
@@ -104,8 +107,7 @@ struct MedalsScreen: View {
     }
 
     @ViewBuilder
-    private func categorySection(_ category: String) -> some View {
-        let categoryMedals = viewModel.evaluatedMedals.filter { $0.category == category }
+    private func categorySection(_ category: String, medals categoryMedals: [EvaluatedMedal]) -> some View {
         if !categoryMedals.isEmpty {
             let earnedInCategory = categoryMedals.filter(\.earned).count
 

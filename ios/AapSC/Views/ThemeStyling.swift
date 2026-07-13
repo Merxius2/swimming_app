@@ -9,6 +9,10 @@ private struct AmbientBackgroundVisibleKey: EnvironmentKey {
     static let defaultValue = false
 }
 
+private struct AppAnimationsPausedKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
 extension EnvironmentValues {
     var appIsDark: Bool {
         get { self[AppIsDarkKey.self] }
@@ -18,6 +22,20 @@ extension EnvironmentValues {
     var ambientBackgroundVisible: Bool {
         get { self[AmbientBackgroundVisibleKey.self] }
         set { self[AmbientBackgroundVisibleKey.self] = newValue }
+    }
+
+    var appAnimationsPaused: Bool {
+        get { self[AppAnimationsPausedKey.self] }
+        set { self[AppAnimationsPausedKey.self] = newValue }
+    }
+}
+
+/// Shared low-frequency animation cadence to reduce display-linked battery drain.
+enum BatteryEfficientAnimation {
+    static let frameInterval: TimeInterval = 1.0 / 20.0
+
+    static var timelineSchedule: PeriodicTimelineSchedule {
+        .periodic(from: .now, by: frameInterval)
     }
 }
 
@@ -761,28 +779,32 @@ private struct AmbientHierarchyBackgroundClearer: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: ClearerView, context: Context) {
+        let activeChanged = uiView.active != active
         uiView.active = active
-        uiView.setNeedsLayout()
+        if activeChanged {
+            uiView.didApply = false
+        }
+        uiView.applyIfNeeded()
     }
 
     final class ClearerView: UIView {
         var active = false
+        var didApply = false
 
         override func didMoveToWindow() {
             super.didMoveToWindow()
+            if window == nil {
+                didApply = false
+                return
+            }
             applyIfNeeded()
         }
 
-        override func layoutSubviews() {
-            super.layoutSubviews()
-            applyIfNeeded()
-        }
-
-        private func applyIfNeeded() {
+        func applyIfNeeded() {
             isUserInteractionEnabled = false
             backgroundColor = .clear
 
-            guard active else { return }
+            guard active, window != nil, !didApply else { return }
 
             var responder: UIResponder? = next
             while let current = responder {
@@ -805,6 +827,8 @@ private struct AmbientHierarchyBackgroundClearer: UIViewRepresentable {
                 ancestor = view.superview
                 depth += 1
             }
+
+            didApply = true
         }
 
         private func clearAmbientBlockingBackground(on view: UIView) {
