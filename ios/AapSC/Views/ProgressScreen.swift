@@ -15,6 +15,8 @@ struct ProgressScreen: View {
     private let paceTeal = Color(red: 0.078, green: 0.722, blue: 0.651)
 
     var body: some View {
+        let chartPoints = viewModel.progressChartPoints
+
         NavigationStack {
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -28,26 +30,23 @@ struct ProgressScreen: View {
                     if viewModel.sessions.isEmpty {
                         emptyState
                     } else {
-                        let snapshot = viewModel.progressPageSnapshot(t: preferences.translations)
-                        overviewCard(message: snapshot.overviewMessage)
+                        overviewCard
                         MonthlyChallengesCardView()
                         latestSessionCard
-                        allTimeStatsCard(snapshot: snapshot)
-                        if let records = snapshot.records {
-                            RecordsSectionView(records: records)
-                        }
-                        if let feedback = snapshot.latestFeedback {
+                        allTimeStatsCard
+                        RecordsSectionView(records: viewModel.progressPersonalRecords)
+                        if let feedback = viewModel.latestSessionProgressFeedback(t: preferences.translations) {
                             SessionFeedbackCard(
                                 feedback: feedback,
                                 titleKey: "progress.sessionFeedbackTitle"
                             )
                         }
-                        paceChart(points: snapshot.chartPoints.filter { ($0.paceSecPer100m ?? 0) > 0 })
-                        distanceChart(points: snapshot.chartPoints.filter { ($0.distanceM ?? 0) > 0 })
-                        caloriesChart(points: snapshot.chartPoints)
-                        heartRateChart(points: snapshot.chartPoints.filter { ($0.avgHeartRate ?? 0) > 0 })
-                        volumeChart(weekly: snapshot.weeklyVolume)
-                        strokeMixChart(slices: snapshot.strokeSlices)
+                        paceChart(points: chartPoints)
+                        distanceChart(points: chartPoints)
+                        caloriesChart(points: chartPoints)
+                        heartRateChart(points: chartPoints)
+                        volumeChart
+                        strokeMixChart
                     }
                 }
                 .padding()
@@ -110,7 +109,8 @@ struct ProgressScreen: View {
         return template.replacingOccurrences(of: "{name}", with: displayName)
     }
 
-    private func overviewCard(message overviewMessage: String) -> some View {
+    private var overviewCard: some View {
+        let overviewMessage = viewModel.progressOverviewMessage(t: preferences.translations)
         let overviewTone = MascotPresentation.resolveBubbleTone(message: overviewMessage)
 
         return Card {
@@ -156,11 +156,11 @@ struct ProgressScreen: View {
         }
     }
 
-    private func allTimeStatsCard(snapshot: ProgressPageSnapshot) -> some View {
-        guard let combined = snapshot.combinedStats else {
+    private var allTimeStatsCard: some View {
+        guard let combined = viewModel.progressCombinedStats else {
             return AnyView(EmptyView())
         }
-        let excluded = viewModel.sessions.count - snapshot.statsSessionCount
+        let excluded = viewModel.sessions.count - viewModel.progressStatsSessionCount
         return AnyView(
             Card {
                 VStack(alignment: .leading, spacing: 12) {
@@ -191,23 +191,25 @@ struct ProgressScreen: View {
     }
 
     @ViewBuilder
-    private func strokeMixChart(slices: [StrokeChartSlice]) -> some View {
+    private var strokeMixChart: some View {
+        let slices = viewModel.progressStrokeChartSlices(t: preferences.translations)
         if !slices.isEmpty {
             StrokeDonutChart(slices: slices)
         }
     }
 
     private func paceChart(points: [ChartSessionPoint]) -> some View {
-        let domain = SwimFormatters.getPaceChartDomain(points.map(\.paceSecPer100m))
+        let filteredPoints = points.filter { ($0.paceSecPer100m ?? 0) > 0 }
+        let domain = SwimFormatters.getPaceChartDomain(filteredPoints.map(\.paceSecPer100m))
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.paceChart"))
                     .themeFont(.headline, weight: .semibold)
-                if points.isEmpty {
+                if filteredPoints.isEmpty {
                     Text(preferences.t("medals.progress.noPaceYet")).foregroundStyle(.secondary)
                 } else {
                     Chart {
-                        ForEach(points) { point in
+                        ForEach(filteredPoints) { point in
                             let invertedPace = Self.invertedPaceValue(point.paceSecPer100m)
                             LineMark(
                                 x: .value("Date", point.dateLabel),
@@ -230,7 +232,7 @@ struct ProgressScreen: View {
                             }
                         }
                     }
-                    .chartXAxis { sessionDateAxisMarks(count: points.count) }
+                    .chartXAxis { sessionDateAxisMarks(count: filteredPoints.count) }
                     .chartYScale(domain: invertedPaceDomain(domain))
                     .chartYAxis { paceYAxisMarks() }
                     .chartXLabelSelection($selectedPaceDate)
@@ -238,7 +240,7 @@ struct ProgressScreen: View {
                     .frame(height: 260)
 
                     if let selectedPaceDate,
-                       let point = points.first(where: { $0.dateLabel == selectedPaceDate }) {
+                       let point = filteredPoints.first(where: { $0.dateLabel == selectedPaceDate }) {
                         ChartSelectionFooter(
                             title: point.dateLabel,
                             value: SwimFormatters.formatPace(point.paceSecPer100m)
@@ -250,12 +252,13 @@ struct ProgressScreen: View {
     }
 
     private func distanceChart(points: [ChartSessionPoint]) -> some View {
+        let filteredPoints = points.filter { ($0.distanceM ?? 0) > 0 }
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.distanceChart"))
                     .themeFont(.headline, weight: .semibold)
                 Chart {
-                    ForEach(points) { point in
+                    ForEach(filteredPoints) { point in
                         BarMark(
                             x: .value("Date", point.dateLabel),
                             y: .value("Distance", point.distanceM ?? 0)
@@ -270,14 +273,14 @@ struct ProgressScreen: View {
                         }
                     }
                 }
-                .chartXAxis { sessionDateAxisMarks(count: points.count) }
+                .chartXAxis { sessionDateAxisMarks(count: filteredPoints.count) }
                 .chartYAxis { valueAxisMarks(formatter: SwimFormatters.formatDistance) }
                 .chartXLabelSelection($selectedDistanceDate)
                 .frame(maxWidth: .infinity)
                 .frame(height: 240)
 
                 if let selectedDistanceDate,
-                   let point = points.first(where: { $0.dateLabel == selectedDistanceDate }) {
+                   let point = filteredPoints.first(where: { $0.dateLabel == selectedDistanceDate }) {
                     ChartSelectionFooter(
                         title: point.dateLabel,
                         value: SwimFormatters.formatDistance(point.distanceM)
@@ -359,13 +362,14 @@ struct ProgressScreen: View {
     }
 
     private func heartRateChart(points: [ChartSessionPoint]) -> some View {
+        let filteredPoints = points.filter { ($0.avgHeartRate ?? 0) > 0 }
         let bpm = preferences.t("common.bpm")
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.heartRateChart"))
                     .themeFont(.headline, weight: .semibold)
                 Chart {
-                    ForEach(points) { point in
+                    ForEach(filteredPoints) { point in
                         LineMark(
                             x: .value("Date", point.dateLabel),
                             y: .value("BPM", point.avgHeartRate ?? 0)
@@ -387,14 +391,14 @@ struct ProgressScreen: View {
                         }
                     }
                 }
-                .chartXAxis { sessionDateAxisMarks(count: points.count) }
+                .chartXAxis { sessionDateAxisMarks(count: filteredPoints.count) }
                 .chartYAxis { valueAxisMarks(formatter: { $0.map { "\($0)" } ?? "—" }) }
                 .chartXLabelSelection($selectedHeartRateDate)
                 .frame(maxWidth: .infinity)
                 .frame(height: 240)
 
                 if let selectedHeartRateDate,
-                   let point = points.first(where: { $0.dateLabel == selectedHeartRateDate }) {
+                   let point = filteredPoints.first(where: { $0.dateLabel == selectedHeartRateDate }) {
                     ChartSelectionFooter(
                         title: point.dateLabel,
                         value: "\(point.avgHeartRate ?? 0) \(bpm)"
@@ -404,7 +408,8 @@ struct ProgressScreen: View {
         }
     }
 
-    private func volumeChart(weekly: [WeeklyVolumePoint]) -> some View {
+    private var volumeChart: some View {
+        let weekly = viewModel.progressWeeklyVolume
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.weeklyVolume"))

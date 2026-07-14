@@ -314,14 +314,9 @@ struct MonthlyChallengesCardView: View {
     private let tierSteps = ["bronze", "silver", "gold"]
 
     var body: some View {
-        let monthKey = SwimMonthlyChallenges.getMonthKey()
+        let state = viewModel.currentMonthlyChallenges
+        let monthKey = state.monthKey
         let gameplay = MascotConstants.gameplay(viewModel.mascotId)
-        let state = SwimMonthlyChallenges.evaluateMonthlyChallenges(
-            sessions: viewModel.sessions,
-            monthKey: monthKey,
-            rerolls: viewModel.monthlyChallengeRerolls,
-            intensity: gameplay.challengeIntensity
-        )
         let currentTierIndex = state.tier.flatMap { tierSteps.firstIndex(of: $0) } ?? -1
         let nextTier = currentTierIndex >= 0 && currentTierIndex < tierSteps.count - 1
             ? tierSteps[currentTierIndex + 1]

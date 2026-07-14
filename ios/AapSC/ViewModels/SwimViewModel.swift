@@ -24,18 +24,23 @@ final class SwimViewModel: ObservableObject {
     private var saveTask: Task<Void, Never>?
     private var hasAttemptedHealthKitAutoSync = false
     private var hasRefreshedLaunchNotifications = false
-    private var cachedEvaluatedMedals: [EvaluatedMedal]?
-    private var evaluatedMedalsCacheStamp = ""
-    private var cachedProgressSnapshot: ProgressPageSnapshot?
-    private var progressSnapshotCacheStamp = ""
-    private var cachedMonthlyChallengeHistory: [MonthlyChallengeState]?
-    private var monthlyChallengeHistoryCacheStamp = ""
-
     private static let healthKitAutoSyncAtKey = "HEALTHKIT_AUTO_SYNC_AT"
-
-    private var sessionDataStamp: String {
-        "\(sessions.count)-\(sessions.last?.id ?? "")-\(cheats.allMedalsUnlocked)-\(cheats.previewMonthlyMedals)-\(monthlyChallengeRerolls.count)"
-    }
+    private var cachedEvaluatedMedals: [EvaluatedMedal]?
+    private var cachedMonthlyChallengeHistory: [MonthlyChallengeState]?
+    private var medalCacheMonthKey: String?
+    private var cachedProgressChartPoints: [ChartSessionPoint]?
+    private var cachedProgressCombinedStats: CombinedStats?
+    private var cachedProgressStatsSessionCount: Int?
+    private var cachedProgressWeeklyVolume: [WeeklyVolumePoint]?
+    private var cachedProgressPersonalRecords: PersonalRecords?
+    private var cachedCurrentMonthlyChallenges: MonthlyChallengeState?
+    private var progressCacheMonthKey: String?
+    private var cachedProgressOverviewMessage: String?
+    private var progressOverviewCacheKey: String?
+    private var cachedLatestSessionFeedback: SessionFeedbackSummary?
+    private var latestSessionFeedbackCacheKey: String?
+    private var cachedProgressStrokeChartSlices: [StrokeChartSlice]?
+    private var strokeChartCacheKey: String?
 
     var sessions: [SwimSession] { data.sessions }
     var profile: SwimProfile { data.profile }
@@ -58,25 +63,24 @@ final class SwimViewModel: ObservableObject {
     }
 
     var evaluatedMedals: [EvaluatedMedal] {
-        let stamp = sessionDataStamp
-        if let cachedEvaluatedMedals, evaluatedMedalsCacheStamp == stamp {
-            return cachedEvaluatedMedals
+        let monthKey = SwimMonthlyChallenges.getMonthKey()
+        if let cached = cachedEvaluatedMedals, medalCacheMonthKey == monthKey {
+            return cached
         }
         let medals = SwimMedals.evaluateAllMedals(
             sessions,
             allMedalsUnlocked: cheats.allMedalsUnlocked
         )
         cachedEvaluatedMedals = medals
-        evaluatedMedalsCacheStamp = stamp
+        medalCacheMonthKey = monthKey
         return medals
     }
 
     var monthlyChallengeHistory: [MonthlyChallengeState] {
-        let intensity = MascotConstants.gameplay(mascotId).challengeIntensity
-        let stamp = "\(sessionDataStamp)-\(intensity)"
-        if let cachedMonthlyChallengeHistory, monthlyChallengeHistoryCacheStamp == stamp {
-            return cachedMonthlyChallengeHistory
+        if let cached = cachedMonthlyChallengeHistory {
+            return cached
         }
+        let intensity = MascotConstants.gameplay(mascotId).challengeIntensity
         let history = SwimMonthlyChallenges.getMonthlyChallengeHistory(
             sessions: sessions,
             previewMonthlyMedals: cheats.previewMonthlyMedals,
@@ -84,44 +88,91 @@ final class SwimViewModel: ObservableObject {
             intensity: intensity
         )
         cachedMonthlyChallengeHistory = history
-        monthlyChallengeHistoryCacheStamp = stamp
         return history
     }
 
-    func progressPageSnapshot(t: TranslationService) -> ProgressPageSnapshot {
-        let stamp = "\(sessionDataStamp)-\(t.language)-\(profile.name)"
-        if let cachedProgressSnapshot, progressSnapshotCacheStamp == stamp {
-            return cachedProgressSnapshot
-        }
+    var progressChartPoints: [ChartSessionPoint] {
+        ensureProgressSessionCache()
+        return cachedProgressChartPoints ?? []
+    }
 
-        let chartPoints = SwimAnalysis.chartSessions(sessions)
-        let latest = sessions.last
-        let snapshot = ProgressPageSnapshot(
-            chartPoints: chartPoints,
-            weeklyVolume: SwimAnalysis.weeklyVolumeData(sessions),
-            combinedStats: SwimAnalysis.combinedStats(sessions),
-            statsSessionCount: SwimAnalysis.statsSessions(sessions).count,
-            records: SwimRecords.getPersonalRecords(sessions),
-            latestFeedback: latest.map {
-                SwimAnalysis.buildPersonalFeedback(
-                    session: $0,
-                    allSessions: sessions,
-                    profile: profile,
-                    t: t,
-                    monthlyChallengeRerolls: monthlyChallengeRerolls
-                )
-            },
-            overviewMessage: SwimAnalysis.buildProgressOverviewMessage(
-                profile: profile,
-                sessions: sessions,
-                t: t,
-                monthlyChallengeRerolls: monthlyChallengeRerolls
-            ),
-            strokeSlices: SwimAnalysis.strokeChartData(latest, t: t)
+    var progressCombinedStats: CombinedStats? {
+        ensureProgressSessionCache()
+        return cachedProgressCombinedStats
+    }
+
+    var progressStatsSessionCount: Int {
+        ensureProgressSessionCache()
+        return cachedProgressStatsSessionCount ?? 0
+    }
+
+    var progressWeeklyVolume: [WeeklyVolumePoint] {
+        ensureProgressSessionCache()
+        return cachedProgressWeeklyVolume ?? []
+    }
+
+    var progressPersonalRecords: PersonalRecords? {
+        ensureProgressSessionCache()
+        return cachedProgressPersonalRecords
+    }
+
+    var currentMonthlyChallenges: MonthlyChallengeState {
+        ensureProgressSessionCache()
+        return cachedCurrentMonthlyChallenges ?? MonthlyChallengeState(
+            monthKey: SwimMonthlyChallenges.getMonthKey(),
+            challenges: [],
+            completedCount: 0,
+            tier: nil,
+            earnedAt: nil
         )
-        cachedProgressSnapshot = snapshot
-        progressSnapshotCacheStamp = stamp
-        return snapshot
+    }
+
+    func progressOverviewMessage(t: TranslationService) -> String {
+        ensureProgressSessionCache()
+        let cacheKey = progressLocalizedCacheKey(language: currentLanguageCode())
+        if let cached = cachedProgressOverviewMessage, progressOverviewCacheKey == cacheKey {
+            return cached
+        }
+        let message = SwimAnalysis.buildProgressOverviewMessage(
+            profile: profile,
+            sessions: sessions,
+            t: t,
+            monthlyChallengeRerolls: monthlyChallengeRerolls
+        )
+        cachedProgressOverviewMessage = message
+        progressOverviewCacheKey = cacheKey
+        return message
+    }
+
+    func latestSessionProgressFeedback(t: TranslationService) -> SessionFeedbackSummary? {
+        guard let latest = sessions.last else { return nil }
+        ensureProgressSessionCache()
+        let cacheKey = progressLocalizedCacheKey(language: currentLanguageCode())
+        if let cached = cachedLatestSessionFeedback, latestSessionFeedbackCacheKey == cacheKey {
+            return cached
+        }
+        let feedback = SwimAnalysis.buildPersonalFeedback(
+            session: latest,
+            allSessions: sessions,
+            profile: profile,
+            t: t,
+            monthlyChallengeRerolls: monthlyChallengeRerolls
+        )
+        cachedLatestSessionFeedback = feedback
+        latestSessionFeedbackCacheKey = cacheKey
+        return feedback
+    }
+
+    func progressStrokeChartSlices(t: TranslationService) -> [StrokeChartSlice] {
+        ensureProgressSessionCache()
+        let cacheKey = progressLocalizedCacheKey(language: currentLanguageCode())
+        if let cached = cachedProgressStrokeChartSlices, strokeChartCacheKey == cacheKey {
+            return cached
+        }
+        let slices = SwimAnalysis.strokeChartData(sessions.last, t: t)
+        cachedProgressStrokeChartSlices = slices
+        strokeChartCacheKey = cacheKey
+        return slices
     }
 
     init() {
@@ -131,7 +182,7 @@ final class SwimViewModel: ObservableObject {
     func load() {
         data = SwimStorageService.load()
         cheats = SwimCheatsService.load()
-        invalidateMedalCache()
+        invalidateDerivedCaches()
         isLoading = false
     }
 
@@ -143,7 +194,7 @@ final class SwimViewModel: ObservableObject {
             storeUnlocks: next.storeUnlocks
         )
         data = next
-        invalidateMedalCache()
+        invalidateDerivedCaches()
         persist(immediate: true)
     }
 
@@ -185,7 +236,7 @@ final class SwimViewModel: ObservableObject {
         data.sessions.append(entry)
         data.sessions.sort { $0.date < $1.date }
         data.totalCoins = max(0, data.totalCoins + coinsEarned + coinBonus)
-        invalidateMedalCache()
+        invalidateDerivedCaches()
         persist()
         return entry
     }
@@ -211,27 +262,27 @@ final class SwimViewModel: ObservableObject {
         }
         data.totalCoins = max(0, data.totalCoins - coinsRemoved)
         data.sessions.removeAll { $0.id == id }
-        invalidateMedalCache()
+        invalidateDerivedCaches()
         persist()
     }
 
     func updateSession(id: String, updates: (inout SwimSession) -> Void) {
         guard let index = data.sessions.firstIndex(where: { $0.id == id }) else { return }
         updates(&data.sessions[index])
-        invalidateMedalCache()
+        invalidateDerivedCaches()
         persist()
     }
 
     func replaceData(_ nextData: SwimData) {
         data = SwimStorageService.normalize(nextData)
-        invalidateMedalCache()
+        invalidateDerivedCaches()
         persist(immediate: true)
     }
 
     func clearAll() {
         data = .empty
         cheats = .empty
-        invalidateMedalCache()
+        invalidateDerivedCaches()
         SwimStorageService.clear()
         SwimCheatsService.clear()
     }
@@ -280,6 +331,7 @@ final class SwimViewModel: ObservableObject {
             return false
         }
         data = next
+        invalidateDerivedCaches()
         persist(immediate: true)
         return true
     }
@@ -325,6 +377,7 @@ final class SwimViewModel: ObservableObject {
 
     func updateCheats(_ updates: (inout SwimCheats) -> Void) {
         updates(&cheats)
+        invalidateDerivedCaches()
         SwimCheatsService.save(cheats)
     }
 
@@ -652,7 +705,7 @@ final class SwimViewModel: ObservableObject {
         if importedCount > 0 {
             data.sessions = runningSessions
             data.totalCoins = max(0, data.totalCoins + coinDelta)
-            invalidateMedalCache()
+            invalidateDerivedCaches()
             persist(immediate: true)
         }
 
@@ -684,13 +737,56 @@ final class SwimViewModel: ObservableObject {
         return healthKitLookbackDate(months: 3)
     }
 
-    private func invalidateMedalCache() {
+    private func ensureProgressSessionCache() {
+        let monthKey = SwimMonthlyChallenges.getMonthKey()
+        if cachedProgressChartPoints != nil, progressCacheMonthKey == monthKey {
+            return
+        }
+
+        cachedProgressChartPoints = SwimAnalysis.chartSessions(sessions)
+        cachedProgressCombinedStats = SwimAnalysis.combinedStats(sessions)
+        cachedProgressStatsSessionCount = SwimAnalysis.statsSessions(sessions).count
+        cachedProgressWeeklyVolume = SwimAnalysis.weeklyVolumeData(sessions)
+        cachedProgressPersonalRecords = SwimRecords.getPersonalRecords(sessions)
+        let intensity = MascotConstants.gameplay(mascotId).challengeIntensity
+        cachedCurrentMonthlyChallenges = SwimMonthlyChallenges.evaluateMonthlyChallenges(
+            sessions: sessions,
+            monthKey: monthKey,
+            rerolls: monthlyChallengeRerolls,
+            intensity: intensity
+        )
+        progressCacheMonthKey = monthKey
+        invalidateProgressLocalizedCaches()
+    }
+
+    private func progressLocalizedCacheKey(language: String) -> String {
+        let latestId = sessions.last?.id ?? ""
+        let name = profile.name
+        let monthKey = progressCacheMonthKey ?? SwimMonthlyChallenges.getMonthKey()
+        return "\(language)|\(name)|\(latestId)|\(monthKey)"
+    }
+
+    private func invalidateProgressLocalizedCaches() {
+        cachedProgressOverviewMessage = nil
+        progressOverviewCacheKey = nil
+        cachedLatestSessionFeedback = nil
+        latestSessionFeedbackCacheKey = nil
+        cachedProgressStrokeChartSlices = nil
+        strokeChartCacheKey = nil
+    }
+
+    private func invalidateDerivedCaches() {
         cachedEvaluatedMedals = nil
-        evaluatedMedalsCacheStamp = ""
-        cachedProgressSnapshot = nil
-        progressSnapshotCacheStamp = ""
         cachedMonthlyChallengeHistory = nil
-        monthlyChallengeHistoryCacheStamp = ""
+        medalCacheMonthKey = nil
+        cachedProgressChartPoints = nil
+        cachedProgressCombinedStats = nil
+        cachedProgressStatsSessionCount = nil
+        cachedProgressWeeklyVolume = nil
+        cachedProgressPersonalRecords = nil
+        cachedCurrentMonthlyChallenges = nil
+        progressCacheMonthKey = nil
+        invalidateProgressLocalizedCaches()
     }
 
     private func persist(immediate: Bool = false) {
@@ -780,15 +876,4 @@ private extension Optional where Wrapped == Int {
         }
         self = value
     }
-}
-
-struct ProgressPageSnapshot {
-    let chartPoints: [ChartSessionPoint]
-    let weeklyVolume: [WeeklyVolumePoint]
-    let combinedStats: CombinedStats?
-    let statsSessionCount: Int
-    let records: PersonalRecords?
-    let latestFeedback: SessionFeedbackSummary?
-    let overviewMessage: String
-    let strokeSlices: [StrokeChartSlice]
 }
