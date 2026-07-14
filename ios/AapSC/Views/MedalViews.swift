@@ -416,13 +416,7 @@ struct MonthlyChallengeHistoryView: View {
     @State private var selectedYear: Int = Calendar.current.component(.year, from: Date())
 
     var body: some View {
-        let intensity = MascotConstants.gameplay(viewModel.mascotId).challengeIntensity
-        let history = SwimMonthlyChallenges.getMonthlyChallengeHistory(
-            sessions: viewModel.sessions,
-            previewMonthlyMedals: viewModel.cheats.previewMonthlyMedals,
-            monthlyChallengeRerolls: viewModel.monthlyChallengeRerolls,
-            intensity: intensity
-        )
+        let history = viewModel.monthlyChallengeHistory
 
         if !history.isEmpty {
             VStack(alignment: .leading, spacing: 12) {

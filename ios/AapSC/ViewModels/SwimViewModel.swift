@@ -23,6 +23,9 @@ final class SwimViewModel: ObservableObject {
 
     private var saveTask: Task<Void, Never>?
     private var hasAttemptedHealthKitAutoSync = false
+    private var cachedEvaluatedMedals: [EvaluatedMedal]?
+    private var cachedMonthlyChallengeHistory: [MonthlyChallengeState]?
+    private var medalCacheMonthKey: String?
 
     var sessions: [SwimSession] { data.sessions }
     var profile: SwimProfile { data.profile }
@@ -45,10 +48,32 @@ final class SwimViewModel: ObservableObject {
     }
 
     var evaluatedMedals: [EvaluatedMedal] {
-        SwimMedals.evaluateAllMedals(
+        let monthKey = SwimMonthlyChallenges.getMonthKey()
+        if let cached = cachedEvaluatedMedals, medalCacheMonthKey == monthKey {
+            return cached
+        }
+        let medals = SwimMedals.evaluateAllMedals(
             sessions,
             allMedalsUnlocked: cheats.allMedalsUnlocked
         )
+        cachedEvaluatedMedals = medals
+        medalCacheMonthKey = monthKey
+        return medals
+    }
+
+    var monthlyChallengeHistory: [MonthlyChallengeState] {
+        if let cached = cachedMonthlyChallengeHistory {
+            return cached
+        }
+        let intensity = MascotConstants.gameplay(mascotId).challengeIntensity
+        let history = SwimMonthlyChallenges.getMonthlyChallengeHistory(
+            sessions: sessions,
+            previewMonthlyMedals: cheats.previewMonthlyMedals,
+            monthlyChallengeRerolls: monthlyChallengeRerolls,
+            intensity: intensity
+        )
+        cachedMonthlyChallengeHistory = history
+        return history
     }
 
     init() {
@@ -58,6 +83,7 @@ final class SwimViewModel: ObservableObject {
     func load() {
         data = SwimStorageService.load()
         cheats = SwimCheatsService.load()
+        invalidateMedalCaches()
         isLoading = false
     }
 
@@ -69,6 +95,7 @@ final class SwimViewModel: ObservableObject {
             storeUnlocks: next.storeUnlocks
         )
         data = next
+        invalidateMedalCaches()
         persist(immediate: true)
     }
 
@@ -110,6 +137,7 @@ final class SwimViewModel: ObservableObject {
         data.sessions.append(entry)
         data.sessions.sort { $0.date < $1.date }
         data.totalCoins = max(0, data.totalCoins + coinsEarned + coinBonus)
+        invalidateMedalCaches()
         persist()
         return entry
     }
@@ -135,23 +163,27 @@ final class SwimViewModel: ObservableObject {
         }
         data.totalCoins = max(0, data.totalCoins - coinsRemoved)
         data.sessions.removeAll { $0.id == id }
+        invalidateMedalCaches()
         persist()
     }
 
     func updateSession(id: String, updates: (inout SwimSession) -> Void) {
         guard let index = data.sessions.firstIndex(where: { $0.id == id }) else { return }
         updates(&data.sessions[index])
+        invalidateMedalCaches()
         persist()
     }
 
     func replaceData(_ nextData: SwimData) {
         data = SwimStorageService.normalize(nextData)
+        invalidateMedalCaches()
         persist(immediate: true)
     }
 
     func clearAll() {
         data = .empty
         cheats = .empty
+        invalidateMedalCaches()
         SwimStorageService.clear()
         SwimCheatsService.clear()
     }
@@ -200,6 +232,7 @@ final class SwimViewModel: ObservableObject {
             return false
         }
         data = next
+        invalidateMedalCaches()
         persist(immediate: true)
         return true
     }
@@ -245,6 +278,7 @@ final class SwimViewModel: ObservableObject {
 
     func updateCheats(_ updates: (inout SwimCheats) -> Void) {
         updates(&cheats)
+        invalidateMedalCaches()
         SwimCheatsService.save(cheats)
     }
 
@@ -573,6 +607,12 @@ final class SwimViewModel: ObservableObject {
             return Calendar.current.date(byAdding: .day, value: -1, to: date) ?? date
         }
         return healthKitLookbackDate(months: 3)
+    }
+
+    private func invalidateMedalCaches() {
+        cachedEvaluatedMedals = nil
+        cachedMonthlyChallengeHistory = nil
+        medalCacheMonthKey = nil
     }
 
     private func persist(immediate: Bool = false) {
