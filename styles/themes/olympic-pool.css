@@ -26,6 +26,32 @@ html.theme-olympic-pool .text-ink { color: var(--op-ink) !important; }
 html.theme-olympic-pool .text-ink-soft { color: #475569 !important; }
 html.theme-olympic-pool .text-ink-faint { color: #64748B !important; }
 html.theme-olympic-pool .text-brand-primary { color: var(--op-lane) !important; }
+html.theme-olympic-pool .text-brand { color: var(--op-lane-deep) !important; }
+
+html.theme-olympic-pool .text-gray-900,
+html.theme-olympic-pool h1.text-ink,
+html.theme-olympic-pool h2.text-gray-900,
+html.theme-olympic-pool h3.text-gray-900 {
+  color: var(--op-ink) !important;
+}
+
+html.theme-olympic-pool .text-gray-600,
+html.theme-olympic-pool .text-gray-500 {
+  color: #475569 !important;
+}
+
+html.theme-olympic-pool .text-gray-400,
+html.theme-olympic-pool .text-gray-300 {
+  color: #64748B !important;
+}
+
+html.theme-olympic-pool .card .text-emerald-600 {
+  color: #047857 !important;
+}
+
+html.theme-olympic-pool .display-2 {
+  color: var(--op-ink) !important;
+}
 
 html.theme-olympic-pool .card,
 html.theme-olympic-pool .glass,
@@ -121,7 +147,53 @@ html.theme-olympic-pool.dark .text-gray-300 {
 }
 
 html.theme-olympic-pool.dark .text-brand-primary {
-  color: #60A5FA !important;
+  color: #93C5FD !important;
+}
+
+html.theme-olympic-pool.dark .text-brand {
+  color: #BFDBFE !important;
+}
+
+html.theme-olympic-pool.dark .text-gray-900,
+html.theme-olympic-pool.dark .text-gray-100,
+html.theme-olympic-pool.dark h2.text-gray-900,
+html.theme-olympic-pool.dark h2.text-gray-100,
+html.theme-olympic-pool.dark h3.text-gray-900 {
+  color: #F1F5F9 !important;
+}
+
+html.theme-olympic-pool.dark .text-gray-600,
+html.theme-olympic-pool.dark .text-gray-500,
+html.theme-olympic-pool.dark .text-gray-300 {
+  color: #CBD5E1 !important;
+}
+
+html.theme-olympic-pool.dark .text-gray-400 {
+  color: #94A3B8 !important;
+}
+
+html.theme-olympic-pool.dark .card .text-emerald-600,
+html.theme-olympic-pool.dark .text-emerald-600 {
+  color: #6EE7B7 !important;
+}
+
+html.theme-olympic-pool.dark .card .text-emerald-400,
+html.theme-olympic-pool.dark .text-emerald-400 {
+  color: #34D399 !important;
+}
+
+html.theme-olympic-pool.dark .display-2 {
+  color: #F1F5F9 !important;
+}
+
+html.theme-olympic-pool.dark .text-blue-500,
+html.theme-olympic-pool.dark .text-teal-500,
+html.theme-olympic-pool.dark .text-amber-500,
+html.theme-olympic-pool.dark .text-orange-500,
+html.theme-olympic-pool.dark .text-green-500,
+html.theme-olympic-pool.dark .text-red-500,
+html.theme-olympic-pool.dark .text-purple-500 {
+  filter: brightness(1.15);
 }
 
 html.theme-olympic-pool.dark .card,

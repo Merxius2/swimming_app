@@ -15,6 +15,8 @@ import {
   normalizeStoreUnlocks,
   normalizeBonusWheelSpinCredits,
   stripBonusSpinUnlock,
+  getBonusSpinPrice,
+  getConsumableItemPrice,
   purchaseConsumableStoreItemUpdate,
   purchaseStoreItemUpdate,
   CHALLENGE_REROLL_STORE_ITEM_ID,
@@ -112,16 +114,22 @@ describe('swimCoinStore', () => {
     assert.equal(boosts[1].id, 'wheel:bonus-spin');
   });
 
-  it('consumable bonus wheel spin can be purchased repeatedly', () => {
+  it('consumable bonus wheel spin can be purchased repeatedly with escalating price', () => {
     assert.equal(isConsumableStoreItem(BONUS_WHEEL_SPIN_STORE_ITEM_ID), true);
+    assert.equal(getBonusSpinPrice(0), 350);
+    assert.equal(getBonusSpinPrice(1), 500);
+    assert.equal(getBonusSpinPrice(2), 650);
+    assert.equal(getConsumableItemPrice(BONUS_WHEEL_SPIN_STORE_ITEM_ID, { bonusWheelSpinCredits: 1 }), 500);
     assert.equal(canPurchaseStoreItem(BONUS_WHEEL_SPIN_STORE_ITEM_ID, [], 350), true);
     assert.equal(canPurchaseStoreItem(BONUS_WHEEL_SPIN_STORE_ITEM_ID, [], 349), false);
+    assert.equal(canPurchaseStoreItem(BONUS_WHEEL_SPIN_STORE_ITEM_ID, [], 500, { bonusWheelSpinCredits: 1 }), true);
+    assert.equal(canPurchaseStoreItem(BONUS_WHEEL_SPIN_STORE_ITEM_ID, [], 499, { bonusWheelSpinCredits: 1 }), false);
 
-    const first = purchaseConsumableStoreItemUpdate(BONUS_WHEEL_SPIN_STORE_ITEM_ID, 1000, 0);
+    const first = purchaseConsumableStoreItemUpdate(BONUS_WHEEL_SPIN_STORE_ITEM_ID, 1000, 0, { bonusWheelSpinCredits: 0 });
     assert.deepEqual(first, { totalCoins: 650, coinsSpent: 350 });
 
-    const second = purchaseConsumableStoreItemUpdate(BONUS_WHEEL_SPIN_STORE_ITEM_ID, 650, 350);
-    assert.deepEqual(second, { totalCoins: 300, coinsSpent: 700 });
+    const second = purchaseConsumableStoreItemUpdate(BONUS_WHEEL_SPIN_STORE_ITEM_ID, 650, 350, { bonusWheelSpinCredits: 1 });
+    assert.deepEqual(second, { totalCoins: 150, coinsSpent: 850 });
   });
 
   it('consumable challenge reroll can be purchased repeatedly', () => {
