@@ -45,3 +45,9 @@ Run unit tests in Xcode (**⌘U**) or:
 ```bash
 xcodebuild test -project ios/AapSC.xcodeproj -scheme AapSC -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
+
+## TestFlight (automatic builds)
+
+Pushes to **`main`** run [`.github/workflows/testflight.yml`](.github/workflows/testflight.yml): unit tests on macOS, then a Fastlane upload to TestFlight. Each run gets a unique build number (`github.run_number`).
+
+**One-time setup:** configure App Store Connect API secrets in GitHub. See [docs/TESTFLIGHT.md](docs/TESTFLIGHT.md).
