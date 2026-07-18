@@ -66,6 +66,12 @@ xcodebuild test -project ios/AapSC.xcodeproj -scheme AapSC \
   -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
+## TestFlight CI
+
+Every merge to `main` triggers [`.github/workflows/testflight.yml`](../.github/workflows/testflight.yml): simulator tests, then a Fastlane upload to TestFlight. Build numbers use the GitHub run number.
+
+See [docs/TESTFLIGHT.md](../docs/TESTFLIGHT.md) for App Store Connect API key and GitHub secrets setup.
+
 ## Signing
 
 1. Select **AapSC** target → **Signing & Capabilities**

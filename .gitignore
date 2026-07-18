@@ -1,9 +1,16 @@
 # dependencies
 node_modules/
 
-# next.js
+# next.js (legacy)
 .next/
 out/
+
+# ios / fastlane
+ios/build/
+ios/TestResults.xcresult/
+ios/fastlane/report.xml
+ios/fastlane/test_output/
+ios/fastlane/README.md
 
 # misc
 .DS_Store
