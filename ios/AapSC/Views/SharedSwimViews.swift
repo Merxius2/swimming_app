@@ -606,8 +606,13 @@ private struct ChartXLabelSelectionModifier: ViewModifier {
 }
 
 extension View {
-    func chartXLabelSelection(_ selection: Binding<String?>) -> some View {
-        modifier(ChartXLabelSelectionModifier(selection: selection))
+    @ViewBuilder
+    func chartXLabelSelection(_ selection: Binding<String?>, enabled: Bool = true) -> some View {
+        if enabled {
+            modifier(ChartXLabelSelectionModifier(selection: selection))
+        } else {
+            self
+        }
     }
 }
 

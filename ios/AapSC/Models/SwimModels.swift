@@ -327,6 +327,7 @@ struct WeeklyVolumePoint: Identifiable, Equatable {
     var id: String { weekLabel }
     var weekLabel: String
     var distanceM: Int
+    var distanceMa: Int?
 }
 
 struct ChartSessionPoint: Identifiable, Equatable {
@@ -338,6 +339,10 @@ struct ChartSessionPoint: Identifiable, Equatable {
     var activeKcal: Int?
     var totalKcal: Int?
     var avgHeartRate: Int?
+    var paceMa: Int?
+    var distanceMa: Int?
+    var activeKcalMa: Int?
+    var avgHeartRateMa: Int?
 }
 
 struct CombinedStats: Equatable {

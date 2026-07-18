@@ -4,6 +4,8 @@ enum SwimCoinStore {
     static let freeThemeCodes = ["liquid-os"]
     static let challengeRerollStoreItemId = "boost:challenge-reroll"
     static let bonusWheelSpinStoreItemId = "wheel:bonus-spin"
+    static let bonusSpinBasePrice = 350
+    static let bonusSpinPriceIncrement = 150
     static let storeCategories = ["themes", "icons", "vibes", "flair", "boosts"]
 
     struct StoreItem: Identifiable, Equatable {
@@ -58,6 +60,18 @@ enum SwimCoinStore {
 
     static func getStoreItem(_ id: String) -> StoreItem? {
         catalog.first { $0.id == id }
+    }
+
+    static func getBonusSpinPrice(_ bonusWheelSpinCredits: Int) -> Int {
+        max(0, bonusWheelSpinCredits) * bonusSpinPriceIncrement + bonusSpinBasePrice
+    }
+
+    static func getConsumableItemPrice(id: String, bonusWheelSpinCredits: Int = 0) -> Int {
+        guard let item = getStoreItem(id) else { return 0 }
+        if id == bonusWheelSpinStoreItemId {
+            return getBonusSpinPrice(bonusWheelSpinCredits)
+        }
+        return item.price
     }
 
     static func sumStorePurchasePrices(_ storeUnlocks: [String]) -> Int {
@@ -122,10 +136,13 @@ enum SwimCoinStore {
     static func canPurchaseStoreItem(
         _ id: String,
         storeUnlocks: [String],
-        totalCoins: Int
+        totalCoins: Int,
+        bonusWheelSpinCredits: Int = 0
     ) -> Bool {
         guard catalogIds.contains(id), let item = getStoreItem(id) else { return false }
-        if item.consumable { return totalCoins >= item.price }
+        if item.consumable {
+            return totalCoins >= getConsumableItemPrice(id: id, bonusWheelSpinCredits: bonusWheelSpinCredits)
+        }
         if isStoreItemOwned(id, storeUnlocks: storeUnlocks) { return false }
         return totalCoins >= item.price
     }
@@ -133,14 +150,16 @@ enum SwimCoinStore {
     static func purchaseConsumableStoreItemUpdate(
         id: String,
         totalCoins: Int,
-        coinsSpent: Int = 0
+        coinsSpent: Int = 0,
+        bonusWheelSpinCredits: Int = 0
     ) -> (totalCoins: Int, coinsSpent: Int)? {
-        guard let item = getStoreItem(id), item.consumable, totalCoins >= item.price else {
+        let price = getConsumableItemPrice(id: id, bonusWheelSpinCredits: bonusWheelSpinCredits)
+        guard let item = getStoreItem(id), item.consumable, totalCoins >= price else {
             return nil
         }
         return (
-            totalCoins: max(0, totalCoins - item.price),
-            coinsSpent: max(0, coinsSpent + item.price)
+            totalCoins: max(0, totalCoins - price),
+            coinsSpent: max(0, coinsSpent + price)
         )
     }
 
@@ -228,7 +247,8 @@ enum SwimCoinStore {
               let update = purchaseConsumableStoreItemUpdate(
                 id: itemId,
                 totalCoins: data.totalCoins,
-                coinsSpent: data.coinsSpent
+                coinsSpent: data.coinsSpent,
+                bonusWheelSpinCredits: data.bonusWheelSpinCredits
               ) else {
             return nil
         }

@@ -4,6 +4,7 @@ struct SettingsScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openUpload) private var openUpload
     @Environment(\.themeColors) private var themeColors
 
     @State private var showSecretSettings = false
@@ -16,6 +17,7 @@ struct SettingsScreen: View {
                 languageSection
                 themeSection
                 darkModeSection
+                uploadSection
                 cosmeticsSection
             }
             .navigationTitle(preferences.t("settings.title"))
@@ -105,6 +107,20 @@ struct SettingsScreen: View {
             Toggle(preferences.t("settings.autoDarkMode"), isOn: autoDarkBinding)
             if !preferences.isAutoDarkMode {
                 Toggle(preferences.t("settings.darkMode"), isOn: darkModeBinding)
+            }
+        }
+    }
+
+    private var uploadSection: some View {
+        Section(preferences.t("settings.uploadTitle")) {
+            Text(preferences.t("settings.uploadDesc"))
+                .themeFont(.caption)
+                .foregroundStyle(.secondary)
+            Button(preferences.t("settings.uploadCta")) {
+                dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    openUpload()
+                }
             }
         }
     }

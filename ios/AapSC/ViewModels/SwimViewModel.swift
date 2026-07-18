@@ -743,10 +743,14 @@ final class SwimViewModel: ObservableObject {
             return
         }
 
-        cachedProgressChartPoints = SwimAnalysis.chartSessions(sessions)
+        cachedProgressChartPoints = ChartMovingAverage.enrichChartSessions(
+            SwimAnalysis.chartSessions(sessions)
+        )
         cachedProgressCombinedStats = SwimAnalysis.combinedStats(sessions)
         cachedProgressStatsSessionCount = SwimAnalysis.statsSessions(sessions).count
-        cachedProgressWeeklyVolume = SwimAnalysis.weeklyVolumeData(sessions)
+        cachedProgressWeeklyVolume = ChartMovingAverage.enrichWeeklyVolume(
+            SwimAnalysis.weeklyVolumeData(sessions)
+        )
         cachedProgressPersonalRecords = SwimRecords.getPersonalRecords(sessions)
         let intensity = MascotConstants.gameplay(mascotId).challengeIntensity
         cachedCurrentMonthlyChallenges = SwimMonthlyChallenges.evaluateMonthlyChallenges(
