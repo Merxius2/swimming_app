@@ -97,15 +97,35 @@ final class SwimCoinStoreTests: XCTestCase {
         XCTAssertEqual(boosts[1].id, SwimCoinStore.bonusWheelSpinStoreItemId)
     }
 
-    func testConsumableBonusWheelSpinCanBePurchasedRepeatedly() {
+    func testConsumableBonusWheelSpinCanBePurchasedRepeatedlyWithEscalatingPrice() {
         XCTAssertTrue(SwimCoinStore.isConsumableStoreItem(SwimCoinStore.bonusWheelSpinStoreItemId))
-        XCTAssertTrue(SwimCoinStore.canPurchaseStoreItem(SwimCoinStore.bonusWheelSpinStoreItemId, storeUnlocks: [], totalCoins: 350))
-        XCTAssertFalse(SwimCoinStore.canPurchaseStoreItem(SwimCoinStore.bonusWheelSpinStoreItemId, storeUnlocks: [], totalCoins: 349))
+        XCTAssertEqual(SwimCoinStore.getBonusSpinPrice(0), 350)
+        XCTAssertEqual(SwimCoinStore.getBonusSpinPrice(1), 500)
+        XCTAssertEqual(SwimCoinStore.getBonusSpinPrice(2), 650)
+        XCTAssertEqual(
+            SwimCoinStore.getConsumableItemPrice(id: SwimCoinStore.bonusWheelSpinStoreItemId, bonusWheelSpinCredits: 1),
+            500
+        )
+        XCTAssertTrue(
+            SwimCoinStore.canPurchaseStoreItem(
+                SwimCoinStore.bonusWheelSpinStoreItemId,
+                storeUnlocks: [],
+                totalCoins: 350
+            )
+        )
+        XCTAssertFalse(
+            SwimCoinStore.canPurchaseStoreItem(
+                SwimCoinStore.bonusWheelSpinStoreItemId,
+                storeUnlocks: [],
+                totalCoins: 349
+            )
+        )
 
         let first = SwimCoinStore.purchaseConsumableStoreItemUpdate(
             id: SwimCoinStore.bonusWheelSpinStoreItemId,
             totalCoins: 1000,
-            coinsSpent: 0
+            coinsSpent: 0,
+            bonusWheelSpinCredits: 0
         )!
         XCTAssertEqual(first.totalCoins, 650)
         XCTAssertEqual(first.coinsSpent, 350)
@@ -113,10 +133,11 @@ final class SwimCoinStoreTests: XCTestCase {
         let second = SwimCoinStore.purchaseConsumableStoreItemUpdate(
             id: SwimCoinStore.bonusWheelSpinStoreItemId,
             totalCoins: 650,
-            coinsSpent: 350
+            coinsSpent: 350,
+            bonusWheelSpinCredits: 1
         )!
-        XCTAssertEqual(second.totalCoins, 300)
-        XCTAssertEqual(second.coinsSpent, 700)
+        XCTAssertEqual(second.totalCoins, 150)
+        XCTAssertEqual(second.coinsSpent, 850)
     }
 
     func testConsumableChallengeRerollCanBePurchasedRepeatedly() {

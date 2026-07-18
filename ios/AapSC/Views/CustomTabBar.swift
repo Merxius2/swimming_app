@@ -22,10 +22,15 @@ enum TabBarLayout {
     private static let classicHistoryIcon = "clock.arrow.circlepath"
 
     /// Filled symbols used by the other iOS themes.
+    private static let themedMiniGamesIcon = "gamecontroller.fill"
     private static let themedProgressIcon = "chart.bar.fill"
     private static let themedMedalsIcon = "checkmark.seal.fill"
     private static let themedBenchmarkIcon = "waveform.path.ecg"
     private static let themedHistoryIcon = "clock.arrow.circlepath"
+
+    static func miniGamesIcon(for tabBar: ThemeTabBarStyle) -> String {
+        themedMiniGamesIcon
+    }
 
     static func progressIcon(for tabBar: ThemeTabBarStyle) -> String {
         tabBar.usesPlainTabIcons ? classicProgressIcon : themedProgressIcon
@@ -59,11 +64,11 @@ struct CustomTabBar: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @Environment(\.appIsDark) private var appIsDark
     @Binding var selectedTab: Int
-    let uploadActive: Bool
-    let onUpload: (() -> Void)?
-    let progressTitle: String
+    let progressActive: Bool
+    let onProgress: (() -> Void)?
+    let miniGamesTitle: String
     let medalsTitle: String
-    let uploadTitle: String
+    let progressTitle: String
     let benchmarkTitle: String
     let historyTitle: String
 
@@ -96,10 +101,10 @@ struct CustomTabBar: View {
 
             HStack(alignment: .bottom, spacing: 0) {
                 tabButton(
-                    title: progressTitle,
-                    pageKey: "progress",
-                    icon: TabBarLayout.progressIcon(for: profile.tabBar),
-                    tab: 0
+                    title: miniGamesTitle,
+                    pageKey: "mini-games",
+                    icon: TabBarLayout.miniGamesIcon(for: profile.tabBar),
+                    tab: 2
                 )
 
                 tabButton(
@@ -147,18 +152,20 @@ struct CustomTabBar: View {
     private func centerColumn() -> some View {
         VStack(spacing: TabBarLayout.itemSpacing) {
             ZStack(alignment: .bottom) {
-                if profile.uploadFAB.usesOverlay, let onUpload {
-                    CustomUploadFAB(
+                if profile.uploadFAB.usesOverlay, let onProgress {
+                    CustomCenterFAB(
                         style: profile.uploadFAB,
+                        pageKey: "progress",
+                        systemImage: TabBarLayout.progressIcon(for: profile.tabBar),
                         usesPlainIcon: profile.tabBar.usesPlainTabIcons,
-                        action: onUpload
+                        action: onProgress
                     )
                     .offset(y: centerFabOffset())
                 }
             }
             .frame(height: centerIconSlotHeight)
 
-            uploadLabel
+            progressLabel
         }
         .frame(maxWidth: .infinity)
         .zIndex(profile.tabBar.accentStripePosition == .top ? 1 : 0)
@@ -201,12 +208,12 @@ struct CustomTabBar: View {
     }
 
     @ViewBuilder
-    private var uploadLabel: some View {
+    private var progressLabel: some View {
         let inactiveColor = profile.tabBar.fabLabelInactiveColor ?? profile.tabBar.unselectedColor
-        let labelColor = uploadActive ? profile.tabBar.selectedColor : inactiveColor
-        let labelWeight: Font.Weight = uploadActive ? .bold : .medium
+        let labelColor = progressActive ? profile.tabBar.selectedColor : inactiveColor
+        let labelWeight: Font.Weight = progressActive ? .bold : .medium
 
-        Text(uploadTitle)
+        Text(progressTitle)
             .themeFont(.caption2, weight: labelWeight)
             .tracking(profile.tabBar.usesThemeFont ? ThemeTypography.headingTracking(for: preferences.themeCode) : 0)
             .lineLimit(1)
@@ -314,8 +321,10 @@ struct CustomTabButton: View {
     }
 }
 
-struct CustomUploadFAB: View {
+struct CustomCenterFAB: View {
     let style: ThemeUploadFABStyle
+    let pageKey: String
+    let systemImage: String
     var usesPlainIcon: Bool = false
     let action: () -> Void
     @EnvironmentObject private var viewModel: SwimViewModel
@@ -325,7 +334,7 @@ struct CustomUploadFAB: View {
             fabContent
         }
         .buttonStyle(TabBarTapButtonStyle())
-        .accessibilityLabel("Upload")
+        .accessibilityLabel("Progress")
     }
 
     @ViewBuilder
@@ -335,26 +344,26 @@ struct CustomUploadFAB: View {
                 if usesPlainIcon,
                    StorePageIcons.resolve(
                        activeAppIcon: viewModel.profile.activeAppIcon,
-                       pageKey: "upload",
+                       pageKey: pageKey,
                        storeUnlocks: viewModel.storeUnlocks
                    ) == nil {
-                    Image(systemName: "square.and.arrow.up")
+                    Image(systemName: systemImage)
                         .font(.system(size: TabBarLayout.fabIconSize, weight: .medium))
                         .symbolRenderingMode(.monochrome)
                         .foregroundStyle(style.iconColor)
                 } else if StorePageIcons.resolve(
                     activeAppIcon: viewModel.profile.activeAppIcon,
-                    pageKey: "upload",
+                    pageKey: pageKey,
                     storeUnlocks: viewModel.storeUnlocks
                 ) != nil {
                     StorePageIconView(
-                        pageKey: "upload",
-                        systemImage: "square.and.arrow.up",
+                        pageKey: pageKey,
+                        systemImage: systemImage,
                         size: TabBarLayout.fabIconSize,
                         color: style.iconColor
                     )
                 } else {
-                    Image(systemName: "square.and.arrow.up")
+                    Image(systemName: systemImage)
                         .font(.system(size: TabBarLayout.fabIconSize, weight: .bold))
                         .foregroundStyle(style.iconColor)
                 }

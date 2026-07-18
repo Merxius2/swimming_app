@@ -5,7 +5,9 @@ struct ProgressScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.openUpload) private var openUpload
+    @Environment(\.openSettings) private var openSettings
 
+    @State private var chartsInteractive = false
     @State private var selectedPaceDate: String?
     @State private var selectedDistanceDate: String?
     @State private var selectedCaloriesDate: String?
@@ -41,6 +43,7 @@ struct ProgressScreen: View {
                                 titleKey: "progress.sessionFeedbackTitle"
                             )
                         }
+                        chartsSectionHeader
                         paceChart(points: chartPoints)
                         distanceChart(points: chartPoints)
                         caloriesChart(points: chartPoints)
@@ -87,7 +90,7 @@ struct ProgressScreen: View {
                         .themeFont(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                    Button(action: openUpload) {
+                    Button(action: openSettings) {
                         Text(preferences.t("progress.emptyCta"))
                             .themeFont(.subheadline, weight: .semibold)
                             .frame(maxWidth: .infinity)
@@ -198,6 +201,31 @@ struct ProgressScreen: View {
         }
     }
 
+    private var chartsSectionHeader: some View {
+        HStack {
+            Text(preferences.t("progress.chartsSection"))
+                .themeFont(.caption, weight: .bold)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button {
+                chartsInteractive.toggle()
+            } label: {
+                Label(
+                    chartsInteractive
+                        ? preferences.t("progress.chartsInteractiveOn")
+                        : preferences.t("progress.chartsInteractiveOff"),
+                    systemImage: "hand.tap"
+                )
+                .themeFont(.caption, weight: .semibold)
+            }
+            .buttonStyle(.bordered)
+            .tint(chartsInteractive ? Color("BrandBlue") : .secondary)
+        }
+        .padding(.horizontal, 4)
+    }
+
+    private let movingAverageColor = Color(red: 0.388, green: 0.400, blue: 0.945)
+
     private func paceChart(points: [ChartSessionPoint]) -> some View {
         let filteredPoints = points.filter { ($0.paceSecPer100m ?? 0) > 0 }
         let domain = SwimFormatters.getPaceChartDomain(filteredPoints.map(\.paceSecPer100m))
@@ -225,7 +253,17 @@ struct ProgressScreen: View {
                             .foregroundStyle(paceTeal)
                             .symbolSize(selectedPaceDate == point.dateLabel ? 80 : 36)
 
-                            if selectedPaceDate == point.dateLabel {
+                            if let paceMa = point.paceMa, paceMa > 0 {
+                                LineMark(
+                                    x: .value("Date", point.dateLabel),
+                                    y: .value("Average", Self.invertedPaceValue(paceMa))
+                                )
+                                .foregroundStyle(movingAverageColor)
+                                .lineStyle(StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                                .interpolationMethod(.monotone)
+                            }
+
+                            if chartsInteractive, selectedPaceDate == point.dateLabel {
                                 RuleMark(x: .value("Date", point.dateLabel))
                                     .foregroundStyle(Color.secondary.opacity(0.35))
                                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
@@ -235,11 +273,13 @@ struct ProgressScreen: View {
                     .chartXAxis { sessionDateAxisMarks(count: filteredPoints.count) }
                     .chartYScale(domain: invertedPaceDomain(domain))
                     .chartYAxis { paceYAxisMarks() }
-                    .chartXLabelSelection($selectedPaceDate)
+                    .chartXLabelSelection($selectedPaceDate, enabled: chartsInteractive)
+                    .allowsHitTesting(chartsInteractive)
                     .frame(maxWidth: .infinity)
                     .frame(height: 260)
 
-                    if let selectedPaceDate,
+                    if chartsInteractive,
+                       let selectedPaceDate,
                        let point = filteredPoints.first(where: { $0.dateLabel == selectedPaceDate }) {
                         ChartSelectionFooter(
                             title: point.dateLabel,
@@ -266,7 +306,17 @@ struct ProgressScreen: View {
                         .foregroundStyle(Color.blue.gradient)
                         .cornerRadius(4)
 
-                        if selectedDistanceDate == point.dateLabel {
+                        if let distanceMa = point.distanceMa {
+                            LineMark(
+                                x: .value("Date", point.dateLabel),
+                                y: .value("Average", distanceMa)
+                            )
+                            .foregroundStyle(movingAverageColor)
+                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                            .interpolationMethod(.monotone)
+                        }
+
+                        if chartsInteractive, selectedDistanceDate == point.dateLabel {
                             RuleMark(x: .value("Date", point.dateLabel))
                                 .foregroundStyle(Color.secondary.opacity(0.35))
                                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
@@ -275,11 +325,13 @@ struct ProgressScreen: View {
                 }
                 .chartXAxis { sessionDateAxisMarks(count: filteredPoints.count) }
                 .chartYAxis { valueAxisMarks(formatter: SwimFormatters.formatDistance) }
-                .chartXLabelSelection($selectedDistanceDate)
+                .chartXLabelSelection($selectedDistanceDate, enabled: chartsInteractive)
+                .allowsHitTesting(chartsInteractive)
                 .frame(maxWidth: .infinity)
                 .frame(height: 240)
 
-                if let selectedDistanceDate,
+                if chartsInteractive,
+                   let selectedDistanceDate,
                    let point = filteredPoints.first(where: { $0.dateLabel == selectedDistanceDate }) {
                     ChartSelectionFooter(
                         title: point.dateLabel,
@@ -331,7 +383,17 @@ struct ProgressScreen: View {
                         .foregroundStyle(.orange)
                         .interpolationMethod(.monotone)
 
-                        if selectedCaloriesDate == point.dateLabel {
+                        if let activeKcalMa = point.activeKcalMa {
+                            LineMark(
+                                x: .value("Date", point.dateLabel),
+                                y: .value("Average", activeKcalMa)
+                            )
+                            .foregroundStyle(movingAverageColor)
+                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                            .interpolationMethod(.monotone)
+                        }
+
+                        if chartsInteractive, selectedCaloriesDate == point.dateLabel {
                             RuleMark(x: .value("Date", point.dateLabel))
                                 .foregroundStyle(Color.secondary.opacity(0.35))
                                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
@@ -345,11 +407,13 @@ struct ProgressScreen: View {
                     totalLabel: Color.orange,
                 ])
                 .chartLegend(position: .bottom, alignment: .leading)
-                .chartXLabelSelection($selectedCaloriesDate)
+                .chartXLabelSelection($selectedCaloriesDate, enabled: chartsInteractive)
+                .allowsHitTesting(chartsInteractive)
                 .frame(maxWidth: .infinity)
                 .frame(height: 240)
 
-                if let selectedCaloriesDate,
+                if chartsInteractive,
+                   let selectedCaloriesDate,
                    let point = points.first(where: { $0.dateLabel == selectedCaloriesDate }) {
                     ChartSelectionFooter(
                         title: point.dateLabel,
@@ -384,7 +448,17 @@ struct ProgressScreen: View {
                         .foregroundStyle(.orange)
                         .symbolSize(selectedHeartRateDate == point.dateLabel ? 70 : 30)
 
-                        if selectedHeartRateDate == point.dateLabel {
+                        if let avgHeartRateMa = point.avgHeartRateMa {
+                            LineMark(
+                                x: .value("Date", point.dateLabel),
+                                y: .value("Average", avgHeartRateMa)
+                            )
+                            .foregroundStyle(movingAverageColor)
+                            .lineStyle(StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                            .interpolationMethod(.monotone)
+                        }
+
+                        if chartsInteractive, selectedHeartRateDate == point.dateLabel {
                             RuleMark(x: .value("Date", point.dateLabel))
                                 .foregroundStyle(Color.secondary.opacity(0.35))
                                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
@@ -393,11 +467,13 @@ struct ProgressScreen: View {
                 }
                 .chartXAxis { sessionDateAxisMarks(count: filteredPoints.count) }
                 .chartYAxis { valueAxisMarks(formatter: { $0.map { "\($0)" } ?? "—" }) }
-                .chartXLabelSelection($selectedHeartRateDate)
+                .chartXLabelSelection($selectedHeartRateDate, enabled: chartsInteractive)
+                .allowsHitTesting(chartsInteractive)
                 .frame(maxWidth: .infinity)
                 .frame(height: 240)
 
-                if let selectedHeartRateDate,
+                if chartsInteractive,
+                   let selectedHeartRateDate,
                    let point = filteredPoints.first(where: { $0.dateLabel == selectedHeartRateDate }) {
                     ChartSelectionFooter(
                         title: point.dateLabel,
@@ -426,7 +502,17 @@ struct ProgressScreen: View {
                             .foregroundStyle(Color.purple.gradient)
                             .cornerRadius(4)
 
-                            if selectedVolumeWeek == week.weekLabel {
+                            if let distanceMa = week.distanceMa {
+                                LineMark(
+                                    x: .value("Week", week.weekLabel),
+                                    y: .value("Average", distanceMa)
+                                )
+                                .foregroundStyle(movingAverageColor)
+                                .lineStyle(StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                                .interpolationMethod(.monotone)
+                            }
+
+                            if chartsInteractive, selectedVolumeWeek == week.weekLabel {
                                 RuleMark(x: .value("Week", week.weekLabel))
                                     .foregroundStyle(Color.secondary.opacity(0.35))
                                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 4]))
@@ -435,11 +521,13 @@ struct ProgressScreen: View {
                     }
                     .chartXAxis { sessionDateAxisMarks(count: weekly.count) }
                     .chartYAxis { valueAxisMarks(formatter: SwimFormatters.formatDistance) }
-                    .chartXLabelSelection($selectedVolumeWeek)
+                    .chartXLabelSelection($selectedVolumeWeek, enabled: chartsInteractive)
+                    .allowsHitTesting(chartsInteractive)
                     .frame(maxWidth: .infinity)
                     .frame(height: 240)
 
-                    if let selectedVolumeWeek,
+                    if chartsInteractive,
+                       let selectedVolumeWeek,
                        let week = weekly.first(where: { $0.weekLabel == selectedVolumeWeek }) {
                         ChartSelectionFooter(
                             title: week.weekLabel,

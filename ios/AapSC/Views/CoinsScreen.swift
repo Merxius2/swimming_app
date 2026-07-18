@@ -10,14 +10,13 @@ struct CoinsScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     ScreenHeader(
-                        preferences.t("coins.wheel.title"),
-                        subtitle: preferences.t("coins.wheel.subtitle"),
+                        preferences.t("coins.store.title"),
+                        subtitle: preferences.t("coins.store.subtitle"),
                         pageKey: "coins",
-                        systemImage: "bitcoinsign.circle.fill"
+                        systemImage: "bag.fill"
                     )
 
-                    WheelOfFortuneView()
-                    SwimCoinStoreView()
+                    SwimCoinStoreView(embedded: true)
                 }
                 .padding()
             }
@@ -492,6 +491,7 @@ private struct WheelSegmentWedgeShape: Shape {
 struct SwimCoinStoreView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
+    var embedded = false
 
     private var allThemesUnlocked: Bool {
         viewModel.cheats.allThemesUnlocked
@@ -499,17 +499,19 @@ struct SwimCoinStoreView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            Divider()
-                .padding(.top, 8)
+            if !embedded {
+                Divider()
+                    .padding(.top, 8)
 
-            VStack(spacing: 8) {
-                Label(preferences.t("coins.store.title"), systemImage: "bag.fill")
-                    .themeFont(.title3, weight: .bold)
-                    .foregroundStyle(Color("BrandBlue"))
-                Text(preferences.t("coins.store.subtitle"))
-                    .themeFont(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                VStack(spacing: 8) {
+                    Label(preferences.t("coins.store.title"), systemImage: "bag.fill")
+                        .themeFont(.title3, weight: .bold)
+                        .foregroundStyle(Color("BrandBlue"))
+                    Text(preferences.t("coins.store.subtitle"))
+                        .themeFont(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
             }
 
             ForEach(SwimCoinStore.storeCategories, id: \.self) { category in
@@ -552,10 +554,18 @@ struct SwimCoinStoreView: View {
             item.themeCode.map { SwimCoinStore.isThemeUnlocked($0, storeUnlocks: viewModel.storeUnlocks, allThemesUnlocked: allThemesUnlocked) } ??
             SwimCoinStore.isStoreItemOwned(item.id, storeUnlocks: viewModel.storeUnlocks)
         )
+        let price = isConsumable
+            ? SwimCoinStore.getConsumableItemPrice(id: item.id, bonusWheelSpinCredits: viewModel.bonusWheelSpinCredits)
+            : item.price
         let canBuy = isConsumable
-            ? viewModel.totalCoins >= item.price
-            : SwimCoinStore.canPurchaseStoreItem(item.id, storeUnlocks: viewModel.storeUnlocks, totalCoins: viewModel.totalCoins)
-        let shortfall = max(0, item.price - viewModel.totalCoins)
+            ? viewModel.totalCoins >= price
+            : SwimCoinStore.canPurchaseStoreItem(
+                item.id,
+                storeUnlocks: viewModel.storeUnlocks,
+                totalCoins: viewModel.totalCoins,
+                bonusWheelSpinCredits: viewModel.bonusWheelSpinCredits
+            )
+        let shortfall = max(0, price - viewModel.totalCoins)
         let ownedCount = consumableOwnedCount(item)
 
         Card {
@@ -585,7 +595,7 @@ struct SwimCoinStoreView: View {
                             .themeFont(.subheadline, weight: .semibold)
                             .foregroundStyle(.green)
                     } else {
-                        CoinBadge(count: item.price, golden: false)
+                        CoinBadge(count: price, golden: false)
                     }
 
                     Spacer()

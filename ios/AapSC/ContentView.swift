@@ -20,11 +20,11 @@ struct ContentView: View {
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 CustomTabBar(
                     selectedTab: $selectedTab,
-                    uploadActive: showUpload,
-                    onUpload: { showUpload = true },
-                    progressTitle: preferences.t("navigation.progress"),
+                    progressActive: selectedTab == 0,
+                    onProgress: { selectedTab = 0 },
+                    miniGamesTitle: preferences.t("navigation.miniGames"),
                     medalsTitle: preferences.t("navigation.medals"),
-                    uploadTitle: preferences.t("navigation.upload"),
+                    progressTitle: preferences.t("navigation.progress"),
                     benchmarkTitle: preferences.t("navigation.benchmark"),
                     historyTitle: preferences.t("navigation.history")
                 )
@@ -64,6 +64,8 @@ struct ContentView: View {
             ProgressScreen()
         case 1:
             MedalsScreen()
+        case 2:
+            MiniGamesScreen()
         case 3:
             BenchmarkScreen()
         case 4:

@@ -1,135 +1,73 @@
 # Aap-SC — Native iOS App
 
-This folder contains a **native SwiftUI iOS app** for Aap-SC (Swim Coach), ported from the Next.js web app in the repository root.
+Native **SwiftUI** swim coach app for iPhone and iPad.
 
-Open and build it in **Xcode** on macOS.
-
-## Requirements
-
-- macOS with **Xcode 15.4+**
-- iOS **17.0+** (iPhone or iPad simulator/device)
-- An Apple Developer account for running on a physical device
-
-## Open in Xcode
-
-1. Clone or pull branch `cursor/ios-xcode-port-eba9`
-2. Open the project:
+Open and build in **Xcode** on macOS:
 
 ```bash
 open ios/AapSC.xcodeproj
 ```
 
-3. Select the **AapSC** scheme and an iPhone simulator (e.g. iPhone 16)
-4. Press **⌘R** to build and run
+## Requirements
 
-## First-time setup in Xcode
+- macOS with **Xcode 15.4+**
+- iOS **17.0+**
+- Apple Developer account for physical devices
 
-1. Select the **AapSC** target → **Signing & Capabilities**
-2. Set your **Team** (Apple ID / Developer account)
-3. Optionally change **Bundle Identifier** from `com.aapft.aapsc` to your own reverse-DNS id
-4. Add an app icon in `AapSC/Resources/Assets.xcassets/AppIcon.appiconset` (1024×1024 PNG)
+## Navigation
 
-## 1:1 port plan
+| Tab | Screen |
+|-----|--------|
+| Mini games | Wheel of Fortune, Coin Flip, Pace Pick, Lane Timer |
+| Medals | Medal gallery and monthly history |
+| **Progress (center FAB)** | Charts, challenges, records, coach feedback |
+| Benchmark | Age-group pace comparison |
+| History | Session list and detail |
 
-| Phase | Scope | Status |
-|-------|--------|--------|
-| 1 | Data models, storage, ViewModel API | ✅ |
-| 2 | Core lib (coins, medals, challenges, mascot, duplicates, records) | ✅ |
-| 3 | Upload flow (duplicate check, settlement, coin/medal modals) | ✅ |
-| 4 | Progress, History, Benchmark UI parity | ✅ |
-| 5 | Coins page (wheel + store) | ✅ |
-| 6 | Medals page + monthly challenges UI | ✅ |
-| 7 | i18n, themes, dark mode, import/export, AI coach, polish | ✅ |
+Upload is available from **Settings → Upload swim session**. Coins/store opens from the top bar on main screens.
 
 ## What's included
 
 | Feature | Status |
 |---------|--------|
-| Progress dashboard with Swift Charts | ✅ |
+| Progress dashboard with Swift Charts + moving averages | ✅ |
+| Chart interaction toggle (scroll-friendly by default) | ✅ |
 | Upload Apple Fitness screenshots (Vision OCR) | ✅ |
-| Post-upload coach feedback + optional AI enhancement | ✅ |
-| Screenshot parsing (Dutch/Apple Fitness text) | ✅ |
-| Session history | ✅ |
-| Age-group benchmarks | ✅ |
-| Swim coins (session rewards) | ✅ |
-| Wheel of Fortune + coin store | ✅ |
-| Medals gallery + monthly challenge history | ✅ |
-| Profile & settings | ✅ |
-| Full i18n across main screens | ✅ |
-| Theme picker + ambient backgrounds | ✅ |
-| Dark mode (auto + manual) | ✅ |
-| JSON import/export (web-compatible v9) | ✅ |
-| AI coach (device-side OpenAI key) | ✅ |
-| Mascot UI (PNG assets + blink animation) | ✅ |
+| HealthKit swim import | ✅ |
+| Mini games page | ✅ |
+| Swim coin store (escalating bonus spin price) | ✅ |
+| Wheel of Fortune | ✅ |
+| Medals + monthly challenges | ✅ |
+| Themes (incl. Olympic Pool) + dark mode | ✅ |
+| i18n: en, nl, ru, tr | ✅ |
+| JSON import/export (v9) | ✅ |
+| AI coach (optional OpenAI key) | ✅ |
 
 ## Architecture
 
 ```
-ios/
-├── AapSC.xcodeproj/     # Xcode project — open this
-└── AapSC/
-    ├── AapSCApp.swift           # App entry, theme + dark mode
-    ├── ContentView.swift        # Tab navigation
-    ├── Models/                  # Codable data models (matches web JSON shape)
-    ├── Services/                # Storage, OCR, i18n, preferences, AI coach
-    ├── ViewModels/              # SwimViewModel (@MainActor)
-    ├── Views/                   # SwiftUI screens
-    ├── Lib/                     # Ported business logic from lib/*.js
-    └── Resources/
-        ├── Assets.xcassets
-        └── Localizations/       # en, nl, ru, tr JSON bundles
+ios/AapSC/
+├── AapSCApp.swift
+├── ContentView.swift        # Tab shell + sheets
+├── Models/
+├── Services/
+├── ViewModels/
+├── Views/
+├── Lib/                       # Business logic + ChartMovingAverage
+└── Resources/
+    ├── Assets.xcassets
+    └── Localizations/         # en.json, nl.json, ru.json, tr.json
 ```
 
-Regenerate localization bundles after editing web locale files:
+## Tests
 
 ```bash
-node scripts/export-ios-i18n.mjs
+xcodebuild test -project ios/AapSC.xcodeproj -scheme AapSC \
+  -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
-## Data storage
+## Signing
 
-Swim data is stored locally in **UserDefaults** under the same key as the web app:
-
-```
-AUDIT_SWIM_DATA
-```
-
-Language, theme, and dark-mode preferences use the same UserDefaults keys as the web app's cookies (`AUDIT_LANGUAGE_PREFERENCE`, `AUDIT_THEME_PREFERENCE`, etc.).
-
-The JSON schema mirrors the web app's `SwimData` structure. Use **Settings → Import/Export** to copy data between the web app and iOS app (export format v9 with CRC32 checksum).
-
-## OCR
-
-Screenshot import uses Apple's **Vision** framework (`VNRecognizeTextRequest`) instead of Tesseract.js. The parsing rules in `Lib/ScreenshotParser.swift` are ported from `lib/screenshotParser.js`.
-
-## AI coach
-
-If you add an OpenAI API key in Settings, the app calls `gpt-4o-mini` directly from the device after each upload (same flow as the web app). Local coach feedback is shown immediately; AI enhancement updates the message when the request completes.
-
-## Relationship to the web app
-
-- The **Next.js web app** remains in the repository root and is unchanged on `main`.
-- This **iOS app** lives on branch `cursor/ios-xcode-port-eba9` under `ios/`.
-- Shared business rules (benchmarks, formatters, screenshot parsing, coin math) are reimplemented in Swift under `ios/AapSC/Lib/`.
-
-## Troubleshooting
-
-**"Signing requires a development team"**  
-Set your Team under Signing & Capabilities.
-
-**Photo picker does nothing**  
-Grant photo library access when prompted; check `NSPhotoLibraryUsageDescription` in `Info.plist`.
-
-**Build fails on Charts**  
-Ensure deployment target is iOS 17+ (Swift Charts requirement).
-
-**Import fails**  
-Paste the full export string including the `:checksum` suffix. Web exports may be gzip-compressed; the iOS importer decodes both plain and compressed payloads.
-
-## Regenerating translations
-
-After editing `lib/i18n/*.js`, regenerate the iOS JSON bundles:
-
-```bash
-node scripts/export-ios-i18n.mjs
-```
+1. Select **AapSC** target → **Signing & Capabilities**
+2. Set your **Team**
+3. Adjust **Bundle Identifier** if needed (default `com.aapft.aapsc`)

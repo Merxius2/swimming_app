@@ -70,6 +70,8 @@
 		B10000000000000000000064 /* ThemeTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000064 /* ThemeTypography.swift */; };
 		B10000000000000000000065 /* StoreIconPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000065 /* StoreIconPreview.swift */; };
 		B10000000000000000000073 /* StoreVibePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000073 /* StoreVibePreviewView.swift */; };
+		B10000000000000000000077 /* ChartMovingAverage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000077 /* ChartMovingAverage.swift */; };
+		B10000000000000000000078 /* MiniGamesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000078 /* MiniGamesScreen.swift */; };
 		B10000000000000000000066 /* Oxanium-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000066 /* Oxanium-Regular.ttf */; };
 		B10000000000000000000067 /* Oxanium-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000067 /* Oxanium-Medium.ttf */; };
 		B10000000000000000000068 /* Oxanium-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000068 /* Oxanium-SemiBold.ttf */; };
@@ -97,6 +99,7 @@
 		B20000000000000000000016 /* SwimBenchmarksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000016 /* SwimBenchmarksTests.swift */; };
 		B20000000000000000000017 /* SwimWheelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000017 /* SwimWheelTests.swift */; };
 		B20000000000000000000018 /* SwimWheelSpinsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000018 /* SwimWheelSpinsTests.swift */; };
+		B20000000000000000000019 /* ChartMovingAverageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* ChartMovingAverageTests.swift */; };
 		B10000000000000000000074 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000074 /* HealthKitService.swift */; };
 		B10000000000000000000075 /* SwimNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000076 /* SwimNotifications.swift */; };
 		B20000000000000000000019 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* XCTest.framework */; };
@@ -196,8 +199,11 @@
 		F20000000000000000000016 /* SwimBenchmarksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimBenchmarksTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000017 /* SwimWheelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000018 /* SwimWheelSpinsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelSpinsTests.swift; sourceTree = "<group>"; };
+		F20000000000000000000019 /* ChartMovingAverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartMovingAverageTests.swift; sourceTree = "<group>"; };
 		F10000000000000000000074 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
 		F10000000000000000000076 /* SwimNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimNotifications.swift; sourceTree = "<group>"; };
+		F10000000000000000000077 /* ChartMovingAverage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartMovingAverage.swift; sourceTree = "<group>"; };
+		F10000000000000000000078 /* MiniGamesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniGamesScreen.swift; sourceTree = "<group>"; };
 		F10000000000000000000075 /* AapSC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AapSC.entitlements; sourceTree = "<group>"; };
 		F20000000000000000000019 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
@@ -277,6 +283,7 @@
 				F20000000000000000000016 /* SwimBenchmarksTests.swift */,
 				F20000000000000000000017 /* SwimWheelTests.swift */,
 				F20000000000000000000018 /* SwimWheelSpinsTests.swift */,
+				F20000000000000000000019 /* ChartMovingAverageTests.swift */,
 			);
 			path = AapSCTests;
 			sourceTree = "<group>";
@@ -344,6 +351,7 @@
 				F10000000000000000000065 /* StoreIconPreview.swift */,
 				F10000000000000000000072 /* StorePageIconView.swift */,
 				F10000000000000000000073 /* StoreVibePreviewView.swift */,
+				F10000000000000000000078 /* MiniGamesScreen.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -375,6 +383,7 @@
 				F10000000000000000000040 /* SwimImportExport.swift */,
 				F10000000000000000000053 /* MascotPresentation.swift */,
 				F10000000000000000000064 /* ThemeTypography.swift */,
+				F10000000000000000000077 /* ChartMovingAverage.swift */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -593,6 +602,8 @@
 				B10000000000000000000064 /* ThemeTypography.swift in Sources */,
 				B10000000000000000000065 /* StoreIconPreview.swift in Sources */,
 				B10000000000000000000073 /* StoreVibePreviewView.swift in Sources */,
+				B10000000000000000000077 /* ChartMovingAverage.swift in Sources */,
+				B10000000000000000000078 /* MiniGamesScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -618,6 +629,7 @@
 				B20000000000000000000016 /* SwimBenchmarksTests.swift in Sources */,
 				B20000000000000000000017 /* SwimWheelTests.swift in Sources */,
 				B20000000000000000000018 /* SwimWheelSpinsTests.swift in Sources */,
+				B20000000000000000000019 /* ChartMovingAverageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,7 +1,7 @@
 import Foundation
 
 enum StorePageIcons {
-    static let pageKeys = ["progress", "upload", "history", "benchmark", "medals", "coins", "settings"]
+    static let pageKeys = ["progress", "upload", "mini-games", "history", "benchmark", "medals", "coins", "settings"]
 
     static func slug(for iconSetId: String) -> String? {
         AppIconService.storeImageName(for: iconSetId)
