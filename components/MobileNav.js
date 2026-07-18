@@ -9,15 +9,15 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
-  BarChart3, Upload, History, TrendingUp, Award,
+  BarChart3, History, TrendingUp, Award, Gamepad2,
 } from 'lucide-react';
 import { useLanguage } from '../context/UserPreferencesContext';
 import NavPageIcon from './NavPageIcon';
 
 const TABS = [
-  { path: '/progress', labelKey: 'navigation.progress', icon: BarChart3, pageKey: 'progress' },
+  { path: '/mini-games', labelKey: 'navigation.miniGames', icon: Gamepad2, pageKey: 'mini-games' },
   { path: '/medals', labelKey: 'navigation.medals', icon: Award, pageKey: 'medals' },
-  null, // center slot — upload FAB
+  null,
   { path: '/benchmark', labelKey: 'navigation.benchmark', icon: TrendingUp, pageKey: 'benchmark' },
   { path: '/history', labelKey: 'navigation.history', icon: History, pageKey: 'history' },
 ];
@@ -30,7 +30,6 @@ function useVisualViewportPin(ref) {
 
     const sync = () => {
       const inset = Math.max(0, window.innerHeight - vv.offsetTop - vv.height);
-      // Only lift for keyboard-sized insets — small values leave a gap at the screen bottom.
       el.style.transform = inset > 75 ? `translate3d(0, ${-inset}px, 0)` : '';
     };
 
@@ -72,7 +71,7 @@ export default function MobileNav() {
   useVisualViewportPin(navRef);
 
   const isActive = (path) => router.pathname === path;
-  const uploadActive = router.pathname === '/upload';
+  const progressActive = router.pathname === '/progress';
 
   const nav = (
     <nav ref={navRef} className="mobile-nav-bar glass-thick lg:hidden" aria-label={t('navigation.swimCoach')}>
@@ -80,19 +79,19 @@ export default function MobileNav() {
         {TABS.map((tab) => {
           if (tab === null) {
             return (
-              <div key="upload" className="mobile-nav-fab-wrap">
-                <Link href="/upload">
+              <div key="progress" className="mobile-nav-fab-wrap">
+                <Link href="/progress">
                   <button
                     type="button"
-                    aria-label={t('navigation.upload')}
-                    aria-current={uploadActive ? 'page' : undefined}
-                    className={`mobile-nav-fab ${uploadActive ? 'mobile-nav-fab-active' : ''}`}
+                    aria-label={t('navigation.progress')}
+                    aria-current={progressActive ? 'page' : undefined}
+                    className={`mobile-nav-fab ${progressActive ? 'mobile-nav-fab-active' : ''}`}
                   >
-                    <NavPageIcon icon={Upload} pageKey="upload" size={26} strokeWidth={2.5} />
+                    <NavPageIcon icon={BarChart3} pageKey="progress" size={26} strokeWidth={2.5} />
                   </button>
                 </Link>
-                <span className={`mobile-nav-fab-label ${uploadActive ? 'text-[#2A45CC] font-semibold' : 'text-ink-soft'}`}>
-                  {t('navigation.upload')}
+                <span className={`mobile-nav-fab-label ${progressActive ? 'text-[#2A45CC] font-semibold' : 'text-ink-soft'}`}>
+                  {t('navigation.progress')}
                 </span>
               </div>
             );

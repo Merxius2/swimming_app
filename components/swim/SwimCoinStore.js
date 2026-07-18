@@ -14,6 +14,7 @@ import {
   isThemeUnlocked,
   getDailyPaidSpinLimit,
   isConsumableStoreItem,
+  getConsumableItemPrice,
   CHALLENGE_REROLL_STORE_ITEM_ID,
   BONUS_WHEEL_SPIN_STORE_ITEM_ID,
 } from '../../lib/swimCoinStore';
@@ -172,7 +173,7 @@ function StoreItemPreview({ item, t, THEMES, bonusWheelSpinCredits }) {
   }
 }
 
-export default function SwimCoinStore() {
+export default function SwimCoinStore({ embedded = false }) {
   const { t } = useLanguage();
   const { changeTheme, THEMES } = useTheme();
   const { totalCoins, storeUnlocks, purchaseStoreItem, updateProfile, isLoading, cheats, challengeRerollCredits, bonusWheelSpinCredits } = useSwim();
@@ -188,7 +189,7 @@ export default function SwimCoinStore() {
   }, []);
 
   const handlePurchase = (item) => {
-    if (!canPurchaseStoreItem(item.id, storeUnlocks, totalCoins)) return;
+    if (!canPurchaseStoreItem(item.id, storeUnlocks, totalCoins, { bonusWheelSpinCredits })) return;
     if (!purchaseStoreItem(item.id)) return;
 
     if (item.themeCode) changeTheme(item.themeCode);
@@ -197,16 +198,20 @@ export default function SwimCoinStore() {
   };
 
   return (
-    <section className="coin-store mt-14 pt-10 border-t border-black/[0.06] dark:border-white/10">
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <ShoppingBag size={20} className="text-brand-primary" strokeWidth={2.25} />
-        <h2 className="text-xl font-bold text-ink dark:text-[#FAFAFA]">
-          {t('coins.store.title')}
-        </h2>
-      </div>
-      <p className="text-sm text-ink-soft text-center mb-10 max-w-lg mx-auto">
-        {t('coins.store.subtitle')}
-      </p>
+    <section className={`coin-store ${embedded ? '' : 'mt-14 pt-10 border-t border-black/[0.06] dark:border-white/10'}`}>
+      {!embedded && (
+        <>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <ShoppingBag size={20} className="text-brand-primary" strokeWidth={2.25} />
+            <h2 className="text-xl font-bold text-ink dark:text-[#FAFAFA]">
+              {t('coins.store.title')}
+            </h2>
+          </div>
+          <p className="text-sm text-ink-soft text-center mb-10 max-w-lg mx-auto">
+            {t('coins.store.subtitle')}
+          </p>
+        </>
+      )}
 
       <div className="max-w-3xl mx-auto space-y-10">
         {STORE_CATEGORIES.map((category) => {
@@ -233,10 +238,13 @@ export default function SwimCoinStore() {
                   const owned = !isConsumable && (item.themeCode
                     ? isThemeUnlocked(item.themeCode, storeUnlocks, allThemesUnlocked)
                     : isStoreItemOwned(item.id, storeUnlocks));
+                  const price = isConsumable
+                    ? getConsumableItemPrice(item.id, { bonusWheelSpinCredits })
+                    : item.price;
                   const canBuy = isConsumable
-                    ? (totalCoins ?? 0) >= item.price
-                    : canPurchaseStoreItem(item.id, storeUnlocks, totalCoins);
-                  const shortfall = Math.max(0, item.price - (totalCoins ?? 0));
+                    ? (totalCoins ?? 0) >= price
+                    : canPurchaseStoreItem(item.id, storeUnlocks, totalCoins, { bonusWheelSpinCredits });
+                  const shortfall = Math.max(0, price - (totalCoins ?? 0));
                   const ownedCount = item.id === CHALLENGE_REROLL_STORE_ITEM_ID
                     ? challengeRerollCredits
                     : item.id === BONUS_WHEEL_SPIN_STORE_ITEM_ID
@@ -277,7 +285,7 @@ export default function SwimCoinStore() {
                             {t('coins.store.owned')}
                           </span>
                         ) : (
-                          <CoinBadge amount={item.price} size="sm" />
+                          <CoinBadge amount={price} size="sm" />
                         )}
                         {!owned && (
                           <button

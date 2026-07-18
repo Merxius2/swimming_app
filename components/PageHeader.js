@@ -13,6 +13,7 @@ import { ThemedPageIcon } from './ThemedIcon';
 const EYEBROW = {
   'progress.title': 'Swim · 01',
   'upload.title': 'Swim · 02',
+  'miniGames.title': 'Swim · Games',
   'history.title': 'Swim · 03',
   'benchmark.title': 'Swim · 04',
   'settings.title': 'Setup',

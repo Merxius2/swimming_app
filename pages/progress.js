@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, MousePointerClick } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import { useLanguage } from '../context/UserPreferencesContext';
 import { useSwim } from '../context/SwimContext';
 import {
-  LineChart, Line, BarChart, Bar, AreaChart, Area,
+  LineChart, Line, BarChart, Bar, AreaChart, Area, ComposedChart,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import { useChartTheme } from '../hooks/useChartTheme';
@@ -30,6 +30,7 @@ import {
   getPaceChartDomain,
 } from '../lib/swimFormatters';
 import DonutChart from '../components/DonutChart';
+import { addMovingAverage } from '../lib/chartMovingAverage';
 import SessionFeedback from '../components/swim/SessionFeedback';
 import MascotCoach from '../components/mascot/MascotCoach';
 import { getMascotName, getMascotCoachedLevel, resolveMascotId } from '../lib/mascotConstants';
@@ -48,19 +49,38 @@ export default function ProgressPage() {
     rerollMonthlyChallenge,
   } = useSwim();
   const { tooltipStyle, tooltipLabelStyle, gridStyle, axisStyle } = useChartTheme();
+  const [chartsInteractive, setChartsInteractive] = useState(false);
 
-  const chartSessions = useMemo(
-    () => getChartSessions(sessions).map((s) => ({
-      ...s,
-      dateLabel: formatDateShort(s.date),
-    })),
-    [sessions]
-  );
+  const chartSessions = useMemo(() => {
+    const base = getChartSessions(sessions).map((session) => ({
+      ...session,
+      dateLabel: formatDateShort(session.date),
+    }));
+    return addMovingAverage(
+      addMovingAverage(
+        addMovingAverage(
+          addMovingAverage(base, 'paceSecPer100m', 3, 'paceMa'),
+          'distanceM',
+          3,
+          'distanceMa'
+        ),
+        'activeKcal',
+        3,
+        'activeKcalMa'
+      ),
+      'avgHeartRate',
+      3,
+      'avgHeartRateMa'
+    );
+  }, [sessions]);
   const paceDomain = useMemo(
     () => getPaceChartDomain(chartSessions.map((s) => s.paceSecPer100m)),
     [chartSessions]
   );
-  const weeklyData = useMemo(() => getWeeklyVolumeData(sessions), [sessions]);
+  const weeklyData = useMemo(
+    () => addMovingAverage(getWeeklyVolumeData(sessions), 'distanceM', 3, 'distanceMa'),
+    [sessions]
+  );
   const combined = useMemo(() => getCombinedStats(sessions), [sessions]);
   const statsSessionCount = useMemo(() => getStatsSessions(sessions).length, [sessions]);
   const records = useMemo(() => getPersonalRecords(sessions), [sessions]);
@@ -106,7 +126,7 @@ export default function ProgressPage() {
               <BarChart3 size={48} className="mx-auto text-brand mb-4" />
               <h2 className="text-2xl font-bold mb-2">{t('progress.emptyTitle')}</h2>
               <p className="text-ink-soft mb-6">{t('progress.emptyDesc')}</p>
-              <Link href="/upload">
+              <Link href="/settings">
                 <button type="button" className="px-6 py-3 rounded-full bg-brand text-white font-semibold">
                   {t('progress.emptyCta')}
                 </button>
@@ -243,89 +263,187 @@ export default function ProgressPage() {
           benchmarkLevel={feedback.benchmarkLevel}
         />
 
-        <div className="card p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+          <p className="text-xs font-bold uppercase tracking-wider text-ink-faint">
+            {t('progress.chartsSection')}
+          </p>
+          <button
+            type="button"
+            onClick={() => setChartsInteractive((value) => !value)}
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              chartsInteractive
+                ? 'bg-brand-primary text-white'
+                : 'bg-gray-100 text-ink-soft dark:bg-gray-800'
+            }`}
+            aria-pressed={chartsInteractive}
+          >
+            <MousePointerClick size={14} />
+            {chartsInteractive ? t('progress.chartsInteractiveOn') : t('progress.chartsInteractiveOff')}
+          </button>
+        </div>
+
+        <div
+          className="card p-6"
+          style={{ touchAction: chartsInteractive ? 'auto' : 'pan-y' }}
+        >
           <h3 className="font-bold mb-4">{t('progress.paceChart')}</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={chartSessions}>
-              <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
-              <XAxis dataKey="dateLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-              <YAxis
-                stroke={axisStyle.stroke}
-                tick={{ fill: axisStyle.fill, fontSize: 11 }}
-                tickFormatter={(v) => formatPace(v).replace('/100m', '')}
-                domain={paceDomain}
-                reversed
-                allowDataOverflow
-              />
-              <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} formatter={(v) => formatPace(v)} />
-              <Line
-                type="monotone"
-                dataKey="paceSecPer100m"
-                stroke="#14B8A6"
-                strokeWidth={2}
-                dot={{ r: 5, strokeWidth: 2, fill: '#14B8A6' }}
-                connectNulls
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="card p-6">
-            <h3 className="font-bold mb-4">{t('progress.distanceChart')}</h3>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={chartSessions}>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
-                <XAxis dataKey="dateLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-                <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} formatter={(v) => formatDistance(v)} />
-                <Bar dataKey="distanceM" fill="#3B82F6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="card p-6">
-            <h3 className="font-bold mb-4">{t('progress.caloriesChart')}</h3>
-            <ResponsiveContainer width="100%" height={240}>
-              <AreaChart data={chartSessions}>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
-                <XAxis dataKey="dateLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-                <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} />
-                <Legend />
-                <Area type="monotone" dataKey="activeKcal" name={t('progress.activeKcal')} stroke="#EF4444" fill="#EF4444" fillOpacity={0.3} />
-                <Area type="monotone" dataKey="totalKcal" name={t('progress.totalKcal')} stroke="#F97316" fill="#F97316" fillOpacity={0.2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="card p-6">
-            <h3 className="font-bold mb-4">{t('progress.heartRateChart')}</h3>
-            <ResponsiveContainer width="100%" height={240}>
+          <div style={{ pointerEvents: chartsInteractive ? 'auto' : 'none' }}>
+            <ResponsiveContainer width="100%" height={260}>
               <LineChart data={chartSessions}>
                 <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
                 <XAxis dataKey="dateLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-                <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} domain={['auto', 'auto']} />
-                <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} />
-                <Line type="monotone" dataKey="avgHeartRate" stroke="#F97316" strokeWidth={2} dot={{ r: 4 }} />
+                <YAxis
+                  stroke={axisStyle.stroke}
+                  tick={{ fill: axisStyle.fill, fontSize: 11 }}
+                  tickFormatter={(v) => formatPace(v).replace('/100m', '')}
+                  domain={paceDomain}
+                  reversed
+                  allowDataOverflow
+                />
+                <Tooltip
+                  active={chartsInteractive ? undefined : false}
+                  contentStyle={tooltipStyle}
+                  labelStyle={tooltipLabelStyle}
+                  formatter={(v) => formatPace(v)}
+                />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="paceSecPer100m"
+                  name={t('progress.actual')}
+                  stroke="#14B8A6"
+                  strokeWidth={2}
+                  dot={{ r: 5, strokeWidth: 2, fill: '#14B8A6' }}
+                  connectNulls
+                />
+                <Line
+                  type="monotone"
+                  dataKey="paceMa"
+                  name={t('progress.movingAverage')}
+                  stroke="#6366F1"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  dot={false}
+                  connectNulls
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="card p-6" style={{ touchAction: chartsInteractive ? 'auto' : 'pan-y' }}>
+            <h3 className="font-bold mb-4">{t('progress.distanceChart')}</h3>
+            <div style={{ pointerEvents: chartsInteractive ? 'auto' : 'none' }}>
+              <ResponsiveContainer width="100%" height={240}>
+                <ComposedChart data={chartSessions}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
+                  <XAxis dataKey="dateLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
+                  <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
+                  <Tooltip
+                    active={chartsInteractive ? undefined : false}
+                    contentStyle={tooltipStyle}
+                    labelStyle={tooltipLabelStyle}
+                    formatter={(v) => formatDistance(v)}
+                  />
+                  <Legend />
+                  <Bar dataKey="distanceM" name={t('progress.actual')} fill="#3B82F6" radius={[4, 4, 0, 0]} />
+                  <Line
+                    type="monotone"
+                    dataKey="distanceMa"
+                    name={t('progress.movingAverage')}
+                    stroke="#6366F1"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                    dot={false}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="card p-6" style={{ touchAction: chartsInteractive ? 'auto' : 'pan-y' }}>
+            <h3 className="font-bold mb-4">{t('progress.caloriesChart')}</h3>
+            <div style={{ pointerEvents: chartsInteractive ? 'auto' : 'none' }}>
+              <ResponsiveContainer width="100%" height={240}>
+                <ComposedChart data={chartSessions}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
+                  <XAxis dataKey="dateLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
+                  <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
+                  <Tooltip active={chartsInteractive ? undefined : false} contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} />
+                  <Legend />
+                  <Area type="monotone" dataKey="activeKcal" name={t('progress.activeKcal')} stroke="#EF4444" fill="#EF4444" fillOpacity={0.3} />
+                  <Area type="monotone" dataKey="totalKcal" name={t('progress.totalKcal')} stroke="#F97316" fill="#F97316" fillOpacity={0.2} />
+                  <Line
+                    type="monotone"
+                    dataKey="activeKcalMa"
+                    name={t('progress.movingAverage')}
+                    stroke="#6366F1"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                    dot={false}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="card p-6" style={{ touchAction: chartsInteractive ? 'auto' : 'pan-y' }}>
+            <h3 className="font-bold mb-4">{t('progress.heartRateChart')}</h3>
+            <div style={{ pointerEvents: chartsInteractive ? 'auto' : 'none' }}>
+              <ResponsiveContainer width="100%" height={240}>
+                <LineChart data={chartSessions}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
+                  <XAxis dataKey="dateLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
+                  <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} domain={['auto', 'auto']} />
+                  <Tooltip active={chartsInteractive ? undefined : false} contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} />
+                  <Legend />
+                  <Line type="monotone" dataKey="avgHeartRate" name={t('progress.actual')} stroke="#F97316" strokeWidth={2} dot={{ r: 4 }} />
+                  <Line
+                    type="monotone"
+                    dataKey="avgHeartRateMa"
+                    name={t('progress.movingAverage')}
+                    stroke="#6366F1"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                    dot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
           {weeklyData.length > 0 && (
-            <div className="card p-6">
+            <div className="card p-6" style={{ touchAction: chartsInteractive ? 'auto' : 'pan-y' }}>
               <h3 className="font-bold mb-4">{t('progress.weeklyVolume')}</h3>
-              <ResponsiveContainer width="100%" height={240}>
-                <BarChart data={weeklyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
-                  <XAxis dataKey="weekLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-                  <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
-                  <Tooltip contentStyle={tooltipStyle} labelStyle={tooltipLabelStyle} formatter={(v) => formatDistance(v)} />
-                  <Bar dataKey="distanceM" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <div style={{ pointerEvents: chartsInteractive ? 'auto' : 'none' }}>
+                <ResponsiveContainer width="100%" height={240}>
+                  <ComposedChart data={weeklyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridStyle.stroke} />
+                    <XAxis dataKey="weekLabel" stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
+                    <YAxis stroke={axisStyle.stroke} tick={{ fill: axisStyle.fill, fontSize: 11 }} />
+                    <Tooltip
+                      active={chartsInteractive ? undefined : false}
+                      contentStyle={tooltipStyle}
+                      labelStyle={tooltipLabelStyle}
+                      formatter={(v) => formatDistance(v)}
+                    />
+                    <Legend />
+                    <Bar dataKey="distanceM" name={t('progress.actual')} fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                    <Line
+                      type="monotone"
+                      dataKey="distanceMa"
+                      name={t('progress.movingAverage')}
+                      stroke="#6366F1"
+                      strokeWidth={2}
+                      strokeDasharray="6 4"
+                      dot={false}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
         </div>

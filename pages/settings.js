@@ -11,6 +11,7 @@ import DarkModeSettings from '../components/settings/DarkModeSettings';
 import ProfileSettings from '../components/settings/ProfileSettings';
 import AiSettings from '../components/settings/AiSettings';
 import ImportExportPanel from '../components/settings/ImportExportPanel';
+import UploadSettingsPanel from '../components/settings/UploadSettingsPanel';
 import ResetDataSection from '../components/settings/ResetDataSection';
 
 export default function SettingsPage() {
@@ -34,6 +35,7 @@ export default function SettingsPage() {
         <LanguageSettings />
         <ThemeSettings />
         <DarkModeSettings />
+        <UploadSettingsPanel />
         <ImportExportPanel />
         <ResetDataSection />
       </div>

@@ -5,7 +5,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import {
-  BarChart3, Upload, History, TrendingUp, Settings, Award,
+  BarChart3, History, TrendingUp, Settings, Award, Gamepad2,
 } from 'lucide-react';
 
 import { useLanguage } from '../context/UserPreferencesContext';
@@ -18,9 +18,9 @@ import NavPageIcon from './NavPageIcon';
 const NAV = [
   {
     titleKey: 'navigation.swimCoach',
-      items: [
-      { path: '/progress', labelKey: 'navigation.progress', icon: BarChart3, pageKey: 'progress' },
-      { path: '/upload', labelKey: 'navigation.upload', icon: Upload, pageKey: 'upload' },
+    items: [
+      { path: '/progress', labelKey: 'navigation.progress', icon: BarChart3, pageKey: 'progress', featured: true },
+      { path: '/mini-games', labelKey: 'navigation.miniGames', icon: Gamepad2, pageKey: 'mini-games' },
       { path: '/history', labelKey: 'navigation.history', icon: History, pageKey: 'history' },
       { path: '/benchmark', labelKey: 'navigation.benchmark', icon: TrendingUp, pageKey: 'benchmark' },
       { path: '/medals', labelKey: 'navigation.medals', icon: Award, pageKey: 'medals' },
@@ -38,8 +38,8 @@ export default function Sidebar() {
     evaluateAllMedals(sessions, { allMedalsUnlocked: cheats?.allMedalsUnlocked })
   );
 
-  const itemClass = (active, isUpload = false) => {
-    if (isUpload) {
+  const itemClass = (active, featured = false) => {
+    if (featured) {
       return [
         'sidebar-upload-btn flex items-center justify-center gap-2.5 px-3 py-2.5 rounded-lg text-[13.5px] font-semibold transition-all',
         active ? 'sidebar-upload-btn-active' : '',
@@ -78,17 +78,16 @@ export default function Sidebar() {
             <div className="space-y-0.5">
               {section.items.map((item) => {
                 const active = isActive(item.path);
-                const isUpload = item.path === '/upload';
                 const isMedals = item.path === '/medals';
                 return (
                   <Link key={item.path} href={item.path}>
-                    <div className={`${itemClass(active, isUpload)} ${isMedals ? 'justify-between' : ''}`}>
+                    <div className={`${itemClass(active, item.featured)} ${isMedals ? 'justify-between' : ''}`}>
                       <span className="flex items-center gap-2.5 min-w-0">
                         <NavPageIcon
                           icon={item.icon}
                           pageKey={item.pageKey}
-                          size={isUpload ? 18 : 17}
-                          strokeWidth={isUpload ? 2.5 : 2}
+                          size={item.featured ? 18 : 17}
+                          strokeWidth={item.featured ? 2.5 : 2}
                         />
                         <span>{t(item.labelKey)}</span>
                       </span>
