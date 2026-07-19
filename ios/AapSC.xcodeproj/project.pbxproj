@@ -49,6 +49,11 @@
 		B10000000000000000000041 /* AiCoachService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000041 /* AiCoachService.swift */; };
 		B10000000000000000000042 /* AmbientBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000042 /* AmbientBackgroundView.swift */; };
 		B10000000000000000000043 /* SecretSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000043 /* SecretSettingsSheet.swift */; };
+		B10000000000000000000044 /* en.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* en.json */; };
+		B10000000000000000000045 /* nl.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* nl.json */; };
+		B10000000000000000000046 /* ru.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ru.json */; };
+		B10000000000000000000047 /* tr.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000047 /* tr.json */; };
+		B10000000000000000000048 /* MascotCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* MascotCharacterView.swift */; };
 		B10000000000000000000049 /* CoinBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000049 /* CoinBadge.swift */; };
 		B10000000000000000000050 /* SwimTopBarActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000050 /* SwimTopBarActions.swift */; };
 		B10000000000000000000051 /* MascotStageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000051 /* MascotStageView.swift */; };
@@ -61,26 +66,23 @@
 		B10000000000000000000058 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000058 /* CustomTabBar.swift */; };
 		B10000000000000000000059 /* MascotChoiceCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000059 /* MascotChoiceCardView.swift */; };
 		B10000000000000000000060 /* SwimFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000060 /* SwimFeedback.swift */; };
-		B10000000000000000000070 /* FeedbackVariants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000070 /* FeedbackVariants.swift */; };
-		B10000000000000000000071 /* StorePageIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000071 /* StorePageIcons.swift */; };
-		B10000000000000000000072 /* StorePageIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000072 /* StorePageIconView.swift */; };
 		B10000000000000000000061 /* MedalIconGlyphs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000061 /* MedalIconGlyphs.swift */; };
 		B10000000000000000000062 /* ResetDataModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000062 /* ResetDataModal.swift */; };
 		B10000000000000000000063 /* AppIconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000063 /* AppIconService.swift */; };
 		B10000000000000000000064 /* ThemeTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000064 /* ThemeTypography.swift */; };
 		B10000000000000000000065 /* StoreIconPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000065 /* StoreIconPreview.swift */; };
-		B10000000000000000000073 /* StoreVibePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000073 /* StoreVibePreviewView.swift */; };
-		B10000000000000000000077 /* ChartMovingAverage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000077 /* ChartMovingAverage.swift */; };
-		B10000000000000000000078 /* MiniGamesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000078 /* MiniGamesScreen.swift */; };
 		B10000000000000000000066 /* Oxanium-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000066 /* Oxanium-Regular.ttf */; };
 		B10000000000000000000067 /* Oxanium-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000067 /* Oxanium-Medium.ttf */; };
 		B10000000000000000000068 /* Oxanium-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000068 /* Oxanium-SemiBold.ttf */; };
 		B10000000000000000000069 /* Oxanium-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000069 /* Oxanium-Bold.ttf */; };
-		B10000000000000000000044 /* en.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000044 /* en.json */; };
-		B10000000000000000000045 /* nl.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000045 /* nl.json */; };
-		B10000000000000000000046 /* ru.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000046 /* ru.json */; };
-		B10000000000000000000047 /* tr.json in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000047 /* tr.json */; };
-		B10000000000000000000048 /* MascotCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000048 /* MascotCharacterView.swift */; };
+		B10000000000000000000070 /* FeedbackVariants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000070 /* FeedbackVariants.swift */; };
+		B10000000000000000000071 /* StorePageIcons.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000071 /* StorePageIcons.swift */; };
+		B10000000000000000000072 /* StorePageIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000072 /* StorePageIconView.swift */; };
+		B10000000000000000000073 /* StoreVibePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000073 /* StoreVibePreviewView.swift */; };
+		B10000000000000000000074 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000074 /* HealthKitService.swift */; };
+		B10000000000000000000075 /* SwimNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000076 /* SwimNotifications.swift */; };
+		B10000000000000000000077 /* ChartMovingAverage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000077 /* ChartMovingAverage.swift */; };
+		B10000000000000000000078 /* MiniGamesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000078 /* MiniGamesScreen.swift */; };
 		B20000000000000000000001 /* TestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* TestFixtures.swift */; };
 		B20000000000000000000002 /* ScreenshotParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002 /* ScreenshotParserTests.swift */; };
 		B20000000000000000000003 /* SwimImportExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000003 /* SwimImportExportTests.swift */; };
@@ -99,11 +101,19 @@
 		B20000000000000000000016 /* SwimBenchmarksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000016 /* SwimBenchmarksTests.swift */; };
 		B20000000000000000000017 /* SwimWheelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000017 /* SwimWheelTests.swift */; };
 		B20000000000000000000018 /* SwimWheelSpinsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000018 /* SwimWheelSpinsTests.swift */; };
-		B20000000000000000000019 /* ChartMovingAverageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* ChartMovingAverageTests.swift */; };
-		B10000000000000000000074 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000074 /* HealthKitService.swift */; };
-		B10000000000000000000075 /* SwimNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000076 /* SwimNotifications.swift */; };
-		B20000000000000000000019 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* XCTest.framework */; };
+		B20000000000000000000019 /* XCTest.framework in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* XCTest.framework */; };
+		C5B5E60A300CCB2B0092F38E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* XCTest.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		X20000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = PR1000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = T10000000000000000000001;
+			remoteInfo = AapSC;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		F10000000000000000000001 /* AapSCApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AapSCApp.swift; sourceTree = "<group>"; };
@@ -149,6 +159,11 @@
 		F10000000000000000000041 /* AiCoachService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiCoachService.swift; sourceTree = "<group>"; };
 		F10000000000000000000042 /* AmbientBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmbientBackgroundView.swift; sourceTree = "<group>"; };
 		F10000000000000000000043 /* SecretSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretSettingsSheet.swift; sourceTree = "<group>"; };
+		F10000000000000000000044 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
+		F10000000000000000000045 /* nl.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nl.json; sourceTree = "<group>"; };
+		F10000000000000000000046 /* ru.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ru.json; sourceTree = "<group>"; };
+		F10000000000000000000047 /* tr.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tr.json; sourceTree = "<group>"; };
+		F10000000000000000000048 /* MascotCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotCharacterView.swift; sourceTree = "<group>"; };
 		F10000000000000000000049 /* CoinBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinBadge.swift; sourceTree = "<group>"; };
 		F10000000000000000000050 /* SwimTopBarActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimTopBarActions.swift; sourceTree = "<group>"; };
 		F10000000000000000000051 /* MascotStageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotStageView.swift; sourceTree = "<group>"; };
@@ -161,26 +176,24 @@
 		F10000000000000000000058 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 		F10000000000000000000059 /* MascotChoiceCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotChoiceCardView.swift; sourceTree = "<group>"; };
 		F10000000000000000000060 /* SwimFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimFeedback.swift; sourceTree = "<group>"; };
-		F10000000000000000000070 /* FeedbackVariants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackVariants.swift; sourceTree = "<group>"; };
-		F10000000000000000000071 /* StorePageIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePageIcons.swift; sourceTree = "<group>"; };
-		F10000000000000000000072 /* StorePageIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePageIconView.swift; sourceTree = "<group>"; };
 		F10000000000000000000061 /* MedalIconGlyphs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalIconGlyphs.swift; sourceTree = "<group>"; };
 		F10000000000000000000062 /* ResetDataModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetDataModal.swift; sourceTree = "<group>"; };
 		F10000000000000000000063 /* AppIconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconService.swift; sourceTree = "<group>"; };
 		F10000000000000000000064 /* ThemeTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTypography.swift; sourceTree = "<group>"; };
 		F10000000000000000000065 /* StoreIconPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreIconPreview.swift; sourceTree = "<group>"; };
-		F10000000000000000000073 /* StoreVibePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreVibePreviewView.swift; sourceTree = "<group>"; };
 		F10000000000000000000066 /* Oxanium-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Regular.ttf"; sourceTree = "<group>"; };
 		F10000000000000000000067 /* Oxanium-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Medium.ttf"; sourceTree = "<group>"; };
 		F10000000000000000000068 /* Oxanium-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-SemiBold.ttf"; sourceTree = "<group>"; };
 		F10000000000000000000069 /* Oxanium-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Bold.ttf"; sourceTree = "<group>"; };
-		F10000000000000000000044 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
-		F10000000000000000000045 /* nl.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = nl.json; sourceTree = "<group>"; };
-		F10000000000000000000046 /* ru.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ru.json; sourceTree = "<group>"; };
-		F10000000000000000000047 /* tr.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tr.json; sourceTree = "<group>"; };
-		F10000000000000000000048 /* MascotCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotCharacterView.swift; sourceTree = "<group>"; };
-		P10000000000000000000001 /* AapSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AapSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		P10000000000000000000002 /* AapSCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AapSCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F10000000000000000000070 /* FeedbackVariants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackVariants.swift; sourceTree = "<group>"; };
+		F10000000000000000000071 /* StorePageIcons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePageIcons.swift; sourceTree = "<group>"; };
+		F10000000000000000000072 /* StorePageIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePageIconView.swift; sourceTree = "<group>"; };
+		F10000000000000000000073 /* StoreVibePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreVibePreviewView.swift; sourceTree = "<group>"; };
+		F10000000000000000000074 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		F10000000000000000000075 /* AapSC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AapSC.entitlements; sourceTree = "<group>"; };
+		F10000000000000000000076 /* SwimNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimNotifications.swift; sourceTree = "<group>"; };
+		F10000000000000000000077 /* ChartMovingAverage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartMovingAverage.swift; sourceTree = "<group>"; };
+		F10000000000000000000078 /* MiniGamesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniGamesScreen.swift; sourceTree = "<group>"; };
 		F20000000000000000000001 /* TestFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFixtures.swift; sourceTree = "<group>"; };
 		F20000000000000000000002 /* ScreenshotParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotParserTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000003 /* SwimImportExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimImportExportTests.swift; sourceTree = "<group>"; };
@@ -199,13 +212,9 @@
 		F20000000000000000000016 /* SwimBenchmarksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimBenchmarksTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000017 /* SwimWheelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000018 /* SwimWheelSpinsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelSpinsTests.swift; sourceTree = "<group>"; };
-		F20000000000000000000019 /* ChartMovingAverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartMovingAverageTests.swift; sourceTree = "<group>"; };
-		F10000000000000000000074 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
-		F10000000000000000000076 /* SwimNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimNotifications.swift; sourceTree = "<group>"; };
-		F10000000000000000000077 /* ChartMovingAverage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartMovingAverage.swift; sourceTree = "<group>"; };
-		F10000000000000000000078 /* MiniGamesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniGamesScreen.swift; sourceTree = "<group>"; };
-		F10000000000000000000075 /* AapSC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AapSC.entitlements; sourceTree = "<group>"; };
 		F20000000000000000000019 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		P10000000000000000000001 /* AapSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AapSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		P10000000000000000000002 /* AapSCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AapSCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -220,7 +229,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B20000000000000000000019 /* XCTest.framework in Frameworks */,
+				C5B5E60A300CCB2B0092F38E /* XCTest.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,32 +269,6 @@
 				P10000000000000000000002 /* AapSCTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		G10000000000000000000012 /* AapSCTests */ = {
-			isa = PBXGroup;
-			children = (
-				F20000000000000000000001 /* TestFixtures.swift */,
-				F20000000000000000000002 /* ScreenshotParserTests.swift */,
-				F20000000000000000000003 /* SwimImportExportTests.swift */,
-				F20000000000000000000004 /* SwimRecordsTests.swift */,
-				F20000000000000000000005 /* SwimMedalsTests.swift */,
-				F20000000000000000000006 /* SwimDuplicatesTests.swift */,
-				F20000000000000000000007 /* SwimCoinStoreTests.swift */,
-				F20000000000000000000008 /* SwimCoinsTests.swift */,
-				F20000000000000000000009 /* SwimCoinClaimsTests.swift */,
-				F20000000000000000000010 /* SwimMonthlyChallengesTests.swift */,
-				F20000000000000000000011 /* SwimAnalysisTests.swift */,
-				F20000000000000000000012 /* SwimChallengeRerollStorageTests.swift */,
-				F20000000000000000000013 /* SwimStorageServiceTests.swift */,
-				F20000000000000000000014 /* MascotMoodTests.swift */,
-				F20000000000000000000015 /* MascotUnlockTests.swift */,
-				F20000000000000000000016 /* SwimBenchmarksTests.swift */,
-				F20000000000000000000017 /* SwimWheelTests.swift */,
-				F20000000000000000000018 /* SwimWheelSpinsTests.swift */,
-				F20000000000000000000019 /* ChartMovingAverageTests.swift */,
-			);
-			path = AapSCTests;
 			sourceTree = "<group>";
 		};
 		G10000000000000000000004 /* Models */ = {
@@ -398,6 +381,17 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		G10000000000000000000010 /* Localizations */ = {
+			isa = PBXGroup;
+			children = (
+				F10000000000000000000044 /* en.json */,
+				F10000000000000000000045 /* nl.json */,
+				F10000000000000000000046 /* ru.json */,
+				F10000000000000000000047 /* tr.json */,
+			);
+			path = Localizations;
+			sourceTree = "<group>";
+		};
 		G10000000000000000000011 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -409,15 +403,30 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
-		G10000000000000000000010 /* Localizations */ = {
+		G10000000000000000000012 /* AapSCTests */ = {
 			isa = PBXGroup;
 			children = (
-				F10000000000000000000044 /* en.json */,
-				F10000000000000000000045 /* nl.json */,
-				F10000000000000000000046 /* ru.json */,
-				F10000000000000000000047 /* tr.json */,
+				F20000000000000000000001 /* TestFixtures.swift */,
+				F20000000000000000000002 /* ScreenshotParserTests.swift */,
+				F20000000000000000000003 /* SwimImportExportTests.swift */,
+				F20000000000000000000004 /* SwimRecordsTests.swift */,
+				F20000000000000000000005 /* SwimMedalsTests.swift */,
+				F20000000000000000000006 /* SwimDuplicatesTests.swift */,
+				F20000000000000000000007 /* SwimCoinStoreTests.swift */,
+				F20000000000000000000008 /* SwimCoinsTests.swift */,
+				F20000000000000000000009 /* SwimCoinClaimsTests.swift */,
+				F20000000000000000000010 /* SwimMonthlyChallengesTests.swift */,
+				F20000000000000000000011 /* SwimAnalysisTests.swift */,
+				F20000000000000000000012 /* SwimChallengeRerollStorageTests.swift */,
+				F20000000000000000000013 /* SwimStorageServiceTests.swift */,
+				F20000000000000000000014 /* MascotMoodTests.swift */,
+				F20000000000000000000015 /* MascotUnlockTests.swift */,
+				F20000000000000000000016 /* SwimBenchmarksTests.swift */,
+				F20000000000000000000017 /* SwimWheelTests.swift */,
+				F20000000000000000000018 /* SwimWheelSpinsTests.swift */,
+				F20000000000000000000019 /* XCTest.framework */,
 			);
-			path = Localizations;
+			path = AapSCTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -459,31 +468,13 @@
 		};
 /* End PBXNativeTarget section */
 
-/* Begin PBXContainerItemProxy section */
-		X20000000000000000000001 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = PR1000000000000000000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = T10000000000000000000001;
-			remoteInfo = AapSC;
-		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXTargetDependency section */
-		D10000000000000000000001 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = T10000000000000000000001 /* AapSC */;
-			targetProxy = X20000000000000000000001 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXProject section */
 		PR1000000000000000000001 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					T10000000000000000000001 = {
 						CreatedOnToolsVersion = 15.4;
@@ -629,11 +620,19 @@
 				B20000000000000000000016 /* SwimBenchmarksTests.swift in Sources */,
 				B20000000000000000000017 /* SwimWheelTests.swift in Sources */,
 				B20000000000000000000018 /* SwimWheelSpinsTests.swift in Sources */,
-				B20000000000000000000019 /* ChartMovingAverageTests.swift in Sources */,
+				B20000000000000000000019 /* XCTest.framework in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D10000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = T10000000000000000000001 /* AapSC */;
+			targetProxy = X20000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		X10000000000000000000001 /* Debug */ = {
@@ -644,20 +643,48 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = LT8J5AAD2V;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -671,14 +698,42 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = LT8J5AAD2V;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -688,12 +743,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = AapSC/AapSC.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LT8J5AAD2V;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = AapSC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -717,12 +771,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = AapSC/AapSC.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LT8J5AAD2V;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = AapSC/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -748,7 +801,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LT8J5AAD2V;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0.0;
@@ -766,7 +818,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LT8J5AAD2V;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0.0;
