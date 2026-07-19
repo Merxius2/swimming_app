@@ -20,25 +20,18 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Aap-SC reads Apple Fitness swim screenshots from your photo library to log workouts.</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Aap-SC reads your swim workouts from Apple Health to add sessions automatically.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Aap-SC only reads your swim workouts and does not write any data to Apple Health.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Aap-SC reads Apple Fitness swim screenshots from your photo library to log workouts.</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Aap-SC sends reminders when monthly swim goals are still open near the end of the month.</string>
-	<key>UIApplicationSceneManifest</key>
-	<dict>
-		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
-	</dict>
-	<key>UILaunchScreen</key>
-	<dict/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Oxanium-Regular.ttf</string>
@@ -46,6 +39,13 @@
 		<string>Oxanium-SemiBold.ttf</string>
 		<string>Oxanium-Bold.ttf</string>
 	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
+	<key>UILaunchScreen</key>
+	<dict/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
