@@ -112,6 +112,7 @@ struct HealthKitImportResult: Equatable {
     var skippedCount: Int
     var totalFound: Int
     var hasMoreAvailable: Bool = false
+    var lastImportedSessionId: String?
 }
 
 struct CoinLineItem: Equatable {

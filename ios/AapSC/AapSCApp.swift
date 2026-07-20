@@ -20,6 +20,11 @@ private struct AppRootView: View {
     @Environment(\.colorScheme) private var systemColorScheme
     @Environment(\.scenePhase) private var scenePhase
 
+    @State private var showLaunchSessionFlow = false
+    @State private var launchFlowPhase: LaunchFlowPhase = .searching
+    @State private var launchFeedback: SessionFeedbackSummary?
+    @State private var isEnhancingLaunchFeedback = false
+
     private var appIsDark: Bool {
         preferences.isDarkModeActive(systemColorScheme: systemColorScheme)
     }
@@ -60,9 +65,27 @@ private struct AppRootView: View {
         .tint(preferences.themeColors.displayPrimary)
         .preferredColorScheme(preferences.colorScheme)
         .themedBodyFont()
+        .sheet(isPresented: $showLaunchSessionFlow) {
+            switch launchFlowPhase {
+            case .searching:
+                SearchingNewSessionsSheet()
+                    .environmentObject(preferences)
+                    .preferredColorScheme(preferences.colorScheme)
+            case .feedback:
+                if let launchFeedback {
+                    SessionFeedbackSheet(
+                        feedback: launchFeedback,
+                        isLoading: isEnhancingLaunchFeedback
+                    )
+                    .environmentObject(viewModel)
+                    .environmentObject(preferences)
+                    .preferredColorScheme(preferences.colorScheme)
+                }
+            }
+        }
         .task(priority: .utility) {
             try? await Task.sleep(for: .milliseconds(300))
-            await viewModel.syncHealthKitWorkoutsIfAuthorized()
+            await performLaunchSessionSearchIfNeeded()
             await viewModel.refreshLaunchNotifications()
         }
         .onAppear {
@@ -88,4 +111,42 @@ private struct AppRootView: View {
             ThemeTypography.applyUIKitAppearance(themeCode: themeCode)
         }
     }
+
+    @MainActor
+    private func performLaunchSessionSearchIfNeeded() async {
+        guard viewModel.shouldPerformLaunchSessionSearch() else { return }
+
+        launchFlowPhase = .searching
+        showLaunchSessionFlow = true
+        guard let importedSession = await viewModel.performLaunchSessionSearch() else {
+            showLaunchSessionFlow = false
+            return
+        }
+
+        var feedback = viewModel.buildSessionFeedback(
+            for: importedSession,
+            t: preferences.translations
+        )
+        launchFeedback = feedback
+        launchFlowPhase = .feedback
+
+        guard !viewModel.profile.aiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+
+        isEnhancingLaunchFeedback = true
+        defer { isEnhancingLaunchFeedback = false }
+
+        if let enhanced = await viewModel.enhanceSessionFeedback(feedback, for: importedSession) {
+            feedback = enhanced
+            if launchFlowPhase == .feedback {
+                launchFeedback = feedback
+            }
+        }
+    }
+}
+
+private enum LaunchFlowPhase {
+    case searching
+    case feedback
 }

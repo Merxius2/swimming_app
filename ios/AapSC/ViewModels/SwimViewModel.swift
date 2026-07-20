@@ -509,15 +509,18 @@ final class SwimViewModel: ObservableObject {
         }
     }
 
-    func syncHealthKitWorkoutsIfAuthorized() async {
-        guard !hasAttemptedHealthKitAutoSync else { return }
-        hasAttemptedHealthKitAutoSync = true
-        guard HealthKitService.isAvailable, HealthKitService.isAuthorizedForWorkouts else { return }
+    func shouldPerformLaunchSessionSearch() -> Bool {
+        guard !hasAttemptedHealthKitAutoSync else { return false }
+        guard HealthKitService.isAvailable, HealthKitService.isAuthorizedForWorkouts else { return false }
+        return !isWithinHealthKitAutoSyncThrottle()
+    }
 
-        if let lastSync = UserDefaults.standard.object(forKey: Self.healthKitAutoSyncAtKey) as? Date,
-           Date().timeIntervalSince(lastSync) < 3600 {
-            return
-        }
+    @discardableResult
+    func performLaunchSessionSearch() async -> SwimSession? {
+        guard !hasAttemptedHealthKitAutoSync else { return nil }
+        hasAttemptedHealthKitAutoSync = true
+        guard HealthKitService.isAvailable, HealthKitService.isAuthorizedForWorkouts else { return nil }
+        guard !isWithinHealthKitAutoSyncThrottle() else { return nil }
 
         await syncHealthKitWorkouts(
             requestAuthorizationIfNeeded: false,
@@ -526,6 +529,47 @@ final class SwimViewModel: ObservableObject {
             enrichHeartRate: false
         )
         UserDefaults.standard.set(Date(), forKey: Self.healthKitAutoSyncAtKey)
+        return lastImportedSession()
+    }
+
+    func buildSessionFeedback(for session: SwimSession, t: TranslationService) -> SessionFeedbackSummary {
+        SwimAnalysis.buildPersonalFeedback(
+            session: session,
+            allSessions: sessions,
+            profile: profile,
+            t: t,
+            monthlyChallengeRerolls: monthlyChallengeRerolls
+        )
+    }
+
+    func enhanceSessionFeedback(
+        _ feedback: SessionFeedbackSummary,
+        for session: SwimSession
+    ) async -> SessionFeedbackSummary? {
+        guard !profile.aiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        var updated = feedback
+        let language = currentLanguageCode()
+        do {
+            let ai = try await AiCoachService.fetchFeedback(
+                apiKey: profile.aiApiKey,
+                language: language,
+                profile: profile,
+                session: session,
+                sessions: sessions,
+                localFeedback: feedback,
+                mascotId: mascotId
+            )
+            updated.coachMessage = ai.coachMessage
+            updated.motivation = ai.motivation
+            updated.aiEnhanced = ai.aiEnhanced
+            return updated
+        } catch {
+            return nil
+        }
+    }
+
+    func syncHealthKitWorkoutsIfAuthorized() async {
+        _ = await performLaunchSessionSearch()
     }
 
     func refreshLaunchNotifications() async {
@@ -660,6 +704,7 @@ final class SwimViewModel: ObservableObject {
         var skippedCount = 0
         var runningSessions = sessions
         var coinDelta = 0
+        var importedSessions: [SwimSession] = []
 
         for workout in fetchResult.workouts {
             let candidate = SwimSession(
@@ -694,6 +739,7 @@ final class SwimViewModel: ObservableObject {
             )
             runningSessions.append(entry)
             runningSessions.sort { $0.date < $1.date }
+            importedSessions.append(entry)
             coinDelta += coinResult.sessionCoins + coinResult.medalCoins + coinResult.monthlyCoins
             importedCount += 1
 
@@ -711,13 +757,28 @@ final class SwimViewModel: ObservableObject {
 
         let hasMoreAvailable = fetchResult.workouts.count >= maxImports
             || fetchResult.queriedCount >= HealthKitService.queryLimit
+        let lastImportedSessionId = importedSessions.max(by: { $0.date < $1.date })?.id
 
         return HealthKitImportResult(
             importedCount: importedCount,
             skippedCount: skippedCount,
             totalFound: fetchResult.queriedCount,
-            hasMoreAvailable: hasMoreAvailable
+            hasMoreAvailable: hasMoreAvailable,
+            lastImportedSessionId: lastImportedSessionId
         )
+    }
+
+    private func lastImportedSession() -> SwimSession? {
+        guard let sessionId = lastHealthKitImportResult?.lastImportedSessionId else { return nil }
+        return sessions.first(where: { $0.id == sessionId })
+    }
+
+    private func isWithinHealthKitAutoSyncThrottle() -> Bool {
+        if let lastSync = UserDefaults.standard.object(forKey: Self.healthKitAutoSyncAtKey) as? Date,
+           Date().timeIntervalSince(lastSync) < 3600 {
+            return true
+        }
+        return false
     }
 
     private func healthKitLookbackDate(months: Int) -> Date {

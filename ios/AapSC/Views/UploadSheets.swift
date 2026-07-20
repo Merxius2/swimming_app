@@ -168,3 +168,49 @@ struct DuplicateSessionAlert: View {
         .padding()
     }
 }
+
+struct SearchingNewSessionsSheet: View {
+    @EnvironmentObject private var preferences: UserPreferencesService
+
+    var body: some View {
+        VStack(spacing: 20) {
+            ProgressView()
+                .controlSize(.large)
+            Text(preferences.t("launch.searchingNewSessions"))
+                .themeFont(.headline, weight: .semibold)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .presentationDetents([.medium])
+        .interactiveDismissDisabled()
+    }
+}
+
+struct SessionFeedbackSheet: View {
+    @EnvironmentObject private var viewModel: SwimViewModel
+    @EnvironmentObject private var preferences: UserPreferencesService
+    let feedback: SessionFeedbackSummary
+    var isLoading: Bool = false
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                SessionFeedbackCard(
+                    feedback: feedback,
+                    isLoading: isLoading
+                )
+                .padding()
+            }
+            .navigationTitle(preferences.t("feedback.title"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(preferences.t("coins.continue")) { dismiss() }
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+}
