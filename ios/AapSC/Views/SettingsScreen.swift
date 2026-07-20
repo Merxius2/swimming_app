@@ -5,11 +5,23 @@ struct SettingsScreen: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openUpload) private var openUpload
-    @Environment(\.themeColors) private var themeColors
+    @Environment(\.appIsDark) private var appIsDark
 
     var embedded: Bool = false
 
     @State private var showSecretSettings = false
+
+    private var profile: ThemeVisualProfile {
+        ThemeVisualProfiles.profile(
+            code: preferences.themeCode,
+            isDark: appIsDark
+        )
+    }
+
+    private var tabBarScrollInset: CGFloat {
+        guard embedded else { return 0 }
+        return TabBarLayout.totalHeight(for: profile.tabBar) + TabBarLayout.bottomPadding + 24
+    }
 
     var body: some View {
         NavigationStack {
@@ -22,6 +34,8 @@ struct SettingsScreen: View {
                 uploadSection
                 ambientSection
             }
+            .scrollContentBackground(.hidden)
+            .safeAreaPadding(.bottom, tabBarScrollInset)
             .navigationTitle(preferences.t("settings.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -87,7 +101,7 @@ struct SettingsScreen: View {
                         Spacer()
                         if preferences.themeCode == theme.code {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(themeColors.primary)
+                                .foregroundStyle(profile.displayPrimary)
                         }
                     }
                 }

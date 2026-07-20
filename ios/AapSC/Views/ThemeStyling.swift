@@ -853,28 +853,23 @@ struct ThemedCardModifier: ViewModifier {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .strokeBorder(Color.white.opacity(0.15), lineWidth: 1)
                 )
-        case .flat(let fill, let border, let borderWidth, let cornerRadius, let shadow, let shadowY, let glow):
+        case .flat(let fill, let border, let borderWidth, let cornerRadius, let shadow, let shadowY, _):
             content
-                .background(fill, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-                .overlay(
+                .background {
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .strokeBorder(border, lineWidth: borderWidth)
-                )
-                .shadow(color: shadow ?? .clear, radius: glow == nil ? 0 : 12, y: shadowY)
-                .shadow(color: glow ?? .clear, radius: glow == nil ? 0 : 18, y: 0)
-                .shadow(color: shadow ?? .clear, radius: 12, y: shadowY + 6)
+                        .fill(fill)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                                .strokeBorder(border, lineWidth: borderWidth)
+                        )
+                        .shadow(color: shadow ?? .clear, radius: 8, y: shadowY)
+                }
         case .inset(let fill, let border, let cornerRadius):
             content
                 .background(fill, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                         .strokeBorder(border, lineWidth: 1)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius - 1, style: .continuous)
-                        .strokeBorder(Color.black.opacity(0.1), lineWidth: 2)
-                        .padding(1)
-                        .blendMode(.multiply)
                 )
         }
     }

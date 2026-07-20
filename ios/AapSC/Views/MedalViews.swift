@@ -2,11 +2,18 @@ import SwiftUI
 
 struct MedalCardView: View {
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.themeColors) private var themeColors
+    @Environment(\.appIsDark) private var appIsDark
     let medal: EvaluatedMedal
     var shimmerPlus: Bool = false
 
     @State private var showTooltip = false
+
+    private var accentColor: Color {
+        ThemeVisualProfiles.profile(
+            code: preferences.themeCode,
+            isDark: appIsDark
+        ).displayPrimary
+    }
 
     private var showProgress: Bool {
         !medal.earned && medal.progress?.percent != nil
@@ -44,10 +51,10 @@ struct MedalCardView: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 Text("\(progress.percent)%")
                                     .themeFont(.caption2, weight: .semibold)
-                                    .foregroundStyle(themeColors.primary)
+                                    .foregroundStyle(accentColor)
                                     .fixedSize()
                             }
-                            MedalProgressBar(percent: progress.percent, tint: themeColors.primary)
+                            MedalProgressBar(percent: progress.percent, tint: accentColor)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .contentShape(Rectangle())
@@ -63,7 +70,7 @@ struct MedalCardView: View {
                             "date": SwimFormatters.formatDateLong(earnedAt)
                         ]))
                             .themeFont(.caption2, weight: .medium)
-                            .foregroundStyle(themeColors.primary)
+                            .foregroundStyle(accentColor)
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }

@@ -86,19 +86,19 @@ enum ThemeTypography {
 
     private static func postScriptName(for weight: Font.Weight) -> String {
         switch weight {
-        case .bold, .heavy, .black: return "OxaniumExtraLight-Bold"
-        case .semibold: return "OxaniumExtraLight-SemiBold"
-        case .medium: return "OxaniumExtraLight-Medium"
-        default: return "OxaniumExtraLight-Regular"
+        case .bold, .heavy, .black: return "Oxanium-Bold"
+        case .semibold: return "Oxanium-SemiBold"
+        case .medium: return "Oxanium-Medium"
+        default: return "Oxanium-Regular"
         }
     }
 
     private static func uiPostScriptName(for weight: UIFont.Weight) -> String {
         switch weight {
-        case .bold, .heavy, .black: return "OxaniumExtraLight-Bold"
-        case .semibold: return "OxaniumExtraLight-SemiBold"
-        case .medium: return "OxaniumExtraLight-Medium"
-        default: return "OxaniumExtraLight-Regular"
+        case .bold, .heavy, .black: return "Oxanium-Bold"
+        case .semibold: return "Oxanium-SemiBold"
+        case .medium: return "Oxanium-Medium"
+        default: return "Oxanium-Regular"
         }
     }
 }

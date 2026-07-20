@@ -16,6 +16,7 @@ final class UserPreferencesService: ObservableObject {
     let translations = TranslationService()
 
     var colorScheme: ColorScheme? {
+        if ThemeVisualProfiles.isAlwaysDark(themeCode) { return .dark }
         if isAutoDarkMode { return nil }
         return isDarkMode ? .dark : .light
     }
@@ -23,6 +24,7 @@ final class UserPreferencesService: ObservableObject {
     /// Resolves dark mode immediately from stored preferences, without waiting for SwiftUI's
     /// color scheme environment to catch up after `preferredColorScheme` changes.
     func isDarkModeActive(systemColorScheme: ColorScheme) -> Bool {
+        if ThemeVisualProfiles.isAlwaysDark(themeCode) { return true }
         if isAutoDarkMode {
             return systemColorScheme == .dark
         }

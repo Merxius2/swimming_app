@@ -56,8 +56,8 @@ enum AppThemes {
         theme(
             code: "olympic-pool",
             nameKey: "settings.themes.olympicPool.name",
-            primary: "#F8FAFC",
-            secondary: "#0066CC",
+            primary: "#0066CC",
+            secondary: "#004C99",
             accent: "#F5C518",
             previewStyle: "flat",
             previewFrom: "#F8FAFC",
@@ -67,8 +67,8 @@ enum AppThemes {
         theme(
             code: "midnight-lane",
             nameKey: "settings.themes.midnightLane.name",
-            primary: "#070B14",
-            secondary: "#22D3EE",
+            primary: "#22D3EE",
+            secondary: "#0891B2",
             accent: "#0891B2",
             previewStyle: "flat",
             previewFrom: "#070B14",
@@ -100,7 +100,7 @@ enum AppThemes {
         theme(
             code: "gold-luxe",
             nameKey: "settings.themes.goldLuxe.name",
-            primary: "#FFF8E7",
+            primary: "#B45309",
             secondary: "#F5D565",
             accent: "#B45309",
             previewStyle: "flat",
@@ -111,7 +111,7 @@ enum AppThemes {
         theme(
             code: "platinum-elite",
             nameKey: "settings.themes.platinumElite.name",
-            primary: "#F8FAFC",
+            primary: "#475569",
             secondary: "#CBD5E1",
             accent: "#64748B",
             previewStyle: "flat",

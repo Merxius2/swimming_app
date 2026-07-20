@@ -102,13 +102,6 @@ struct CustomTabBar: View {
 
             HStack(alignment: .bottom, spacing: 0) {
                 tabButton(
-                    title: settingsTitle,
-                    pageKey: "settings",
-                    icon: TabBarLayout.settingsIcon(for: profile.tabBar),
-                    tab: 2
-                )
-
-                tabButton(
                     title: medalsTitle,
                     pageKey: "medals",
                     icon: TabBarLayout.medalsIcon(for: profile.tabBar),
@@ -129,6 +122,13 @@ struct CustomTabBar: View {
                     pageKey: "history",
                     icon: TabBarLayout.historyIcon(for: profile.tabBar),
                     tab: 4
+                )
+
+                tabButton(
+                    title: settingsTitle,
+                    pageKey: "settings",
+                    icon: TabBarLayout.settingsIcon(for: profile.tabBar),
+                    tab: 2
                 )
             }
             .padding(.horizontal, TabBarLayout.horizontalPadding)

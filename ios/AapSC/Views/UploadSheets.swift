@@ -2,8 +2,16 @@ import SwiftUI
 
 struct MedalCelebrationSheet: View {
     @EnvironmentObject private var preferences: UserPreferencesService
+    @Environment(\.appIsDark) private var appIsDark
     let medals: [EvaluatedMedal]
     @Environment(\.dismiss) private var dismiss
+
+    private var profile: ThemeVisualProfile {
+        ThemeVisualProfiles.profile(
+            code: preferences.themeCode,
+            isDark: appIsDark
+        )
+    }
 
     private var titleKey: String {
         medals.count == 1 ? "medals.celebration.title" : "medals.celebration.titleMultiple"
@@ -29,11 +37,12 @@ struct MedalCelebrationSheet: View {
                     VStack(spacing: 20) {
                         Image(systemName: "medal.fill")
                             .font(.system(size: 56))
-                            .foregroundStyle(.yellow)
-                            .shadow(color: .yellow.opacity(0.35), radius: 12)
+                            .foregroundStyle(profile.displayAccent)
+                            .shadow(color: profile.displayAccent.opacity(0.35), radius: 12)
 
                         Text(preferences.t(titleKey))
                             .themeFont(.title2, weight: .bold)
+                            .foregroundStyle(.primary)
                             .multilineTextAlignment(.center)
 
                         Text(subtitle)
@@ -55,16 +64,17 @@ struct MedalCelebrationSheet: View {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(SwimMedalCopy.title(for: medal.id, t: preferences.translations))
                                             .themeFont(.subheadline, weight: .semibold)
+                                            .foregroundStyle(.primary)
                                         Text(medal.tier.capitalized)
                                             .themeFont(.caption, weight: .bold)
-                                            .foregroundStyle(.secondary)
+                                            .foregroundStyle(profile.displayAccent)
                                     }
 
                                     Spacer(minLength: 0)
                                 }
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 10)
-                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .themedCard()
                             }
                         }
                         .padding(.horizontal)
@@ -77,11 +87,13 @@ struct MedalCelebrationSheet: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(preferences.t("medals.celebration.continue")) { dismiss() }
+                        .foregroundStyle(profile.displayPrimary)
                 }
             }
+            .themedNavigationBar()
         }
         .presentationDetents([.medium, .large])
-        .presentationBackground(.ultraThinMaterial)
+        .themedPageBackground()
     }
 }
 
