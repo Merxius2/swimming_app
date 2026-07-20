@@ -18,13 +18,13 @@ open ios/AapSC.xcodeproj
 
 | Tab | Screen |
 |-----|--------|
-| Mini games | Wheel of Fortune, Coin Flip, Pace Pick, Lane Timer |
+| Settings | Profile, themes, background vibes, upload, import/export |
 | Medals | Medal gallery and monthly history |
 | **Progress (center FAB)** | Charts, challenges, records, coach feedback |
 | Benchmark | Age-group pace comparison |
 | History | Session list and detail |
 
-Upload is available from **Settings → Upload swim session**. Coins/store opens from the top bar on main screens.
+Upload is available from **Settings → Upload swim session**.
 
 ## What's included
 
@@ -34,13 +34,11 @@ Upload is available from **Settings → Upload swim session**. Coins/store opens
 | Chart interaction toggle (scroll-friendly by default) | ✅ |
 | Upload Apple Fitness screenshots (Vision OCR) | ✅ |
 | HealthKit swim import | ✅ |
-| Mini games page | ✅ |
-| Swim coin store (escalating bonus spin price) | ✅ |
-| Wheel of Fortune | ✅ |
 | Medals + monthly challenges | ✅ |
-| Themes (incl. Olympic Pool) + dark mode | ✅ |
+| All themes + background vibe overlays | ✅ |
+| Dark mode | ✅ |
 | i18n: en, nl, ru, tr | ✅ |
-| JSON import/export (v9) | ✅ |
+| JSON import/export (v10) | ✅ |
 | AI coach (optional OpenAI key) | ✅ |
 
 ## Architecture
