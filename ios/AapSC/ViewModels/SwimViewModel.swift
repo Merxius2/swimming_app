@@ -183,6 +183,9 @@ final class SwimViewModel: ObservableObject {
         if let ambient = next.profile.activeAmbient, !AmbientCatalog.isValid(ambient) {
             next.profile.activeAmbient = nil
         }
+        if let wallpaper = next.profile.activeWallpaper, !WallpaperCatalog.isValid(wallpaper) {
+            next.profile.activeWallpaper = nil
+        }
         data = next
         invalidateDerivedCaches()
         persist(immediate: true)

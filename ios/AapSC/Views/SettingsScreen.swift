@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct SettingsScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
@@ -6,6 +7,7 @@ struct SettingsScreen: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openUpload) private var openUpload
     @Environment(\.appIsDark) private var appIsDark
+    @Environment(\.ambientBackgroundVisible) private var ambientBackgroundVisible
 
     var embedded: Bool = false
 
@@ -23,6 +25,16 @@ struct SettingsScreen: View {
         return TabBarLayout.totalHeight(for: profile.tabBar) + TabBarLayout.bottomPadding + 24
     }
 
+    @ViewBuilder
+    private var formRowBackground: some View {
+        if ambientBackgroundVisible {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(.thinMaterial)
+        } else {
+            Color(UIColor.secondarySystemGroupedBackground)
+        }
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -30,6 +42,7 @@ struct SettingsScreen: View {
                 mascotSection
                 languageSection
                 themeSection
+                wallpaperSection
                 darkModeSection
                 uploadSection
                 ambientSection
@@ -59,13 +72,16 @@ struct SettingsScreen: View {
     private var profileSection: some View {
         Section(preferences.t("settings.profileTitle")) {
             TextField(preferences.t("settings.swimmerNamePlaceholder"), text: binding(\.name))
+                .listRowBackground(formRowBackground)
             Picker(preferences.t("settings.sex"), selection: binding(\.sex)) {
                 Text(preferences.t("settings.sexMale")).tag("male")
                 Text(preferences.t("settings.sexFemale")).tag("female")
             }
+            .listRowBackground(formRowBackground)
             Stepper(value: ageBinding, in: 10...99) {
                 Text(preferences.t("settings.age") + ": \(viewModel.profile.age)")
             }
+            .listRowBackground(formRowBackground)
         }
     }
 
@@ -85,6 +101,7 @@ struct SettingsScreen: View {
                     Text(preferences.translations.languageDisplayName(code)).tag(code)
                 }
             }
+            .listRowBackground(formRowBackground)
         }
     }
 
@@ -105,15 +122,64 @@ struct SettingsScreen: View {
                         }
                     }
                 }
+                .listRowBackground(formRowBackground)
             }
+        }
+    }
+
+    private var wallpaperSection: some View {
+        Section {
+            Text(preferences.t("settings.wallpaperDesc"))
+                .themeFont(.caption)
+                .foregroundStyle(.secondary)
+                .listRowBackground(Color.clear)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(alignment: .top, spacing: 12) {
+                    Button {
+                        viewModel.updateProfile { $0.activeWallpaper = nil }
+                    } label: {
+                        WallpaperPreviewTile(
+                            id: nil,
+                            title: preferences.t("settings.wallpaperDefault"),
+                            isSelected: viewModel.profile.activeWallpaper == nil,
+                            themeCode: preferences.themeCode,
+                            isDark: appIsDark
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    ForEach(WallpaperCatalog.allIds, id: \.self) { id in
+                        Button {
+                            viewModel.updateProfile { $0.activeWallpaper = id }
+                        } label: {
+                            WallpaperPreviewTile(
+                                id: id,
+                                title: preferences.t(WallpaperCatalog.nameKey(for: id)),
+                                isSelected: viewModel.profile.activeWallpaper == id,
+                                themeCode: preferences.themeCode,
+                                isDark: appIsDark
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16))
+            .listRowBackground(Color.clear)
+        } header: {
+            Text(preferences.t("settings.wallpaperTitle"))
         }
     }
 
     private var darkModeSection: some View {
         Section(preferences.t("settings.darkMode")) {
             Toggle(preferences.t("settings.autoDarkMode"), isOn: autoDarkBinding)
+                .listRowBackground(formRowBackground)
             if !preferences.isAutoDarkMode {
                 Toggle(preferences.t("settings.darkMode"), isOn: darkModeBinding)
+                    .listRowBackground(formRowBackground)
             }
         }
     }
@@ -123,6 +189,7 @@ struct SettingsScreen: View {
             Text(preferences.t("settings.uploadDesc"))
                 .themeFont(.caption)
                 .foregroundStyle(.secondary)
+                .listRowBackground(formRowBackground)
             Button(preferences.t("settings.uploadCta")) {
                 if embedded {
                     openUpload()
@@ -133,6 +200,7 @@ struct SettingsScreen: View {
                     }
                 }
             }
+            .listRowBackground(formRowBackground)
         }
     }
 
@@ -141,6 +209,7 @@ struct SettingsScreen: View {
             Text(preferences.t("settings.ambientDesc"))
                 .themeFont(.caption)
                 .foregroundStyle(.secondary)
+                .listRowBackground(formRowBackground)
 
             Picker(preferences.t("settings.activeAmbient"), selection: ambientBinding) {
                 Text(preferences.t("settings.ambientDefault")).tag(Optional<String>.none)
@@ -148,6 +217,7 @@ struct SettingsScreen: View {
                     Text(preferences.t(AmbientCatalog.nameKey(for: id))).tag(Optional(id))
                 }
             }
+            .listRowBackground(formRowBackground)
         }
     }
 

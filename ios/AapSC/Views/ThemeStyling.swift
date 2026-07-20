@@ -744,92 +744,27 @@ struct ThemedPageBackgroundView: View {
 
 struct ThemedPageBackgroundModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
+    @EnvironmentObject private var viewModel: SwimViewModel
     @Environment(\.appIsDark) private var appIsDark
     @Environment(\.ambientBackgroundVisible) private var ambientBackgroundVisible
 
-    private var profile: ThemeVisualProfile {
-        ThemeVisualProfiles.profile(
-            code: preferences.themeCode,
-            isDark: appIsDark
-        )
-    }
-
     func body(content: Content) -> some View {
         content
+            // Hide Form/List system fill so this SwiftUI backdrop (theme or wallpaper) shows through.
+            .scrollContentBackground(ambientBackgroundVisible ? .hidden : .automatic)
             .background {
-                ThemedPageBackgroundView(background: profile.pageBackground)
+                AppBackdropView(
+                    themeCode: preferences.themeCode,
+                    isDark: appIsDark,
+                    activeWallpaper: viewModel.profile.activeWallpaper,
+                    activeAmbient: viewModel.profile.activeAmbient
+                )
+                .id(
+                    "\(viewModel.profile.activeWallpaper ?? "none")|"
+                        + "\(viewModel.profile.activeAmbient ?? "none")|"
+                        + "\(preferences.themeCode)"
+                )
             }
-    }
-}
-
-/// Clears UIKit scroll/navigation backgrounds so store ambients show through (matches web `html.ambient-active`).
-private struct AmbientHierarchyBackgroundClearer: UIViewRepresentable {
-    let active: Bool
-
-    func makeUIView(context: Context) -> ClearerView {
-        ClearerView()
-    }
-
-    func updateUIView(_ uiView: ClearerView, context: Context) {
-        let activeChanged = uiView.active != active
-        uiView.active = active
-        if activeChanged {
-            uiView.didApply = false
-        }
-        uiView.applyIfNeeded()
-    }
-
-    final class ClearerView: UIView {
-        var active = false
-        var didApply = false
-
-        override func didMoveToWindow() {
-            super.didMoveToWindow()
-            if window == nil {
-                didApply = false
-                return
-            }
-            applyIfNeeded()
-        }
-
-        func applyIfNeeded() {
-            isUserInteractionEnabled = false
-            backgroundColor = .clear
-
-            guard active, window != nil, !didApply else { return }
-
-            var responder: UIResponder? = next
-            while let current = responder {
-                if let viewController = current as? UIViewController {
-                    viewController.view.backgroundColor = .clear
-                    viewController.view.isOpaque = false
-                    viewController.navigationController?.view.backgroundColor = .clear
-                    viewController.navigationController?.view.isOpaque = false
-                }
-                if let view = current as? UIView {
-                    clearAmbientBlockingBackground(on: view)
-                }
-                responder = current.next
-            }
-
-            var ancestor: UIView? = superview
-            var depth = 0
-            while let view = ancestor, depth < 18 {
-                clearAmbientBlockingBackground(on: view)
-                ancestor = view.superview
-                depth += 1
-            }
-
-            didApply = true
-        }
-
-        private func clearAmbientBlockingBackground(on view: UIView) {
-            let typeName = String(describing: type(of: view))
-            if view is UIScrollView || view is UITableView || typeName.contains("Hosting") {
-                view.backgroundColor = .clear
-                view.isOpaque = false
-            }
-        }
     }
 }
 

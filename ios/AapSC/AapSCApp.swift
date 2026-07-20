@@ -41,25 +41,23 @@ private struct AppRootView: View {
     }
 
     private var ambientBackgroundVisible: Bool {
-        AmbientBackgroundState.isVisible(activeAmbient: viewModel.profile.activeAmbient)
+        BackdropState.isCustomVisible(
+            activeWallpaper: viewModel.profile.activeWallpaper,
+            activeAmbient: viewModel.profile.activeAmbient
+        )
     }
 
     var body: some View {
-        ZStack {
-            ContentView()
-            AmbientOverlayView(activeAmbient: viewModel.profile.activeAmbient)
-                .id(viewModel.profile.activeAmbient ?? "none")
-            AmbientBubbleOverlayView(activeAmbient: viewModel.profile.activeAmbient)
-        }
-        .environment(\.t, preferences.translations)
-        .environment(\.themeColors, preferences.themeColors)
-        .environment(\.appIsDark, appIsDark)
-        .environment(\.ambientBackgroundVisible, ambientBackgroundVisible)
-        .environment(\.appAnimationsPaused, animationsPaused)
-        .environment(\.themeTypographyCode, preferences.themeCode)
-        .tint(preferences.themeColors.displayPrimary)
-        .preferredColorScheme(preferences.colorScheme)
-        .themedBodyFont()
+        ContentView()
+            .environment(\.t, preferences.translations)
+            .environment(\.themeColors, preferences.themeColors)
+            .environment(\.appIsDark, appIsDark)
+            .environment(\.ambientBackgroundVisible, ambientBackgroundVisible)
+            .environment(\.appAnimationsPaused, animationsPaused)
+            .environment(\.themeTypographyCode, preferences.themeCode)
+            .tint(preferences.themeColors.displayPrimary)
+            .preferredColorScheme(preferences.colorScheme)
+            .themedBodyFont()
         .sheet(isPresented: $showLaunchSessionFlow) {
             switch launchFlowPhase {
             case .searching:

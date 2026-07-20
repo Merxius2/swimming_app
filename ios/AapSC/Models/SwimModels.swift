@@ -162,6 +162,7 @@ struct SwimProfile: Codable, Equatable {
     var mascotSwitchMonthKey: String?
     var aiApiKey: String
     var activeAmbient: String?
+    var activeWallpaper: String?
 
     static let `default` = SwimProfile(
         name: "",
@@ -170,11 +171,12 @@ struct SwimProfile: Codable, Equatable {
         mascotId: nil,
         mascotSwitchMonthKey: nil,
         aiApiKey: "",
-        activeAmbient: nil
+        activeAmbient: nil,
+        activeWallpaper: nil
     )
 
     enum CodingKeys: String, CodingKey {
-        case name, sex, age, mascotId, mascotSwitchMonthKey, aiApiKey, activeAmbient, activeAppIcon
+        case name, sex, age, mascotId, mascotSwitchMonthKey, aiApiKey, activeAmbient, activeWallpaper, activeAppIcon
     }
 
     init(
@@ -184,7 +186,8 @@ struct SwimProfile: Codable, Equatable {
         mascotId: String?,
         mascotSwitchMonthKey: String?,
         aiApiKey: String,
-        activeAmbient: String?
+        activeAmbient: String?,
+        activeWallpaper: String? = nil
     ) {
         self.name = name
         self.sex = sex
@@ -193,6 +196,7 @@ struct SwimProfile: Codable, Equatable {
         self.mascotSwitchMonthKey = mascotSwitchMonthKey
         self.aiApiKey = aiApiKey
         self.activeAmbient = activeAmbient
+        self.activeWallpaper = activeWallpaper
     }
 
     init(from decoder: Decoder) throws {
@@ -204,6 +208,7 @@ struct SwimProfile: Codable, Equatable {
         mascotSwitchMonthKey = try container.decodeIfPresent(String.self, forKey: .mascotSwitchMonthKey)
         aiApiKey = try container.decodeIfPresent(String.self, forKey: .aiApiKey) ?? ""
         activeAmbient = try container.decodeIfPresent(String.self, forKey: .activeAmbient)
+        activeWallpaper = try container.decodeIfPresent(String.self, forKey: .activeWallpaper)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -215,6 +220,7 @@ struct SwimProfile: Codable, Equatable {
         try container.encodeIfPresent(mascotSwitchMonthKey, forKey: .mascotSwitchMonthKey)
         try container.encode(aiApiKey, forKey: .aiApiKey)
         try container.encodeIfPresent(activeAmbient, forKey: .activeAmbient)
+        try container.encodeIfPresent(activeWallpaper, forKey: .activeWallpaper)
     }
 }
 

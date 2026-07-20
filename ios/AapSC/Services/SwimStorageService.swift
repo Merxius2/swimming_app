@@ -41,6 +41,7 @@ enum SwimStorageService {
         var next = data
         next.sessions = next.sessions.sorted { $0.date < $1.date }
         next.profile.activeAmbient = sanitizeAmbient(next.profile.activeAmbient)
+        next.profile.activeWallpaper = sanitizeWallpaper(next.profile.activeWallpaper)
         next.monthlyChallengeRerolls = SwimMonthlyChallenges.normalizeMonthlyChallengeRerolls(
             next.monthlyChallengeRerolls
         )
@@ -50,5 +51,10 @@ enum SwimStorageService {
     private static func sanitizeAmbient(_ activeAmbient: String?) -> String? {
         guard let activeAmbient, AmbientCatalog.isValid(activeAmbient) else { return nil }
         return activeAmbient
+    }
+
+    private static func sanitizeWallpaper(_ activeWallpaper: String?) -> String? {
+        guard let activeWallpaper, WallpaperCatalog.isValid(activeWallpaper) else { return nil }
+        return activeWallpaper
     }
 }

@@ -39,7 +39,7 @@ struct AmbientOverlayView: View {
         Group {
             if let preset = resolvedPreset {
                 AmbientPresetRenderer(preset: preset)
-                    .opacity(0.55)
+                    .opacity(0.72)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -455,5 +455,321 @@ private extension Color {
         let g = Double((int >> 8) & 0xFF) / 255
         let b = Double(int & 0xFF) / 255
         self.init(red: r, green: g, blue: b)
+    }
+}
+
+enum WallpaperCatalog {
+    static let allIds = [
+        "wallpaper:lane-pool",
+        "wallpaper:dawn-water",
+        "wallpaper:deep-lane",
+        "wallpaper:tile-deck",
+        "wallpaper:open-water",
+        "wallpaper:chlorine-glow",
+    ]
+
+    static func isValid(_ id: String?) -> Bool {
+        guard let id else { return false }
+        return allIds.contains(id)
+    }
+
+    static func nameKey(for id: String) -> String {
+        switch id {
+        case "wallpaper:lane-pool": return "settings.wallpapers.lanePool"
+        case "wallpaper:dawn-water": return "settings.wallpapers.dawnWater"
+        case "wallpaper:deep-lane": return "settings.wallpapers.deepLane"
+        case "wallpaper:tile-deck": return "settings.wallpapers.tileDeck"
+        case "wallpaper:open-water": return "settings.wallpapers.openWater"
+        case "wallpaper:chlorine-glow": return "settings.wallpapers.chlorineGlow"
+        default: return id
+        }
+    }
+}
+
+/// True when a custom wallpaper and/or vibe should show under UI chrome.
+enum BackdropState {
+    static func isCustomVisible(activeWallpaper: String?, activeAmbient: String?) -> Bool {
+        WallpaperCatalog.isValid(activeWallpaper) || AmbientCatalog.isValid(activeAmbient)
+    }
+}
+
+struct AppBackdropView: View {
+    let themeCode: String
+    let isDark: Bool
+    let activeWallpaper: String?
+    let activeAmbient: String?
+
+    private var themePageBackground: ThemePageBackground {
+        ThemeVisualProfiles.profile(code: themeCode, isDark: isDark).pageBackground
+    }
+
+    var body: some View {
+        ZStack {
+            if let wallpaperId = activeWallpaper, WallpaperCatalog.isValid(wallpaperId) {
+                WallpaperCanvasView(id: wallpaperId)
+            } else {
+                ThemedPageBackgroundView(background: themePageBackground)
+            }
+
+            if AmbientCatalog.isValid(activeAmbient) {
+                AmbientOverlayView(activeAmbient: activeAmbient)
+                    .id(activeAmbient ?? "none")
+                AmbientBubbleOverlayView(activeAmbient: activeAmbient)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}
+
+struct WallpaperCanvasView: View {
+    let id: String
+
+    var body: some View {
+        GeometryReader { proxy in
+            let size = proxy.size
+            switch id {
+            case "wallpaper:lane-pool":
+                lanePool(size: size)
+            case "wallpaper:dawn-water":
+                dawnWater(size: size)
+            case "wallpaper:deep-lane":
+                deepLane(size: size)
+            case "wallpaper:tile-deck":
+                tileDeck(size: size)
+            case "wallpaper:open-water":
+                openWater(size: size)
+            case "wallpaper:chlorine-glow":
+                chlorineGlow(size: size)
+            default:
+                Color(.systemGroupedBackground)
+            }
+        }
+        .ignoresSafeArea()
+    }
+
+    private func lanePool(size: CGSize) -> some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.72, green: 0.88, blue: 0.98),
+                    Color(red: 0.20, green: 0.55, blue: 0.82),
+                    Color(red: 0.05, green: 0.32, blue: 0.58),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            ForEach(0..<6, id: \.self) { index in
+                let x = size.width * (0.12 + CGFloat(index) * 0.15)
+                Rectangle()
+                    .fill(Color.white.opacity(0.18))
+                    .frame(width: 3)
+                    .position(x: x, y: size.height * 0.58)
+                    .frame(height: size.height * 0.7)
+            }
+            Ellipse()
+                .fill(Color.white.opacity(0.12))
+                .frame(width: size.width * 1.1, height: size.height * 0.18)
+                .position(x: size.width * 0.5, y: size.height * 0.22)
+        }
+    }
+
+    private func dawnWater(size: CGSize) -> some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 1.0, green: 0.78, blue: 0.55),
+                    Color(red: 0.98, green: 0.62, blue: 0.48),
+                    Color(red: 0.35, green: 0.55, blue: 0.72),
+                    Color(red: 0.12, green: 0.28, blue: 0.45),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            Circle()
+                .fill(Color(red: 1.0, green: 0.92, blue: 0.75).opacity(0.55))
+                .frame(width: size.width * 0.42, height: size.width * 0.42)
+                .blur(radius: 30)
+                .position(x: size.width * 0.72, y: size.height * 0.18)
+            waveBands(size: size, color: Color.white.opacity(0.14), count: 4, startY: 0.55)
+        }
+    }
+
+    private func deepLane(size: CGSize) -> some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.05, green: 0.10, blue: 0.22),
+                    Color(red: 0.04, green: 0.18, blue: 0.36),
+                    Color(red: 0.02, green: 0.08, blue: 0.16),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            ForEach(0..<3, id: \.self) { index in
+                Capsule()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.35, green: 0.75, blue: 0.95).opacity(0.0),
+                                Color(red: 0.35, green: 0.75, blue: 0.95).opacity(0.22),
+                                Color(red: 0.35, green: 0.75, blue: 0.95).opacity(0.0),
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(width: size.width * 0.18, height: size.height * 0.9)
+                    .rotationEffect(.degrees(-8 + Double(index) * 8))
+                    .position(x: size.width * (0.28 + CGFloat(index) * 0.22), y: size.height * 0.45)
+                    .blur(radius: 18)
+            }
+        }
+    }
+
+    private func tileDeck(size: CGSize) -> some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.86, green: 0.93, blue: 0.96),
+                    Color(red: 0.62, green: 0.82, blue: 0.88),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            Canvas { context, canvasSize in
+                let step: CGFloat = 36
+                var path = Path()
+                var x: CGFloat = 0
+                while x <= canvasSize.width {
+                    path.move(to: CGPoint(x: x, y: 0))
+                    path.addLine(to: CGPoint(x: x, y: canvasSize.height))
+                    x += step
+                }
+                var y: CGFloat = 0
+                while y <= canvasSize.height {
+                    path.move(to: CGPoint(x: 0, y: y))
+                    path.addLine(to: CGPoint(x: canvasSize.width, y: y))
+                    y += step
+                }
+                context.stroke(path, with: .color(Color.white.opacity(0.35)), lineWidth: 1)
+            }
+            .opacity(0.7)
+            Ellipse()
+                .fill(Color(red: 0.25, green: 0.62, blue: 0.78).opacity(0.18))
+                .frame(width: size.width * 0.9, height: size.height * 0.35)
+                .position(x: size.width * 0.5, y: size.height * 0.72)
+                .blur(radius: 24)
+        }
+    }
+
+    private func openWater(size: CGSize) -> some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.78, green: 0.90, blue: 0.92),
+                    Color(red: 0.35, green: 0.62, blue: 0.68),
+                    Color(red: 0.12, green: 0.38, blue: 0.42),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            waveBands(size: size, color: Color.white.opacity(0.16), count: 5, startY: 0.42)
+            Circle()
+                .fill(Color.white.opacity(0.2))
+                .frame(width: size.width * 0.5, height: size.width * 0.5)
+                .blur(radius: 40)
+                .position(x: size.width * 0.2, y: size.height * 0.15)
+        }
+    }
+
+    private func chlorineGlow(size: CGSize) -> some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color(red: 0.55, green: 0.92, blue: 0.95),
+                    Color(red: 0.15, green: 0.72, blue: 0.82),
+                    Color(red: 0.05, green: 0.42, blue: 0.58),
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            Circle()
+                .fill(Color.white.opacity(0.35))
+                .frame(width: size.width * 0.55, height: size.width * 0.55)
+                .blur(radius: 36)
+                .position(x: size.width * 0.75, y: size.height * 0.2)
+            Circle()
+                .fill(Color(red: 0.2, green: 0.9, blue: 0.85).opacity(0.25))
+                .frame(width: size.width * 0.7, height: size.width * 0.7)
+                .blur(radius: 50)
+                .position(x: size.width * 0.2, y: size.height * 0.75)
+        }
+    }
+
+    private func waveBands(size: CGSize, color: Color, count: Int, startY: CGFloat) -> some View {
+        ForEach(0..<count, id: \.self) { index in
+            let y = size.height * (startY + CGFloat(index) * 0.08)
+            WaveShape(amplitude: 10 + CGFloat(index) * 2, frequency: 1.4)
+                .stroke(color, lineWidth: 2)
+                .frame(height: 28)
+                .offset(y: y - size.height * 0.5)
+        }
+    }
+}
+
+private struct WaveShape: Shape {
+    var amplitude: CGFloat
+    var frequency: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let midY = rect.midY
+        path.move(to: CGPoint(x: 0, y: midY))
+        let steps = 40
+        for step in 0...steps {
+            let x = rect.width * CGFloat(step) / CGFloat(steps)
+            let y = midY + sin(CGFloat(step) / CGFloat(steps) * .pi * 2 * frequency) * amplitude
+            path.addLine(to: CGPoint(x: x, y: y))
+        }
+        return path
+    }
+}
+
+/// Compact preview tile used in Settings.
+struct WallpaperPreviewTile: View {
+    let id: String?
+    let title: String
+    let isSelected: Bool
+    let themeCode: String
+    let isDark: Bool
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                if let id {
+                    WallpaperCanvasView(id: id)
+                } else {
+                    ThemedPageBackgroundView(
+                        background: ThemeVisualProfiles.profile(code: themeCode, isDark: isDark).pageBackground
+                    )
+                }
+            }
+            .frame(width: 92, height: 120)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .strokeBorder(isSelected ? Color.accentColor : Color.primary.opacity(0.12), lineWidth: isSelected ? 2.5 : 1)
+            }
+
+            Text(title)
+                .themeFont(.caption2, weight: isSelected ? .semibold : .regular)
+                .foregroundStyle(isSelected ? .primary : .secondary)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+                .frame(width: 92)
+        }
     }
 }
