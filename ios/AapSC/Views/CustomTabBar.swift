@@ -102,6 +102,13 @@ struct CustomTabBar: View {
 
             HStack(alignment: .bottom, spacing: 0) {
                 tabButton(
+                    title: benchmarkTitle,
+                    pageKey: "benchmark",
+                    icon: TabBarLayout.benchmarkIcon(for: profile.tabBar),
+                    tab: 3
+                )
+
+                tabButton(
                     title: medalsTitle,
                     pageKey: "medals",
                     icon: TabBarLayout.medalsIcon(for: profile.tabBar),
@@ -109,13 +116,6 @@ struct CustomTabBar: View {
                 )
 
                 centerColumn()
-
-                tabButton(
-                    title: benchmarkTitle,
-                    pageKey: "benchmark",
-                    icon: TabBarLayout.benchmarkIcon(for: profile.tabBar),
-                    tab: 3
-                )
 
                 tabButton(
                     title: historyTitle,
