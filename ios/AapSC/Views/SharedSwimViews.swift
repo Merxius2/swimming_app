@@ -309,7 +309,6 @@ private struct FlowLayout: Layout {
 struct MonthlyChallengesCardView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.openCoins) private var openCoins
 
     private let tierSteps = ["bronze", "silver", "gold"]
 
@@ -318,16 +317,9 @@ struct MonthlyChallengesCardView: View {
         let monthKey = state.monthKey
         let gameplay = MascotConstants.gameplay(viewModel.mascotId)
         let currentTierIndex = state.tier.flatMap { tierSteps.firstIndex(of: $0) } ?? -1
-        let nextTier = currentTierIndex >= 0 && currentTierIndex < tierSteps.count - 1
-            ? tierSteps[currentTierIndex + 1]
-            : nil
-        let nextUpgradeCoins = nextTier.map {
-            SwimCoins.monthlyTierCoinDelta(fromTier: state.tier, toTier: $0)
-        } ?? 0
         let rerollAvailable = SwimMonthlyChallenges.hasRerollAvailability(
             monthKey: monthKey,
             rerolls: viewModel.monthlyChallengeRerolls,
-            credits: viewModel.challengeRerollCredits,
             freeLimit: gameplay.freeMonthlyRerolls
         )
 
@@ -342,7 +334,6 @@ struct MonthlyChallengesCardView: View {
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
                                 .background(tierColor(tier).opacity(0.2), in: Capsule())
-                            CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
                         }
                         HStack(spacing: 6) {
                             ForEach(Array(tierSteps.enumerated()), id: \.offset) { index, tier in
@@ -374,74 +365,41 @@ struct MonthlyChallengesCardView: View {
                     )
                 }
 
-                if viewModel.challengeRerollCredits > 0 {
-                    Text(preferences.t("monthlyChallenges.rerollCredits", params: [
-                        "count": String(viewModel.challengeRerollCredits)
-                    ]))
+                if !rerollAvailable {
+                    Text(preferences.t("monthlyChallenges.rerollUsed"))
                         .themeFont(.caption2)
                         .foregroundStyle(.secondary)
                 }
 
-                if !rerollAvailable {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(preferences.t("monthlyChallenges.rerollUsed"))
-                            .themeFont(.caption2)
-                            .foregroundStyle(.secondary)
-                        Button(preferences.t("monthlyChallenges.rerollBuyHint")) {
-                            openCoins()
-                        }
-                        .themeFont(.caption2)
-                        .foregroundStyle(Color("BrandBlue"))
-                    }
-                }
-
                 Divider()
-
-                Text(preferences.t("coins.monthlyRewards"))
-                    .themeFont(.caption2, weight: .semibold)
-                    .foregroundStyle(.secondary)
-                    .textCase(.uppercase)
 
                 HStack(spacing: 8) {
                     ForEach(Array(tierSteps.enumerated()), id: \.offset) { index, tier in
                         let earned = currentTierIndex >= index
                         let isCurrent = state.tier == tier
-                        VStack(spacing: 4) {
-                            Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
-                                .themeFont(.caption2, weight: .medium)
-                            CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(
-                            isCurrent
-                                ? Color("BrandBlue").opacity(0.12)
-                                : earned
-                                    ? Color.green.opacity(0.12)
-                                    : Color(.secondarySystemBackground),
-                            in: RoundedRectangle(cornerRadius: 8)
-                        )
+                        Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
+                            .themeFont(.caption2, weight: .medium)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .background(
+                                isCurrent
+                                    ? Color("BrandBlue").opacity(0.12)
+                                    : earned
+                                        ? Color.green.opacity(0.12)
+                                        : Color(.secondarySystemBackground),
+                                in: RoundedRectangle(cornerRadius: 8)
+                            )
                     }
-                }
-
-                if let nextTier, nextUpgradeCoins > 0 {
-                    Text(preferences.t("coins.monthlyNextUpgrade", params: [
-                        "tier": SwimMonthlyChallengeFormatters.tierLabel(nextTier, t: preferences.translations),
-                        "amount": String(nextUpgradeCoins)
-                    ]))
-                        .themeFont(.caption2)
-                        .foregroundStyle(.secondary)
                 }
 
                 Text(preferences.t("monthlyChallenges.tierHint"))
                     .themeFont(.caption2)
                     .foregroundStyle(.secondary)
 
-                if let requiredTier = gameplay.requiredMonthlyTier, gameplay.monthlyPenaltyCoins > 0 {
+                if let requiredTier = gameplay.requiredMonthlyTier {
                     Text(preferences.t("monthlyChallenges.coachRequirement", params: [
                         "name": MascotConstants.displayName(viewModel.mascotId, t: preferences.translations),
-                        "tier": SwimMonthlyChallengeFormatters.tierLabel(requiredTier, t: preferences.translations),
-                        "amount": String(gameplay.monthlyPenaltyCoins)
+                        "tier": SwimMonthlyChallengeFormatters.tierLabel(requiredTier, t: preferences.translations)
                     ]))
                         .themeFont(.caption2)
                         .foregroundStyle(.red.opacity(0.85))
@@ -465,7 +423,6 @@ struct MonthlyChallengesCardView: View {
             monthKey: monthKey,
             tierIndex: index,
             rerolls: viewModel.monthlyChallengeRerolls,
-            credits: viewModel.challengeRerollCredits,
             intensity: gameplay.challengeIntensity,
             freeLimit: gameplay.freeMonthlyRerolls
         )

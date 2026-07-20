@@ -1,29 +1,45 @@
 import SwiftUI
 
-enum AmbientBackgroundState {
-    static func isVisible(themeCode: String, activeAmbient: String?, storeUnlocks: [String]) -> Bool {
-        if let activeAmbient,
-           SwimCoinStore.isStoreItemOwned(activeAmbient, storeUnlocks: storeUnlocks),
-           StoreAmbients.preset(for: activeAmbient) != nil {
-            return true
+enum AmbientCatalog {
+    static let allIds = [
+        "ambient:neon-lagoon",
+        "ambient:sunset-lap",
+        "ambient:bubble-trail",
+        "ambient:aurora-lap",
+        "ambient:deep-current",
+    ]
+
+    static func isValid(_ id: String?) -> Bool {
+        guard let id else { return false }
+        return allIds.contains(id)
+    }
+
+    static func nameKey(for id: String) -> String {
+        switch id {
+        case "ambient:neon-lagoon": return "settings.ambients.neonLagoon"
+        case "ambient:sunset-lap": return "settings.ambients.sunsetLap"
+        case "ambient:bubble-trail": return "settings.ambients.bubbleTrail"
+        case "ambient:aurora-lap": return "settings.ambients.auroraLap"
+        case "ambient:deep-current": return "settings.ambients.deepCurrent"
+        default: return id
         }
-        return themeCode == "liquid-os"
     }
 }
 
-struct AmbientBackgroundView: View {
-    let themeCode: String
+enum AmbientBackgroundState {
+    static func isVisible(activeAmbient: String?) -> Bool {
+        AmbientCatalog.isValid(activeAmbient)
+    }
+}
+
+struct AmbientOverlayView: View {
     let activeAmbient: String?
-    let storeUnlocks: [String]
-    let isDark: Bool
 
     var body: some View {
         Group {
             if let preset = resolvedPreset {
-                ZStack {
-                    baseLayer(for: preset)
-                    AmbientPresetRenderer(preset: preset)
-                }
+                AmbientPresetRenderer(preset: preset)
+                    .opacity(0.55)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -31,34 +47,13 @@ struct AmbientBackgroundView: View {
         .allowsHitTesting(false)
     }
 
-    @ViewBuilder
-    private func baseLayer(for preset: AmbientPreset) -> some View {
-        if preset.gradient != nil {
-            Color.clear
-        } else if themeCode == "liquid-os" {
-            (isDark
-                ? Color(red: 0.04, green: 0.04, blue: 0.05)
-                : Color(red: 0.933, green: 0.945, blue: 0.965))
-                .ignoresSafeArea()
-        } else {
-            Color.clear
-        }
-    }
-
     private var resolvedPreset: AmbientPreset? {
-        if let activeAmbient,
-           SwimCoinStore.isStoreItemOwned(activeAmbient, storeUnlocks: storeUnlocks),
-           let owned = StoreAmbients.preset(for: activeAmbient) {
-            return owned
-        }
-        if themeCode == "liquid-os" {
-            return StoreAmbients.defaultLiquidOSPreset
-        }
-        return nil
+        guard let activeAmbient, AmbientCatalog.isValid(activeAmbient) else { return nil }
+        return AmbientPresets.preset(for: activeAmbient)
     }
 }
 
-/// Renders a store ambient preset — used full-screen and in swim shop previews.
+/// Renders an ambient preset — used as a translucent overlay and in settings previews.
 struct AmbientPresetRenderer: View {
     let preset: AmbientPreset
     var isPreview: Bool = false
@@ -153,7 +148,7 @@ struct AmbientPresetRenderer: View {
 
     @ViewBuilder
     private func bubbleTrail(in size: CGSize, elapsed: TimeInterval) -> some View {
-        let bubbles = Array(StoreAmbients.bubblePositions.prefix(6))
+        let bubbles = Array(AmbientPresets.bubblePositions.prefix(6))
         let sizeScale: CGFloat = 0.42
         let durationScale = 0.45
 
@@ -173,15 +168,14 @@ struct AmbientPresetRenderer: View {
 
 struct AmbientBubbleOverlayView: View {
     let activeAmbient: String?
-    let storeUnlocks: [String]
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.appAnimationsPaused) private var animationsPaused
 
     private var showsBubbles: Bool {
         guard let activeAmbient,
-              SwimCoinStore.isStoreItemOwned(activeAmbient, storeUnlocks: storeUnlocks),
-              let preset = StoreAmbients.preset(for: activeAmbient) else {
+              AmbientCatalog.isValid(activeAmbient),
+              let preset = AmbientPresets.preset(for: activeAmbient) else {
             return false
         }
         return preset.bubbles
@@ -214,8 +208,8 @@ struct AmbientBubbleOverlayView: View {
     @ViewBuilder
     private func bubbleLayer(in size: CGSize, elapsed: TimeInterval) -> some View {
         ZStack {
-            ForEach(StoreAmbients.bubblePositions.indices, id: \.self) { index in
-                let bubble = StoreAmbients.bubblePositions[index]
+            ForEach(AmbientPresets.bubblePositions.indices, id: \.self) { index in
+                let bubble = AmbientPresets.bubblePositions[index]
                 RisingBubble(
                     size: bubble.size,
                     leftRatio: bubble.leftRatio,
@@ -260,7 +254,6 @@ private struct AnimatedAmbientGradient: View {
             .ignoresSafeArea()
     }
 
-    /// Matches web `linear-gradient(-45deg, …)` with 400% background-size drift.
     private var gradientLayer: some View {
         LinearGradient(
             colors: spec.colors,
@@ -321,19 +314,7 @@ struct AmbientPreset {
     let bubbles: Bool
 }
 
-enum StoreAmbients {
-    static let defaultLiquidOSPreset = AmbientPreset(
-        gradient: nil,
-        blobs: [
-            AmbientBlob(color: Color(hex: "#B8C4FF"), opacity: 0.85, widthRatio: 0.60, heightRatio: 0.60, xRatio: -0.08, yRatio: -0.10),
-            AmbientBlob(color: Color(hex: "#FFC6BC"), opacity: 0.70, widthRatio: 0.50, heightRatio: 0.50, yRatio: 0.08, rightRatio: 0.10),
-            AmbientBlob(color: Color(hex: "#C8F0DB"), opacity: 0.80, widthRatio: 0.70, heightRatio: 0.70, xRatio: 0.05, bottomRatio: 0.25),
-            AmbientBlob(color: Color(hex: "#E4D6FF"), opacity: 0.70, widthRatio: 0.35, heightRatio: 0.35, rightRatio: 0.10, bottomRatio: 0.05),
-        ],
-        driftBlobs: false,
-        bubbles: false
-    )
-
+enum AmbientPresets {
     static let bubblePositions: [(leftRatio: CGFloat, size: CGFloat, delay: Double, duration: Double)] = [
         (0.06, 28, 0, 9), (0.14, 18, 2.4, 11), (0.24, 34, 0.8, 10.5), (0.33, 22, 3.6, 12),
         (0.42, 16, 1.2, 8.5), (0.51, 30, 4.2, 11.5), (0.60, 20, 0.3, 9.8), (0.69, 26, 2.8, 10.2),

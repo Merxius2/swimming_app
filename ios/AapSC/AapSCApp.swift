@@ -34,27 +34,15 @@ private struct AppRootView: View {
     }
 
     private var ambientBackgroundVisible: Bool {
-        AmbientBackgroundState.isVisible(
-            themeCode: preferences.themeCode,
-            activeAmbient: viewModel.profile.activeAmbient,
-            storeUnlocks: viewModel.storeUnlocks
-        )
+        AmbientBackgroundState.isVisible(activeAmbient: viewModel.profile.activeAmbient)
     }
 
     var body: some View {
         ZStack {
-            AmbientBackgroundView(
-                themeCode: preferences.themeCode,
-                activeAmbient: viewModel.profile.activeAmbient,
-                storeUnlocks: viewModel.storeUnlocks,
-                isDark: appIsDark
-            )
-            .id(viewModel.profile.activeAmbient ?? "theme-\(preferences.themeCode)")
-            AmbientBubbleOverlayView(
-                activeAmbient: viewModel.profile.activeAmbient,
-                storeUnlocks: viewModel.storeUnlocks
-            )
             ContentView()
+            AmbientOverlayView(activeAmbient: viewModel.profile.activeAmbient)
+                .id(viewModel.profile.activeAmbient ?? "none")
+            AmbientBubbleOverlayView(activeAmbient: viewModel.profile.activeAmbient)
         }
         .environment(\.t, preferences.translations)
         .environment(\.themeColors, preferences.themeColors)
@@ -90,22 +78,6 @@ private struct AppRootView: View {
         }
         .onAppear {
             ThemeTypography.applyUIKitAppearance(themeCode: preferences.themeCode)
-            AppIconService.apply(
-                activeAppIcon: viewModel.profile.activeAppIcon,
-                storeUnlocks: viewModel.storeUnlocks
-            )
-        }
-        .onChange(of: viewModel.profile.activeAppIcon) { _, activeAppIcon in
-            AppIconService.apply(
-                activeAppIcon: activeAppIcon,
-                storeUnlocks: viewModel.storeUnlocks
-            )
-        }
-        .onChange(of: viewModel.storeUnlocks) { _, storeUnlocks in
-            AppIconService.apply(
-                activeAppIcon: viewModel.profile.activeAppIcon,
-                storeUnlocks: storeUnlocks
-            )
         }
         .onChange(of: preferences.themeCode) { _, themeCode in
             ThemeTypography.applyUIKitAppearance(themeCode: themeCode)

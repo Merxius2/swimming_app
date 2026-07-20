@@ -4,11 +4,8 @@ struct ContentView: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.appIsDark) private var appIsDark
-    @Environment(\.ambientBackgroundVisible) private var ambientBackgroundVisible
     @State private var selectedTab = 0
     @State private var showUpload = false
-    @State private var showSettings = false
-    @State private var showCoins = false
 
     private var appearanceKey: String {
         "\(preferences.themeCode)-\(appIsDark)-\(preferences.isAutoDarkMode)-\(preferences.isDarkMode)"
@@ -22,7 +19,7 @@ struct ContentView: View {
                     selectedTab: $selectedTab,
                     progressActive: selectedTab == 0,
                     onProgress: { selectedTab = 0 },
-                    miniGamesTitle: preferences.t("navigation.miniGames"),
+                    settingsTitle: preferences.t("navigation.settings"),
                     medalsTitle: preferences.t("navigation.medals"),
                     progressTitle: preferences.t("navigation.progress"),
                     benchmarkTitle: preferences.t("navigation.benchmark"),
@@ -31,30 +28,12 @@ struct ContentView: View {
                 .id(appearanceKey)
                 .ignoresSafeArea(.container, edges: .bottom)
             }
-        .background {
-            if ambientBackgroundVisible {
-                Color.clear.ignoresSafeArea()
-            }
-        }
         .ignoresSafeArea(.keyboard)
         .sheet(isPresented: $showUpload) {
             UploadScreen()
                 .preferredColorScheme(preferences.colorScheme)
         }
-        .sheet(isPresented: $showSettings) {
-            SettingsScreen()
-                .preferredColorScheme(preferences.colorScheme)
-        }
-        .sheet(isPresented: $showCoins) {
-            CoinsScreen()
-                .preferredColorScheme(preferences.colorScheme)
-        }
-        .environment(\.openSettings, { showSettings = true })
-        .environment(\.openCoins, { showCoins = true })
         .environment(\.openUpload, { showUpload = true })
-        .onAppear {
-            viewModel.validateThemeSelection(preferences: preferences)
-        }
     }
 
     @ViewBuilder
@@ -65,7 +44,7 @@ struct ContentView: View {
         case 1:
             MedalsScreen()
         case 2:
-            MiniGamesScreen()
+            SettingsScreen(embedded: true)
         case 3:
             BenchmarkScreen()
         case 4:
@@ -76,29 +55,11 @@ struct ContentView: View {
     }
 }
 
-private struct OpenSettingsKey: EnvironmentKey {
-    static let defaultValue: () -> Void = {}
-}
-
-private struct OpenCoinsKey: EnvironmentKey {
-    static let defaultValue: () -> Void = {}
-}
-
 private struct OpenUploadKey: EnvironmentKey {
     static let defaultValue: () -> Void = {}
 }
 
 extension EnvironmentValues {
-    var openSettings: () -> Void {
-        get { self[OpenSettingsKey.self] }
-        set { self[OpenSettingsKey.self] = newValue }
-    }
-
-    var openCoins: () -> Void {
-        get { self[OpenCoinsKey.self] }
-        set { self[OpenCoinsKey.self] = newValue }
-    }
-
     var openUpload: () -> Void {
         get { self[OpenUploadKey.self] }
         set { self[OpenUploadKey.self] = newValue }
@@ -144,12 +105,9 @@ struct ScreenHeader: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            StorePageIconView(
-                pageKey: pageKey,
-                systemImage: systemImage,
-                size: 28,
-                color: profile.displayPrimary
-            )
+            Image(systemName: systemImage)
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundStyle(profile.displayPrimary)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .themeFont(.title2, weight: .bold)

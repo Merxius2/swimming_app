@@ -10,7 +10,6 @@ final class SwimImportExportTests: XCTestCase {
         XCTAssertEqual(imported.profile.age, 35)
         XCTAssertEqual(imported.profile.aiApiKey, "")
         XCTAssertNil(imported.profile.activeAmbient)
-        XCTAssertNil(imported.profile.activeAppIcon)
         XCTAssertEqual(imported.sessions.count, 1)
         XCTAssertEqual(imported.sessions[0].metrics.distanceM, 2550)
         XCTAssertEqual(imported.sessions[0].metrics.paceSecPer100m, 130)
@@ -18,10 +17,6 @@ final class SwimImportExportTests: XCTestCase {
         XCTAssertEqual(imported.sessions[0].metrics.laps, 102)
         XCTAssertEqual(imported.sessions[0].metrics.strokes.freestyleM, 2025)
         XCTAssertEqual(imported.sessions[0].metrics.strokes.breaststrokeM, 475)
-        XCTAssertEqual(imported.sessions[0].coinsEarned, 24)
-        XCTAssertEqual(imported.sessions[0].coinBonus, 25)
-        XCTAssertEqual(imported.totalCoins, 42)
-        XCTAssertEqual(imported.spentCoinClaims.count, 1)
     }
 
     func testRejectsInvalidChecksum() async throws {

@@ -123,13 +123,6 @@ private struct HistorySessionCard: View {
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
-                        let coins = SwimCoinClaims.sessionTotalCoins(session)
-                        if coins > 0 {
-                            Text("+\(coins)")
-                                .themeFont(.caption, weight: .bold)
-                                .foregroundStyle(Color("BrandBlue"))
-                                .accessibilityLabel(preferences.t("history.coinsEarned") + ": +\(coins)")
-                        }
                         Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
                             .foregroundStyle(.secondary)
                     }

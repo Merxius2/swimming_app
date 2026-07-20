@@ -22,14 +22,15 @@ enum TabBarLayout {
     private static let classicHistoryIcon = "clock.arrow.circlepath"
 
     /// Filled symbols used by the other iOS themes.
-    private static let themedMiniGamesIcon = "gamecontroller.fill"
+    private static let themedSettingsIcon = "gearshape.fill"
+    private static let classicSettingsIcon = "gearshape"
     private static let themedProgressIcon = "chart.bar.fill"
     private static let themedMedalsIcon = "checkmark.seal.fill"
     private static let themedBenchmarkIcon = "waveform.path.ecg"
     private static let themedHistoryIcon = "clock.arrow.circlepath"
 
-    static func miniGamesIcon(for tabBar: ThemeTabBarStyle) -> String {
-        themedMiniGamesIcon
+    static func settingsIcon(for tabBar: ThemeTabBarStyle) -> String {
+        tabBar.usesPlainTabIcons ? classicSettingsIcon : themedSettingsIcon
     }
 
     static func progressIcon(for tabBar: ThemeTabBarStyle) -> String {
@@ -66,7 +67,7 @@ struct CustomTabBar: View {
     @Binding var selectedTab: Int
     let progressActive: Bool
     let onProgress: (() -> Void)?
-    let miniGamesTitle: String
+    let settingsTitle: String
     let medalsTitle: String
     let progressTitle: String
     let benchmarkTitle: String
@@ -101,9 +102,9 @@ struct CustomTabBar: View {
 
             HStack(alignment: .bottom, spacing: 0) {
                 tabButton(
-                    title: miniGamesTitle,
-                    pageKey: "mini-games",
-                    icon: TabBarLayout.miniGamesIcon(for: profile.tabBar),
+                    title: settingsTitle,
+                    pageKey: "settings",
+                    icon: TabBarLayout.settingsIcon(for: profile.tabBar),
                     tab: 2
                 )
 
@@ -292,25 +293,11 @@ struct CustomTabButton: View {
 
     @ViewBuilder
     private var tabIcon: some View {
-        if usesPlainTabIcons,
-           StorePageIcons.resolve(
-               activeAppIcon: viewModel.profile.activeAppIcon,
-               pageKey: pageKey,
-               storeUnlocks: viewModel.storeUnlocks
-           ) == nil {
-            Image(systemName: icon)
-                .font(.system(size: iconSize, weight: isActive ? .semibold : .medium))
-                .symbolRenderingMode(.monochrome)
-                .foregroundStyle(labelColor)
-                .frame(width: iconSize, height: iconSize)
-        } else {
-            StorePageIconView(
-                pageKey: pageKey,
-                systemImage: icon,
-                size: iconSize,
-                color: labelColor
-            )
-        }
+        Image(systemName: icon)
+            .font(.system(size: iconSize, weight: isActive ? .semibold : .medium))
+            .symbolRenderingMode(.monochrome)
+            .foregroundStyle(labelColor)
+            .frame(width: iconSize, height: iconSize)
     }
 
     private var labelColor: Color {
@@ -340,34 +327,10 @@ struct CustomCenterFAB: View {
     @ViewBuilder
     private var fabContent: some View {
         ZStack(alignment: .bottom) {
-            Group {
-                if usesPlainIcon,
-                   StorePageIcons.resolve(
-                       activeAppIcon: viewModel.profile.activeAppIcon,
-                       pageKey: pageKey,
-                       storeUnlocks: viewModel.storeUnlocks
-                   ) == nil {
-                    Image(systemName: systemImage)
-                        .font(.system(size: TabBarLayout.fabIconSize, weight: .medium))
-                        .symbolRenderingMode(.monochrome)
-                        .foregroundStyle(style.iconColor)
-                } else if StorePageIcons.resolve(
-                    activeAppIcon: viewModel.profile.activeAppIcon,
-                    pageKey: pageKey,
-                    storeUnlocks: viewModel.storeUnlocks
-                ) != nil {
-                    StorePageIconView(
-                        pageKey: pageKey,
-                        systemImage: systemImage,
-                        size: TabBarLayout.fabIconSize,
-                        color: style.iconColor
-                    )
-                } else {
-                    Image(systemName: systemImage)
-                        .font(.system(size: TabBarLayout.fabIconSize, weight: .bold))
-                        .foregroundStyle(style.iconColor)
-                }
-            }
+            Image(systemName: systemImage)
+                .font(.system(size: usesPlainIcon ? TabBarLayout.fabIconSize : TabBarLayout.fabIconSize, weight: usesPlainIcon ? .medium : .bold))
+                .symbolRenderingMode(.monochrome)
+                .foregroundStyle(style.iconColor)
             .frame(width: TabBarLayout.fabDiameter, height: TabBarLayout.fabDiameter)
             .background {
                 Circle().fill(fabFill)

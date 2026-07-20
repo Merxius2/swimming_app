@@ -39,27 +39,16 @@ enum SwimStorageService {
 
     private static func migrate(_ data: SwimData) -> SwimData {
         var next = data
-        let sessions = SwimCoins.migrateCoinBonuses(SwimCoins.migrateSessionCoins(next.sessions))
-        next.sessions = sessions.sorted { $0.date < $1.date }
-
-        let rawStoreUnlocks = SwimCoinStore.normalizeStoreUnlocks(next.storeUnlocks)
-        next.bonusWheelSpinCredits = SwimCoinStore.normalizeBonusWheelSpinCredits(
-            next.bonusWheelSpinCredits,
-            storeUnlocks: rawStoreUnlocks
-        )
-        next.storeUnlocks = SwimCoinStore.stripBonusSpinUnlock(rawStoreUnlocks)
-        next.coinsSpent = SwimCoinStore.migrateCoinsSpent(next.coinsSpent, storeUnlocks: next.storeUnlocks)
-        next.totalCoins = SwimCoins.reconcileTotalCoins(
-            sessions: next.sessions,
-            storedTotal: next.totalCoins,
-            coinsSpent: next.coinsSpent
-        )
-        next.wheelSpins = SwimWheelSpins.normalizeWheelSpins(next.wheelSpins)
-        next.challengeRerollCredits = max(0, next.challengeRerollCredits)
-        next.profile = SwimCoinStore.sanitizeProfileCosmetics(next.profile, storeUnlocks: next.storeUnlocks)
+        next.sessions = next.sessions.sorted { $0.date < $1.date }
+        next.profile.activeAmbient = sanitizeAmbient(next.profile.activeAmbient)
         next.monthlyChallengeRerolls = SwimMonthlyChallenges.normalizeMonthlyChallengeRerolls(
             next.monthlyChallengeRerolls
         )
         return next
+    }
+
+    private static func sanitizeAmbient(_ activeAmbient: String?) -> String? {
+        guard let activeAmbient, AmbientCatalog.isValid(activeAmbient) else { return nil }
+        return activeAmbient
     }
 }

@@ -756,16 +756,8 @@ struct ThemedPageBackgroundModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .scrollContentBackground(ambientBackgroundVisible ? .hidden : .automatic)
             .background {
-                AmbientHierarchyBackgroundClearer(active: ambientBackgroundVisible)
-            }
-            .background {
-                if ambientBackgroundVisible {
-                    Color.clear.ignoresSafeArea()
-                } else {
-                    ThemedPageBackgroundView(background: profile.pageBackground)
-                }
+                ThemedPageBackgroundView(background: profile.pageBackground)
             }
     }
 }

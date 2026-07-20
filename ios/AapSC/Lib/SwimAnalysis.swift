@@ -173,8 +173,7 @@ enum SwimAnalysis {
             let currentRank = tierRank(monthly.tier)
             if currentRank < requiredRank {
                 parts.append(t.t("progress.overviewCoachRequirement", params: [
-                    "tier": SwimMonthlyChallengeFormatters.tierLabel(requiredTier, t: t),
-                    "amount": String(gameplay.monthlyPenaltyCoins)
+                    "tier": SwimMonthlyChallengeFormatters.tierLabel(requiredTier, t: t)
                 ]))
             }
         }

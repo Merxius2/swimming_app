@@ -17,20 +17,13 @@ struct SecretSettingsSheet: View {
                 Section(preferences.t("settings.secretCheatsSection")) {
                     Toggle(preferences.t("settings.secretUnlockAllMedals"), isOn: cheatBinding(\.allMedalsUnlocked))
                     Toggle(preferences.t("settings.secretPreviewMonthlyMedals"), isOn: cheatBinding(\.previewMonthlyMedals))
-                    Toggle(preferences.t("settings.secretUnlockAllThemes"), isOn: cheatBinding(\.allThemesUnlocked))
-
-                    Button {
-                        viewModel.adjustCoins(delta: 500)
-                    } label: {
-                        Label(preferences.t("settings.secretAdd500Coins"), systemImage: "bitcoinsign.circle.fill")
-                    }
                 }
             }
             .navigationTitle(preferences.t("settings.secretTitle"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(preferences.t("coins.close")) { dismiss() }
+                    Button(preferences.t("settings.cancel")) { dismiss() }
                 }
             }
         }

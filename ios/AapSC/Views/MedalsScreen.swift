@@ -6,10 +6,6 @@ struct MedalsScreen: View {
     @Environment(\.openUpload) private var openUpload
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-    private var shimmerPlus: Bool {
-        SwimCoinStore.hasMedalShimmerPlus(viewModel.storeUnlocks)
-    }
-
     private var medalGridColumns: [GridItem] {
         horizontalSizeClass == .regular
             ? [GridItem(.flexible()), GridItem(.flexible())]
@@ -45,7 +41,6 @@ struct MedalsScreen: View {
             }
             .navigationTitle(preferences.t("medals.title"))
             .navigationBarTitleDisplayMode(.inline)
-            .swimTopBarActions()
             .themedNavigationBar()
         }
         .themedPageBackground()
@@ -70,19 +65,6 @@ struct MedalsScreen: View {
                 Spacer()
                 Text(stats.earned > 0 ? "🏆" : "🎯")
                     .font(.system(size: 44))
-            }
-
-            Divider().padding(.vertical, 8)
-
-            HStack {
-                Text(preferences.t("coins.label"))
-                    .themeFont(.subheadline)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                CoinBadge(
-                    count: viewModel.totalCoins,
-                    golden: SwimCoinStore.hasGoldenCoinBadge(viewModel.storeUnlocks)
-                )
             }
         }
     }
@@ -125,7 +107,7 @@ struct MedalsScreen: View {
 
             LazyVGrid(columns: medalGridColumns, spacing: 12) {
                 ForEach(categoryMedals) { medal in
-                    MedalCardView(medal: medal, shimmerPlus: shimmerPlus)
+                    MedalCardView(medal: medal, shimmerPlus: false)
                 }
             }
         }

@@ -58,7 +58,6 @@ struct ProgressScreen: View {
             .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
             .navigationTitle(preferences.t("progress.title"))
             .navigationBarTitleDisplayMode(.inline)
-            .swimTopBarActions()
             .themedNavigationBar()
         }
         .themedPageBackground()
@@ -186,7 +185,6 @@ struct ProgressScreen: View {
                         statTile(preferences.t("progress.totalCalories"), value: "\(combined.totalActiveKcal) " + preferences.t("common.kcal"))
                         statTile(preferences.t("progress.totalLaps"), value: "\(combined.totalLaps)")
                         statTile(preferences.t("progress.avgHeartRate"), value: combined.avgHeartRate.map { "\($0) " + preferences.t("common.bpm") } ?? "—")
-                        coinsStatTile
                     }
                 }
             }
@@ -581,19 +579,6 @@ struct ProgressScreen: View {
                 }
             }
         }
-    }
-
-    private var coinsStatTile: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(preferences.t("coins.label").uppercased())
-                .themeFont(.caption2, weight: .semibold)
-                .foregroundStyle(.secondary)
-            CoinBadge(
-                count: viewModel.totalCoins,
-                golden: SwimCoinStore.hasGoldenCoinBadge(viewModel.storeUnlocks)
-            )
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func metricBlock(_ title: String, value: String, color: Color) -> some View {

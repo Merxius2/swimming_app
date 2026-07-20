@@ -7,6 +7,8 @@ struct SettingsScreen: View {
     @Environment(\.openUpload) private var openUpload
     @Environment(\.themeColors) private var themeColors
 
+    var embedded: Bool = false
+
     @State private var showSecretSettings = false
 
     var body: some View {
@@ -18,13 +20,15 @@ struct SettingsScreen: View {
                 themeSection
                 darkModeSection
                 uploadSection
-                cosmeticsSection
+                ambientSection
             }
             .navigationTitle(preferences.t("settings.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(preferences.t("coins.close")) { dismiss() }
+                if !embedded {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(preferences.t("settings.cancel")) { dismiss() }
+                    }
                 }
             }
             .onTapGesture(count: 3) {
@@ -73,13 +77,7 @@ struct SettingsScreen: View {
     private var themeSection: some View {
         Section(preferences.t("settings.theme")) {
             ForEach(AppThemes.all) { theme in
-                let unlocked = SwimCoinStore.isThemeUnlocked(
-                    theme.code,
-                    storeUnlocks: viewModel.storeUnlocks,
-                    allThemesUnlocked: viewModel.cheats.allThemesUnlocked
-                ) || theme.code == AppThemes.defaultCode
                 Button {
-                    guard unlocked else { return }
                     preferences.setTheme(theme.code)
                 } label: {
                     HStack(spacing: 12) {
@@ -90,14 +88,9 @@ struct SettingsScreen: View {
                         if preferences.themeCode == theme.code {
                             Image(systemName: "checkmark")
                                 .foregroundStyle(themeColors.primary)
-                        } else if !unlocked {
-                            Image(systemName: "lock.fill")
-                                .themeFont(.caption)
-                                .foregroundStyle(.secondary)
                         }
                     }
                 }
-                .disabled(!unlocked)
             }
         }
     }
@@ -117,32 +110,28 @@ struct SettingsScreen: View {
                 .themeFont(.caption)
                 .foregroundStyle(.secondary)
             Button(preferences.t("settings.uploadCta")) {
-                dismiss()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                if embedded {
                     openUpload()
+                } else {
+                    dismiss()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        openUpload()
+                    }
                 }
             }
         }
     }
 
-    private var cosmeticsSection: some View {
-        Section(preferences.t("settings.storeCosmeticsTitle")) {
+    private var ambientSection: some View {
+        Section(preferences.t("settings.ambientTitle")) {
+            Text(preferences.t("settings.ambientDesc"))
+                .themeFont(.caption)
+                .foregroundStyle(.secondary)
+
             Picker(preferences.t("settings.activeAmbient"), selection: ambientBinding) {
                 Text(preferences.t("settings.ambientDefault")).tag(Optional<String>.none)
-                ForEach(ownedAmbients, id: \.self) { id in
-                    Text(ambientLabel(id)).tag(Optional(id))
-                }
-            }
-
-            Picker(preferences.t("settings.activeAppIcon"), selection: iconBinding) {
-                Text(preferences.t("settings.iconDefault")).tag(Optional<String>.none)
-                ForEach(ownedIcons, id: \.self) { id in
-                    Label {
-                        Text(iconLabel(id))
-                    } icon: {
-                        StoreIconPreview(id: id, size: 20)
-                    }
-                    .tag(Optional(id))
+                ForEach(AmbientCatalog.allIds, id: \.self) { id in
+                    Text(preferences.t(AmbientCatalog.nameKey(for: id))).tag(Optional(id))
                 }
             }
         }
@@ -176,43 +165,6 @@ struct SettingsScreen: View {
                 viewModel.updateProfile { $0.activeAmbient = newValue }
             }
         )
-    }
-
-    private var iconBinding: Binding<String?> {
-        Binding(
-            get: { viewModel.profile.activeAppIcon },
-            set: { newValue in
-                viewModel.updateProfile { $0.activeAppIcon = newValue }
-                AppIconService.apply(
-                    activeAppIcon: newValue,
-                    storeUnlocks: viewModel.storeUnlocks
-                )
-            }
-        )
-    }
-
-    private var ownedAmbients: [String] {
-        SwimCoinStore.catalog
-            .filter { $0.id.hasPrefix("ambient:") }
-            .map(\.id)
-            .filter { SwimCoinStore.isStoreItemOwned($0, storeUnlocks: viewModel.storeUnlocks) }
-    }
-
-    private var ownedIcons: [String] {
-        SwimCoinStore.catalog
-            .filter { $0.id.hasPrefix("icon:") }
-            .map(\.id)
-            .filter { SwimCoinStore.isStoreItemOwned($0, storeUnlocks: viewModel.storeUnlocks) }
-    }
-
-    private func ambientLabel(_ id: String) -> String {
-        guard let item = SwimCoinStore.getStoreItem(id) else { return id }
-        return SwimCoinStore.localizedName(item, t: preferences.translations)
-    }
-
-    private func iconLabel(_ id: String) -> String {
-        guard let item = SwimCoinStore.getStoreItem(id) else { return id }
-        return SwimCoinStore.localizedName(item, t: preferences.translations)
     }
 
     private var ageBinding: Binding<Int> {

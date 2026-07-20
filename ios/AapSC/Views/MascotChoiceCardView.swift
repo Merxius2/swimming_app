@@ -55,7 +55,7 @@ struct MascotChoiceCardView: View {
                 }
 
                 HStack(spacing: 4) {
-                    Image(systemName: "bitcoinsign.circle")
+                    Image(systemName: "info.circle")
                         .themeFont(.caption2)
                     Text(preferences.t(MascotConstants.rulesKey(mascotId)))
                         .themeFont(.caption2)

@@ -25,15 +25,6 @@ struct MedalCardView: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .layoutPriority(1)
-
-                        if SwimCoins.medalTierCoins(medal.tier) > 0 {
-                            CoinBadge(
-                                count: SwimCoins.medalTierCoins(medal.tier),
-                                size: .sm
-                            )
-                            .opacity(medal.earned ? 1 : 0.6)
-                            .fixedSize()
-                        }
                     }
 
                     Text(SwimMedalCopy.description(for: medal.id, t: preferences.translations))
@@ -360,7 +351,6 @@ struct MonthlyMedalTileView: View {
                     Text(SwimMonthlyChallengeFormatters.tierLabel(tier, t: preferences.translations))
                         .themeFont(.caption2, weight: .semibold)
                         .foregroundStyle(Color("BrandBlue"))
-                    CoinBadge(count: SwimCoins.monthlyTierCoins(tier), golden: false)
                 } else if state.challenges.contains(where: { $0.current > 0 }) {
                     Text(preferences.t("monthlyChallenges.inProgress"))
                         .themeFont(.caption2)

@@ -2,7 +2,7 @@ import Foundation
 import Compression
 
 enum SwimImportExport {
-    static let exportVersion = 9
+    static let exportVersion = 10
 
     private static let crc32Table: [UInt32] = {
         (0..<256).map { n -> UInt32 in
@@ -15,20 +15,14 @@ enum SwimImportExport {
     }()
 
     static func generateExportString(from data: SwimData) async throws -> String {
-        let storeUnlocks = SwimCoinStore.normalizeStoreUnlocks(data.storeUnlocks)
         let payload: [String: Any] = [
             "v": exportVersion,
-            "tc": data.totalCoins,
-            "cs": data.coinsSpent,
             "p": [
                 "sex": data.profile.sex,
                 "age": data.profile.age,
             ],
             "s": data.sessions.map(compressSession),
-            "cc": data.spentCoinClaims.map(compressCoinClaim),
-            "su": storeUnlocks,
             "aa": data.profile.activeAmbient as Any,
-            "aic": data.profile.activeAppIcon as Any,
         ]
         let jsonData = try JSONSerialization.data(withJSONObject: payload)
         guard let jsonStr = String(data: jsonData, encoding: .utf8) else {
@@ -54,14 +48,9 @@ enum SwimImportExport {
         }
 
         let version = compressed["v"] as? Int ?? 0
-        guard [3, 4, 5, 6, 7, 8, 9].contains(version) else {
+        guard [3, 4, 5, 6, 7, 8, 9, 10].contains(version) else {
             throw SwimImportExportError.unsupportedVersion
         }
-
-        let legacyThemes = version >= 5 ? (compressed["pt"] as? [String] ?? []) : []
-        let storeUnlocks = version >= 6
-            ? SwimCoinStore.normalizeStoreUnlocks(compressed["su"] as? [String], legacyPurchasedThemes: legacyThemes)
-            : SwimCoinStore.normalizeStoreUnlocks([], legacyPurchasedThemes: legacyThemes)
 
         let profile = SwimProfile(
             name: "",
@@ -70,26 +59,14 @@ enum SwimImportExport {
             mascotId: nil,
             mascotSwitchMonthKey: nil,
             aiApiKey: "",
-            activeAmbient: version >= 6 ? (compressed["aa"] as? String) : nil,
-            activeAppIcon: version >= 7 ? (compressed["aic"] as? String) : nil
+            activeAmbient: version >= 6 ? (compressed["aa"] as? String) : nil
         )
 
         let sessions = (compressed["s"] as? [[String: Any]] ?? []).map(decompressSession)
-        let spentCoinClaims = version >= 4
-            ? (compressed["cc"] as? [[String: Any]] ?? []).map(decompressCoinClaim)
-            : []
 
         return SwimData(
             profile: profile,
-            monthlySettlements: [:],
-            totalCoins: compressed["tc"] as? Int ?? 0,
-            coinsSpent: version >= 8 ? (compressed["cs"] as? Int ?? 0) : 0,
             sessions: sessions,
-            spentCoinClaims: spentCoinClaims,
-            wheelSpins: nil,
-            challengeRerollCredits: 0,
-            bonusWheelSpinCredits: 0,
-            storeUnlocks: storeUnlocks,
             monthlyChallengeRerolls: [:]
         )
     }
@@ -201,9 +178,8 @@ enum SwimImportExport {
             "m": compressMetrics(session.metrics),
         ]
         if let createdAt = session.createdAt { result["ca"] = createdAt }
-        if let coinsEarned = session.coinsEarned { result["ce"] = coinsEarned }
-        if let coinBonus = session.coinBonus { result["cb"] = coinBonus }
         if session.excludeFromStats { result["ex"] = true }
+        if let uuid = session.healthKitWorkoutUUID { result["hk"] = uuid }
         return result
     }
 
@@ -214,32 +190,29 @@ enum SwimImportExport {
             date: raw["dt"] as? String ?? "",
             metrics: decompressMetrics(raw["m"] as? [String: Any] ?? [:]),
             excludeFromStats: raw["ex"] as? Bool ?? false,
-            coinsEarned: raw["ce"] as? Int,
-            coinBonus: raw["cb"] as? Int
+            healthKitWorkoutUUID: raw["hk"] as? String
         )
     }
 
     private static func compressMetrics(_ metrics: SwimMetrics) -> [String: Any] {
-        var m: [String: Any] = [
+        var result: [String: Any] = [
             "pl": metrics.poolLengthM,
             "loc": metrics.location,
             "tr": metrics.timeRange,
         ]
-        if let v = metrics.durationSec { m["ds"] = v }
-        if let v = metrics.distanceM { m["dm"] = v }
-        if let v = metrics.activeKcal { m["ak"] = v }
-        if let v = metrics.totalKcal { m["tk"] = v }
-        if let v = metrics.paceSecPer100m { m["ps"] = v }
-        if let v = metrics.avgHeartRate { m["hr"] = v }
-        if let v = metrics.laps { m["lp"] = v }
-        if let v = metrics.goalM { m["gm"] = v }
-        m["st"] = strokesDict(metrics.strokes)
-        return m
+        if let v = metrics.durationSec { result["ds"] = v }
+        if let v = metrics.distanceM { result["dm"] = v }
+        if let v = metrics.activeKcal { result["ak"] = v }
+        if let v = metrics.totalKcal { result["tk"] = v }
+        if let v = metrics.paceSecPer100m { result["ps"] = v }
+        if let v = metrics.avgHeartRate { result["hr"] = v }
+        if let v = metrics.laps { result["lp"] = v }
+        if let v = metrics.goalM { result["gm"] = v }
+        return result
     }
 
     private static func decompressMetrics(_ raw: [String: Any]) -> SwimMetrics {
-        let strokesRaw = raw["st"] as? [String: Any] ?? [:]
-        return SwimMetrics(
+        SwimMetrics(
             durationSec: raw["ds"] as? Int,
             distanceM: raw["dm"] as? Int,
             activeKcal: raw["ak"] as? Int,
@@ -251,48 +224,7 @@ enum SwimImportExport {
             goalM: raw["gm"] as? Int,
             location: raw["loc"] as? String ?? "",
             timeRange: raw["tr"] as? String ?? "",
-            strokes: StrokeDistances(
-                mixedM: strokesRaw["mixedM"] as? Int,
-                breaststrokeM: strokesRaw["breaststrokeM"] as? Int,
-                freestyleM: strokesRaw["freestyleM"] as? Int,
-                backstrokeM: strokesRaw["backstrokeM"] as? Int,
-                butterflyM: strokesRaw["butterflyM"] as? Int
-            )
-        )
-    }
-
-    private static func strokesDict(_ strokes: StrokeDistances) -> [String: Int] {
-        var dict: [String: Int] = [:]
-        if let v = strokes.mixedM { dict["mixedM"] = v }
-        if let v = strokes.breaststrokeM { dict["breaststrokeM"] = v }
-        if let v = strokes.freestyleM { dict["freestyleM"] = v }
-        if let v = strokes.backstrokeM { dict["backstrokeM"] = v }
-        if let v = strokes.butterflyM { dict["butterflyM"] = v }
-        return dict
-    }
-
-    private static func compressCoinClaim(_ claim: SpentCoinClaim) -> [String: Any] {
-        [
-            "dt": claim.date,
-            "m": [
-                "dm": claim.metrics.distanceM as Any,
-                "ds": claim.metrics.durationSec as Any,
-                "ps": claim.metrics.paceSecPer100m as Any,
-                "tr": claim.metrics.timeRange,
-            ],
-        ]
-    }
-
-    private static func decompressCoinClaim(_ raw: [String: Any]) -> SpentCoinClaim {
-        let m = raw["m"] as? [String: Any] ?? [:]
-        return SpentCoinClaim(
-            date: raw["dt"] as? String ?? "",
-            metrics: ClaimMetrics(
-                distanceM: m["dm"] as? Int,
-                durationSec: m["ds"] as? Int,
-                paceSecPer100m: m["ps"] as? Int,
-                timeRange: m["tr"] as? String ?? ""
-            )
+            strokes: .empty
         )
     }
 }

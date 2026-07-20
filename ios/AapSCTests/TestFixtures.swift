@@ -9,35 +9,28 @@ enum TestFixtures {
         mascotId: "flip",
         mascotSwitchMonthKey: nil,
         aiApiKey: "",
-        activeAmbient: nil,
-        activeAppIcon: nil
+        activeAmbient: nil
     )
 
     static func session(
         id: String,
         date: String,
         metrics: SwimMetrics,
-        excludeFromStats: Bool = false,
-        coinsEarned: Int? = nil,
-        coinBonus: Int? = nil
+        excludeFromStats: Bool = false
     ) -> SwimSession {
         SwimSession(
             id: id,
             date: date,
             metrics: metrics,
-            excludeFromStats: excludeFromStats,
-            coinsEarned: coinsEarned,
-            coinBonus: coinBonus
+            excludeFromStats: excludeFromStats
         )
     }
 
     static func session(
         date: String,
-        metrics: SwimMetrics,
-        coinsEarned: Int? = nil,
-        coinBonus: Int? = nil
+        metrics: SwimMetrics
     ) -> SwimSession {
-        session(id: date, date: date, metrics: metrics, coinsEarned: coinsEarned, coinBonus: coinBonus)
+        session(id: date, date: date, metrics: metrics)
     }
 
     static func metrics(
@@ -70,10 +63,8 @@ enum TestFixtures {
         return session(id: "s-\(date)", date: date, metrics: m)
     }
 
-    static func baseData(totalCoins: Int = 1000) -> SwimData {
-        var data = SwimData.empty
-        data.totalCoins = totalCoins
-        return data
+    static func baseData() -> SwimData {
+        SwimData.empty
     }
 
     static func identityTranslator() -> TranslationService {
@@ -155,21 +146,8 @@ enum TestFixtures {
             mascotId: nil,
             mascotSwitchMonthKey: nil,
             aiApiKey: "",
-            activeAmbient: nil,
-            activeAppIcon: nil
+            activeAmbient: nil
         )
-        data.totalCoins = 42
-        data.spentCoinClaims = [
-            SpentCoinClaim(
-                date: "2025-06-01",
-                metrics: ClaimMetrics(
-                    distanceM: 1000,
-                    durationSec: 900,
-                    paceSecPer100m: 120,
-                    timeRange: ""
-                )
-            )
-        ]
         data.sessions = [
             SwimSession(
                 id: "test-1",
@@ -188,9 +166,7 @@ enum TestFixtures {
                     location: "Tilburg",
                     timeRange: "11:07–12:01",
                     strokes: StrokeDistances(mixedM: 50, breaststrokeM: 475, freestyleM: 2025)
-                ),
-                coinsEarned: 24,
-                coinBonus: 25
+                )
             )
         ]
         return data

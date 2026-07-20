@@ -6,7 +6,6 @@ struct UploadScreen: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
 
-    @State private var showCoinSheet = false
     @State private var showMedalSheet = false
     @State private var showDuplicateConfirm = false
     @State private var duplicateConfirmTitle = ""
@@ -33,7 +32,7 @@ struct UploadScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(preferences.t("coins.close")) { closeUpload() }
+                    Button(preferences.t("common.close")) { closeUpload() }
                 }
                 if !uploadSaved {
                     ToolbarItem(placement: .confirmationAction) {
@@ -65,12 +64,7 @@ struct UploadScreen: View {
                     Text(duplicateConfirmMessage)
                 }
             }
-            .sheet(isPresented: $showCoinSheet, onDismiss: finishCelebrations) {
-                if let result = viewModel.lastUploadCoinResult {
-                    CoinEarnedSheet(result: result)
-                }
-            }
-            .sheet(isPresented: $showMedalSheet, onDismiss: presentCoinSheetIfNeeded) {
+            .sheet(isPresented: $showMedalSheet) {
                 MedalCelebrationSheet(medals: viewModel.lastNewMedals)
             }
             .sheet(isPresented: $showDateModal) {
@@ -266,19 +260,7 @@ struct UploadScreen: View {
 
         if !viewModel.lastNewMedals.isEmpty {
             showMedalSheet = true
-        } else {
-            presentCoinSheetIfNeeded()
         }
-    }
-
-    private func presentCoinSheetIfNeeded() {
-        if let result = viewModel.lastUploadCoinResult, result.total != 0 || !result.alreadyClaimed {
-            showCoinSheet = true
-        }
-    }
-
-    private func finishCelebrations() {
-        // Feedback view is already visible behind the sheets.
     }
 
     private func resetForAnotherUpload() {

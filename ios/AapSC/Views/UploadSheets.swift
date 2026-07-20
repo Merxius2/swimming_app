@@ -1,106 +1,5 @@
 import SwiftUI
 
-struct CoinEarnedSheet: View {
-    @EnvironmentObject private var preferences: UserPreferencesService
-    let result: UploadCoinResult
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section(preferences.t("coins.sessionSection")) {
-                    ForEach(result.sessionLines, id: \.type) { line in
-                        coinRow(line)
-                    }
-                }
-
-                if !result.bonusLines.isEmpty {
-                    Section(preferences.t("coins.bonusSection")) {
-                        ForEach(result.bonusLines, id: \.type) { line in
-                            coinRow(line)
-                        }
-                    }
-                }
-
-                Section {
-                    HStack {
-                        Text(preferences.t("coins.earnedTitle"))
-                            .themeFont(.headline, weight: .semibold)
-                        Spacer()
-                        Text("+\(result.total)")
-                            .themeFont(.title3, weight: .bold)
-                            .foregroundStyle(Color("BrandBlue"))
-                    }
-                }
-            }
-            .navigationTitle(preferences.t("coins.popupTitle"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(preferences.t("coins.continue")) { dismiss() }
-                }
-            }
-        }
-        .presentationDetents([.medium, .large])
-    }
-
-    private func coinRow(_ line: CoinLineItem) -> some View {
-        HStack {
-            Text(label(for: line))
-            Spacer()
-            Text(line.coins >= 0 ? "+\(line.coins)" : "\(line.coins)")
-                .fontWeight(.semibold)
-                .foregroundStyle(line.coins >= 0 ? Color("BrandBlue") : .red)
-        }
-    }
-
-    private func label(for line: CoinLineItem) -> String {
-        switch line.type {
-        case "base":
-            return preferences.t("coins.lineBase")
-        case "distance":
-            return preferences.t("coins.lineDistance", params: [
-                "distance": SwimFormatters.formatDistance(line.distanceM),
-            ])
-        case "duration":
-            return preferences.t("coins.lineDuration", params: [
-                "duration": SwimFormatters.formatDuration(line.durationSec),
-            ])
-        case "kcal":
-            return preferences.t("coins.lineKcal", params: [
-                "kcal": line.kcal.map { String($0) } ?? "0",
-            ])
-        case "paceImprovement":
-            return preferences.t("coins.linePaceImprovement", params: [
-                "pace": SwimFormatters.formatPace(line.paceSec),
-                "avgPace": SwimFormatters.formatPace(line.avgPaceSec.map { Int($0.rounded()) }),
-            ])
-        case "finsBonus":
-            return preferences.t("coins.lineFinsBonus")
-        case "finsPenalty":
-            return preferences.t("coins.lineFinsPenalty", params: [
-                "pace": SwimFormatters.formatPace(line.paceSec),
-                "avgPace": SwimFormatters.formatPace(line.avgPaceSec.map { Int($0.rounded()) }),
-            ])
-        case "coachShare":
-            return preferences.t("coins.lineCoachShare")
-        case "medal":
-            return preferences.t("coins.lineMedal", params: [
-                "tier": line.tier.map { preferences.t("monthlyChallenges.tiers.\($0)") } ?? "",
-                "title": line.medalId.map { preferences.t("medals.items.\($0).title") }
-                    ?? line.medalId?.replacingOccurrences(of: "_", with: " ") ?? "earned",
-            ])
-        case "monthly":
-            return preferences.t("coins.lineMonthly", params: [
-                "from": line.fromTier.map { preferences.t("monthlyChallenges.tiers.\($0)") } ?? "—",
-                "to": line.toTier.map { preferences.t("monthlyChallenges.tiers.\($0)") } ?? "—",
-            ])
-        default:
-            return line.type.capitalized
-        }
-    }
-}
-
 struct MedalCelebrationSheet: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     let medals: [EvaluatedMedal]
@@ -135,7 +34,7 @@ struct MedalCelebrationSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(preferences.t("coins.continue")) { dismiss() }
+                    Button(preferences.t("settings.confirm")) { dismiss() }
                 }
             }
         }
@@ -207,7 +106,7 @@ struct SessionFeedbackSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(preferences.t("coins.continue")) { dismiss() }
+                    Button(preferences.t("settings.confirm")) { dismiss() }
                 }
             }
         }

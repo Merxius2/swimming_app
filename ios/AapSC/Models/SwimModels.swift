@@ -52,8 +52,6 @@ struct SwimSession: Codable, Identifiable, Equatable {
     var date: String
     var metrics: SwimMetrics
     var excludeFromStats: Bool
-    var coinsEarned: Int?
-    var coinBonus: Int?
     var healthKitWorkoutUUID: String?
 
     init(
@@ -62,8 +60,6 @@ struct SwimSession: Codable, Identifiable, Equatable {
         date: String,
         metrics: SwimMetrics,
         excludeFromStats: Bool = false,
-        coinsEarned: Int? = nil,
-        coinBonus: Int? = nil,
         healthKitWorkoutUUID: String? = nil
     ) {
         self.id = id
@@ -71,14 +67,12 @@ struct SwimSession: Codable, Identifiable, Equatable {
         self.date = date
         self.metrics = metrics
         self.excludeFromStats = excludeFromStats
-        self.coinsEarned = coinsEarned
-        self.coinBonus = coinBonus
         self.healthKitWorkoutUUID = healthKitWorkoutUUID
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, createdAt, date, metrics, excludeFromStats, coinsEarned, coinBonus, sessionCoins
-        case healthKitWorkoutUUID
+        case id, createdAt, date, metrics, excludeFromStats, healthKitWorkoutUUID
+        case coinsEarned, coinBonus, sessionCoins
     }
 
     init(from decoder: Decoder) throws {
@@ -88,9 +82,6 @@ struct SwimSession: Codable, Identifiable, Equatable {
         date = try container.decode(String.self, forKey: .date)
         metrics = try container.decode(SwimMetrics.self, forKey: .metrics)
         excludeFromStats = try container.decodeIfPresent(Bool.self, forKey: .excludeFromStats) ?? false
-        coinsEarned = try container.decodeIfPresent(Int.self, forKey: .coinsEarned)
-            ?? container.decodeIfPresent(Int.self, forKey: .sessionCoins)
-        coinBonus = try container.decodeIfPresent(Int.self, forKey: .coinBonus)
         healthKitWorkoutUUID = try container.decodeIfPresent(String.self, forKey: .healthKitWorkoutUUID)
     }
 
@@ -101,8 +92,6 @@ struct SwimSession: Codable, Identifiable, Equatable {
         try container.encode(date, forKey: .date)
         try container.encode(metrics, forKey: .metrics)
         try container.encode(excludeFromStats, forKey: .excludeFromStats)
-        try container.encodeIfPresent(coinsEarned, forKey: .coinsEarned)
-        try container.encodeIfPresent(coinBonus, forKey: .coinBonus)
         try container.encodeIfPresent(healthKitWorkoutUUID, forKey: .healthKitWorkoutUUID)
     }
 }
@@ -113,48 +102,6 @@ struct HealthKitImportResult: Equatable {
     var totalFound: Int
     var hasMoreAvailable: Bool = false
     var lastImportedSessionId: String?
-}
-
-struct CoinLineItem: Equatable {
-    var type: String
-    var coins: Int
-    var medalId: String?
-    var tier: String?
-    var fromTier: String?
-    var toTier: String?
-    var distanceM: Int?
-    var durationSec: Int?
-    var kcal: Int?
-    var avgPaceSec: Double?
-    var paceSec: Int?
-}
-
-struct UploadCoinResult: Equatable {
-    var sessionCoins: Int
-    var medalCoins: Int
-    var monthlyCoins: Int
-    var total: Int
-    var sessionLines: [CoinLineItem]
-    var bonusLines: [CoinLineItem]
-    var alreadyClaimed: Bool
-}
-
-struct ClaimMetrics: Codable, Equatable {
-    var distanceM: Int?
-    var durationSec: Int?
-    var paceSecPer100m: Int?
-    var timeRange: String
-}
-
-struct SpentCoinClaim: Codable, Equatable {
-    var date: String
-    var metrics: ClaimMetrics
-}
-
-struct MonthlySettlement: Codable, Equatable {
-    var coins: Int
-    var mascotId: String?
-    var appliedAt: String
 }
 
 struct MonthRerollEntry: Codable, Equatable {
@@ -215,7 +162,6 @@ struct SwimProfile: Codable, Equatable {
     var mascotSwitchMonthKey: String?
     var aiApiKey: String
     var activeAmbient: String?
-    var activeAppIcon: String?
 
     static let `default` = SwimProfile(
         name: "",
@@ -224,79 +170,128 @@ struct SwimProfile: Codable, Equatable {
         mascotId: nil,
         mascotSwitchMonthKey: nil,
         aiApiKey: "",
-        activeAmbient: nil,
-        activeAppIcon: nil
+        activeAmbient: nil
     )
-}
-
-struct WheelSpins: Codable, Equatable {
-    var date: String
-    var paidCount: Int
 
     enum CodingKeys: String, CodingKey {
-        case date, paidCount, dayKey, count
+        case name, sex, age, mascotId, mascotSwitchMonthKey, aiApiKey, activeAmbient, activeAppIcon
     }
 
-    init(date: String, paidCount: Int) {
-        self.date = date
-        self.paidCount = paidCount
+    init(
+        name: String,
+        sex: String,
+        age: Int,
+        mascotId: String?,
+        mascotSwitchMonthKey: String?,
+        aiApiKey: String,
+        activeAmbient: String?
+    ) {
+        self.name = name
+        self.sex = sex
+        self.age = age
+        self.mascotId = mascotId
+        self.mascotSwitchMonthKey = mascotSwitchMonthKey
+        self.aiApiKey = aiApiKey
+        self.activeAmbient = activeAmbient
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        date = try container.decodeIfPresent(String.self, forKey: .date)
-            ?? container.decodeIfPresent(String.self, forKey: .dayKey)
-            ?? ""
-        paidCount = try container.decodeIfPresent(Int.self, forKey: .paidCount)
-            ?? container.decodeIfPresent(Int.self, forKey: .count)
-            ?? 0
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+        sex = try container.decodeIfPresent(String.self, forKey: .sex) ?? "male"
+        age = try container.decodeIfPresent(Int.self, forKey: .age) ?? 30
+        mascotId = try container.decodeIfPresent(String.self, forKey: .mascotId)
+        mascotSwitchMonthKey = try container.decodeIfPresent(String.self, forKey: .mascotSwitchMonthKey)
+        aiApiKey = try container.decodeIfPresent(String.self, forKey: .aiApiKey) ?? ""
+        activeAmbient = try container.decodeIfPresent(String.self, forKey: .activeAmbient)
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(date, forKey: .date)
-        try container.encode(paidCount, forKey: .paidCount)
+        try container.encode(name, forKey: .name)
+        try container.encode(sex, forKey: .sex)
+        try container.encode(age, forKey: .age)
+        try container.encodeIfPresent(mascotId, forKey: .mascotId)
+        try container.encodeIfPresent(mascotSwitchMonthKey, forKey: .mascotSwitchMonthKey)
+        try container.encode(aiApiKey, forKey: .aiApiKey)
+        try container.encodeIfPresent(activeAmbient, forKey: .activeAmbient)
     }
 }
 
 struct SwimData: Codable, Equatable {
     var profile: SwimProfile
-    var monthlySettlements: [String: MonthlySettlement]
-    var totalCoins: Int
-    var coinsSpent: Int
     var sessions: [SwimSession]
-    var spentCoinClaims: [SpentCoinClaim]
-    var wheelSpins: WheelSpins?
-    var challengeRerollCredits: Int
-    var bonusWheelSpinCredits: Int
-    var storeUnlocks: [String]
     var monthlyChallengeRerolls: [String: MonthRerollEntry]
 
     static let empty = SwimData(
         profile: .default,
-        monthlySettlements: [:],
-        totalCoins: 0,
-        coinsSpent: 0,
         sessions: [],
-        spentCoinClaims: [],
-        wheelSpins: nil,
-        challengeRerollCredits: 0,
-        bonusWheelSpinCredits: 0,
-        storeUnlocks: [],
         monthlyChallengeRerolls: [:]
     )
+
+    enum CodingKeys: String, CodingKey {
+        case profile, sessions, monthlyChallengeRerolls
+        case totalCoins, coinsSpent, spentCoinClaims, wheelSpins
+        case challengeRerollCredits, bonusWheelSpinCredits, storeUnlocks, monthlySettlements
+    }
+
+    init(
+        profile: SwimProfile,
+        sessions: [SwimSession],
+        monthlyChallengeRerolls: [String: MonthRerollEntry]
+    ) {
+        self.profile = profile
+        self.sessions = sessions
+        self.monthlyChallengeRerolls = monthlyChallengeRerolls
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        profile = try container.decode(SwimProfile.self, forKey: .profile)
+        sessions = try container.decodeIfPresent([SwimSession].self, forKey: .sessions) ?? []
+        monthlyChallengeRerolls = try container.decodeIfPresent(
+            [String: MonthRerollEntry].self,
+            forKey: .monthlyChallengeRerolls
+        ) ?? [:]
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(profile, forKey: .profile)
+        try container.encode(sessions, forKey: .sessions)
+        try container.encode(monthlyChallengeRerolls, forKey: .monthlyChallengeRerolls)
+    }
 }
 
 struct SwimCheats: Codable, Equatable {
     var allMedalsUnlocked: Bool
     var previewMonthlyMedals: Bool
-    var allThemesUnlocked: Bool
 
     static let empty = SwimCheats(
         allMedalsUnlocked: false,
-        previewMonthlyMedals: false,
-        allThemesUnlocked: false
+        previewMonthlyMedals: false
     )
+
+    enum CodingKeys: String, CodingKey {
+        case allMedalsUnlocked, previewMonthlyMedals, allThemesUnlocked
+    }
+
+    init(allMedalsUnlocked: Bool, previewMonthlyMedals: Bool) {
+        self.allMedalsUnlocked = allMedalsUnlocked
+        self.previewMonthlyMedals = previewMonthlyMedals
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        allMedalsUnlocked = try container.decodeIfPresent(Bool.self, forKey: .allMedalsUnlocked) ?? false
+        previewMonthlyMedals = try container.decodeIfPresent(Bool.self, forKey: .previewMonthlyMedals) ?? false
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(allMedalsUnlocked, forKey: .allMedalsUnlocked)
+        try container.encode(previewMonthlyMedals, forKey: .previewMonthlyMedals)
+    }
 }
 
 struct ParsedScreenshotFields: Equatable {
@@ -472,12 +467,4 @@ enum SwimLevel: String {
 struct MascotSwitchResult: Equatable {
     var allowed: Bool
     var reason: String
-}
-
-struct MonthlyShortfallPenalty: Equatable {
-    var monthKey: String
-    var coins: Int
-    var achievedTier: String?
-    var requiredTier: String
-    var mascotId: String
 }

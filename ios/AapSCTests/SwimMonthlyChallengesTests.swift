@@ -88,18 +88,17 @@ final class SwimMonthlyChallengesTests: XCTestCase {
         XCTAssertEqual(after[1].type, base[1].type)
         XCTAssertEqual(after[2].type, base[2].type)
         XCTAssertTrue(SwimMonthlyChallenges.hasMonthlyChallengeReroll(monthKey, rerolls: rerolls))
-        XCTAssertFalse(SwimMonthlyChallenges.canRerollMonthlyChallenge(sessions: [], monthKey: monthKey, tierIndex: 1, rerolls: rerolls, credits: 0))
-        XCTAssertTrue(SwimMonthlyChallenges.canRerollMonthlyChallenge(sessions: [], monthKey: monthKey, tierIndex: 1, rerolls: rerolls, credits: 1))
-        XCTAssertTrue(SwimMonthlyChallenges.hasRerollAvailability(monthKey: monthKey, rerolls: rerolls, credits: 1))
+        XCTAssertFalse(SwimMonthlyChallenges.canRerollMonthlyChallenge(sessions: [], monthKey: monthKey, tierIndex: 1, rerolls: rerolls))
+        XCTAssertFalse(SwimMonthlyChallenges.hasRerollAvailability(monthKey: monthKey, rerolls: rerolls))
     }
 
     func testAllowsSecondFreeRerollWhenCoachGrantsTwo() {
         let monthKey = "2025-06"
         let rerolls = [monthKey: MonthRerollEntry(overrides: ["0": "kcal"], freeUses: 1)]
-        XCTAssertFalse(SwimMonthlyChallenges.hasRerollAvailability(monthKey: monthKey, rerolls: rerolls, credits: 0, freeLimit: 1))
-        XCTAssertTrue(SwimMonthlyChallenges.hasRerollAvailability(monthKey: monthKey, rerolls: rerolls, credits: 0, freeLimit: 2))
+        XCTAssertFalse(SwimMonthlyChallenges.hasRerollAvailability(monthKey: monthKey, rerolls: rerolls, freeLimit: 1))
+        XCTAssertTrue(SwimMonthlyChallenges.hasRerollAvailability(monthKey: monthKey, rerolls: rerolls, freeLimit: 2))
         XCTAssertTrue(SwimMonthlyChallenges.canRerollMonthlyChallenge(
-            sessions: [], monthKey: monthKey, tierIndex: 1, rerolls: rerolls, credits: 0, freeLimit: 2
+            sessions: [], monthKey: monthKey, tierIndex: 1, rerolls: rerolls, freeLimit: 2
         ))
     }
 

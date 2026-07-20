@@ -134,10 +134,9 @@ enum SwimMonthlyChallenges {
     static func hasRerollAvailability(
         monthKey: String,
         rerolls: [String: MonthRerollEntry],
-        credits: Int,
         freeLimit: Int = 1
     ) -> Bool {
-        getFreeMonthlyRerollsUsed(monthKey, rerolls: rerolls) < freeLimit || credits > 0
+        getFreeMonthlyRerollsUsed(monthKey, rerolls: rerolls) < freeLimit
     }
 
     static func createMonthlyChallengeReroll(
@@ -168,11 +167,10 @@ enum SwimMonthlyChallenges {
         monthKey: String,
         tierIndex: Int,
         rerolls: [String: MonthRerollEntry] = [:],
-        credits: Int = 0,
         intensity: Double = 1,
         freeLimit: Int = 1
     ) -> Bool {
-        guard hasRerollAvailability(monthKey: monthKey, rerolls: rerolls, credits: credits, freeLimit: freeLimit) else {
+        guard hasRerollAvailability(monthKey: monthKey, rerolls: rerolls, freeLimit: freeLimit) else {
             return false
         }
         let state = evaluateMonthlyChallenges(
@@ -198,14 +196,12 @@ enum SwimMonthlyChallenges {
         tierIndex: Int,
         mascotId: String
     ) -> SwimData? {
-        let credits = data.challengeRerollCredits
         let gameplay = MascotConstants.gameplay(mascotId)
         guard canRerollMonthlyChallenge(
             sessions: data.sessions,
             monthKey: monthKey,
             tierIndex: tierIndex,
             rerolls: data.monthlyChallengeRerolls,
-            credits: credits,
             intensity: gameplay.challengeIntensity,
             freeLimit: gameplay.freeMonthlyRerolls
         ) else {
@@ -223,15 +219,10 @@ enum SwimMonthlyChallenges {
 
         var next = data
         var monthEntry = normalizeMonthRerollEntry(next.monthlyChallengeRerolls[monthKey])
-        let useFree = monthEntry.freeUses < gameplay.freeMonthlyRerolls
-        if !useFree && credits < 1 { return nil }
+        guard monthEntry.freeUses < gameplay.freeMonthlyRerolls else { return nil }
 
         monthEntry.overrides[String(override.tierIndex)] = override.type
-        if useFree {
-            monthEntry.freeUses += 1
-        } else {
-            next.challengeRerollCredits -= 1
-        }
+        monthEntry.freeUses += 1
         next.monthlyChallengeRerolls[monthKey] = monthEntry
         return next
     }
@@ -284,44 +275,6 @@ enum SwimMonthlyChallenges {
         if seed == 0 { seed = 1 }
         seed = (seed &* 1_103_515_245 &+ 12_345) & 0x7fff_ffff
         return candidates[seed % candidates.count]
-    }
-
-    static func getMonthlyShortfallPenalty(
-        sessions: [SwimSession],
-        uploadMonthKey: String,
-        mascotId: String?,
-        rerolls: [String: MonthRerollEntry],
-        settledMonths: [String: MonthlySettlement]
-    ) -> MonthlyShortfallPenalty? {
-        guard let mascotId, !uploadMonthKey.isEmpty else { return nil }
-        let gameplay = MascotConstants.gameplay(mascotId)
-        guard let requiredTier = gameplay.requiredMonthlyTier, gameplay.monthlyPenaltyCoins > 0 else { return nil }
-
-        let parts = uploadMonthKey.split(separator: "-").compactMap { Int($0) }
-        guard parts.count == 2 else { return nil }
-        var components = DateComponents(year: parts[0], month: parts[1], day: 1)
-        components.month = (components.month ?? 1) - 1
-        guard let prevDate = Calendar.current.date(from: components) else { return nil }
-        let prevMonthKey = getMonthKey(prevDate)
-
-        if settledMonths[prevMonthKey] != nil { return nil }
-        if !sessions.contains(where: { $0.date.hasPrefix(prevMonthKey) }) { return nil }
-
-        let state = evaluateMonthlyChallenges(
-            sessions: sessions,
-            monthKey: prevMonthKey,
-            rerolls: rerolls,
-            intensity: gameplay.challengeIntensity
-        )
-        if tierRank(state.tier) >= tierRank(requiredTier) { return nil }
-
-        return MonthlyShortfallPenalty(
-            monthKey: prevMonthKey,
-            coins: gameplay.monthlyPenaltyCoins,
-            achievedTier: state.tier,
-            requiredTier: requiredTier,
-            mascotId: mascotId
-        )
     }
 
     static func generateMonthlyChallenges(

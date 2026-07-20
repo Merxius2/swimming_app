@@ -12,7 +12,6 @@ final class SwimViewModel: ObservableObject {
     @Published var ocrErrorMessage: String?
     @Published var parsedResult: ParsedScreenshotResult?
     @Published var uploadDraft = UploadDraft.empty
-    @Published var lastUploadCoinResult: UploadCoinResult?
     @Published var lastNewMedals: [EvaluatedMedal] = []
     @Published var duplicateSession: SwimSession?
     @Published var lastUploadFeedback: SessionFeedbackSummary?
@@ -44,15 +43,7 @@ final class SwimViewModel: ObservableObject {
 
     var sessions: [SwimSession] { data.sessions }
     var profile: SwimProfile { data.profile }
-    var totalCoins: Int { data.totalCoins }
-    var coinsSpent: Int { data.coinsSpent }
-    var spentCoinClaims: [SpentCoinClaim] { data.spentCoinClaims }
-    var storeUnlocks: [String] { data.storeUnlocks }
     var monthlyChallengeRerolls: [String: MonthRerollEntry] { data.monthlyChallengeRerolls }
-    var challengeRerollCredits: Int { data.challengeRerollCredits }
-    var bonusWheelSpinCredits: Int { data.bonusWheelSpinCredits }
-    var monthlySettlements: [String: MonthlySettlement] { data.monthlySettlements }
-    var wheelSpins: WheelSpins? { data.wheelSpins }
 
     var mascotId: String {
         MascotUnlock.resolveMascotId(
@@ -189,10 +180,9 @@ final class SwimViewModel: ObservableObject {
     func updateProfile(_ updates: (inout SwimProfile) -> Void) {
         var next = data
         updates(&next.profile)
-        next.profile = SwimCoinStore.sanitizeProfileCosmetics(
-            next.profile,
-            storeUnlocks: next.storeUnlocks
-        )
+        if let ambient = next.profile.activeAmbient, !AmbientCatalog.isValid(ambient) {
+            next.profile.activeAmbient = nil
+        }
         data = next
         invalidateDerivedCaches()
         persist(immediate: true)
@@ -220,8 +210,6 @@ final class SwimViewModel: ObservableObject {
     func addSession(
         date: String,
         metrics: SwimMetrics,
-        coinsEarned: Int,
-        coinBonus: Int = 0,
         healthKitWorkoutUUID: String? = nil
     ) -> SwimSession {
         let entry = SwimSession(
@@ -229,38 +217,16 @@ final class SwimViewModel: ObservableObject {
             createdAt: ISO8601DateFormatter().string(from: Date()),
             date: date,
             metrics: metrics,
-            coinsEarned: coinsEarned,
-            coinBonus: coinBonus,
             healthKitWorkoutUUID: healthKitWorkoutUUID
         )
         data.sessions.append(entry)
         data.sessions.sort { $0.date < $1.date }
-        data.totalCoins = max(0, data.totalCoins + coinsEarned + coinBonus)
         invalidateDerivedCaches()
         persist()
         return entry
     }
 
-    func applyMonthlySettlement(monthKey: String, coins: Int, mascotId: String?) {
-        guard !monthKey.isEmpty, data.monthlySettlements[monthKey] == nil else { return }
-        let deduction = min(max(0, coins), data.totalCoins)
-        data.totalCoins = max(0, data.totalCoins - deduction)
-        data.coinsSpent += deduction
-        data.monthlySettlements[monthKey] = MonthlySettlement(
-            coins: deduction,
-            mascotId: mascotId,
-            appliedAt: ISO8601DateFormatter().string(from: Date())
-        )
-        persist(immediate: true)
-    }
-
     func removeSession(id: String) {
-        guard let session = data.sessions.first(where: { $0.id == id }) else { return }
-        let coinsRemoved = SwimCoinClaims.sessionTotalCoins(session)
-        if coinsRemoved > 0 {
-            data.spentCoinClaims.append(SwimCoinClaims.createCoinClaim(session))
-        }
-        data.totalCoins = max(0, data.totalCoins - coinsRemoved)
         data.sessions.removeAll { $0.id == id }
         invalidateDerivedCaches()
         persist()
@@ -298,26 +264,6 @@ final class SwimViewModel: ObservableObject {
     func importDataString(_ exportString: String) async throws {
         let imported = try await SwimImportExport.parseImportString(exportString)
         replaceData(imported)
-        AppIconService.apply(
-            activeAppIcon: profile.activeAppIcon,
-            storeUnlocks: storeUnlocks
-        )
-    }
-
-    func adjustCoins(delta: Int) {
-        data.totalCoins = max(0, data.totalCoins + delta)
-        if delta < 0 {
-            data.coinsSpent += abs(delta)
-            persist(immediate: true)
-        } else {
-            persist()
-        }
-    }
-
-    func recordWheelPaidSpin() {
-        let today = SwimWheelSpins.getWheelSpinDayKey()
-        data.wheelSpins = SwimWheelSpins.recordPaidSpin(data.wheelSpins, today: today)
-        persist(immediate: true)
     }
 
     @discardableResult
@@ -332,45 +278,6 @@ final class SwimViewModel: ObservableObject {
         }
         data = next
         invalidateDerivedCaches()
-        persist(immediate: true)
-        return true
-    }
-
-    @discardableResult
-    func purchaseStoreItem(_ itemId: String) -> Bool {
-        if SwimCoinStore.isConsumableStoreItem(itemId) {
-            guard let next = SwimCoinStore.applyConsumableStorePurchase(data: data, itemId: itemId) else {
-                return false
-            }
-            data = next
-            persist(immediate: true)
-            return true
-        }
-
-        guard let update = SwimCoinStore.purchaseStoreItemUpdate(
-            id: itemId,
-            storeUnlocks: data.storeUnlocks,
-            totalCoins: data.totalCoins,
-            coinsSpent: data.coinsSpent
-        ) else {
-            return false
-        }
-
-        data.storeUnlocks = update.storeUnlocks
-        data.totalCoins = update.totalCoins
-        data.coinsSpent = update.coinsSpent
-
-        if itemId.hasPrefix("ambient:") {
-            data.profile.activeAmbient = itemId
-        } else if itemId.hasPrefix("icon:") {
-            data.profile.activeAppIcon = itemId
-            AppIconService.apply(activeAppIcon: itemId, storeUnlocks: data.storeUnlocks)
-        }
-
-        data.profile = SwimCoinStore.sanitizeProfileCosmetics(
-            data.profile,
-            storeUnlocks: data.storeUnlocks
-        )
         persist(immediate: true)
         return true
     }
@@ -415,17 +322,8 @@ final class SwimViewModel: ObservableObject {
 
         let metrics = uploadDraft.toMetrics()
         let date = uploadDraft.resolvedDate
-        let coinResult = lastUploadCoinResult ?? UploadCoinResult(
-            sessionCoins: 0, medalCoins: 0, monthlyCoins: 0, total: 0,
-            sessionLines: [], bonusLines: [], alreadyClaimed: false
-        )
 
-        let saved = addSession(
-            date: date,
-            metrics: metrics,
-            coinsEarned: coinResult.sessionCoins,
-            coinBonus: coinResult.medalCoins + coinResult.monthlyCoins
-        )
+        let saved = addSession(date: date, metrics: metrics)
 
         lastUploadFeedback = SwimAnalysis.buildPersonalFeedback(
             session: saved,
@@ -436,8 +334,6 @@ final class SwimViewModel: ObservableObject {
         isEnhancingUploadFeedback = !profile.aiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         Task { await enhanceUploadFeedback(for: saved) }
 
-        lastUploadCoinResult = coinResult
-        // Keep lastNewMedals for celebration sheet; clear draft state separately via clearUploadDraft()
         parsedResult = nil
         selectedPhotoItem = nil
         duplicateSession = nil
@@ -453,7 +349,6 @@ final class SwimViewModel: ObservableObject {
     }
 
     func clearUploadCelebrationState() {
-        lastUploadCoinResult = nil
         lastNewMedals = []
         lastUploadFeedback = nil
         isEnhancingUploadFeedback = false
@@ -583,17 +478,6 @@ final class SwimViewModel: ObservableObject {
         )
     }
 
-    func validateThemeSelection(preferences: UserPreferencesService) {
-        let unlocked = SwimCoinStore.isThemeUnlocked(
-            preferences.themeCode,
-            storeUnlocks: storeUnlocks,
-            allThemesUnlocked: cheats.allThemesUnlocked
-        ) || preferences.themeCode == AppThemes.defaultCode
-        if !unlocked {
-            preferences.setTheme(AppThemes.defaultCode)
-        }
-    }
-
     private func enhanceUploadFeedback(for session: SwimSession) async {
         defer { isEnhancingUploadFeedback = false }
         guard !profile.aiApiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -637,7 +521,6 @@ final class SwimViewModel: ObservableObject {
         let metrics = uploadDraft.toMetrics()
         let date = uploadDraft.resolvedDate
         let candidate = SwimSession(date: date, metrics: metrics)
-        let coinResult = prepareSessionSave(candidate: candidate)
 
         let sessionsAfter = sessions + [candidate]
         lastNewMedals = SwimMedals.getNewlyEarnedMedals(
@@ -645,46 +528,7 @@ final class SwimViewModel: ObservableObject {
             sessionsAfter: sessionsAfter,
             allMedalsUnlocked: cheats.allMedalsUnlocked
         )
-        lastUploadCoinResult = coinResult
         return true
-    }
-
-    private func prepareSessionSave(
-        candidate: SwimSession,
-        sessionsBefore: [SwimSession]? = nil
-    ) -> UploadCoinResult {
-        let sessionsBefore = sessionsBefore ?? sessions
-        let mascot = mascotId
-        let intensity = MascotConstants.gameplay(mascot).challengeIntensity
-        let monthKey = String(candidate.date.prefix(7))
-
-        if let penalty = SwimMonthlyChallenges.getMonthlyShortfallPenalty(
-            sessions: sessionsBefore,
-            uploadMonthKey: monthKey,
-            mascotId: mascot,
-            rerolls: monthlyChallengeRerolls,
-            settledMonths: monthlySettlements
-        ) {
-            applyMonthlySettlement(monthKey: penalty.monthKey, coins: penalty.coins, mascotId: penalty.mascotId)
-        }
-
-        let sessionsAfter = sessionsBefore + [candidate]
-        let newMedals = SwimMedals.getNewlyEarnedMedals(
-            sessionsBefore: sessionsBefore,
-            sessionsAfter: sessionsAfter,
-            allMedalsUnlocked: cheats.allMedalsUnlocked
-        )
-        return SwimCoins.calculateUploadCoins(
-            session: candidate,
-            sessionsBefore: sessionsBefore,
-            sessionsAfter: sessionsAfter,
-            newMedals: newMedals,
-            spentCoinClaims: spentCoinClaims,
-            mascotId: mascot,
-            monthKey: monthKey,
-            rerolls: monthlyChallengeRerolls,
-            intensity: intensity
-        )
     }
 
     private func importHealthKitWorkouts(
@@ -703,7 +547,6 @@ final class SwimViewModel: ObservableObject {
         var importedCount = 0
         var skippedCount = 0
         var runningSessions = sessions
-        var coinDelta = 0
         var importedSessions: [SwimSession] = []
 
         for workout in fetchResult.workouts {
@@ -724,23 +567,16 @@ final class SwimViewModel: ObservableObject {
                 continue
             }
 
-            let coinResult = prepareSessionSave(
-                candidate: candidate,
-                sessionsBefore: runningSessions
-            )
             let entry = SwimSession(
                 id: SwimStorageService.createSessionId(),
                 createdAt: ISO8601DateFormatter().string(from: Date()),
                 date: workout.date,
                 metrics: workout.metrics,
-                coinsEarned: coinResult.sessionCoins,
-                coinBonus: coinResult.medalCoins + coinResult.monthlyCoins,
                 healthKitWorkoutUUID: workout.id
             )
             runningSessions.append(entry)
             runningSessions.sort { $0.date < $1.date }
             importedSessions.append(entry)
-            coinDelta += coinResult.sessionCoins + coinResult.medalCoins + coinResult.monthlyCoins
             importedCount += 1
 
             if importedCount.isMultiple(of: 10) {
@@ -750,7 +586,6 @@ final class SwimViewModel: ObservableObject {
 
         if importedCount > 0 {
             data.sessions = runningSessions
-            data.totalCoins = max(0, data.totalCoins + coinDelta)
             invalidateDerivedCaches()
             persist(immediate: true)
         }
