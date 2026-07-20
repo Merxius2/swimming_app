@@ -69,7 +69,9 @@ struct MascotSpeechBubbleView: View {
     private var toneIcon: some View {
         switch tone {
         case .reward:
-            CoinsIcon(size: 18)
+            Image(systemName: "medal.fill")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(.yellow)
         case .tip:
             Image(systemName: "lightbulb.fill")
                 .font(.system(size: 18, weight: .semibold))
