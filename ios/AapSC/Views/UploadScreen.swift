@@ -6,7 +6,6 @@ struct UploadScreen: View {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.dismiss) private var dismiss
 
-    @State private var showMedalSheet = false
     @State private var showDuplicateConfirm = false
     @State private var duplicateConfirmTitle = ""
     @State private var duplicateConfirmSaveLabel = ""
@@ -63,9 +62,6 @@ struct UploadScreen: View {
                 if !duplicateConfirmMessage.isEmpty {
                     Text(duplicateConfirmMessage)
                 }
-            }
-            .sheet(isPresented: $showMedalSheet) {
-                MedalCelebrationSheet(medals: viewModel.lastNewMedals)
             }
             .sheet(isPresented: $showDateModal) {
                 dateRequiredSheet
@@ -257,10 +253,6 @@ struct UploadScreen: View {
 
         uploadSaved = true
         viewModel.clearUploadDraft()
-
-        if !viewModel.lastNewMedals.isEmpty {
-            showMedalSheet = true
-        }
     }
 
     private func resetForAnotherUpload() {

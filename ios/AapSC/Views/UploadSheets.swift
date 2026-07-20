@@ -5,40 +5,83 @@ struct MedalCelebrationSheet: View {
     let medals: [EvaluatedMedal]
     @Environment(\.dismiss) private var dismiss
 
+    private var titleKey: String {
+        medals.count == 1 ? "medals.celebration.title" : "medals.celebration.titleMultiple"
+    }
+
+    private var subtitle: String {
+        if medals.count == 1 {
+            return preferences.t("medals.celebration.subtitleOne")
+        }
+        return preferences.t(
+            "medals.celebration.subtitleMultiple",
+            params: ["count": "\(medals.count)"]
+        )
+    }
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                Image(systemName: "medal.fill")
-                    .font(.system(size: 56))
-                    .foregroundStyle(.yellow)
+            ZStack {
+                ConfettiView()
+                    .ignoresSafeArea()
 
-                Text(preferences.t("medals.celebration.titleMultiple"))
-                    .themeFont(.title, weight: .bold)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        Image(systemName: "medal.fill")
+                            .font(.system(size: 56))
+                            .foregroundStyle(.yellow)
+                            .shadow(color: .yellow.opacity(0.35), radius: 12)
 
-                ForEach(medals) { medal in
-                    HStack {
-                        Text(medal.id.replacingOccurrences(of: "_", with: " ").capitalized)
-                        Spacer()
-                        Text(medal.tier.capitalized)
-                            .themeFont(.caption, weight: .bold)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.yellow.opacity(0.2), in: Capsule())
+                        Text(preferences.t(titleKey))
+                            .themeFont(.title2, weight: .bold)
+                            .multilineTextAlignment(.center)
+
+                        Text(subtitle)
+                            .themeFont(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+
+                        VStack(spacing: 12) {
+                            ForEach(medals) { medal in
+                                HStack(spacing: 12) {
+                                    MedalIconView(
+                                        id: medal.id,
+                                        tier: medal.tier,
+                                        earned: true,
+                                        size: 40
+                                    )
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(SwimMedalCopy.title(for: medal.id, t: preferences.translations))
+                                            .themeFont(.subheadline, weight: .semibold)
+                                        Text(medal.tier.capitalized)
+                                            .themeFont(.caption, weight: .bold)
+                                            .foregroundStyle(.secondary)
+                                    }
+
+                                    Spacer(minLength: 0)
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            }
+                        }
+                        .padding(.horizontal)
                     }
-                    .padding(.horizontal)
+                    .padding(.top, 24)
+                    .padding(.bottom, 16)
                 }
-
-                Spacer()
             }
-            .padding(.top, 32)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(preferences.t("settings.confirm")) { dismiss() }
+                    Button(preferences.t("medals.celebration.continue")) { dismiss() }
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
+        .presentationBackground(.ultraThinMaterial)
     }
 }
 

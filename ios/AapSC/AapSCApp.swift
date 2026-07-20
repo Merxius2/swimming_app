@@ -24,6 +24,13 @@ private struct AppRootView: View {
     @State private var launchFlowPhase: LaunchFlowPhase = .searching
     @State private var launchFeedback: SessionFeedbackSummary?
     @State private var isEnhancingLaunchFeedback = false
+    @State private var showMedalCelebration = false
+
+    private var canShowMedalCelebration: Bool {
+        showMedalCelebration
+            && !showLaunchSessionFlow
+            && viewModel.pendingMedalCelebration != nil
+    }
 
     private var appIsDark: Bool {
         preferences.isDarkModeActive(systemColorScheme: systemColorScheme)
@@ -69,6 +76,31 @@ private struct AppRootView: View {
                     .environmentObject(preferences)
                     .preferredColorScheme(preferences.colorScheme)
                 }
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { canShowMedalCelebration },
+            set: { isPresented in
+                if !isPresented {
+                    showMedalCelebration = false
+                    viewModel.clearMedalCelebration()
+                }
+            }
+        )) {
+            if let medals = viewModel.pendingMedalCelebration {
+                MedalCelebrationSheet(medals: medals)
+                    .environmentObject(preferences)
+                    .preferredColorScheme(preferences.colorScheme)
+            }
+        }
+        .onChange(of: viewModel.pendingMedalCelebration) { _, medals in
+            if let medals, !medals.isEmpty {
+                showMedalCelebration = true
+            }
+        }
+        .onChange(of: showLaunchSessionFlow) { _, isShowing in
+            if !isShowing, viewModel.pendingMedalCelebration != nil {
+                showMedalCelebration = true
             }
         }
         .task(priority: .utility) {

@@ -61,6 +61,7 @@
 		B10000000000000000000060 /* SwimFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000060 /* SwimFeedback.swift */; };
 		B10000000000000000000061 /* MedalIconGlyphs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000061 /* MedalIconGlyphs.swift */; };
 		B10000000000000000000062 /* ResetDataModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000062 /* ResetDataModal.swift */; };
+		B10000000000000000000063 /* ConfettiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000063 /* ConfettiView.swift */; };
 		B10000000000000000000064 /* ThemeTypography.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000064 /* ThemeTypography.swift */; };
 		B10000000000000000000066 /* Oxanium-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000066 /* Oxanium-Regular.ttf */; };
 		B10000000000000000000067 /* Oxanium-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000067 /* Oxanium-Medium.ttf */; };
@@ -153,6 +154,7 @@
 		F10000000000000000000060 /* SwimFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimFeedback.swift; sourceTree = "<group>"; };
 		F10000000000000000000061 /* MedalIconGlyphs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MedalIconGlyphs.swift; sourceTree = "<group>"; };
 		F10000000000000000000062 /* ResetDataModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetDataModal.swift; sourceTree = "<group>"; };
+		F10000000000000000000063 /* ConfettiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiView.swift; sourceTree = "<group>"; };
 		F10000000000000000000064 /* ThemeTypography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeTypography.swift; sourceTree = "<group>"; };
 		F10000000000000000000066 /* Oxanium-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Regular.ttf"; sourceTree = "<group>"; };
 		F10000000000000000000067 /* Oxanium-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Oxanium-Medium.ttf"; sourceTree = "<group>"; };
@@ -292,6 +294,7 @@
 				F10000000000000000000059 /* MascotChoiceCardView.swift */,
 				F10000000000000000000061 /* MedalIconGlyphs.swift */,
 				F10000000000000000000062 /* ResetDataModal.swift */,
+				F10000000000000000000063 /* ConfettiView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -524,6 +527,7 @@
 				B10000000000000000000059 /* MascotChoiceCardView.swift in Sources */,
 				B10000000000000000000061 /* MedalIconGlyphs.swift in Sources */,
 				B10000000000000000000062 /* ResetDataModal.swift in Sources */,
+				B10000000000000000000063 /* ConfettiView.swift in Sources */,
 				B10000000000000000000074 /* HealthKitService.swift in Sources */,
 				B10000000000000000000075 /* SwimNotifications.swift in Sources */,
 				B10000000000000000000064 /* ThemeTypography.swift in Sources */,
