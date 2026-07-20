@@ -4,7 +4,7 @@ import Charts
 struct BenchmarkScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
-    @Environment(\.openSettings) private var openSettings
+    @Environment(\.openSettingsTab) private var openSettingsTab
     @Environment(\.openUpload) private var openUpload
 
     var body: some View {
@@ -92,7 +92,7 @@ struct BenchmarkScreen: View {
                 Text(preferences.t("benchmark.profileRequired"))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
-                Button(action: openSettings) {
+                Button(action: openSettingsTab) {
                     Text(preferences.t("benchmark.goSettings"))
                         .frame(maxWidth: .infinity)
                 }

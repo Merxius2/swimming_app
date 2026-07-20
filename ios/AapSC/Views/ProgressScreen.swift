@@ -5,7 +5,7 @@ struct ProgressScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.openUpload) private var openUpload
-    @Environment(\.openSettings) private var openSettings
+    @Environment(\.openSettingsTab) private var openSettingsTab
 
     @State private var chartsInteractive = false
     @State private var selectedPaceDate: String?
@@ -89,7 +89,7 @@ struct ProgressScreen: View {
                         .themeFont(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
-                    Button(action: openSettings) {
+                    Button(action: openSettingsTab) {
                         Text(preferences.t("progress.emptyCta"))
                             .themeFont(.subheadline, weight: .semibold)
                             .frame(maxWidth: .infinity)

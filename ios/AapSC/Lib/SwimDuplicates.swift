@@ -8,25 +8,6 @@ enum SwimDuplicates {
         return coreMetricsMatch(date: a.date, metricsA: a.metrics, metricsB: b.metrics)
     }
 
-    static func coreMetricsMatch(_ claim: SpentCoinClaim, _ candidate: SwimSession) -> Bool {
-        guard claim.date == candidate.date else { return false }
-        let claimMetrics = SwimMetrics(
-            durationSec: claim.metrics.durationSec,
-            distanceM: claim.metrics.distanceM,
-            activeKcal: nil,
-            totalKcal: nil,
-            paceSecPer100m: claim.metrics.paceSecPer100m,
-            avgHeartRate: nil,
-            laps: nil,
-            poolLengthM: 25,
-            goalM: nil,
-            location: "",
-            timeRange: claim.metrics.timeRange,
-            strokes: .empty
-        )
-        return coreMetricsMatch(date: claim.date, metricsA: claimMetrics, metricsB: candidate.metrics)
-    }
-
     static func findDuplicateSession(
         _ sessions: [SwimSession],
         candidate: SwimSession,
