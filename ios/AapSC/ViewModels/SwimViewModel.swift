@@ -426,18 +426,19 @@ final class SwimViewModel: ObservableObject {
         }
     }
 
-    func shouldPerformLaunchSessionSearch() -> Bool {
+    func shouldPerformLaunchSessionSearch() async -> Bool {
         guard !hasAttemptedHealthKitAutoSync else { return false }
-        guard HealthKitService.isAvailable, HealthKitService.isAuthorizedForWorkouts else { return false }
+        guard await HealthKitService.isReadyForLaunchSync() else { return false }
         return !isWithinHealthKitAutoSyncThrottle()
     }
 
     @discardableResult
     func performLaunchSessionSearch() async -> SwimSession? {
         guard !hasAttemptedHealthKitAutoSync else { return nil }
-        hasAttemptedHealthKitAutoSync = true
-        guard HealthKitService.isAvailable, HealthKitService.isAuthorizedForWorkouts else { return nil }
+        guard await HealthKitService.isReadyForLaunchSync() else { return nil }
         guard !isWithinHealthKitAutoSyncThrottle() else { return nil }
+
+        hasAttemptedHealthKitAutoSync = true
 
         await syncHealthKitWorkouts(
             requestAuthorizationIfNeeded: false,

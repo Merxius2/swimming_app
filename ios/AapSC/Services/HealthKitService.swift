@@ -54,9 +54,36 @@ enum HealthKitService {
         return status == .sharingAuthorized
     }
 
+    /// Read permission cannot be checked directly; use request status and prior prompts instead.
+    static func isReadyForLaunchSync() async -> Bool {
+        guard isAvailable else { return false }
+        if hasRequestedWorkoutAccess { return true }
+        let status = await authorizationRequestStatus()
+        return status == .unnecessary
+    }
+
+    static func markWorkoutAccessRequested() {
+        UserDefaults.standard.set(true, forKey: workoutAccessRequestedKey)
+    }
+
+    private static let workoutAccessRequestedKey = "HEALTHKIT_WORKOUT_ACCESS_REQUESTED"
+
+    private static var hasRequestedWorkoutAccess: Bool {
+        UserDefaults.standard.bool(forKey: workoutAccessRequestedKey)
+    }
+
+    private static func authorizationRequestStatus() async -> HKAuthorizationRequestStatus {
+        await withCheckedContinuation { continuation in
+            store.getRequestStatusForAuthorization(toShare: [], read: readTypes) { status, _ in
+                continuation.resume(returning: status)
+            }
+        }
+    }
+
     static func requestAuthorization() async throws {
         guard isAvailable else { throw HealthKitServiceError.unavailable }
         try await store.requestAuthorization(toShare: [], read: readTypes)
+        markWorkoutAccessRequested()
     }
 
     /// Fetches swim workouts not yet imported, optionally enriching each with heart rate data.

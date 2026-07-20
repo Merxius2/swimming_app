@@ -118,11 +118,14 @@ private struct AppRootView: View {
 
     @MainActor
     private func performLaunchSessionSearchIfNeeded() async {
-        guard viewModel.shouldPerformLaunchSessionSearch() else { return }
+        guard await viewModel.shouldPerformLaunchSessionSearch() else { return }
 
         launchFlowPhase = .searching
         showLaunchSessionFlow = true
-        guard let importedSession = await viewModel.performLaunchSessionSearch() else {
+
+        async let importedSession = viewModel.performLaunchSessionSearch()
+        try? await Task.sleep(for: .milliseconds(900))
+        guard let importedSession = await importedSession else {
             showLaunchSessionFlow = false
             return
         }
