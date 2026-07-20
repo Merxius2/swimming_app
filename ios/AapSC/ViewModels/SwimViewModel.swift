@@ -12,7 +12,7 @@ final class SwimViewModel: ObservableObject {
     @Published var ocrErrorMessage: String?
     @Published var parsedResult: ParsedScreenshotResult?
     @Published var uploadDraft = UploadDraft.empty
-    @Published var lastNewMedals: [EvaluatedMedal] = []
+    @Published var pendingMedalCelebration: [EvaluatedMedal]?
     @Published var duplicateSession: SwimSession?
     @Published var lastUploadFeedback: SessionFeedbackSummary?
     @Published var isEnhancingUploadFeedback = false
@@ -349,9 +349,31 @@ final class SwimViewModel: ObservableObject {
     }
 
     func clearUploadCelebrationState() {
-        lastNewMedals = []
         lastUploadFeedback = nil
         isEnhancingUploadFeedback = false
+    }
+
+    func clearMedalCelebration() {
+        pendingMedalCelebration = nil
+    }
+
+    func queueNewMedals(sessionsBefore: [SwimSession], sessionsAfter: [SwimSession]) {
+        let newlyEarned = SwimMedals.getNewlyEarnedMedals(
+            sessionsBefore: sessionsBefore,
+            sessionsAfter: sessionsAfter,
+            allMedalsUnlocked: cheats.allMedalsUnlocked
+        )
+        guard !newlyEarned.isEmpty else { return }
+
+        if var existing = pendingMedalCelebration {
+            let existingIds = Set(existing.map(\.id))
+            for medal in newlyEarned where !existingIds.contains(medal.id) {
+                existing.append(medal)
+            }
+            pendingMedalCelebration = existing
+        } else {
+            pendingMedalCelebration = newlyEarned
+        }
     }
 
     func syncHealthKitWorkouts(
@@ -522,12 +544,7 @@ final class SwimViewModel: ObservableObject {
         let date = uploadDraft.resolvedDate
         let candidate = SwimSession(date: date, metrics: metrics)
 
-        let sessionsAfter = sessions + [candidate]
-        lastNewMedals = SwimMedals.getNewlyEarnedMedals(
-            sessionsBefore: sessions,
-            sessionsAfter: sessionsAfter,
-            allMedalsUnlocked: cheats.allMedalsUnlocked
-        )
+        queueNewMedals(sessionsBefore: sessions, sessionsAfter: sessions + [candidate])
         return true
     }
 
@@ -544,6 +561,7 @@ final class SwimViewModel: ObservableObject {
             enrichHeartRate: enrichHeartRate
         )
 
+        let sessionsBefore = sessions
         var importedCount = 0
         var skippedCount = 0
         var runningSessions = sessions
@@ -588,6 +606,7 @@ final class SwimViewModel: ObservableObject {
             data.sessions = runningSessions
             invalidateDerivedCaches()
             persist(immediate: true)
+            queueNewMedals(sessionsBefore: sessionsBefore, sessionsAfter: runningSessions)
         }
 
         let hasMoreAvailable = fetchResult.workouts.count >= maxImports

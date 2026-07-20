@@ -34,6 +34,7 @@ struct ContentView: View {
                 .preferredColorScheme(preferences.colorScheme)
         }
         .environment(\.openUpload, { showUpload = true })
+        .environment(\.openSettingsTab, { selectedTab = 2 })
     }
 
     @ViewBuilder
@@ -59,10 +60,19 @@ private struct OpenUploadKey: EnvironmentKey {
     static let defaultValue: () -> Void = {}
 }
 
+private struct OpenSettingsTabKey: EnvironmentKey {
+    static let defaultValue: () -> Void = {}
+}
+
 extension EnvironmentValues {
     var openUpload: () -> Void {
         get { self[OpenUploadKey.self] }
         set { self[OpenUploadKey.self] = newValue }
+    }
+
+    var openSettingsTab: () -> Void {
+        get { self[OpenSettingsTabKey.self] }
+        set { self[OpenSettingsTabKey.self] = newValue }
     }
 }
 
