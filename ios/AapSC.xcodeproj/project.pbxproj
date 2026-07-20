@@ -101,6 +101,7 @@
 		B20000000000000000000016 /* SwimBenchmarksTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000016 /* SwimBenchmarksTests.swift */; };
 		B20000000000000000000017 /* SwimWheelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000017 /* SwimWheelTests.swift */; };
 		B20000000000000000000018 /* SwimWheelSpinsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000018 /* SwimWheelSpinsTests.swift */; };
+		B20000000000000000000020 /* ChartMovingAverageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000020 /* ChartMovingAverageTests.swift */; };
 		B20000000000000000000019 /* XCTest.framework in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* XCTest.framework */; };
 		C5B5E60A300CCB2B0092F38E /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F20000000000000000000019 /* XCTest.framework */; };
 /* End PBXBuildFile section */
@@ -212,6 +213,7 @@
 		F20000000000000000000016 /* SwimBenchmarksTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimBenchmarksTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000017 /* SwimWheelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000018 /* SwimWheelSpinsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimWheelSpinsTests.swift; sourceTree = "<group>"; };
+		F20000000000000000000020 /* ChartMovingAverageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartMovingAverageTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000019 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		P10000000000000000000001 /* AapSC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AapSC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		P10000000000000000000002 /* AapSCTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AapSCTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -424,6 +426,7 @@
 				F20000000000000000000016 /* SwimBenchmarksTests.swift */,
 				F20000000000000000000017 /* SwimWheelTests.swift */,
 				F20000000000000000000018 /* SwimWheelSpinsTests.swift */,
+				F20000000000000000000020 /* ChartMovingAverageTests.swift */,
 				F20000000000000000000019 /* XCTest.framework */,
 			);
 			path = AapSCTests;
@@ -620,6 +623,7 @@
 				B20000000000000000000016 /* SwimBenchmarksTests.swift in Sources */,
 				B20000000000000000000017 /* SwimWheelTests.swift in Sources */,
 				B20000000000000000000018 /* SwimWheelSpinsTests.swift in Sources */,
+				B20000000000000000000020 /* ChartMovingAverageTests.swift in Sources */,
 				B20000000000000000000019 /* XCTest.framework in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
