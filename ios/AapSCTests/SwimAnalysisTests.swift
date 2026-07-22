@@ -109,4 +109,29 @@ final class SwimAnalysisTests: XCTestCase {
         XCTAssertEqual(combined.sessionCount, 2)
         XCTAssertEqual(combined.totalDistanceM, 4500)
     }
+
+    func testFiltersSessionsByChartScope() {
+        let sessions = [
+            TestFixtures.session(id: "1", date: "2025-01-15", metrics: TestFixtures.metrics(distanceM: 1000)),
+            TestFixtures.session(id: "2", date: "2025-06-01", metrics: TestFixtures.metrics(distanceM: 2000)),
+            TestFixtures.session(id: "3", date: "2025-06-10", metrics: TestFixtures.metrics(distanceM: 2500)),
+        ]
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let reference = calendar.date(from: DateComponents(year: 2025, month: 6, day: 15))!
+
+        XCTAssertEqual(SwimAnalysis.filterSessions(sessions, scope: .allTime).count, 3)
+        XCTAssertEqual(
+            SwimAnalysis.filterSessions(sessions, scope: .month, referenceDate: reference, calendar: calendar).map(\.id),
+            ["2", "3"]
+        )
+        XCTAssertEqual(
+            SwimAnalysis.filterSessions(sessions, scope: .ytd, referenceDate: reference, calendar: calendar).count,
+            3
+        )
+        XCTAssertEqual(
+            SwimAnalysis.filterSessions(sessions, scope: .quarter, referenceDate: reference, calendar: calendar).map(\.id),
+            ["2", "3"]
+        )
+    }
 }

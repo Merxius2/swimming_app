@@ -8,6 +8,7 @@ struct ProgressScreen: View {
     @Environment(\.openSettingsTab) private var openSettingsTab
 
     @State private var chartsInteractive = false
+    @State private var chartScope: ProgressChartScope = .allTime
     @State private var selectedPaceDate: String?
     @State private var selectedDistanceDate: String?
     @State private var selectedCaloriesDate: String?
@@ -17,7 +18,8 @@ struct ProgressScreen: View {
     private let paceTeal = Color(red: 0.078, green: 0.722, blue: 0.651)
 
     var body: some View {
-        let chartPoints = viewModel.progressChartPoints
+        let chartPoints = scopedChartPoints
+        let weeklyVolume = scopedWeeklyVolume
 
         NavigationStack {
             ScrollView(.vertical, showsIndicators: true) {
@@ -44,11 +46,12 @@ struct ProgressScreen: View {
                             )
                         }
                         chartsSectionHeader
+                        chartScopePicker
                         paceChart(points: chartPoints)
                         distanceChart(points: chartPoints)
                         caloriesChart(points: chartPoints)
                         heartRateChart(points: chartPoints)
-                        volumeChart
+                        volumeChart(weekly: weeklyVolume)
                         strokeMixChart
                     }
                 }
@@ -61,6 +64,29 @@ struct ProgressScreen: View {
             .themedNavigationBar()
             .themedPageBackground()
         }
+        .onChange(of: chartScope) { _, _ in
+            clearChartSelections()
+        }
+    }
+
+    private var scopedSessions: [SwimSession] {
+        SwimAnalysis.filterSessions(viewModel.sessions, scope: chartScope)
+    }
+
+    private var scopedChartPoints: [ChartSessionPoint] {
+        ChartMovingAverage.enrichChartSessions(SwimAnalysis.chartSessions(scopedSessions))
+    }
+
+    private var scopedWeeklyVolume: [WeeklyVolumePoint] {
+        ChartMovingAverage.enrichWeeklyVolume(SwimAnalysis.weeklyVolumeData(scopedSessions))
+    }
+
+    private func clearChartSelections() {
+        selectedPaceDate = nil
+        selectedDistanceDate = nil
+        selectedCaloriesDate = nil
+        selectedHeartRateDate = nil
+        selectedVolumeWeek = nil
     }
 
     private var emptyState: some View {
@@ -193,9 +219,35 @@ struct ProgressScreen: View {
 
     @ViewBuilder
     private var strokeMixChart: some View {
-        let slices = viewModel.progressStrokeChartSlices(t: preferences.translations)
+        let slices = SwimAnalysis.strokeChartData(scopedSessions, t: preferences.translations)
         if !slices.isEmpty {
             StrokeDonutChart(slices: slices)
+        }
+    }
+
+    private var chartScopePicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(ProgressChartScope.allCases) { scope in
+                    Button {
+                        chartScope = scope
+                    } label: {
+                        Text(preferences.t(scope.nameKey))
+                            .themeFont(.caption, weight: chartScope == scope ? .semibold : .regular)
+                            .foregroundStyle(chartScope == scope ? Color("BrandBlue") : .secondary)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background {
+                                Capsule()
+                                    .fill(chartScope == scope
+                                        ? Color("BrandBlue").opacity(0.14)
+                                        : Color.secondary.opacity(0.12))
+                            }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 4)
         }
     }
 
@@ -482,8 +534,7 @@ struct ProgressScreen: View {
         }
     }
 
-    private var volumeChart: some View {
-        let weekly = viewModel.progressWeeklyVolume
+    private func volumeChart(weekly: [WeeklyVolumePoint]) -> some View {
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 Text(preferences.t("progress.weeklyVolume"))

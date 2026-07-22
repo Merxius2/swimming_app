@@ -71,6 +71,7 @@
 		B10000000000000000000074 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000074 /* HealthKitService.swift */; };
 		B10000000000000000000075 /* SwimNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000076 /* SwimNotifications.swift */; };
 		B10000000000000000000077 /* ChartMovingAverage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000077 /* ChartMovingAverage.swift */; };
+		B10000000000000000000079 /* ProgressChartScope.swift in Sources */ = {isa = PBXBuildFile; fileRef = F10000000000000000000079 /* ProgressChartScope.swift */; };
 		B20000000000000000000001 /* TestFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000001 /* TestFixtures.swift */; };
 		B20000000000000000000002 /* ScreenshotParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000002 /* ScreenshotParserTests.swift */; };
 		B20000000000000000000003 /* SwimImportExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20000000000000000000003 /* SwimImportExportTests.swift */; };
@@ -165,6 +166,7 @@
 		F10000000000000000000075 /* AapSC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AapSC.entitlements; sourceTree = "<group>"; };
 		F10000000000000000000076 /* SwimNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimNotifications.swift; sourceTree = "<group>"; };
 		F10000000000000000000077 /* ChartMovingAverage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartMovingAverage.swift; sourceTree = "<group>"; };
+		F10000000000000000000079 /* ProgressChartScope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressChartScope.swift; sourceTree = "<group>"; };
 		F20000000000000000000001 /* TestFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestFixtures.swift; sourceTree = "<group>"; };
 		F20000000000000000000002 /* ScreenshotParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotParserTests.swift; sourceTree = "<group>"; };
 		F20000000000000000000003 /* SwimImportExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwimImportExportTests.swift; sourceTree = "<group>"; };
@@ -321,6 +323,7 @@
 				F10000000000000000000053 /* MascotPresentation.swift */,
 				F10000000000000000000064 /* ThemeTypography.swift */,
 				F10000000000000000000077 /* ChartMovingAverage.swift */,
+				F10000000000000000000079 /* ProgressChartScope.swift */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -532,6 +535,7 @@
 				B10000000000000000000075 /* SwimNotifications.swift in Sources */,
 				B10000000000000000000064 /* ThemeTypography.swift in Sources */,
 				B10000000000000000000077 /* ChartMovingAverage.swift in Sources */,
+				B10000000000000000000079 /* ProgressChartScope.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
