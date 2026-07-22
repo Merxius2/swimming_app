@@ -42,8 +42,8 @@ struct MedalsScreen: View {
             .navigationTitle(preferences.t("medals.title"))
             .navigationBarTitleDisplayMode(.inline)
             .themedNavigationBar()
+            .themedPageBackground()
         }
-        .themedPageBackground()
     }
 
     private func statsCard(medals: [EvaluatedMedal]) -> some View {

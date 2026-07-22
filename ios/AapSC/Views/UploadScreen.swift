@@ -66,8 +66,8 @@ struct UploadScreen: View {
             .sheet(isPresented: $showDateModal) {
                 dateRequiredSheet
             }
+            .themedPageBackground()
         }
-        .themedPageBackground()
     }
 
     private var canSave: Bool {

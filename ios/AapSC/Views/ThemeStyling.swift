@@ -984,6 +984,23 @@ extension View {
     func themedCard() -> some View {
         modifier(ThemedCardModifier())
     }
+
+    /// Keeps grouped Form rows readable over wallpaper/vibes without per-row rounded pills.
+    func themedListRowBackground() -> some View {
+        modifier(ThemedListRowBackgroundModifier())
+    }
+}
+
+private struct ThemedListRowBackgroundModifier: ViewModifier {
+    @Environment(\.ambientBackgroundVisible) private var ambientBackgroundVisible
+
+    func body(content: Content) -> some View {
+        if ambientBackgroundVisible {
+            content.listRowBackground(Rectangle().fill(.thinMaterial))
+        } else {
+            content
+        }
+    }
 }
 
 extension AppThemeDefinition {

@@ -88,8 +88,8 @@ struct HistoryScreen: View {
                 }
                 Button(preferences.t("common.cancel"), role: .cancel) { deleteId = nil }
             }
+            .themedPageBackground()
         }
-        .themedPageBackground()
     }
 }
 

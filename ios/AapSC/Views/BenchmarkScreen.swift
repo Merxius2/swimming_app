@@ -82,8 +82,8 @@ struct BenchmarkScreen: View {
             .navigationBarTitleDisplayMode(.inline)
             .swimTopBarActions()
             .themedNavigationBar()
+            .themedPageBackground()
         }
-        .themedPageBackground()
     }
 
     private var profileRequiredCard: some View {

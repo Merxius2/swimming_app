@@ -91,9 +91,9 @@ struct MedalCelebrationSheet: View {
                 }
             }
             .themedNavigationBar()
+            .themedPageBackground()
         }
         .presentationDetents([.medium, .large])
-        .themedPageBackground()
     }
 }
 

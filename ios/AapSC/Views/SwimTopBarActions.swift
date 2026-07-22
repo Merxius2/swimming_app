@@ -9,7 +9,6 @@ struct SwimTopBarActionsModifier: ViewModifier {
 struct ThemedNavigationModifier: ViewModifier {
     @EnvironmentObject private var preferences: UserPreferencesService
     @Environment(\.appIsDark) private var appIsDark
-    @Environment(\.ambientBackgroundVisible) private var ambientBackgroundVisible
 
     private var profile: ThemeVisualProfile {
         ThemeVisualProfiles.profile(
@@ -23,12 +22,7 @@ struct ThemedNavigationModifier: ViewModifier {
         let nav = profile.navBar
         let theme = preferences.themeColors
 
-        if ambientBackgroundVisible {
-            content
-                .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
-                .tint(profile.displayPrimary)
-        } else if let gradient = nav.gradient {
+        if let gradient = nav.gradient {
             content
                 .toolbarBackground(
                     LinearGradient(

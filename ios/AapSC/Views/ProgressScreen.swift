@@ -59,8 +59,8 @@ struct ProgressScreen: View {
             .navigationTitle(preferences.t("progress.title"))
             .navigationBarTitleDisplayMode(.inline)
             .themedNavigationBar()
+            .themedPageBackground()
         }
-        .themedPageBackground()
     }
 
     private var emptyState: some View {

@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 struct SettingsScreen: View {
     @EnvironmentObject private var viewModel: SwimViewModel
@@ -7,7 +6,6 @@ struct SettingsScreen: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openUpload) private var openUpload
     @Environment(\.appIsDark) private var appIsDark
-    @Environment(\.ambientBackgroundVisible) private var ambientBackgroundVisible
 
     var embedded: Bool = false
 
@@ -25,16 +23,6 @@ struct SettingsScreen: View {
         return TabBarLayout.totalHeight(for: profile.tabBar) + TabBarLayout.bottomPadding + 24
     }
 
-    @ViewBuilder
-    private var formRowBackground: some View {
-        if ambientBackgroundVisible {
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(.thinMaterial)
-        } else {
-            Color(UIColor.secondarySystemGroupedBackground)
-        }
-    }
-
     var body: some View {
         NavigationStack {
             Form {
@@ -47,7 +35,6 @@ struct SettingsScreen: View {
                 uploadSection
                 ambientSection
             }
-            .scrollContentBackground(.hidden)
             .safeAreaPadding(.bottom, tabBarScrollInset)
             .navigationTitle(preferences.t("settings.title"))
             .navigationBarTitleDisplayMode(.inline)
@@ -65,23 +52,23 @@ struct SettingsScreen: View {
                 SecretSettingsSheet()
             }
             .themedNavigationBar()
+            .themedPageBackground()
         }
-        .themedPageBackground()
     }
 
     private var profileSection: some View {
         Section(preferences.t("settings.profileTitle")) {
             TextField(preferences.t("settings.swimmerNamePlaceholder"), text: binding(\.name))
-                .listRowBackground(formRowBackground)
+                .themedListRowBackground()
             Picker(preferences.t("settings.sex"), selection: binding(\.sex)) {
                 Text(preferences.t("settings.sexMale")).tag("male")
                 Text(preferences.t("settings.sexFemale")).tag("female")
             }
-            .listRowBackground(formRowBackground)
+            .themedListRowBackground()
             Stepper(value: ageBinding, in: 10...99) {
                 Text(preferences.t("settings.age") + ": \(viewModel.profile.age)")
             }
-            .listRowBackground(formRowBackground)
+            .themedListRowBackground()
         }
     }
 
@@ -101,7 +88,7 @@ struct SettingsScreen: View {
                     Text(preferences.translations.languageDisplayName(code)).tag(code)
                 }
             }
-            .listRowBackground(formRowBackground)
+            .themedListRowBackground()
         }
     }
 
@@ -122,7 +109,7 @@ struct SettingsScreen: View {
                         }
                     }
                 }
-                .listRowBackground(formRowBackground)
+                .themedListRowBackground()
             }
         }
     }
@@ -165,8 +152,10 @@ struct SettingsScreen: View {
                     }
                 }
                 .padding(.vertical, 4)
+                .padding(.horizontal, 20)
             }
-            .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 12, trailing: 16))
+            .scrollClipDisabled()
+            .listRowInsets(EdgeInsets(top: 8, leading: -20, bottom: 12, trailing: -20))
             .listRowBackground(Color.clear)
         } header: {
             Text(preferences.t("settings.wallpaperTitle"))
@@ -176,10 +165,10 @@ struct SettingsScreen: View {
     private var darkModeSection: some View {
         Section(preferences.t("settings.darkMode")) {
             Toggle(preferences.t("settings.autoDarkMode"), isOn: autoDarkBinding)
-                .listRowBackground(formRowBackground)
+                .themedListRowBackground()
             if !preferences.isAutoDarkMode {
                 Toggle(preferences.t("settings.darkMode"), isOn: darkModeBinding)
-                    .listRowBackground(formRowBackground)
+                    .themedListRowBackground()
             }
         }
     }
@@ -189,7 +178,7 @@ struct SettingsScreen: View {
             Text(preferences.t("settings.uploadDesc"))
                 .themeFont(.caption)
                 .foregroundStyle(.secondary)
-                .listRowBackground(formRowBackground)
+                .themedListRowBackground()
             Button(preferences.t("settings.uploadCta")) {
                 if embedded {
                     openUpload()
@@ -200,7 +189,7 @@ struct SettingsScreen: View {
                     }
                 }
             }
-            .listRowBackground(formRowBackground)
+            .themedListRowBackground()
         }
     }
 
@@ -209,7 +198,7 @@ struct SettingsScreen: View {
             Text(preferences.t("settings.ambientDesc"))
                 .themeFont(.caption)
                 .foregroundStyle(.secondary)
-                .listRowBackground(formRowBackground)
+                .themedListRowBackground()
 
             Picker(preferences.t("settings.activeAmbient"), selection: ambientBinding) {
                 Text(preferences.t("settings.ambientDefault")).tag(Optional<String>.none)
@@ -217,7 +206,7 @@ struct SettingsScreen: View {
                     Text(preferences.t(AmbientCatalog.nameKey(for: id))).tag(Optional(id))
                 }
             }
-            .listRowBackground(formRowBackground)
+            .themedListRowBackground()
         }
     }
 
